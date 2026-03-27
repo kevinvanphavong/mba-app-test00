@@ -18,8 +18,8 @@ class ServiceRepository extends ServiceEntityRepository
     {
         $now = new \DateTimeImmutable();
 
-        // Avant 6h → on est encore dans la journée d'hier (service de nuit)
-        $referenceDate = (int)$now->format('H') < 6
+        // Avant 5h → on est encore dans la journée d'hier (service de nuit)
+        $referenceDate = (int)$now->format('H') < 5
             ? $now->modify('-1 day')
             : $now;
 
@@ -35,17 +35,6 @@ class ServiceRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
 
         return $service ? $service : null;
-    }
-
-
-    public function findToday(int $centreId): ?Service
-    {
-        return $this->createQueryBuilder('s')
-            ->andWhere('s.centre = :centreId')
-            ->andWhere('s.date = :today')
-            ->setParameter('centreId', $centreId)
-            ->setParameter('today', new \DateTimeImmutable('today'), Types::DATE_IMMUTABLE)
-            ->getQuery()->getOneOrNullResult();
     }
 
     public function findRecent(int $centreId, int $limit = 10): array

@@ -66,7 +66,7 @@ class DashboardController extends AbstractController
 
     private function buildServiceSection(int $centreId): array
     {
-        $service = $this->serviceRepo->findToday($centreId);
+        $service = $this->serviceRepo->findTodayActive($centreId);
         if (!$service) {
             return ['today' => null, 'tauxOccupation' => 0.0];
         }
