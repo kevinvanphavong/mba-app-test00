@@ -13,7 +13,7 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\IncidentRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -33,8 +33,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "is_granted('ROLE_USER') and is_granted('VIEW', object)"
         ),
         new Post(
-            description:             'Signaler un incident (tout membre du centre)',
-            securityPostDenormalize: "is_granted('CREATE', object)"
+            description: 'Signaler un incident (tout membre du centre)',
+            security:    "is_granted('ROLE_USER')"
         ),
         new Put(
             description: 'Mettre à jour un incident (MANAGER ou auteur)',

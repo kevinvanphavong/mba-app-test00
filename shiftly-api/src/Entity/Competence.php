@@ -15,7 +15,7 @@ use App\Repository\CompetenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -75,6 +75,10 @@ class Competence
     #[Groups(['competence:read', 'competence:write', 'staffcompetence:read'])]
     private string $difficulte = self::DIFF_SIMPLE;
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['competence:read', 'competence:write'])]
+    private ?string $description = null;
+
     #[ORM\OneToMany(mappedBy: 'competence', targetEntity: StaffCompetence::class, cascade: ['remove'])]
     private Collection $staffCompetences;
 
@@ -92,5 +96,7 @@ class Competence
     public function setPoints(int $points): static { $this->points = $points; return $this; }
     public function getDifficulte(): string { return $this->difficulte; }
     public function setDifficulte(string $difficulte): static { $this->difficulte = $difficulte; return $this; }
+    public function getDescription(): ?string { return $this->description; }
+    public function setDescription(?string $description): static { $this->description = $description; return $this; }
     public function getStaffCompetences(): Collection { return $this->staffCompetences; }
 }

@@ -12,7 +12,7 @@ use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\CompletionRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
  * Cocher une mission dans un Poste.
@@ -31,8 +31,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
             security: "is_granted('ROLE_USER') and is_granted('VIEW', object)"
         ),
         new Post(
-            description:             'Cocher une mission (tout employé affecté)',
-            securityPostDenormalize: "is_granted('CREATE', object)"
+            description: 'Cocher une mission (tout employé affecté)',
+            security:    "is_granted('ROLE_USER')"
         ),
         new Delete(
             description: 'Décocher une mission',

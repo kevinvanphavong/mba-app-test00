@@ -21,12 +21,33 @@ class MissionRepository extends ServiceEntityRepository
             ->getQuery()->getResult();
     }
 
-    public function findByZoneAndType(int $zoneId, string $type): array
+    public function findByZoneAndCategorie(int $zoneId, string $categorie): array
     {
         return $this->createQueryBuilder('m')
             ->andWhere('m.zone = :zoneId')->setParameter('zoneId', $zoneId)
-            ->andWhere('m.type = :type')->setParameter('type', $type)
+            ->andWhere('m.categorie = :categorie')->setParameter('categorie', $categorie)
             ->orderBy('m.ordre', 'ASC')
+            ->getQuery()->getResult();
+    }
+
+    /**
+     * Missions d'un poste dans un service :
+     * - Toutes les missions FIXES de la zone
+     * - Toutes les missions PONCTUELLES liées à cette zone ET ce service
+     */
+    public function findForService(int $zoneId, int $serviceId): array
+    {
+        return $this->createQueryBuilder('m')
+            ->andWhere('m.zone = :zoneId')
+            ->andWhere(
+                '(m.frequence = :fixe) OR (m.frequence = :ponct AND m.service = :serviceId)'
+            )
+            ->setParameter('zoneId', $zoneId)
+            ->setParameter('fixe', 'FIXE')
+            ->setParameter('ponct', 'PONCTUELLE')
+            ->setParameter('serviceId', $serviceId)
+            ->orderBy('m.ordre', 'ASC')
+            ->addOrderBy('m.id', 'ASC')
             ->getQuery()->getResult();
     }
 }

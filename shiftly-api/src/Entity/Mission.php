@@ -13,7 +13,7 @@ use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\MissionRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MissionRepository::class)]
@@ -29,18 +29,24 @@ use Symfony\Component\Validator\Constraints as Assert;
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: [
-    'texte'    => 'partial',
-    'type'     => 'exact',         // ?type=OUVERTURE
-    'priorite' => 'exact',         // ?priorite=vitale
-    'zone'     => 'exact',         // ?zone=/api/zones/1
+    'texte'     => 'partial',
+    'categorie' => 'exact',    // ?categorie=OUVERTURE
+    'frequence' => 'exact',    // ?frequence=FIXE
+    'priorite'  => 'exact',    // ?priorite=vitale
+    'zone'      => 'exact',    // ?zone=/api/zones/1
 ])]
-#[ApiFilter(OrderFilter::class, properties: ['ordre', 'type', 'priorite'])]
+#[ApiFilter(OrderFilter::class, properties: ['ordre', 'categorie', 'priorite'])]
 class Mission
 {
-    const TYPE_OUVERTURE  = 'OUVERTURE';
-    const TYPE_SERVICE    = 'SERVICE';
-    const TYPE_MENAGE     = 'MENAGE';
-    const TYPE_FERMETURE  = 'FERMETURE';
+    /** Catégorie — moment de la journée */
+    const CAT_OUVERTURE = 'OUVERTURE';
+    const CAT_PENDANT   = 'PENDANT';
+    const CAT_MENAGE    = 'MENAGE';
+    const CAT_FERMETURE = 'FERMETURE';
+
+    /** Fréquence — récurrente ou ponctuelle */
+    const FREQ_FIXE       = 'FIXE';
+    const FREQ_PONCTUELLE = 'PONCTUELLE';
 
     const PRIO_VITALE          = 'vitale';
     const PRIO_IMPORTANT       = 'important';
@@ -60,9 +66,15 @@ class Mission
     #[Groups(['mission:read', 'mission:write', 'completion:read'])]
     private ?string $texte = null;
 
+    /** Catégorie : OUVERTURE | PENDANT | MENAGE | FERMETURE */
     #[ORM\Column(length: 30)]
     #[Groups(['mission:read', 'mission:write', 'completion:read'])]
-    private string $type = self::TYPE_SERVICE;
+    private string $categorie = self::CAT_PENDANT;
+
+    /** Fréquence : FIXE (récurrente à chaque service) | PONCTUELLE (liée à un service) */
+    #[ORM\Column(length: 20)]
+    #[Groups(['mission:read', 'mission:write'])]
+    private string $frequence = self::FREQ_FIXE;
 
     #[ORM\Column(length: 30)]
     #[Groups(['mission:read', 'mission:write', 'completion:read'])]
@@ -72,15 +84,35 @@ class Mission
     #[Groups(['mission:read', 'mission:write'])]
     private int $ordre = 0;
 
+    /**
+     * Service auquel la mission est rattachée (missions PONCTUELLES uniquement).
+     * NULL pour les missions FIXES (elles appartiennent à la zone, pas à un service).
+     */
+    #[ORM\ManyToOne(targetEntity: Service::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups(['mission:read', 'mission:write'])]
+    private ?Service $service = null;
+
     public function getId(): ?int { return $this->id; }
+
     public function getZone(): ?Zone { return $this->zone; }
     public function setZone(?Zone $zone): static { $this->zone = $zone; return $this; }
+
     public function getTexte(): ?string { return $this->texte; }
     public function setTexte(string $texte): static { $this->texte = $texte; return $this; }
-    public function getType(): string { return $this->type; }
-    public function setType(string $type): static { $this->type = $type; return $this; }
+
+    public function getCategorie(): string { return $this->categorie; }
+    public function setCategorie(string $categorie): static { $this->categorie = $categorie; return $this; }
+
+    public function getFrequence(): string { return $this->frequence; }
+    public function setFrequence(string $frequence): static { $this->frequence = $frequence; return $this; }
+
     public function getPriorite(): string { return $this->priorite; }
     public function setPriorite(string $p): static { $this->priorite = $p; return $this; }
+
     public function getOrdre(): int { return $this->ordre; }
     public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+
+    public function getService(): ?Service { return $this->service; }
+    public function setService(?Service $service): static { $this->service = $service; return $this; }
 }

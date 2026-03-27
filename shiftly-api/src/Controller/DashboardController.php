@@ -48,8 +48,6 @@ class DashboardController extends AbstractController
         /** @var User $currentUser */
         $currentUser = $this->getUser();
 
-        dump($currentUser->getCentre()?->getId(), $centreId);
-        die();
         // Multi-tenant guard — un employé ne peut consulter que son centre
         if ($currentUser->getCentre()?->getId() !== $centreId) {
             throw $this->createAccessDeniedException('Accès refusé à ce centre.');

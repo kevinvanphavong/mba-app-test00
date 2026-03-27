@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
@@ -16,10 +17,17 @@ use App\Repository\ServiceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
+#[ORM\Table(name: 'service')]
+#[ORM\UniqueConstraint(name: 'uniq_service_centre_date', columns: ['centre_id', 'date'])]
+#[UniqueEntity(
+    fields:  ['centre', 'date'],
+    message: 'Un service existe déjà pour cette date.'
+)]
 #[ApiResource(
     normalizationContext:   ['groups' => ['service:read']],
     denormalizationContext: ['groups' => ['service:write']],
@@ -33,11 +41,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: ['groups' => ['service:read', 'service:item:read']]
         ),
         new Post(
-            security:                  "is_granted('ROLE_MANAGER')",
-            securityPostDenormalize:   "is_granted('CREATE', object)"
+            security:                "is_granted('ROLE_MANAGER')",
+            securityPostDenormalize: "is_granted('CREATE', object)"
         ),
         new Put(
             security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"
+        ),
+        new Patch(
+            description: 'Mise à jour partielle (note, statut…)',
+            security:    "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"
         ),
         new Delete(
             security: "is_granted('ROLE_MANAGER') and is_granted('DELETE', object)"
@@ -62,22 +74,31 @@ class Service
     #[Groups(['service:read', 'service:write'])]
     private ?Centre $centre = null;
 
-    #[ORM\Column(type: 'date')]
+    #[ORM\Column(type: 'date_immutable')]
     #[Assert\NotNull]
     #[Groups(['service:read', 'service:write'])]
-    private ?\DateTimeInterface $date = null;
+    private ?\DateTimeImmutable $date = null;
 
-    #[ORM\Column(type: 'time', nullable: true)]
+    #[ORM\Column(type: 'time_immutable', nullable: true)]
     #[Groups(['service:read', 'service:write'])]
-    private ?\DateTimeInterface $heureDebut = null;
+    private ?\DateTimeImmutable $heureDebut = null;
 
-    #[ORM\Column(type: 'time', nullable: true)]
+    #[ORM\Column(type: 'time_immutable', nullable: true)]
     #[Groups(['service:read', 'service:write'])]
-    private ?\DateTimeInterface $heureFin = null;
+    private ?\DateTimeImmutable $heureFin = null;
 
     #[ORM\Column(length: 20)]
     #[Groups(['service:read', 'service:write'])]
     private string $statut = self::STATUT_PLANIFIE;
+
+    #[ORM\Column(type: 'float', options: ['default' => 0])]
+    #[Groups(['service:read', 'service:write'])]
+    private float $tauxCompletion = 0.0;
+
+    /** Note libre laissée par le manager pour passer des informations aux collègues */
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['service:read', 'service:write'])]
+    private ?string $note = null;
 
     /** Postes du jour — exposés uniquement dans l'item */
     #[ORM\OneToMany(mappedBy: 'service', targetEntity: Poste::class, cascade: ['remove'])]
@@ -96,14 +117,18 @@ class Service
     public function getId(): ?int { return $this->id; }
     public function getCentre(): ?Centre { return $this->centre; }
     public function setCentre(?Centre $c): static { $this->centre = $c; return $this; }
-    public function getDate(): ?\DateTimeInterface { return $this->date; }
-    public function setDate(?\DateTimeInterface $d): static { $this->date = $d; return $this; }
-    public function getHeureDebut(): ?\DateTimeInterface { return $this->heureDebut; }
-    public function setHeureDebut(?\DateTimeInterface $v): static { $this->heureDebut = $v; return $this; }
-    public function getHeureFin(): ?\DateTimeInterface { return $this->heureFin; }
-    public function setHeureFin(?\DateTimeInterface $v): static { $this->heureFin = $v; return $this; }
+    public function getDate(): ?\DateTimeImmutable { return $this->date; }
+    public function setDate(?\DateTimeImmutable $d): static { $this->date = $d; return $this; }
+    public function getHeureDebut(): ?\DateTimeImmutable { return $this->heureDebut; }
+    public function setHeureDebut(?\DateTimeImmutable $v): static { $this->heureDebut = $v; return $this; }
+    public function getHeureFin(): ?\DateTimeImmutable { return $this->heureFin; }
+    public function setHeureFin(?\DateTimeImmutable $v): static { $this->heureFin = $v; return $this; }
     public function getStatut(): string { return $this->statut; }
     public function setStatut(string $statut): static { $this->statut = $statut; return $this; }
+    public function getTauxCompletion(): float { return $this->tauxCompletion; }
+    public function setTauxCompletion(float $v): static { $this->tauxCompletion = $v; return $this; }
+    public function getNote(): ?string { return $this->note; }
+    public function setNote(?string $note): static { $this->note = $note; return $this; }
     public function getPostes(): Collection { return $this->postes; }
     public function getIncidents(): Collection { return $this->incidents; }
 }

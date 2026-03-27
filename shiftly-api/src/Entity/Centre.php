@@ -15,7 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CentreRepository::class)]
@@ -57,6 +57,10 @@ class Centre
     #[Groups(['centre:read', 'centre:write'])]
     private ?string $slug = null;
 
+    #[ORM\Column(type: 'json', nullable: true)]
+    #[Groups(['centre:read', 'centre:write'])]
+    private ?array $openingHours = null;
+
     #[ORM\Column]
     #[Groups(['centre:read'])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -84,6 +88,9 @@ class Centre
             $this->slug = trim($slug, '-');
         }
     }
+
+    public function getOpeningHours(): ?array { return $this->openingHours; }
+    public function setOpeningHours(?array $openingHours): static { $this->openingHours = $openingHours; return $this; }
 
     public function getId(): ?int { return $this->id; }
     public function getNom(): ?string { return $this->nom; }

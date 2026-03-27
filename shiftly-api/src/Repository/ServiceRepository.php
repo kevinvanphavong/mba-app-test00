@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Service;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 class ServiceRepository extends ServiceEntityRepository
@@ -13,13 +14,37 @@ class ServiceRepository extends ServiceEntityRepository
         parent::__construct($registry, Service::class);
     }
 
+    public function findTodayActive(int $centreId): ?Service
+    {
+        $now = new \DateTimeImmutable();
+
+        // Avant 6h → on est encore dans la journée d'hier (service de nuit)
+        $referenceDate = (int)$now->format('H') < 6
+            ? $now->modify('-1 day')
+            : $now;
+
+        // JOIN sur centre pour charger les horaires en une seule requête
+        $service = $this->createQueryBuilder('s')
+            ->innerJoin('s.centre', 'c')
+            ->addSelect('c')
+            ->andWhere('s.centre = :centreId')
+            ->andWhere('s.date = :date')
+            ->setParameter('centreId', $centreId)
+            ->setParameter('date', $referenceDate, Types::DATE_IMMUTABLE)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return $service ? $service : null;
+    }
+
+
     public function findToday(int $centreId): ?Service
     {
         return $this->createQueryBuilder('s')
             ->andWhere('s.centre = :centreId')
             ->andWhere('s.date = :today')
             ->setParameter('centreId', $centreId)
-            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->setParameter('today', new \DateTimeImmutable('today'), Types::DATE_IMMUTABLE)
             ->getQuery()->getOneOrNullResult();
     }
 
@@ -30,6 +55,16 @@ class ServiceRepository extends ServiceEntityRepository
             ->setParameter('centreId', $centreId)
             ->orderBy('s.date', 'DESC')
             ->setMaxResults($limit)
+            ->getQuery()->getResult();
+    }
+
+    /** Tous les services d'un centre, triés par date décroissante */
+    public function findByCentreDesc(int $centreId): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.centre = :centreId')
+            ->setParameter('centreId', $centreId)
+            ->orderBy('s.date', 'DESC')
             ->getQuery()->getResult();
     }
 

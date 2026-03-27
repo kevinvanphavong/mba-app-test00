@@ -7,6 +7,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    # Hash bcrypt de "bowling123" (cost 12) — utilisé dans les fixtures
+    fixture_password_hash: '$2y$12$6Cg1WMC8d0t5GWoKq4fBZOzb1f.5GXXjMd3WQq7Sk5Y7I7UfEg7da'
 
 services:
     # default configuration for services in *this* file
