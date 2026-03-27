@@ -1,43 +1,37 @@
 'use client'
 
-import { cn } from '@/lib/cn'
-import MissionItem from './MissionItem'
-import type { ServicePoste } from '@/types/service'
+import { cn }         from '@/lib/cn'
+import MissionItem    from './MissionItem'
+import type { ServiceZoneData, ServiceZone } from '@/types/service'
 
 interface ZoneCardProps {
-  /** Toutes les postes de la même zone, regroupées */
-  postes:           ServicePoste[]
-  completions:      Record<number, boolean>   // missionId → completed
+  zone:             ServiceZoneData
+  completions:      Record<number, boolean>  // missionId → completed
   loadingMissions:  Set<number>
-  onToggle:         (missionId: number, completed: boolean, posteId: number) => void
+  onToggle:         (missionId: number, completed: boolean, zoneId: number) => void
+  onAddPonctuelle?: (zone: ServiceZone) => void
+  onAssign?:        (zone: ServiceZone) => void   // MANAGER : assigner un membre
+  onRemoveStaff?:   (posteId: number) => void     // MANAGER : retirer un membre
 }
 
 export default function ZoneCard({
-  postes,
+  zone,
   completions,
   loadingMissions,
   onToggle,
+  onAddPonctuelle,
+  onAssign,
+  onRemoveStaff,
 }: ZoneCardProps) {
-  if (postes.length === 0) return null
-
-  const zone       = postes[0].zone
-  const allMissions = postes.flatMap(p => p.missions)
-  const totalMissions = allMissions.length
-  const doneMissions  = allMissions.filter(m => completions[m.id]).length
+  const totalMissions = zone.missions.length
+  const doneMissions  = zone.missions.filter(m => completions[m.id]).length
   const pct           = totalMissions > 0 ? Math.round((doneMissions / totalMissions) * 100) : 0
-
-  // Staff assigné à cette zone (dedupliqué)
-  const assignedStaff = postes
-    .map(p => p.user)
-    .filter((u): u is NonNullable<typeof u> => u !== null)
-    .filter((u, i, arr) => arr.findIndex(x => x.id === u.id) === i)
 
   return (
     <div className="bg-surface border border-border rounded-[18px] overflow-hidden">
       {/* ── Zone header ── */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3">
         <div className="flex items-center gap-2">
-          {/* Color dot */}
           <span
             className="w-2.5 h-2.5 rounded-full flex-shrink-0"
             style={{ background: zone.couleur }}
@@ -50,11 +44,8 @@ export default function ZoneCard({
           </h3>
         </div>
 
-        {/* Completion badge */}
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-muted">
-            {doneMissions}/{totalMissions}
-          </span>
+          <span className="text-[11px] text-muted">{doneMissions}/{totalMissions}</span>
           <span
             className={cn(
               'text-[10px] font-extrabold px-2 py-0.5 rounded-[6px]',
@@ -81,71 +72,96 @@ export default function ZoneCard({
       </div>
 
       {/* Staff row */}
-      {assignedStaff.length > 0 && (
-        <div className="flex items-center gap-1.5 px-4 mb-3">
-          {assignedStaff.map(member => {
-            const initials = member.nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-            return (
+      <div className="flex items-center gap-1.5 px-4 mb-3 flex-wrap">
+        {zone.postes.map(poste => {
+          if (!poste.user) return null
+          const { user } = poste
+          const initials = user.nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+
+          return (
+            <div
+              key={poste.id}
+              className="flex items-center gap-1.5 px-2 py-1 rounded-[8px] border group"
+              style={{
+                background:  `${user.avatarColor}15`,
+                borderColor: `${user.avatarColor}30`,
+              }}
+            >
               <div
-                key={member.id}
-                className="flex items-center gap-1.5 px-2 py-1 rounded-[8px] border"
-                style={{
-                  background:   `${member.avatarColor}15`,
-                  borderColor:  `${member.avatarColor}30`,
-                }}
+                className="w-5 h-5 rounded-[5px] flex items-center justify-center text-white font-extrabold text-[9px] flex-shrink-0"
+                style={{ background: user.avatarColor }}
               >
-                <div
-                  className="w-5 h-5 rounded-[5px] flex items-center justify-center text-white font-extrabold text-[9px] flex-shrink-0"
-                  style={{ background: member.avatarColor }}
-                >
-                  {initials}
-                </div>
-                <span
-                  className="text-[11px] font-semibold"
-                  style={{ color: member.avatarColor }}
-                >
-                  {member.nom}
-                </span>
+                {initials}
               </div>
-            )
-          })}
-        </div>
-      )}
+              <span
+                className="text-[11px] font-semibold"
+                style={{ color: user.avatarColor }}
+              >
+                {user.nom}
+              </span>
+              {/* Bouton retirer — visible au hover ou tap (MANAGER seulement) */}
+              {onRemoveStaff && (
+                <button
+                  onClick={e => { e.stopPropagation(); onRemoveStaff(poste.id) }}
+                  className="w-3.5 h-3.5 rounded-full bg-red/20 text-red flex items-center justify-center
+                             text-[8px] font-extrabold leading-none
+                             opacity-0 group-hover:opacity-100 transition-opacity duration-150
+                             hover:bg-red/40 active:scale-90 ml-0.5"
+                  title={`Retirer ${user.nom} de la zone`}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          )
+        })}
 
-      {/* ── Missions grouped by poste ── */}
+        {/* Bouton assigner */}
+        {onAssign && (
+          <button
+            onClick={() => onAssign(zone)}
+            className="flex items-center gap-1 px-2 py-1 rounded-[8px] border border-dashed border-border
+                       text-[11px] font-semibold text-muted hover:text-text hover:border-border/80
+                       transition-colors duration-150"
+          >
+            <span className="text-[13px] font-bold leading-none">+</span>
+            Assigner
+          </button>
+        )}
+      </div>
+
+      {/* ── Missions ── */}
       <div className="px-3 pb-3 flex flex-col gap-1">
-        {postes.map(poste => (
-          <div key={poste.id}>
-            {/* Poste divider (only if multiple postes in zone) */}
-            {postes.length > 1 && poste.user && (
-              <div className="flex items-center gap-2 px-1 mb-1 mt-2 first:mt-0">
-                <div
-                  className="w-4 h-4 rounded-[4px] flex items-center justify-center text-white font-extrabold text-[8px] flex-shrink-0"
-                  style={{ background: poste.user.avatarColor }}
-                >
-                  {poste.user.nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
-                </div>
-                <span className="text-[10px] text-muted font-medium">{poste.user.nom}</span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-            )}
+        {/* Bouton mission ponctuelle */}
+        {onAddPonctuelle && (
+          <button
+            onClick={() => onAddPonctuelle(zone)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-dashed border-border
+                       text-[11px] font-semibold text-muted hover:text-text hover:border-border/80
+                       transition-colors duration-150 mb-1"
+          >
+            <span className="text-[13px] font-bold">+</span>
+            Ajouter une mission ponctuelle
+          </button>
+        )}
 
-            {poste.missions
-              .slice()
-              .sort((a, b) => a.ordre - b.ordre)
-              .map(mission => (
-                <MissionItem
-                  key={mission.id}
-                  mission={mission}
-                  completed={!!completions[mission.id]}
-                  loading={loadingMissions.has(mission.id)}
-                  onToggle={(missionId, currentlyCompleted) =>
-                    onToggle(missionId, currentlyCompleted, poste.id)
-                  }
-                />
-              ))}
-          </div>
+        {zone.missions.map(mission => (
+          <MissionItem
+            key={mission.id}
+            mission={mission}
+            completed={!!completions[mission.id]}
+            loading={loadingMissions.has(mission.id)}
+            onToggle={(missionId, currentlyCompleted) =>
+              onToggle(missionId, currentlyCompleted, zone.id)
+            }
+          />
         ))}
+
+        {zone.missions.length === 0 && (
+          <p className="text-[12px] text-muted text-center py-3">
+            Aucune mission pour cette zone.
+          </p>
+        )}
       </div>
     </div>
   )

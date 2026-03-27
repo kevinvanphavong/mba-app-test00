@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react'
 import type { EditorZone, ZoneFormData } from '@/types/editeur'
 import ColorPicker from './ColorPicker'
 
-const USE_MOCK = true
-
 interface Props {
   open:       boolean
   editZone?:  EditorZone | null
@@ -29,17 +27,6 @@ export default function ModalAddZone({ open, editZone, zones, onClose, onSave }:
 
   function handleSave() {
     if (!nom.trim()) return
-    if (!USE_MOCK) {
-      const method  = editZone ? 'PUT' : 'POST'
-      const url     = editZone
-        ? `${process.env.NEXT_PUBLIC_API_URL}/zones/${editZone.id}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/zones`
-      fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nom: nom.trim(), couleur }),
-      }).catch(console.error)
-    }
     onSave({ nom: nom.trim(), couleur })
   }
 

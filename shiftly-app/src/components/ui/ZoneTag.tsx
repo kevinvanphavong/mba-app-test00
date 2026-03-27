@@ -29,8 +29,9 @@ const zoneTag = cva(
 // ─── Props ────────────────────────────────────────────────────────────────────
 type ZoneKey = 'Accueil' | 'Bar' | 'Salle' | 'Manager'
 
-interface ZoneTagProps extends VariantProps<typeof zoneTag> {
+interface ZoneTagProps {
   zone:       string
+  size?:      'sm' | 'xs'
   className?: string
 }
 

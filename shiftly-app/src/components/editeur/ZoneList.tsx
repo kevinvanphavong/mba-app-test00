@@ -1,25 +1,21 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import type { EditorZone, EditorMission, EditorCompetence } from '@/types/editeur'
+import type { EditorZone } from '@/types/editeur'
 import ZoneRow from './ZoneRow'
 
 interface Props {
-  zones:        EditorZone[]
-  missions:     EditorMission[]
-  competences:  EditorCompetence[]
-  selectedId:   number | null
-  onSelect:     (id: number) => void
-  onEdit:       (zone: EditorZone) => void
-  onDelete:     (zone: EditorZone) => void
-  onReorder:    (zones: EditorZone[]) => void
-  onAdd:        () => void
+  zones:     EditorZone[]
+  selectedId: number | null
+  onSelect:  (id: number) => void
+  onEdit:    (zone: EditorZone) => void
+  onDelete:  (zone: EditorZone) => void
+  onReorder: (zones: EditorZone[]) => void
+  onAdd:     () => void
 }
 
 export default function ZoneList({
   zones,
-  missions,
-  competences,
   selectedId,
   onSelect,
   onEdit,
@@ -58,8 +54,8 @@ export default function ZoneList({
           zone={zone}
           isActive={zone.id === selectedId}
           isDragOver={dragOverIndex === i}
-          missionCount={missions.filter((m) => m.zoneId === zone.id).length}
-          competenceCount={competences.filter((c) => c.zoneId === zone.id).length}
+          missionCount={zone.missionCount ?? 0}
+          competenceCount={zone.competenceCount ?? 0}
           onSelect={() => onSelect(zone.id)}
           onEdit={() => onEdit(zone)}
           onDelete={() => onDelete(zone)}

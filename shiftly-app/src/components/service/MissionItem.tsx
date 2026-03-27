@@ -10,15 +10,17 @@ interface MissionItemProps {
   onToggle:  (missionId: number, currentlyCompleted: boolean) => void
 }
 
-const PRIORITE_DOT: Record<string, string> = {
-  vitale:           'bg-red',
-  important:        'bg-yellow',
-  ne_pas_oublier:   'bg-muted',
+const CATEGORIE_BADGE: Record<string, { label: string; cls: string }> = {
+  OUVERTURE: { label: 'Ouverture', cls: 'text-blue   bg-blue/10   border-blue/20'   },
+  PENDANT:   { label: 'Service',   cls: 'text-green  bg-green/10  border-green/20'  },
+  MENAGE:    { label: 'Ménage',    cls: 'text-yellow bg-yellow/10 border-yellow/20' },
+  FERMETURE: { label: 'Fermeture', cls: 'text-red    bg-red/10    border-red/20'    },
 }
 
-const TYPE_BADGE: Record<string, string> = {
-  FIXE:       'text-blue   bg-blue/10   border-blue/20',
-  PONCTUELLE: 'text-purple bg-purple/10 border-purple/20',
+const PRIORITE_CONFIG: Record<string, { dot: string; label: string }> = {
+  vitale:         { dot: 'bg-red',    label: 'Vitale'    },
+  important:      { dot: 'bg-yellow', label: 'Important' },
+  ne_pas_oublier: { dot: 'bg-muted',  label: '–'         },
 }
 
 export default function MissionItem({
@@ -27,22 +29,28 @@ export default function MissionItem({
   loading = false,
   onToggle,
 }: MissionItemProps) {
+  const cat   = CATEGORIE_BADGE[mission.categorie]
+  const prio  = PRIORITE_CONFIG[mission.priorite] ?? PRIORITE_CONFIG['ne_pas_oublier']
+  const initials = mission.completedBy
+    ? mission.completedBy.nom.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+    : null
+
   return (
     <button
       onClick={() => !loading && onToggle(mission.id, completed)}
       disabled={loading}
       className={cn(
-        'w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-left transition-all duration-200',
+        'w-full flex items-start gap-3 px-3 py-2.5 rounded-[10px] text-left transition-all duration-200',
         completed
           ? 'bg-green/5   border border-green/15'
           : 'bg-surface2 border border-transparent hover:border-border',
         loading && 'opacity-50 cursor-wait'
       )}
     >
-      {/* Custom checkbox */}
+      {/* Checkbox */}
       <div
         className={cn(
-          'w-[18px] h-[18px] rounded-[5px] flex items-center justify-center flex-shrink-0 transition-all duration-200 border',
+          'w-[18px] h-[18px] mt-[1px] rounded-[5px] flex items-center justify-center flex-shrink-0 transition-all duration-200 border',
           completed
             ? 'bg-green border-green'
             : 'bg-surface border-border'
@@ -56,36 +64,58 @@ export default function MissionItem({
         )}
       </div>
 
-      {/* Mission text */}
-      <span
-        className={cn(
-          'flex-1 text-[13px] leading-snug transition-all duration-200',
-          completed ? 'text-muted line-through' : 'text-text'
-        )}
-      >
-        {mission.texte}
-      </span>
-
-      {/* Right badges */}
-      <div className="flex items-center gap-1.5 flex-shrink-0">
-        {/* Priority dot */}
+      {/* Texte + labels */}
+      <div className="flex-1 min-w-0">
         <span
           className={cn(
-            'w-[6px] h-[6px] rounded-full flex-shrink-0',
-            PRIORITE_DOT[mission.priorite] ?? 'bg-muted'
-          )}
-          title={mission.priorite.replace('_', ' ')}
-        />
-        {/* Type badge */}
-        <span
-          className={cn(
-            'text-[9px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-[4px] border hidden sm:inline-block',
-            TYPE_BADGE[mission.type] ?? 'text-muted bg-surface2 border-border'
+            'text-[13px] leading-snug transition-all duration-200 block',
+            completed ? 'text-muted line-through' : 'text-text'
           )}
         >
-          {mission.type === 'FIXE' ? 'Fixe' : 'Ponct.'}
+          {mission.texte}
         </span>
+
+        {/* Labels catégorie + priorité + fréquence */}
+        <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+          {/* Catégorie */}
+          {cat && (
+            <span className={cn(
+              'text-[9px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-[4px] border',
+              cat.cls
+            )}>
+              {cat.label}
+            </span>
+          )}
+
+          {/* Priorité — visible si vitale ou important */}
+          {mission.priorite !== 'ne_pas_oublier' && (
+            <span className="flex items-center gap-1">
+              <span className={cn('w-[5px] h-[5px] rounded-full flex-shrink-0', prio.dot)} />
+              <span className="text-[9px] font-bold text-muted uppercase tracking-wide">
+                {prio.label}
+              </span>
+            </span>
+          )}
+
+          {/* Fréquence — visible pour les missions ponctuelles uniquement */}
+          {mission.frequence === 'PONCTUELLE' && (
+            <span className="text-[9px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-[4px] border text-purple bg-purple/10 border-purple/20">
+              Ponct.
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Avatar completedBy */}
+      {completed && initials && mission.completedBy && (
+        <div
+          title={mission.completedBy.nom}
+          className="w-[20px] h-[20px] rounded-[5px] flex items-center justify-center text-white font-extrabold text-[8px] flex-shrink-0 mt-[1px]"
+          style={{ background: mission.completedBy.avatarColor }}
+        >
+          {initials}
+        </div>
+      )}
     </button>
   )
 }

@@ -2,55 +2,39 @@
 
 import type { EditorCompetence, EditorZone } from '@/types/editeur'
 import CompetenceItem from './CompetenceItem'
-import EditorTabs from './EditorTabs'
 
 interface Props {
   competences: EditorCompetence[]
-  zones:       EditorZone[]
-  activeZoneId: number | null
-  onTabChange:  (tab: 'zones' | 'missions' | 'competences') => void
-  onEdit:       (c: EditorCompetence) => void
-  onDelete:     (c: EditorCompetence) => void
-  onAdd:        () => void
+  zone:        EditorZone
+  onEdit:      (c: EditorCompetence) => void
+  onDelete:    (c: EditorCompetence) => void
+  onAdd:       () => void
 }
 
 export default function CompetenceList({
   competences,
-  zones,
-  activeZoneId,
-  onTabChange,
+  zone,
   onEdit,
   onDelete,
   onAdd,
 }: Props) {
-  const zone      = zones.find((z) => z.id === activeZoneId)
-  const filtered  = activeZoneId
-    ? competences.filter((c) => c.zoneId === activeZoneId)
-    : competences
-
   return (
     <div>
-      <EditorTabs active="competences" onChange={onTabChange} />
+      <div className="flex items-center gap-2 mb-0.5">
+        <span
+          className="w-[14px] h-[14px] rounded-[5px] flex-shrink-0"
+          style={{ background: zone.couleur }}
+        />
+        <h2 className="font-syne font-extrabold text-[18px]">{zone.nom} — Compétences</h2>
+      </div>
+      <p className="text-[12px] text-muted mb-4">
+        {competences.length} compétence{competences.length > 1 ? 's' : ''}
+      </p>
 
-      {zone && (
-        <>
-          <div className="flex items-center gap-2 mb-0.5">
-            <span
-              className="w-[14px] h-[14px] rounded-[5px] flex-shrink-0"
-              style={{ background: zone.couleur }}
-            />
-            <h2 className="font-syne font-extrabold text-[18px]">{zone.nom} — Compétences</h2>
-          </div>
-          <p className="text-[12px] text-muted mb-4">
-            {filtered.length} compétence{filtered.length > 1 ? 's' : ''}
-          </p>
-        </>
-      )}
-
-      {filtered.length === 0 ? (
-        <div className="text-center py-8 text-muted text-[13px]">Aucune compétence</div>
+      {competences.length === 0 ? (
+        <div className="text-center py-8 text-muted text-[13px]">Aucune compétence dans cette zone</div>
       ) : (
-        filtered.map((c) => (
+        competences.map((c) => (
           <CompetenceItem
             key={c.id}
             competence={c}

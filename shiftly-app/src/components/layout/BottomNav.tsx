@@ -5,12 +5,11 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/cn'
 
 const navItems = [
-  { href: '/dashboard', label: 'Dash',      icon: '⚡' },
-  { href: '/service',   label: 'Service',   icon: '📋' },
-  { href: '/postes',    label: 'Postes',    icon: '🗂️' },
-  { href: '/staff',     label: 'Staff',     icon: '👥' },
-  { href: '/tutoriels', label: 'Tutos',     icon: '📖' },
-  { href: '/reglages',  label: 'Réglages',  icon: '⚙️' },
+  { href: '/service',  label: 'Service',  icon: '📋' },
+  { href: '/services', label: 'Services', icon: '📅' },
+  { href: '/postes',   label: 'Postes',   icon: '🗂️' },
+  { href: '/staff',    label: 'Staff',    icon: '👥' },
+  { href: '/reglages', label: 'Réglages', icon: '⚙️' },
 ]
 
 export default function BottomNav() {

@@ -1,9 +1,16 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import type { EditorMission } from '@/types/editeur'
+import type { EditorMission, MissionCategorie } from '@/types/editeur'
 import MissionItem from './MissionItem'
-import { CATEGORIES } from '@/lib/mock/editeur'
+
+const CAT_FILTERS: Array<{ id: MissionCategorie | 'Toutes'; label: string }> = [
+  { id: 'Toutes',    label: 'Toutes'    },
+  { id: 'OUVERTURE', label: 'Ouverture' },
+  { id: 'PENDANT',   label: 'Pendant'   },
+  { id: 'MENAGE',    label: 'Ménage'    },
+  { id: 'FERMETURE', label: 'Fermeture' },
+]
 
 interface Props {
   missions:   EditorMission[]
@@ -26,14 +33,14 @@ export default function MissionList({
   onAdd,
   onBack,
 }: Props) {
-  const [activeCat, setActiveCat] = useState('Ouverture')
+  const [activeCat, setActiveCat] = useState<MissionCategorie | 'Toutes'>('Toutes')
   const dragIndex = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
-  // Unique categories present in this zone
-  const cats = ['Toutes', ...CATEGORIES.filter((c) =>
-    missions.some((m) => m.categorie === c)
-  )]
+  // Filtres limités aux catégories réellement présentes dans cette zone
+  const cats = CAT_FILTERS.filter(
+    (f) => f.id === 'Toutes' || missions.some(m => m.categorie === f.id)
+  )
 
   const filtered = activeCat === 'Toutes'
     ? missions
@@ -62,22 +69,6 @@ export default function MissionList({
 
   return (
     <div>
-      {/* Back link + header */}
-      <div className="py-4 flex justify-between items-center">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 text-accent text-[13px] font-semibold"
-        >
-          ← Zones
-        </button>
-        <button
-          onClick={onAdd}
-          className="w-7 h-7 rounded-[8px] border border-border bg-transparent flex items-center justify-center text-[13px] text-muted hover:border-accent hover:text-accent transition-all"
-        >
-          ＋
-        </button>
-      </div>
-
       <div className="flex items-center gap-2 mb-0.5">
         <span
           className="w-[14px] h-[14px] rounded-[5px] flex-shrink-0"
@@ -93,15 +84,15 @@ export default function MissionList({
       <div className="flex gap-1 overflow-x-auto pb-1 mb-2.5 scrollbar-none">
         {cats.map((c) => (
           <button
-            key={c}
-            onClick={() => setActiveCat(c)}
+            key={c.id}
+            onClick={() => setActiveCat(c.id)}
             className={`px-[10px] py-[5px] rounded-[8px] border text-[10px] font-bold uppercase tracking-[0.5px] whitespace-nowrap transition-all flex-shrink-0 ${
-              activeCat === c
+              activeCat === c.id
                 ? 'bg-accent border-accent text-white'
                 : 'bg-transparent border-border text-muted'
             }`}
           >
-            {c}
+            {c.label}
           </button>
         ))}
       </div>

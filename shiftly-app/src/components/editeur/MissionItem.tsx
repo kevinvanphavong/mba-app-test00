@@ -1,11 +1,18 @@
 'use client'
 
-import type { EditorMission } from '@/types/editeur'
+import type { EditorMission, MissionCategorie } from '@/types/editeur'
 
-const PRIORITY_COLOR: Record<string, string> = {
-  haute:   'bg-red',
-  normale: 'bg-yellow',
-  basse:   'bg-muted',
+const PRIORITY_DOT: Record<string, string> = {
+  vitale:         'bg-red',
+  important:      'bg-yellow',
+  ne_pas_oublier: 'bg-muted',
+}
+
+const CAT_BADGE: Record<MissionCategorie, { label: string; cls: string }> = {
+  OUVERTURE: { label: 'Ouverture', cls: 'bg-blue/10 text-blue'     },
+  PENDANT:   { label: 'Pendant',   cls: 'bg-green/10 text-green'   },
+  MENAGE:    { label: 'Ménage',    cls: 'bg-purple/10 text-purple' },
+  FERMETURE: { label: 'Fermeture', cls: 'bg-accent/10 text-accent' },
 }
 
 interface Props {
@@ -31,7 +38,7 @@ export default function MissionItem({
   onDrop,
   onDragEnd,
 }: Props) {
-  const isPonct = mission.type === 'PONCTUELLE'
+  const badge = CAT_BADGE[mission.categorie] ?? CAT_BADGE.PENDANT
 
   return (
     <div
@@ -44,29 +51,21 @@ export default function MissionItem({
       className={`flex items-center gap-2 px-3 py-[10px] rounded-[12px] border mb-1.5 transition-all duration-150 ${
         isDragOver
           ? 'border-accent/40 bg-accent/5 scale-[1.01]'
-          : isPonct
-          ? 'bg-surface border-accent/30 bg-accent/[0.04]'
           : 'bg-surface border-border'
       }`}
     >
-      {/* drag handle */}
+      {/* poignée de déplacement */}
       <span className="text-border text-[14px] cursor-grab select-none flex-shrink-0">⠿</span>
 
-      {/* priority dot */}
-      <span className={`w-[7px] h-[7px] rounded-full flex-shrink-0 ${PRIORITY_COLOR[mission.priorite]}`} />
+      {/* point de priorité */}
+      <span className={`w-[7px] h-[7px] rounded-full flex-shrink-0 ${PRIORITY_DOT[mission.priorite] ?? 'bg-muted'}`} />
 
-      {/* text */}
-      <span className="flex-1 text-[12px] font-medium">{mission.titre}</span>
+      {/* texte */}
+      <span className="flex-1 text-[12px] font-medium">{mission.texte}</span>
 
-      {/* type badge */}
-      <span
-        className={`text-[9px] font-bold px-1.5 py-[2px] rounded-[5px] flex-shrink-0 ${
-          isPonct
-            ? 'bg-accent/10 text-accent'
-            : 'bg-blue/10 text-blue'
-        }`}
-      >
-        {isPonct ? 'Ponct.' : 'Fixe'}
+      {/* badge de catégorie */}
+      <span className={`text-[9px] font-bold px-1.5 py-[2px] rounded-[5px] flex-shrink-0 ${badge.cls}`}>
+        {badge.label}
       </span>
 
       {/* actions */}

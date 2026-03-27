@@ -3,12 +3,16 @@
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { useServiceToday } from '@/hooks/useService'
 
 /** Barre supérieure mobile + desktop — date, centre, avatar utilisateur */
 export default function Topbar() {
   const { user } = useCurrentUser()
+  const serviceToday = useServiceToday()
+  const dateReference = serviceToday.data?.service?.date ? new Date(serviceToday.data.service.date) : new Date()
 
-  const today   = new Date()
+  /** importer ici la fonction pour récupérer le service du jour 'findTodayActive' */
+  const today   = dateReference ? dateReference : new Date()
   const dayName = format(today, 'EEEE', { locale: fr })
   const dayFull = format(today, 'd MMMM yyyy', { locale: fr })
 

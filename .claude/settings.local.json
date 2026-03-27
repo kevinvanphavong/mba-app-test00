@@ -66,7 +66,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(rm -rf .git)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(ls -la /Users/kevinvanphavong/Desktop/mba-app-test00/shiftly-app/src/app/\\\\\\(app\\\\\\)/reglages/)",
+      "Bash(ls -la /Users/kevinvanphavong/Desktop/mba-app-test00/shiftly-app/src/app/\\\\\\(app\\\\\\)/reglages/editeur/)"
     ]
   }
 }

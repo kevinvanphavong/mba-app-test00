@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react'
 import type { EditorCompetence, EditorZone, CompetenceFormData, DifficulteComp } from '@/types/editeur'
 
-const USE_MOCK = true
-
 const DIFFS: { id: DifficulteComp; label: string; cls: string }[] = [
   { id: 'simple',      label: 'Simple',      cls: 'border-green text-green bg-green/10' },
   { id: 'avancee',     label: 'Avancée',     cls: 'border-yellow text-yellow bg-yellow/10' },
@@ -36,17 +34,6 @@ export default function ModalAddCompetence({ open, editCompetence, zone, onClose
 
   function handleSave() {
     if (!nom.trim()) return
-    if (!USE_MOCK) {
-      const method = editCompetence ? 'PUT' : 'POST'
-      const url    = editCompetence
-        ? `${process.env.NEXT_PUBLIC_API_URL}/competences/${editCompetence.id}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/competences`
-      fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nom: nom.trim(), difficulte, points, description, zoneId: zone.id }),
-      }).catch(console.error)
-    }
     onSave({ nom: nom.trim(), difficulte, points, description, zoneId: zone.id })
   }
 

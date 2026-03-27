@@ -3,8 +3,6 @@
 import { useState } from 'react'
 import type { EditorMission, EditorZone } from '@/types/editeur'
 
-const USE_MOCK = true
-
 interface Props {
   open:     boolean
   mission:  EditorMission | null
@@ -20,13 +18,6 @@ export default function ModalMoveZone({ open, mission, zones, onClose, onMove }:
 
   function handleMove() {
     if (selected === null) return
-    if (!USE_MOCK) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/missions/${mission!.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ zoneId: selected }),
-      }).catch(console.error)
-    }
     onMove(selected)
     setSelected(null)
   }
@@ -37,7 +28,7 @@ export default function ModalMoveZone({ open, mission, zones, onClose, onMove }:
       <div className="fixed bottom-0 inset-x-0 z-50 bg-surface border border-border rounded-t-[24px] px-4 pt-5 pb-8 animate-fadeUp max-w-[390px] mx-auto">
         <div className="w-10 h-1 bg-border rounded-full mx-auto mb-[18px]" />
         <h2 className="font-syne font-extrabold text-[18px] mb-1">Déplacer vers…</h2>
-        <p className="text-[12px] text-muted mb-4">&ldquo;{mission.titre}&rdquo;</p>
+        <p className="text-[12px] text-muted mb-4">&ldquo;{mission.texte}&rdquo;</p>
 
         <div className="flex flex-col gap-1.5">
           {zones.map((z) => {

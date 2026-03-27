@@ -44,7 +44,31 @@
       "Bash(php -r \":*)",
       "Bash(php -r ':*)",
       "Bash(php bin/console lexik:jwt:generate-keypair --overwrite)",
-      "Bash(curl -s -X POST \"http://127.0.0.1:8000/api/auth/login\" -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"manager@shiftly.dev\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"manager123\"\"\"\"}')"
+      "Bash(curl -s -X POST \"http://127.0.0.1:8000/api/auth/login\" -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"manager@shiftly.dev\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"manager123\"\"\"\"}')",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"symfony server:start\")",
+      "Bash(pkill -f \"php -S\")",
+      "Bash(symfony server:start -d)",
+      "Bash(php bin/console doctrine:migrations:diff --no-interaction)",
+      "Bash(php bin/console doctrine:migrations:migrate --no-interaction)",
+      "Bash(php bin/console doctrine:migrations:version DoctrineMigrations\\\\Version20260319000001 --add --no-interaction)",
+      "Bash(curl -s -X POST http://127.0.0.1:8000/api/login_check -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"kevin@bowling-central.fr\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"bowling123\"\"\"\"}')",
+      "Bash(php bin/console dbal:run-sql \"SELECT email, password FROM user LIMIT 1\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(php bin/console dbal:run-sql \"SELECT email, SUBSTR\\(password,1,10\\) as hash_prefix FROM user LIMIT 1\")",
+      "Bash(php bin/console dbal:run-sql \"SELECT id, date, statut, centre_id FROM service ORDER BY date DESC LIMIT 5\")",
+      "Bash(php bin/console dbal:run-sql \"SELECT id, date, statut, centre_id FROM service ORDER BY date\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''token:'''', d.get\\(''''token'''',''''''''\\)[:40]\\)\")",
+      "Bash(php -r \"echo \\(new \\\\DateTimeImmutable\\(''today''\\)\\)->format\\(''Y-m-d H:i:s''\\) . PHP_EOL; echo date_default_timezone_get\\(\\) . PHP_EOL;\")",
+      "Bash(php bin/console dbal:run-sql \"SELECT id, date, typeof\\(date\\) as type FROM service WHERE centre_id = 8\")",
+      "Bash(php bin/console dbal:run-sql \"SELECT id, date FROM service WHERE centre_id = 8 AND date = datetime\\(''now'', ''start of day''\\)\")",
+      "Bash(php bin/console dbal:run-sql \"SELECT id, date, statut FROM service ORDER BY date\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); deps={**d.get\\(''''dependencies'''',{}\\), **d.get\\(''''devDependencies'''',{}\\)}; [print\\(k,v\\) for k in [''''zustand'''',''''@tanstack/react-query'''',''''axios'''',''''zod'''',''''react-hook-form'''',''''framer-motion''''] if k in deps and print\\(k, deps[k]\\)]\")",
+      "Bash(ls -la \"/Users/kevinvanphavong/Desktop/mba-app-test00/shiftly-app/src/app/\\(app\\)/\")",
+      "Bash(ls -la \"/Users/kevinvanphavong/Desktop/mba-app-test00/shiftly-app/src/app/\\(app\\)/service/\")",
+      "Bash(cat /Users/kevinvanphavong/Desktop/mba-app-test00/shiftly-app/src/app/\\\\\\(app\\\\\\)/service/page.tsx)",
+      "Bash(php bin/console debug:container CompletionListener)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

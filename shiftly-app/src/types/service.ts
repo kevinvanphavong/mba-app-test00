@@ -1,8 +1,9 @@
 // ─── Service du Jour — types ──────────────────────────────────────────────────
 
-export type MissionType     = 'FIXE' | 'PONCTUELLE'
-export type MissionPriorite = 'vitale' | 'important' | 'ne_pas_oublier'
-export type ServiceStatut   = 'PLANIFIE' | 'EN_COURS' | 'TERMINE'
+export type MissionCategorie = 'OUVERTURE' | 'PENDANT' | 'MENAGE' | 'FERMETURE'
+export type MissionFrequence = 'FIXE' | 'PONCTUELLE'
+export type MissionPriorite  = 'vitale' | 'important' | 'ne_pas_oublier'
+export type ServiceStatut    = 'PLANIFIE' | 'EN_COURS' | 'TERMINE'
 export type IncidentSeverite = 'haute' | 'moyenne' | 'basse'
 
 export interface ServiceZone {
@@ -12,16 +13,6 @@ export interface ServiceZone {
   ordre:   number
 }
 
-export interface ServiceMission {
-  id:        number
-  texte:     string
-  type:      MissionType
-  priorite:  MissionPriorite
-  ordre:     number
-  /** completionId si déjà cochée, null sinon */
-  completionId: number | null
-}
-
 export interface ServiceStaffMember {
   id:          number
   nom:         string
@@ -29,10 +20,28 @@ export interface ServiceStaffMember {
   avatarColor: string
 }
 
-export interface ServicePoste {
-  id:       number
-  zone:     ServiceZone
-  user:     ServiceStaffMember | null
+/** Poste dans le contexte d'une zone (staff assigné) */
+export interface ServiceZonePoste {
+  id:   number
+  user: ServiceStaffMember | null
+}
+
+export interface ServiceMission {
+  id:          number
+  texte:       string
+  categorie:   MissionCategorie
+  frequence:   MissionFrequence
+  priorite:    MissionPriorite
+  ordre:       number
+  /** completionId si cochée, null sinon */
+  completionId: number | null
+  /** Qui a coché cette mission (null si pas encore cochée) */
+  completedBy:  Pick<ServiceStaffMember, 'id' | 'nom' | 'avatarColor'> | null
+}
+
+/** Zone avec ses postes (staff) et ses missions dédupliquées */
+export interface ServiceZoneData extends ServiceZone {
+  postes:   ServiceZonePoste[]
   missions: ServiceMission[]
 }
 
@@ -45,8 +54,8 @@ export interface ServicePageData {
     statut:      ServiceStatut
     centreName:  string
   }
-  postes: ServicePoste[]
-  staff:  ServiceStaffMember[]
+  zones: ServiceZoneData[]
+  staff: ServiceStaffMember[]
 }
 
 // ─── Incident form payload ────────────────────────────────────────────────────

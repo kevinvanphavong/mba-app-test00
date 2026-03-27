@@ -33,10 +33,10 @@ export interface Zone {
 export interface Mission {
   id: number
   zone: Zone
-  titre: string
+  texte: string
   categorie: 'OUVERTURE' | 'PENDANT' | 'MENAGE' | 'FERMETURE'
+  frequence: 'FIXE' | 'PONCTUELLE'
   priorite: 'vitale' | 'important' | 'ne_pas_oublier'
-  type: 'FIXE' | 'PONCTUELLE'
   description?: string
   ordre: number
 }
@@ -44,10 +44,9 @@ export interface Mission {
 export interface Competence {
   id: number
   zone: Zone
-  titre: string
+  nom: string
   description?: string
   difficulte: 'simple' | 'avancee' | 'experimente'
-  priorite: string
   points: number
 }
 
@@ -91,3 +90,39 @@ export type TutorielBlock =
   | { type: 'intro'; text: string }
   | { type: 'step'; number: number; title: string; text: string }
   | { type: 'tip'; text: string }
+
+// ─── Services Planning ────────────────────────────────────────────────────────
+
+export interface ServiceListStaffMember {
+  id:          number
+  nom:         string
+  avatarColor: string
+}
+
+export interface ServiceListZonePoste {
+  posteId:     number
+  userId:      number
+  nom:         string
+  avatarColor: string
+}
+
+export interface ServiceListZone {
+  id:      number
+  nom:     string
+  couleur: string
+  taux:    number
+  postes:  ServiceListZonePoste[]
+}
+
+/** Item retourné par GET /api/services/list */
+export interface ServiceListItem {
+  id:             number
+  date:           string    // 'YYYY-MM-DD'
+  heureDebut:     string | null
+  heureFin:       string | null
+  statut:         'PLANIFIE' | 'EN_COURS' | 'TERMINE'
+  tauxCompletion: number
+  note:           string | null
+  staff:          ServiceListStaffMember[]
+  zones:          ServiceListZone[]
+}

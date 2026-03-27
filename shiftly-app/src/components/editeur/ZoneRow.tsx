@@ -56,7 +56,7 @@ export default function ZoneRow({
       />
 
       {/* name */}
-      <span className="text-[14px] font-semibold flex-1">{zone.nom}</span>
+      <span className="font-syne text-[14px] font-semibold flex-1">{zone.nom}</span>
 
       {/* counts */}
       <span className="text-[11px] text-muted mr-1">

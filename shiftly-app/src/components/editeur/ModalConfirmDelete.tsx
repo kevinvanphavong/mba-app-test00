@@ -1,7 +1,5 @@
 'use client'
 
-const USE_MOCK = true
-
 interface Props {
   open:        boolean
   type:        'zone' | 'mission' | 'competence'
@@ -28,9 +26,6 @@ export default function ModalConfirmDelete({
   onConfirm,
 }: Props) {
   function handleConfirm() {
-    if (!USE_MOCK) {
-      // DELETE /api/{type}s/{id} — handled by caller
-    }
     onConfirm()
   }
 

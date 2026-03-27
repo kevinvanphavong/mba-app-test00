@@ -8,7 +8,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser'
 const navItems = [
   { href: '/dashboard', label: 'Dashboard',       icon: '⚡' },
   { href: '/service',   label: 'Service du jour', icon: '📋' },
-  { href: '/services',  label: 'Planning',         icon: '📅' },
+  { href: '/services',  label: 'Services',          icon: '📅' },
   { href: '/postes',    label: 'Postes',           icon: '🗂️' },
   { href: '/staff',     label: 'Staff',            icon: '👥' },
   { href: '/tutoriels', label: 'Tutoriels',        icon: '📖' },

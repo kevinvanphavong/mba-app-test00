@@ -9,43 +9,43 @@ export const mockZones: EditorZone[] = [
 
 export const mockMissions: EditorMission[] = [
   // Accueil — Ouverture
-  { id: 1,  zoneId: 1, zoneName: 'Accueil', titre: 'Ouvrir les caisses',           type: 'FIXE',      priorite: 'haute',   categorie: 'Ouverture', ordre: 1 },
-  { id: 2,  zoneId: 1, zoneName: 'Accueil', titre: 'Vérifier le stock de chaussures', type: 'FIXE',   priorite: 'normale', categorie: 'Ouverture', ordre: 2 },
-  { id: 3,  zoneId: 1, zoneName: 'Accueil', titre: 'Calibrer les écrans d\'accueil', type: 'PONCTUELLE', priorite: 'basse', categorie: 'Ouverture', ordre: 3 },
+  { id: 1,  zoneId: 1, zoneName: 'Accueil', texte: 'Ouvrir les caisses',           frequence: 'FIXE',      priorite: 'vitale',   categorie: 'OUVERTURE', ordre: 1 },
+  { id: 2,  zoneId: 1, zoneName: 'Accueil', texte: 'Vérifier le stock de chaussures', frequence: 'FIXE',   priorite: 'important', categorie: 'OUVERTURE', ordre: 2 },
+  { id: 3,  zoneId: 1, zoneName: 'Accueil', texte: 'Calibrer les écrans d\'accueil', frequence: 'PONCTUELLE', priorite: 'ne_pas_oublier', categorie: 'OUVERTURE', ordre: 3 },
   // Accueil — Service
-  { id: 4,  zoneId: 1, zoneName: 'Accueil', titre: 'Accueillir les clients',         type: 'FIXE',    priorite: 'haute',   categorie: 'Service',    ordre: 4 },
-  { id: 5,  zoneId: 1, zoneName: 'Accueil', titre: 'Gérer les files d\'attente',     type: 'FIXE',    priorite: 'haute',   categorie: 'Service',    ordre: 5 },
+  { id: 4,  zoneId: 1, zoneName: 'Accueil', texte: 'Accueillir les clients',         frequence: 'FIXE',    priorite: 'vitale',   categorie: 'PENDANT',    ordre: 4 },
+  { id: 5,  zoneId: 1, zoneName: 'Accueil', texte: 'Gérer les files d\'attente',     frequence: 'FIXE',    priorite: 'vitale',   categorie: 'PENDANT',    ordre: 5 },
   // Accueil — Fermeture
-  { id: 6,  zoneId: 1, zoneName: 'Accueil', titre: 'Clôturer les caisses',           type: 'FIXE',    priorite: 'haute',   categorie: 'Fermeture',  ordre: 6 },
-  { id: 7,  zoneId: 1, zoneName: 'Accueil', titre: 'Rangement des chaussures',       type: 'FIXE',    priorite: 'normale', categorie: 'Fermeture',  ordre: 7 },
-  { id: 8,  zoneId: 1, zoneName: 'Accueil', titre: 'Nettoyage comptoir',             type: 'PONCTUELLE', priorite: 'basse', categorie: 'Fermeture', ordre: 8 },
+  { id: 6,  zoneId: 1, zoneName: 'Accueil', texte: 'Clôturer les caisses',           frequence: 'FIXE',    priorite: 'vitale',   categorie: 'FERMETURE',  ordre: 6 },
+  { id: 7,  zoneId: 1, zoneName: 'Accueil', texte: 'Rangement des chaussures',       frequence: 'FIXE',    priorite: 'important', categorie: 'FERMETURE',  ordre: 7 },
+  { id: 8,  zoneId: 1, zoneName: 'Accueil', texte: 'Nettoyage comptoir',             frequence: 'PONCTUELLE', priorite: 'ne_pas_oublier', categorie: 'FERMETURE', ordre: 8 },
   // Bar — Ouverture
-  { id: 9,  zoneId: 2, zoneName: 'Bar',     titre: 'Préparer les postes de bar',     type: 'FIXE',    priorite: 'haute',   categorie: 'Ouverture',  ordre: 1 },
-  { id: 10, zoneId: 2, zoneName: 'Bar',     titre: 'Vérifier stock boissons',        type: 'FIXE',    priorite: 'normale', categorie: 'Ouverture',  ordre: 2 },
+  { id: 9,  zoneId: 2, zoneName: 'Bar',     texte: 'Préparer les postes de bar',     frequence: 'FIXE',    priorite: 'vitale',   categorie: 'OUVERTURE',  ordre: 1 },
+  { id: 10, zoneId: 2, zoneName: 'Bar',     texte: 'Vérifier stock boissons',        frequence: 'FIXE',    priorite: 'important', categorie: 'OUVERTURE',  ordre: 2 },
   // Bar — Service
-  { id: 11, zoneId: 2, zoneName: 'Bar',     titre: 'Service cocktails & softs',      type: 'FIXE',    priorite: 'haute',   categorie: 'Service',    ordre: 3 },
-  { id: 12, zoneId: 2, zoneName: 'Bar',     titre: 'Nettoyage verres',               type: 'FIXE',    priorite: 'normale', categorie: 'Service',    ordre: 4 },
+  { id: 11, zoneId: 2, zoneName: 'Bar',     texte: 'Service cocktails & softs',      frequence: 'FIXE',    priorite: 'vitale',   categorie: 'PENDANT',    ordre: 3 },
+  { id: 12, zoneId: 2, zoneName: 'Bar',     texte: 'Nettoyage verres',               frequence: 'FIXE',    priorite: 'important', categorie: 'PENDANT',    ordre: 4 },
   // Bar — Fermeture
-  { id: 13, zoneId: 2, zoneName: 'Bar',     titre: 'Inventaire bar soir',            type: 'FIXE',    priorite: 'haute',   categorie: 'Fermeture',  ordre: 5 },
-  { id: 14, zoneId: 2, zoneName: 'Bar',     titre: 'Nettoyage bar',                  type: 'FIXE',    priorite: 'normale', categorie: 'Fermeture',  ordre: 6 },
+  { id: 13, zoneId: 2, zoneName: 'Bar',     texte: 'Inventaire bar soir',            frequence: 'FIXE',    priorite: 'vitale',   categorie: 'FERMETURE',  ordre: 5 },
+  { id: 14, zoneId: 2, zoneName: 'Bar',     texte: 'Nettoyage bar',                  frequence: 'FIXE',    priorite: 'important', categorie: 'FERMETURE',  ordre: 6 },
   // Salle — Ouverture
-  { id: 15, zoneId: 3, zoneName: 'Salle',   titre: 'Vérifier les pistes',            type: 'FIXE',    priorite: 'haute',   categorie: 'Ouverture',  ordre: 1 },
-  { id: 16, zoneId: 3, zoneName: 'Salle',   titre: 'Calibrer les quilles',           type: 'FIXE',    priorite: 'haute',   categorie: 'Ouverture',  ordre: 2 },
-  { id: 17, zoneId: 3, zoneName: 'Salle',   titre: 'Allumer les systèmes de scores', type: 'FIXE',    priorite: 'normale', categorie: 'Ouverture',  ordre: 3 },
+  { id: 15, zoneId: 3, zoneName: 'Salle',   texte: 'Vérifier les pistes',            frequence: 'FIXE',    priorite: 'vitale',   categorie: 'OUVERTURE',  ordre: 1 },
+  { id: 16, zoneId: 3, zoneName: 'Salle',   texte: 'Calibrer les quilles',           frequence: 'FIXE',    priorite: 'vitale',   categorie: 'OUVERTURE',  ordre: 2 },
+  { id: 17, zoneId: 3, zoneName: 'Salle',   texte: 'Allumer les systèmes de scores', frequence: 'FIXE',    priorite: 'important', categorie: 'OUVERTURE',  ordre: 3 },
   // Salle — Service
-  { id: 18, zoneId: 3, zoneName: 'Salle',   titre: 'Surveiller les pistes',          type: 'FIXE',    priorite: 'normale', categorie: 'Service',    ordre: 4 },
-  { id: 19, zoneId: 3, zoneName: 'Salle',   titre: 'Maintenance pistes en cours',    type: 'PONCTUELLE', priorite: 'haute', categorie: 'Service',   ordre: 5 },
-  { id: 20, zoneId: 3, zoneName: 'Salle',   titre: 'Gérer les scores',               type: 'FIXE',    priorite: 'normale', categorie: 'Service',    ordre: 6 },
+  { id: 18, zoneId: 3, zoneName: 'Salle',   texte: 'Surveiller les pistes',          frequence: 'FIXE',    priorite: 'important', categorie: 'PENDANT',    ordre: 4 },
+  { id: 19, zoneId: 3, zoneName: 'Salle',   texte: 'Maintenance pistes en cours',    frequence: 'PONCTUELLE', priorite: 'vitale', categorie: 'PENDANT',   ordre: 5 },
+  { id: 20, zoneId: 3, zoneName: 'Salle',   texte: 'Gérer les scores',               frequence: 'FIXE',    priorite: 'important', categorie: 'PENDANT',    ordre: 6 },
   // Salle — Fermeture
-  { id: 21, zoneId: 3, zoneName: 'Salle',   titre: 'Nettoyage pistes',               type: 'FIXE',    priorite: 'haute',   categorie: 'Fermeture',  ordre: 7 },
-  { id: 22, zoneId: 3, zoneName: 'Salle',   titre: 'Rangement matériel',             type: 'FIXE',    priorite: 'normale', categorie: 'Fermeture',  ordre: 8 },
-  { id: 23, zoneId: 3, zoneName: 'Salle',   titre: 'Éteindre les systèmes',          type: 'FIXE',    priorite: 'basse',   categorie: 'Fermeture',  ordre: 9 },
+  { id: 21, zoneId: 3, zoneName: 'Salle',   texte: 'Nettoyage pistes',               frequence: 'FIXE',    priorite: 'vitale',   categorie: 'FERMETURE',  ordre: 7 },
+  { id: 22, zoneId: 3, zoneName: 'Salle',   texte: 'Rangement matériel',             frequence: 'FIXE',    priorite: 'important', categorie: 'FERMETURE',  ordre: 8 },
+  { id: 23, zoneId: 3, zoneName: 'Salle',   texte: 'Éteindre les systèmes',          frequence: 'FIXE',    priorite: 'ne_pas_oublier',   categorie: 'FERMETURE',  ordre: 9 },
   // Manager
-  { id: 24, zoneId: 4, zoneName: 'Manager', titre: 'Briefing équipe ouverture',      type: 'FIXE',    priorite: 'haute',   categorie: 'Ouverture',  ordre: 1 },
-  { id: 25, zoneId: 4, zoneName: 'Manager', titre: 'Vérifier présences et plannings', type: 'FIXE',  priorite: 'haute',   categorie: 'Ouverture',  ordre: 2 },
-  { id: 26, zoneId: 4, zoneName: 'Manager', titre: 'Suivi incidents',                 type: 'FIXE',  priorite: 'haute',   categorie: 'Service',    ordre: 3 },
-  { id: 27, zoneId: 4, zoneName: 'Manager', titre: 'Rapport de clôture',              type: 'FIXE',  priorite: 'haute',   categorie: 'Fermeture',  ordre: 4 },
-  { id: 28, zoneId: 4, zoneName: 'Manager', titre: 'Transmission équipe nuit',        type: 'PONCTUELLE', priorite: 'normale', categorie: 'Fermeture', ordre: 5 },
+  { id: 24, zoneId: 4, zoneName: 'Manager', texte: 'Briefing équipe ouverture',      frequence: 'FIXE',    priorite: 'vitale',   categorie: 'OUVERTURE',  ordre: 1 },
+  { id: 25, zoneId: 4, zoneName: 'Manager', texte: 'Vérifier présences et plannings', frequence: 'FIXE',  priorite: 'vitale',   categorie: 'OUVERTURE',  ordre: 2 },
+  { id: 26, zoneId: 4, zoneName: 'Manager', texte: 'Suivi incidents',                 frequence: 'FIXE',  priorite: 'vitale',   categorie: 'PENDANT',    ordre: 3 },
+  { id: 27, zoneId: 4, zoneName: 'Manager', texte: 'Rapport de clôture',              frequence: 'FIXE',  priorite: 'vitale',   categorie: 'FERMETURE',  ordre: 4 },
+  { id: 28, zoneId: 4, zoneName: 'Manager', texte: 'Transmission équipe nuit',        frequence: 'PONCTUELLE', priorite: 'important', categorie: 'FERMETURE', ordre: 5 },
 ]
 
 export const mockCompetences: EditorCompetence[] = [
