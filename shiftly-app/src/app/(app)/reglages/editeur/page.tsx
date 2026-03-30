@@ -7,22 +7,26 @@ import type {
   EditorZone,
   EditorMission,
   EditorCompetence,
+  EditorTutoriel,
   ZoneFormData,
   MissionFormData,
   CompetenceFormData,
+  TutorielFormData,
 } from '@/types/editeur'
 import api from '@/lib/api'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 
-import EditorTabs         from '@/components/editeur/EditorTabs'
-import ZoneList           from '@/components/editeur/ZoneList'
-import MissionList        from '@/components/editeur/MissionList'
-import CompetenceList     from '@/components/editeur/CompetenceList'
-import ModalAddZone       from '@/components/editeur/ModalAddZone'
-import ModalAddMission    from '@/components/editeur/ModalAddMission'
-import ModalAddCompetence from '@/components/editeur/ModalAddCompetence'
-import ModalConfirmDelete from '@/components/editeur/ModalConfirmDelete'
-import ModalMoveZone      from '@/components/editeur/ModalMoveZone'
+import EditorTabs          from '@/components/editeur/EditorTabs'
+import ZoneList            from '@/components/editeur/ZoneList'
+import MissionList         from '@/components/editeur/MissionList'
+import CompetenceList      from '@/components/editeur/CompetenceList'
+import TutorielList        from '@/components/editeur/TutorielList'
+import ModalAddZone        from '@/components/editeur/ModalAddZone'
+import ModalAddMission     from '@/components/editeur/ModalAddMission'
+import ModalAddCompetence  from '@/components/editeur/ModalAddCompetence'
+import ModalAddTutoriel    from '@/components/editeur/ModalAddTutoriel'
+import ModalConfirmDelete  from '@/components/editeur/ModalConfirmDelete'
+import ModalMoveZone       from '@/components/editeur/ModalMoveZone'
 
 export default function EditeurPage() {
   const router = useRouter()
@@ -32,11 +36,13 @@ export default function EditeurPage() {
   const [zones,       setZones]       = useState<EditorZone[]>([])
   const [missions,    setMissions]    = useState<EditorMission[]>([])
   const [competences, setCompetences] = useState<EditorCompetence[]>([])
+  const [tutoriels,   setTutoriels]   = useState<EditorTutoriel[]>([])
 
   // ── Chargement ─────────────────────────────────────────────────────────────
-  const [loadingZones,  setLoadingZones]  = useState(true)
-  const [loadingData,   setLoadingData]   = useState(false)
-  const [apiError,      setApiError]      = useState<string | null>(null)
+  const [loadingZones,     setLoadingZones]     = useState(true)
+  const [loadingData,      setLoadingData]      = useState(false)
+  const [loadingTutoriels, setLoadingTutoriels] = useState(false)
+  const [apiError,         setApiError]         = useState<string | null>(null)
 
   // ── Navigation ─────────────────────────────────────────────────────────────
   const [activeTab,      setActiveTab]      = useState<EditorTab>('zones')
@@ -47,13 +53,30 @@ export default function EditeurPage() {
   const [editZone,      setEditZone]      = useState<EditorZone | null>(null)
   const [showAddMission,  setShowAddMission]  = useState(false)
   const [editMission,     setEditMission]     = useState<EditorMission | null>(null)
-  const [showAddComp,   setShowAddComp]   = useState(false)
-  const [editComp,      setEditComp]      = useState<EditorCompetence | null>(null)
+  const [showAddComp,      setShowAddComp]      = useState(false)
+  const [editComp,         setEditComp]         = useState<EditorCompetence | null>(null)
+  const [showAddTutoriel,    setShowAddTutoriel]    = useState(false)
+  const [editTutoriel,       setEditTutoriel]       = useState<EditorTutoriel | null>(null)
+  const [tutorielZoneFilter, setTutorielZoneFilter] = useState<number | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<{
-    type: 'zone' | 'mission' | 'competence'
-    item: EditorZone | EditorMission | EditorCompetence
+    type: 'zone' | 'mission' | 'competence' | 'tutoriel'
+    item: EditorZone | EditorMission | EditorCompetence | EditorTutoriel
   } | null>(null)
   const [moveMission, setMoveMission] = useState<EditorMission | null>(null)
+
+  // ── Chargement des tutoriels ───────────────────────────────────────────────
+  const fetchTutoriels = useCallback(async () => {
+    setLoadingTutoriels(true)
+    setApiError(null)
+    try {
+      const res = await api.get('/editeur/tutoriels')
+      setTutoriels(res.data)
+    } catch {
+      setApiError('Impossible de charger les tutoriels.')
+    } finally {
+      setLoadingTutoriels(false)
+    }
+  }, [])
 
   // ── Chargement initial des zones ───────────────────────────────────────────
   const fetchZones = useCallback(async () => {
@@ -72,6 +95,10 @@ export default function EditeurPage() {
   useEffect(() => {
     if (user) fetchZones()
   }, [user, fetchZones])
+
+  useEffect(() => {
+    if (user && activeTab === 'tutoriels') fetchTutoriels()
+  }, [user, activeTab, fetchTutoriels])
 
   // ── Chargement missions + compétences quand une zone est sélectionnée ──────
   const fetchZoneData = useCallback(async (zoneId: number) => {
@@ -125,6 +152,11 @@ export default function EditeurPage() {
   const zoneCompetences = useMemo(
     () => selectedZoneId ? competences.filter((c) => c.zoneId === selectedZoneId) : competences,
     [competences, selectedZoneId]
+  )
+
+  const filteredTutoriels = useMemo(
+    () => tutorielZoneFilter !== null ? tutoriels.filter((t) => t.zoneId === tutorielZoneFilter) : tutoriels,
+    [tutoriels, tutorielZoneFilter]
   )
 
   // ── Sélection de zone → charge les données + bascule vers l'onglet missions
@@ -189,6 +221,23 @@ export default function EditeurPage() {
     setMoveMission(null)
   }
 
+  // ── CRUD Tutoriels ─────────────────────────────────────────────────────────
+  async function handleSaveTutoriel(data: TutorielFormData) {
+    try {
+      if (editTutoriel) {
+        const res = await api.put(`/editeur/tutoriels/${editTutoriel.id}`, data)
+        setTutoriels(prev => prev.map(t => t.id === editTutoriel.id ? res.data : t))
+      } else {
+        const res = await api.post('/editeur/tutoriels', data)
+        setTutoriels(prev => [...prev, res.data])
+      }
+    } catch {
+      setApiError('Impossible de sauvegarder le tutoriel.')
+    }
+    setShowAddTutoriel(false)
+    setEditTutoriel(null)
+  }
+
   // ── CRUD Compétences ───────────────────────────────────────────────────────
   async function handleSaveCompetence(data: CompetenceFormData) {
     try {
@@ -224,9 +273,12 @@ export default function EditeurPage() {
         setZones(prev => prev.map(z =>
           z.id === zId ? { ...z, missionCount: Math.max(0, (z.missionCount ?? 1) - 1) } : z
         ))
-      } else {
+      } else if (type === 'competence') {
         await api.delete(`/editeur/competences/${item.id}`)
         setCompetences(prev => prev.filter(c => c.id !== item.id))
+      } else {
+        await api.delete(`/editeur/tutoriels/${item.id}`)
+        setTutoriels(prev => prev.filter(t => t.id !== item.id))
       }
     } catch {
       setApiError('Impossible de supprimer cet élément.')
@@ -234,11 +286,11 @@ export default function EditeurPage() {
     setConfirmDelete(null)
   }
 
-  const confirmItem = confirmDelete?.item as (EditorZone & EditorMission & EditorCompetence) | undefined
+  const confirmItem = confirmDelete?.item as (EditorZone & EditorMission & EditorCompetence & EditorTutoriel) | undefined
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="max-w-[390px] mx-auto px-4 pb-24 lg:max-w-2xl">
+    <div className="mx-auto px-4 pb-24 lg:max-w-2xl">
       {/* Header */}
       <div className="py-4 flex justify-between items-center">
         <button
@@ -249,9 +301,10 @@ export default function EditeurPage() {
         </button>
         <button
           onClick={() => {
-            if (activeTab === 'zones')       { setEditZone(null);    setShowAddZone(true)     }
-            if (activeTab === 'missions')    { setEditMission(null); setShowAddMission(true)  }
-            if (activeTab === 'competences') { setEditComp(null);    setShowAddComp(true)     }
+            if (activeTab === 'zones')       { setEditZone(null);      setShowAddZone(true)      }
+            if (activeTab === 'missions')    { setEditMission(null);   setShowAddMission(true)   }
+            if (activeTab === 'competences') { setEditComp(null);      setShowAddComp(true)      }
+            if (activeTab === 'tutoriels')   { setEditTutoriel(null);  setShowAddTutoriel(true)  }
           }}
           className="w-7 h-7 rounded-[8px] border border-border bg-transparent flex items-center justify-center text-[13px] text-muted hover:border-accent hover:text-accent transition-all"
         >
@@ -402,6 +455,62 @@ export default function EditeurPage() {
         </>
       )}
 
+      {/* ── Onglet Tutoriels ──────────────────────────────────────────────── */}
+      {activeTab === 'tutoriels' && (
+        <>
+          <EditorTabs active="tutoriels" onChange={setActiveTab} />
+
+          {/* Chips de filtrage par zone */}
+          {zones.length > 0 && (
+            <div className="flex gap-1.5 overflow-x-auto pb-1 mb-3 scrollbar-none">
+              <button
+                onClick={() => setTutorielZoneFilter(null)}
+                className={`px-3 py-1.5 rounded-[10px] border text-[11px] font-semibold whitespace-nowrap flex-shrink-0 transition-all ${
+                  tutorielZoneFilter === null
+                    ? 'bg-surface2 border-border text-text'
+                    : 'border-border text-muted hover:border-accent/40'
+                }`}
+              >
+                Tous
+              </button>
+              {zones.map(z => (
+                <button
+                  key={z.id}
+                  onClick={() => setTutorielZoneFilter(z.id)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] border text-[11px] font-semibold whitespace-nowrap flex-shrink-0 transition-all ${
+                    tutorielZoneFilter === z.id
+                      ? 'border-transparent text-white'
+                      : 'border-border text-muted hover:border-accent/40'
+                  }`}
+                  style={tutorielZoneFilter === z.id ? { backgroundColor: z.couleur } : {}}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: tutorielZoneFilter === z.id ? 'rgba(255,255,255,0.7)' : z.couleur }}
+                  />
+                  {z.nom}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {loadingTutoriels ? (
+            <div className="space-y-2 animate-pulse">
+              {[0,1,2].map(i => (
+                <div key={i} className="h-12 bg-surface rounded-[12px] border border-border" />
+              ))}
+            </div>
+          ) : (
+            <TutorielList
+              tutoriels={filteredTutoriels}
+              onEdit={(t) => { setEditTutoriel(t); setShowAddTutoriel(true) }}
+              onDelete={(t) => setConfirmDelete({ type: 'tutoriel', item: t })}
+              onAdd={() => { setEditTutoriel(null); setShowAddTutoriel(true) }}
+            />
+          )}
+        </>
+      )}
+
       {/* ── Modaux ────────────────────────────────────────────────────────── */}
       <ModalAddZone
         open={showAddZone}
@@ -427,10 +536,18 @@ export default function EditeurPage() {
         onSave={handleSaveCompetence}
       />
 
+      <ModalAddTutoriel
+        open={showAddTutoriel}
+        editTutoriel={editTutoriel}
+        zones={zones}
+        onClose={() => { setShowAddTutoriel(false); setEditTutoriel(null) }}
+        onSave={handleSaveTutoriel}
+      />
+
       <ModalConfirmDelete
         open={confirmDelete !== null}
         type={confirmDelete?.type ?? 'zone'}
-        nom={confirmItem?.nom ?? confirmItem?.texte ?? ''}
+        nom={confirmItem?.nom ?? confirmItem?.texte ?? confirmItem?.titre ?? ''}
         missionCount={
           confirmDelete?.type === 'zone'
             ? missions.filter(m => m.zoneId === confirmItem?.id).length

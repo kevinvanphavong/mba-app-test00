@@ -47,7 +47,7 @@ export default function HeroServiceCard({
             {cfg.dot && (
               <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse_dot" />
             )}
-            <span className="text-[11px] font-extrabold font-syne">{cfg.label}</span>
+            { <span className="text-[11px] font-extrabold font-syne">{cfg.label}</span> }
           </div>
         </div>
 

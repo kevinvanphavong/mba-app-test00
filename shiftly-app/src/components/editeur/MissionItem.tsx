@@ -58,7 +58,7 @@ export default function MissionItem({
       <span className="text-border text-[14px] cursor-grab select-none flex-shrink-0">⠿</span>
 
       {/* point de priorité */}
-      <span className={`w-[7px] h-[7px] rounded-full flex-shrink-0 ${PRIORITY_DOT[mission.priorite] ?? 'bg-muted'}`} />
+      <span className={`w-[7px] h-[7px] rounded-full flex-shrink-0 ${PRIORITY_DOT[mission.priorite] ?? 'bg-muted'}`}></span>
 
       {/* texte */}
       <span className="flex-1 text-[12px] font-medium">{mission.texte}</span>

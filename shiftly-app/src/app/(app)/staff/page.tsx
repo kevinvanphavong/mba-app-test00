@@ -1,37 +1,55 @@
 'use client'
 
-import { useState, useMemo }             from 'react'
-import { motion }                        from 'framer-motion'
-import Topbar                            from '@/components/layout/Topbar'
-import StatsRow                          from '@/components/staff/StatsRow'
-import SearchBar                         from '@/components/staff/SearchBar'
-import FilterTabs                        from '@/components/staff/FilterTabs'
-import MemberCard                        from '@/components/staff/MemberCard'
-import { mockStaff }                     from '@/lib/mock/staff'
+import { useState, useMemo }                    from 'react'
+import { motion }                               from 'framer-motion'
+import Topbar                                   from '@/components/layout/Topbar'
+import StatsRow                                 from '@/components/staff/StatsRow'
+import SearchBar                                from '@/components/staff/SearchBar'
+import FilterTabs                               from '@/components/staff/FilterTabs'
+import MemberCard                               from '@/components/staff/MemberCard'
+import { useStaff }                             from '@/hooks/useStaff'
 import { listVariants, listItemVariants, fadeUpVariants } from '@/lib/animations'
-import type { RoleFilter, ZoneFilter }   from '@/types/staff'
+import type { RoleFilter, ZoneFilter }          from '@/types/staff'
 
 export default function StaffPage() {
-  const [search,      setSearch]      = useState('')
-  const [roleFilter,  setRoleFilter]  = useState<RoleFilter>('all')
-  const [zoneFilter,  setZoneFilter]  = useState<ZoneFilter>('all')
-  const [expandedId,  setExpandedId]  = useState<number | null>(null)
+  const [search,     setSearch]     = useState('')
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>('all')
+  const [zoneFilter, setZoneFilter] = useState<ZoneFilter>('all')
+  const [expandedId, setExpandedId] = useState<number | null>(null)
+
+  const { data, isLoading, isError } = useStaff()
+  const members = data?.members ?? []
+  const meta    = data?.meta    ?? { tutorielsTotal: 0, competencesTotal: 0 }
+
+  // Zones uniques dans le centre (pour les chips de filtre)
+  const zones = useMemo(() => {
+    const map = new Map<string, string | null>()
+    for (const m of members) {
+      for (const c of m.staffCompetences) {
+        if (c.zoneName && !map.has(c.zoneName)) map.set(c.zoneName, c.zoneCouleur)
+      }
+    }
+    return Array.from(map.entries()).map(([nom, couleur]) => ({ nom, couleur }))
+  }, [members])
 
   const handleToggle = (id: number) =>
     setExpandedId(prev => (prev === id ? null : id))
 
-  // ── Filtered list ─────────────────────────────────────────────────────────
+  // ── Filtres ────────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim()
-    return mockStaff.filter(m => {
-      if (q && !m.nom.toLowerCase().includes(q) && !m.prenom.toLowerCase().includes(q)) return false
+    return members.filter(m => {
+      if (!m.actif) return false
+      if (q && !m.nom.toLowerCase().includes(q) && !(m.prenom?.toLowerCase().includes(q) ?? false)) return false
       if (roleFilter !== 'all' && m.role !== roleFilter) return false
-      if (zoneFilter !== 'all' && !m.zones.includes(zoneFilter as never)) return false
+      if (zoneFilter !== 'all') {
+        const zones = m.staffCompetences.map(c => c.zoneName)
+        if (!zones.includes(zoneFilter)) return false
+      }
       return true
     })
-  }, [search, roleFilter, zoneFilter])
+  }, [members, search, roleFilter, zoneFilter])
 
-  // Manager is always first in the list
   const sorted = useMemo(
     () => [...filtered].sort((a, b) => {
       if (a.role === 'MANAGER' && b.role !== 'MANAGER') return -1
@@ -41,15 +59,41 @@ export default function StaffPage() {
     [filtered]
   )
 
+  // ── États ──────────────────────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
+        <Topbar />
+        <div className="px-4 pb-28 space-y-3 pt-4">
+          <div className="grid grid-cols-3 gap-3">
+            {[0,1,2].map(i => <div key={i} className="h-20 bg-surface border border-border rounded-[14px] animate-pulse" />)}
+          </div>
+          {[0,1,2,3].map(i => <div key={i} className="h-16 bg-surface border border-border rounded-[18px] animate-pulse" />)}
+        </div>
+      </motion.div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
+        <Topbar />
+        <div className="px-4 py-14 text-center">
+          <p className="text-[14px] font-bold text-red mb-1">Impossible de charger le staff.</p>
+          <p className="text-[12px] text-muted">Vérifie la connexion ou recharge la page.</p>
+        </div>
+      </motion.div>
+    )
+  }
+
   return (
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
-      {/* Topbar */}
       <Topbar />
 
       <div className="px-4 pb-28 lg:px-7 lg:pb-10 space-y-4 lg:mx-auto">
 
         {/* ── KPIs ── */}
-        <StatsRow members={mockStaff} />
+        <StatsRow members={members} />
 
         {/* ── Search ── */}
         <SearchBar value={search} onChange={setSearch} />
@@ -58,11 +102,12 @@ export default function StaffPage() {
         <FilterTabs
           roleFilter={roleFilter}
           zoneFilter={zoneFilter}
+          zones={zones}
           onRoleChange={setRoleFilter}
           onZoneChange={setZoneFilter}
         />
 
-        {/* ── Results count ── */}
+        {/* ── Compteur ── */}
         <div className="flex items-center justify-between">
           <p className="text-[11px] text-muted">
             {sorted.length} membre{sorted.length > 1 ? 's' : ''}
@@ -80,7 +125,7 @@ export default function StaffPage() {
           )}
         </div>
 
-        {/* ── Member list ── */}
+        {/* ── Liste ── */}
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-14 text-center">
             <span className="text-4xl mb-3">🔍</span>
@@ -98,6 +143,7 @@ export default function StaffPage() {
               <motion.div key={member.id} variants={listItemVariants}>
                 <MemberCard
                   member={member}
+                  meta={meta}
                   isExpanded={expandedId === member.id}
                   onToggle={handleToggle}
                 />

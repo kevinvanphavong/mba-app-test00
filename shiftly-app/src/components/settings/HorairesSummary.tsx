@@ -23,16 +23,9 @@ export default function CentreSettingsSection() {
 
   const items = [
     {
-      label:  "Horaires d'ouverture",
-      sub:    summary,
-      action: 'Modifier',
-      href:   '/reglages/horaires',
-    },
-    {
-      label:  'Éditeur de contenu',
-      sub:    'Zones, missions et compétences',
-      action: 'Ouvrir',
-      href:   '/reglages/editeur',
+      label: "Horaires d'ouverture",
+      sub:   summary,
+      href:  '/reglages/horaires',
     },
   ]
 
@@ -43,15 +36,20 @@ export default function CentreSettingsSection() {
       </div>
       <div className="bg-surface border border-border rounded-[18px] overflow-hidden divide-y divide-border">
         {items.map(item => (
-          <div key={item.label} className="flex items-center gap-3 px-4 py-3">
+          <Link
+            key={item.label}
+            href={item.href}
+            className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-surface2 transition-colors"
+          >
             <div className="flex-1 min-w-0">
               <div className="text-[13px] text-text font-medium">{item.label}</div>
               <div className="text-[11px] text-muted">{item.sub}</div>
             </div>
-            <Link href={item.href} className="text-[11px] text-accent font-semibold flex-shrink-0">
-              {item.action} →
-            </Link>
-          </div>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-muted flex-shrink-0">
+              <path d="M5 2.5L9.5 7L5 11.5" stroke="currentColor" strokeWidth="1.5"
+                strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
         ))}
       </div>
     </div>

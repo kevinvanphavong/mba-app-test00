@@ -33,7 +33,7 @@ export default function ProfileCard() {
 
   if (!user) return null
 
-  const initials = getInitials(user.nom)
+  const initials = getInitials(user.prenom + ' ' + user.nom)
   const roleLabel = formatRole(user.role)
   const centreNom = user.centre?.nom ?? ''
 
@@ -50,7 +50,7 @@ export default function ProfileCard() {
         {initials}
       </div>
       <div>
-        <div className="font-syne font-extrabold text-[16px] text-text">{user.nom}</div>
+        <div className="font-syne font-extrabold text-[16px] text-text">{user.prenom} {user.nom}</div>
         <div className="text-[12px] text-muted">
           {roleLabel}{centreNom ? ` · ${centreNom}` : ''}
         </div>

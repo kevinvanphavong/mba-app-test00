@@ -1,4 +1,4 @@
-export type EditorTab = 'zones' | 'missions' | 'competences'
+export type EditorTab = 'zones' | 'missions' | 'competences' | 'tutoriels'
 
 /** Correspond à Mission::CAT_* côté backend */
 export type MissionCategorie =
@@ -48,6 +48,18 @@ export interface EditorCompetence {
   description?: string | null
 }
 
+export interface EditorTutoriel {
+  id:           number
+  titre:        string
+  niveau:       'debutant' | 'intermediaire' | 'avance'
+  dureMin:      number | null
+  contenu:      unknown[]
+  createdAt?:   string
+  zoneId:       number | null
+  zoneName:     string | null
+  zoneCouleur:  string | null
+}
+
 // ── Payloads de formulaire ─────────────────────────────────────────────────
 
 export interface ZoneFormData {
@@ -70,6 +82,19 @@ export interface CompetenceFormData {
   description: string
   zoneId:      number
 }
+
+export interface TutorielFormData {
+  titre:   string
+  niveau:  'debutant' | 'intermediaire' | 'avance'
+  dureMin: number | null
+  zoneId:  number | null
+  contenu: TutoBlockForm[]
+}
+
+export type TutoBlockForm =
+  | { type: 'intro'; text: string }
+  | { type: 'step';  number: number; title: string; text: string }
+  | { type: 'tip';   text: string }
 
 // ── Labels d'affichage ─────────────────────────────────────────────────────
 

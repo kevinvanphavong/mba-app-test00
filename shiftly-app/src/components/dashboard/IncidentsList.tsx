@@ -6,7 +6,8 @@ import Panel from '@/components/ui/Panel'
 import type { DashboardIncidents } from '@/types/dashboard'
 
 interface IncidentsListProps {
-  data: DashboardIncidents
+  data:      DashboardIncidents
+  onReport?: () => void
 }
 
 const SEV_DOT: Record<string, string> = {
@@ -26,7 +27,7 @@ const SEV_BADGE: Record<string, string> = {
 }
 
 /** Panel — liste des incidents ouverts avec sévérité et ancienneté */
-export default function IncidentsList({ data }: IncidentsListProps) {
+export default function IncidentsList({ data, onReport }: IncidentsListProps) {
   const { alertes, total, haute, moyenne, basse } = data
 
   // Tous les incidents pour l'affichage (alertes = incidents haute sévérité open)
@@ -113,6 +114,16 @@ export default function IncidentsList({ data }: IncidentsListProps) {
             )
           })}
         </div>
+      )}
+
+      {onReport && (
+        <button
+          onClick={onReport}
+          className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-[12px] border border-red/30 bg-red/5 text-red text-[12px] font-bold hover:bg-red/10 active:scale-[0.98] transition-all"
+        >
+          <span>⚠️</span>
+          Signaler un incident
+        </button>
       )}
     </Panel>
   )

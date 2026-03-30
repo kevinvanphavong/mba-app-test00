@@ -1,6 +1,5 @@
-import { cn }             from '@/lib/cn'
-import { getZoneColor }  from '@/lib/colors'
-import type { StaffCompetence, ZoneNom } from '@/types/staff'
+import { cn } from '@/lib/cn'
+import type { StaffCompetenceItem } from '@/types/staff'
 
 const DIFF_LABEL: Record<string, string> = {
   simple:      'Simple',
@@ -14,40 +13,36 @@ const DIFF_CLS: Record<string, string> = {
 }
 
 interface CompetenceListProps {
-  competences: StaffCompetence[]
+  competences: StaffCompetenceItem[]
 }
 
-/** Liste des compétences groupées par zone */
+/** Liste des compétences acquises groupées par zone */
 export default function CompetenceList({ competences }: CompetenceListProps) {
   if (competences.length === 0) {
     return <p className="text-[12px] text-muted py-1">Aucune compétence enregistrée.</p>
   }
 
-  // Group by zone
-  const grouped = competences.reduce<Record<string, StaffCompetence[]>>((acc, c) => {
-    if (!acc[c.zone]) acc[c.zone] = []
-    acc[c.zone].push(c)
+  // Grouper par zone
+  const grouped = competences.reduce<Record<string, StaffCompetenceItem[]>>((acc, c) => {
+    const key = c.zoneName ?? 'Général'
+    if (!acc[key]) acc[key] = []
+    acc[key].push(c)
     return acc
   }, {})
 
   return (
     <div className="flex flex-col gap-2.5">
       {Object.entries(grouped).map(([zone, comps]) => {
-        const color = getZoneColor(zone)
+        const color = comps[0]?.zoneCouleur ?? '#6b7280'
         return (
           <div key={zone}>
-            {/* Zone header */}
             <div className="flex items-center gap-1.5 mb-1.5">
-              <span
-                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ background: color }}
-              />
+              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: color }} />
               <span className="text-[10px] font-extrabold uppercase tracking-wider" style={{ color }}>
                 {zone}
               </span>
             </div>
 
-            {/* Competences */}
             <div className="flex flex-col gap-1 pl-3">
               {comps.map(c => (
                 <div
@@ -64,9 +59,7 @@ export default function CompetenceList({ competences }: CompetenceListProps) {
                     >
                       {DIFF_LABEL[c.difficulte]}
                     </span>
-                    <span className="text-[10px] font-bold text-accent font-syne">
-                      +{c.points}
-                    </span>
+                    <span className="text-[10px] font-bold text-accent font-syne">+{c.points}</span>
                   </div>
                 </div>
               ))}

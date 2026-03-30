@@ -1,35 +1,31 @@
 'use client'
 
-import { cn }                     from '@/lib/cn'
-import { getZoneColor, hexAlpha } from '@/lib/colors'
-import type { RoleFilter, ZoneFilter, ZoneNom } from '@/types/staff'
+import { cn }        from '@/lib/cn'
+import { hexAlpha }  from '@/lib/colors'
+import type { RoleFilter, ZoneFilter } from '@/types/staff'
 
 const ROLE_TABS: Array<{ value: RoleFilter; label: string }> = [
-  { value: 'all',     label: 'Tous'     },
-  { value: 'MANAGER', label: 'Manager'  },
-  { value: 'EMPLOYE', label: 'Employé'  },
+  { value: 'all',     label: 'Tous'    },
+  { value: 'MANAGER', label: 'Manager' },
+  { value: 'EMPLOYE', label: 'Employé' },
 ]
 
-const ZONES: ZoneNom[] = ['Accueil', 'Bar', 'Salle']
+interface ZoneOption { nom: string; couleur: string | null }
 
 interface FilterTabsProps {
-  roleFilter:    RoleFilter
-  zoneFilter:    ZoneFilter
-  onRoleChange:  (v: RoleFilter) => void
-  onZoneChange:  (v: ZoneFilter) => void
+  roleFilter:   RoleFilter
+  zoneFilter:   ZoneFilter
+  zones:        ZoneOption[]
+  onRoleChange: (v: RoleFilter) => void
+  onZoneChange: (v: ZoneFilter) => void
 }
 
 /**
  * Double filtre :
- *  - Row 1 : Tous / Manager / Employé  (pill tabs)
- *  - Row 2 : Toutes / Accueil / Bar / Salle  (zone chips)
+ *  - Row 1 : Tous / Manager / Employé (pill tabs)
+ *  - Row 2 : Toutes / zones dynamiques (chips)
  */
-export default function FilterTabs({
-  roleFilter,
-  zoneFilter,
-  onRoleChange,
-  onZoneChange,
-}: FilterTabsProps) {
+export default function FilterTabs({ roleFilter, zoneFilter, zones, onRoleChange, onZoneChange }: FilterTabsProps) {
   return (
     <div className="flex flex-col gap-2.5">
       {/* Role row */}
@@ -51,37 +47,39 @@ export default function FilterTabs({
       </div>
 
       {/* Zone row */}
-      <div className="flex gap-1.5 flex-wrap">
-        <button
-          onClick={() => onZoneChange('all')}
-          className={cn(
-            'px-3 py-1 rounded-[8px] text-[11px] font-bold border transition-all duration-150',
-            zoneFilter === 'all'
-              ? 'bg-surface2 text-text border-border'
-              : 'bg-transparent text-muted border-border/50 hover:border-border'
-          )}
-        >
-          Toutes zones
-        </button>
-        {ZONES.map(zone => {
-          const color   = getZoneColor(zone)
-          const active  = zoneFilter === zone
-          return (
-            <button
-              key={zone}
-              onClick={() => onZoneChange(active ? 'all' : zone)}
-              className="px-3 py-1 rounded-[8px] text-[11px] font-bold border transition-all duration-150"
-              style={
-                active
-                  ? { color, background: hexAlpha(color, 0.09), borderColor: hexAlpha(color, 0.31) }
-                  : { color: '#6b7280', borderColor: 'rgba(37,42,58,0.5)' }
-              }
-            >
-              {zone}
-            </button>
-          )
-        })}
-      </div>
+      {zones.length > 0 && (
+        <div className="flex gap-1.5 flex-wrap">
+          <button
+            onClick={() => onZoneChange('all')}
+            className={cn(
+              'px-3 py-1 rounded-[8px] text-[11px] font-bold border transition-all duration-150',
+              zoneFilter === 'all'
+                ? 'bg-surface2 text-text border-border'
+                : 'bg-transparent text-muted border-border/50 hover:border-border'
+            )}
+          >
+            Toutes zones
+          </button>
+          {zones.map(zone => {
+            const color  = zone.couleur ?? '#6b7280'
+            const active = zoneFilter === zone.nom
+            return (
+              <button
+                key={zone.nom}
+                onClick={() => onZoneChange(active ? 'all' : zone.nom)}
+                className="px-3 py-1 rounded-[8px] text-[11px] font-bold border transition-all duration-150"
+                style={
+                  active
+                    ? { color, background: hexAlpha(color, 0.09), borderColor: hexAlpha(color, 0.31) }
+                    : { color: '#6b7280', borderColor: 'rgba(37,42,58,0.5)' }
+                }
+              >
+                {zone.nom}
+              </button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

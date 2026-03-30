@@ -65,7 +65,7 @@ export default function HorairesPage() {
   const isLoading = userLoading || fetchingCentre
 
   return (
-    <div className="max-w-[390px] mx-auto px-5 py-6 lg:max-w-2xl">
+    <div className="mx-auto px-5 py-6 lg:max-w-2xl">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Link

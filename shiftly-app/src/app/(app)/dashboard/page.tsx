@@ -1,15 +1,59 @@
 'use client'
 
-import Topbar        from '@/components/layout/Topbar'
-import HeroService   from '@/components/dashboard/HeroService'
-import KPIGrid       from '@/components/dashboard/KPIGrid'
-import IncidentsList from '@/components/dashboard/IncidentsList'
-import StaffRanking  from '@/components/dashboard/StaffRanking'
-import AlertsFeed    from '@/components/dashboard/AlertsFeed'
-import { useDashboard } from '@/hooks/useDashboard'
+import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Topbar          from '@/components/layout/Topbar'
+import HeroService     from '@/components/dashboard/HeroService'
+import KPIGrid         from '@/components/dashboard/KPIGrid'
+import IncidentsList   from '@/components/dashboard/IncidentsList'
+import StaffRanking    from '@/components/dashboard/StaffRanking'
+import AlertsFeed      from '@/components/dashboard/AlertsFeed'
+import ModalIncident   from '@/components/service/ModalIncident'
+import { useDashboard }    from '@/hooks/useDashboard'
+import { useServiceToday } from '@/hooks/useService'
+import { useCreateIncident } from '@/hooks/useIncidents'
+import { useAuthStore }    from '@/store/authStore'
+import { useCurrentUser }  from '@/hooks/useCurrentUser'
 
 export default function DashboardPage() {
+  const router = useRouter()
+  const { user, loading } = useCurrentUser()
+
+  // Redirige les EMPLOYE vers /service — dashboard réservé aux managers
+  useEffect(() => {
+    if (!loading && user && user.role !== 'MANAGER') {
+      router.replace('/service')
+    }
+  }, [user, loading, router])
+
+  if (loading || !user || user.role !== 'MANAGER') return null
   const { data, isLoading, isError } = useDashboard()
+  const { data: serviceData }        = useServiceToday()
+  const centreId                     = useAuthStore(s => s.centreId)
+  const createIncident               = useCreateIncident()
+
+  const [incidentOpen, setIncidentOpen] = useState(false)
+
+  // Zones et staff extraits du service du jour (pour la modale incident)
+  const allZones = useMemo(
+    () => serviceData?.zones.map(z => ({ id: z.id, nom: z.nom, couleur: z.couleur, ordre: z.ordre })) ?? [],
+    [serviceData]
+  )
+
+  const handleIncidentSubmit = useCallback(async (payload: {
+    titre:    string
+    severite: 'haute' | 'moyenne' | 'basse'
+    zoneId:   number | null
+    staffIds: number[]
+  }) => {
+    if (!serviceData || !centreId) return
+    await createIncident.mutateAsync({
+      titre:     payload.titre,
+      severite:  payload.severite,
+      serviceId: serviceData.service.id,
+      centreId,
+    })
+  }, [serviceData, centreId, createIncident])
 
   return (
     <div className="min-h-full animate-fadeUp">
@@ -48,7 +92,7 @@ export default function DashboardPage() {
             />
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <IncidentsList data={data.incidents} />
+              <IncidentsList data={data.incidents} onReport={serviceData?.service ? () => setIncidentOpen(true) : undefined} />
               <StaffRanking  topStaff={data.topStaff} />
               <AlertsFeed    alertes={data.incidents.alertes} />
             </div>
@@ -56,6 +100,15 @@ export default function DashboardPage() {
         )}
 
       </div>
+
+      {/* Modale incident */}
+      <ModalIncident
+        open={incidentOpen}
+        onClose={() => setIncidentOpen(false)}
+        onSubmit={handleIncidentSubmit}
+        zones={allZones}
+        staff={serviceData?.staff ?? []}
+      />
     </div>
   )
 }

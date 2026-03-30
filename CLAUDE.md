@@ -155,7 +155,8 @@ Desktop 1200px+ : Sidebar fixe 240px
 ```
 
 Bottom nav mobile (ordre fixe) :
-`Service · Postes · Staff · Tutoriels · Réglages`
+- MANAGER : `Dashboard · Services · Service · Postes · Staff · Tutoriels · Réglages`
+- EMPLOYE : `Service · Postes · Staff · Tutoriels · Réglages`
 
 ---
 

@@ -34,6 +34,10 @@ html, body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+/* Masque la scrollbar horizontale de la bottom nav */
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
 /* Gradient accent bar — used on hero cards */
 .accent-bar::before {
   content: '';

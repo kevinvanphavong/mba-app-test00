@@ -3,76 +3,70 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
-import type { StaffMember } from '@/types/staff'
+import type { StaffResponse } from '@/types/staff'
 
-// ─── Liste du staff ───────────────────────────────────────────────────────────
+// ─── Liste enrichie du staff ──────────────────────────────────────────────────
 
 export function useStaff() {
   const centreId = useAuthStore(s => s.centreId)
 
-  return useQuery<StaffMember[]>({
+  return useQuery<StaffResponse>({
     queryKey: ['staff', centreId],
-    queryFn:  () =>
-      api.get('/users', { params: { centreId } })
-        .then(r => r.data['hydra:member'] ?? r.data.member ?? r.data),
-    enabled: !!centreId,
+    queryFn:  () => api.get('/staff').then(r => r.data),
+    enabled:  !!centreId,
   })
 }
 
-// ─── Créer un utilisateur ─────────────────────────────────────────────────────
+// ─── Créer un membre (éditeur staff) ─────────────────────────────────────────
 
-interface CreateUserPayload {
-  nom:        string
-  prenom:     string
-  email:      string
-  password:   string
-  role:       'MANAGER' | 'EMPLOYE'
-  tailleHaut?: string
-  tailleBas?:  string
-  pointure?:   string
+interface CreateStaffPayload {
+  nom:         string
+  prenom?:     string | null
+  email:       string
+  password:    string
+  role:        'MANAGER' | 'EMPLOYE'
+  tailleHaut?: string | null
+  tailleBas?:  string | null
+  pointure?:   string | null
 }
 
-export function useCreateUser() {
+export function useCreateStaff() {
   const centreId    = useAuthStore(s => s.centreId)
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (payload: CreateUserPayload) =>
-      api.post('/users', { ...payload, centreId }).then(r => r.data),
-
+    mutationFn: (payload: CreateStaffPayload) =>
+      api.post('/editeur/staff', payload).then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['staff', centreId] })
     },
   })
 }
 
-// ─── Modifier un utilisateur ──────────────────────────────────────────────────
+// ─── Modifier un membre ───────────────────────────────────────────────────────
 
-interface UpdateUserPayload {
+interface UpdateStaffPayload {
   id:          number
   nom?:        string
-  prenom?:     string
+  prenom?:     string | null
   email?:      string
   role?:       'MANAGER' | 'EMPLOYE'
-  tailleHaut?: string
-  tailleBas?:  string
-  pointure?:   string
+  tailleHaut?: string | null
+  tailleBas?:  string | null
+  pointure?:   string | null
   actif?:      boolean
+  password?:   string
 }
 
-export function useUpdateUser() {
+export function useUpdateStaff() {
   const centreId    = useAuthStore(s => s.centreId)
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, ...payload }: UpdateUserPayload) =>
-      api.patch(`/users/${id}`, payload, {
-        headers: { 'Content-Type': 'application/merge-patch+json' },
-      }).then(r => r.data),
-
+    mutationFn: ({ id, ...payload }: UpdateStaffPayload) =>
+      api.put(`/editeur/staff/${id}`, payload).then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['staff', centreId] })
-      queryClient.invalidateQueries({ queryKey: ['me'] })
     },
   })
 }

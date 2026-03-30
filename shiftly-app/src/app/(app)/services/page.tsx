@@ -26,7 +26,7 @@ export default function ServicesPage() {
 
   if (!centreId || isLoading) {
     return (
-      <div className="max-w-[390px] mx-auto px-5 py-6 lg:max-w-2xl">
+      <div className="mx-auto px-5 py-6 lg:max-w-2xl">
         <div className="flex items-start justify-between mb-5">
           <div>
             <div className="h-5 w-28 bg-surface2 rounded-lg animate-pulse" />
@@ -46,7 +46,7 @@ export default function ServicesPage() {
 
   if (isError) {
     return (
-      <div className="max-w-[390px] mx-auto px-5 py-6 lg:max-w-2xl">
+      <div className="mx-auto px-5 py-6 lg:max-w-2xl">
         <div className="bg-surface border border-red/20 rounded-[18px] p-8 text-center">
           <p className="text-[28px] mb-2">⚠️</p>
           <p className="text-red font-semibold text-[14px]">Erreur de chargement</p>
@@ -72,7 +72,7 @@ export default function ServicesPage() {
 
   if (services.length === 0) {
     return (
-      <div className="max-w-[390px] mx-auto px-5 py-6 lg:max-w-2xl">
+      <div className="mx-auto px-5 py-6 lg:max-w-2xl">
         <div className="flex items-start justify-between mb-5">
           <div>
             <h1 className="font-syne font-extrabold text-[20px] text-text">Services</h1>
@@ -120,7 +120,7 @@ export default function ServicesPage() {
   // ── Liste ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="max-w-[390px] mx-auto px-5 py-6 lg:max-w-2xl pb-28">
+    <div className="mx-auto px-5 py-6 lg:max-w-2xl pb-28">
       {/* En-tête */}
       <div className="flex items-start justify-between mb-5">
         <div>

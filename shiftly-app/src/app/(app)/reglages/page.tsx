@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
-import LogoutButton from '@/components/auth/LogoutButton'
-import ProfileCard from '@/components/settings/ProfileCard'
+import LogoutButton          from '@/components/auth/LogoutButton'
+import ProfileCard           from '@/components/settings/ProfileCard'
 import CentreSettingsSection from '@/components/settings/HorairesSummary'
+import ManagerLinks          from '@/components/settings/ManagerLinks'
 
 export const metadata: Metadata = { title: 'Réglages — Shiftly' }
 
 export default function ReglagesPage() {
   return (
-    <div className="max-w-[390px] mx-auto px-5 py-6 lg:max-w-2xl">
+    <div className="mx-auto px-5 py-6">
       <div className="mb-5">
         <h1 className="font-syne font-extrabold text-[20px] text-text">Réglages</h1>
       </div>
@@ -18,7 +19,7 @@ export default function ReglagesPage() {
       {/* Notifications */}
       <div className="mb-4">
         <div className="text-[9px] font-syne font-bold uppercase tracking-widest text-muted px-1 mb-2">
-          Notifications
+          <p>Notifications</p>
         </div>
         <div className="bg-surface border border-border rounded-[18px] overflow-hidden divide-y divide-border">
           {[
@@ -42,6 +43,9 @@ export default function ReglagesPage() {
           ))}
         </div>
       </div>
+
+      {/* Liens manager (éditeur contenu + éditeur staff) */}
+      <ManagerLinks />
 
       {/* Centre — section dynamique (horaires calculés depuis la BDD) */}
       <CentreSettingsSection />

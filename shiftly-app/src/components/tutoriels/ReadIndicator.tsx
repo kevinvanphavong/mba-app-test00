@@ -1,62 +1,51 @@
 'use client'
 
-import { useState } from 'react'
-import { cn }       from '@/lib/cn'
+import { useState }       from 'react'
+import { cn }             from '@/lib/cn'
+import { useMarkAsRead }  from '@/hooks/useTutoriels'
 
 interface ReadIndicatorProps {
-  tutoId:    number
-  initialRead: boolean
-  onToggle?: (tutoId: number, isRead: boolean) => void
+  tutoId: number
+  readId: number | null
 }
 
 /**
  * Bouton "marquer comme lu" — cercle muted → cercle vert.
- * Appel POST /api/tuto-reads à l'activation.
- * Clic sur lu → démarquer (DELETE).
+ * Appelle directement useMarkAsRead — plus de faux délai mock.
  */
-export default function ReadIndicator({ tutoId, initialRead, onToggle }: ReadIndicatorProps) {
-  const [isRead,   setIsRead]   = useState(initialRead)
-  const [loading,  setLoading]  = useState(false)
+export default function ReadIndicator({ tutoId, readId }: ReadIndicatorProps) {
+  // Optimistic : reflet local de l'état lu/non-lu
+  const [localRead, setLocalRead] = useState(readId !== null)
+  const { mutate, isPending }     = useMarkAsRead()
 
-  const handleClick = async (e: React.MouseEvent) => {
+  const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation()  // Ne pas déclencher le toggle de la card
-    if (loading) return
+    if (isPending) return
 
-    setLoading(true)
-    const next = !isRead
-    setIsRead(next)  // Optimistic
+    const next = !localRead
+    setLocalRead(next)  // Mise à jour optimiste
 
-    try {
-      // TODO: swap mock → real API
-      await new Promise(r => setTimeout(r, 200))
-      // if (next) {
-      //   await api.post('/tuto_reads', { tutoriel: `/api/tutoriels/${tutoId}`, user: '/api/users/1' })
-      // } else {
-      //   await api.delete(`/tuto_reads/${readId}`)
-      // }
-      onToggle?.(tutoId, next)
-    } catch {
-      setIsRead(!next)  // Rollback
-    } finally {
-      setLoading(false)
-    }
+    mutate(
+      { tutorielId: tutoId, readId: next ? null : readId },
+      { onError: () => setLocalRead(!next) }  // Rollback si échec
+    )
   }
 
   return (
     <button
       onClick={handleClick}
-      disabled={loading}
-      title={isRead ? 'Marquer comme non lu' : 'Marquer comme lu'}
+      disabled={isPending}
+      title={localRead ? 'Marquer comme non lu' : 'Marquer comme lu'}
       className={cn(
         'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0',
         'transition-all duration-300 border',
-        loading && 'opacity-50 cursor-wait',
-        isRead
+        isPending && 'opacity-50 cursor-wait',
+        localRead
           ? 'bg-green/15 border-green/30 text-green'
           : 'bg-surface2 border-border text-muted hover:border-muted hover:text-text'
       )}
     >
-      {isRead ? (
+      {localRead ? (
         <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
           <path d="M1 5L4.5 8.5L11 1" stroke="currentColor" strokeWidth="1.8"
             strokeLinecap="round" strokeLinejoin="round" />

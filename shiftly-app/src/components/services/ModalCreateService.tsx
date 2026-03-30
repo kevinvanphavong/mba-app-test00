@@ -32,10 +32,8 @@ interface Props {
 
 export default function ModalCreateService({ open, onClose }: Props) {
   const { mutate, isPending } = useCreateService()
-  const { data: staff = [] }  = useStaff()
-
-  // Managers uniquement pour le sélecteur responsable
-  const managers = staff.filter(m => m.role === 'MANAGER')
+  const { data: staffData } = useStaff()
+  const managers = (staffData?.members ?? []).filter(m => m.role === 'MANAGER')
 
   const [apiError, setApiError] = useState<string | null>(null)
 

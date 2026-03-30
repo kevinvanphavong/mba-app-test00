@@ -5,13 +5,11 @@ import Topbar                   from '@/components/layout/Topbar'
 import HeroServiceCard          from '@/components/service/HeroServiceCard'
 import ProgressionGlobale       from '@/components/service/ProgressionGlobale'
 import ZoneCard                 from '@/components/service/ZoneCard'
-import ModalIncident            from '@/components/service/ModalIncident'
 import ModalMissionPonctuelle   from '@/components/service/ModalMissionPonctuelle'
 import ModalAssignerStaff       from '@/components/service/ModalAssignerStaff'
 import { useServiceToday }      from '@/hooks/useService'
 import { useDeletePoste }       from '@/hooks/useService'
 import { useToggleCompletion }  from '@/hooks/useMissions'
-import { useCreateIncident }    from '@/hooks/useIncidents'
 import { useCurrentUser }       from '@/hooks/useCurrentUser'
 import { useAuthStore }         from '@/store/authStore'
 import type { ServiceZoneData } from '@/types/service'
@@ -32,13 +30,11 @@ export default function ServicePage() {
   const [loadingMissions, setLoadingMissions] = useState<Set<number>>(new Set())
 
   // ── Modales ────────────────────────────────────────────────────────────────
-  const [incidentOpen,   setIncidentOpen]   = useState(false)
   const [ponctuellZone,  setPonctuellZone]  = useState<ServiceZoneData | null>(null)
   const [assignZone,     setAssignZone]     = useState<ServiceZoneData | null>(null)
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const toggleCompletion = useToggleCompletion()
-  const createIncident   = useCreateIncident()
   const deletePoste      = useDeletePoste()
 
   // ── Synchronisation des completions depuis les données serveur ─────────────
@@ -80,12 +76,6 @@ export default function ServicePage() {
     [zoneStats]
   )
 
-  // ── Zones uniques pour modale incident ─────────────────────────────────────
-  const allZones = useMemo(
-    () => data?.zones.map(z => ({ id: z.id, nom: z.nom, couleur: z.couleur, ordre: z.ordre })) ?? [],
-    [data]
-  )
-
   // ── Toggle mission ─────────────────────────────────────────────────────────
   const handleToggle = useCallback((
     missionId:          number,
@@ -125,22 +115,6 @@ export default function ServicePage() {
       }
     )
   }, [data, userId, completionIds, toggleCompletion])
-
-  // ── Signaler un incident ───────────────────────────────────────────────────
-  const handleIncidentSubmit = useCallback(async (payload: {
-    titre:    string
-    severite: 'haute' | 'moyenne' | 'basse'
-    zoneId:   number | null
-    staffIds: number[]
-  }) => {
-    if (!data || !centreId) return
-    await createIncident.mutateAsync({
-      titre:     payload.titre,
-      severite:  payload.severite,
-      serviceId: data.service.id,
-      centreId,
-    })
-  }, [data, centreId, createIncident])
 
   // ── État chargement ────────────────────────────────────────────────────────
   if (loading) {
@@ -212,28 +186,6 @@ export default function ServicePage() {
         ))}
 
       </div>
-
-      {/* FAB — Signaler un incident */}
-      <div className="fixed bottom-20 lg:bottom-6 right-4 lg:right-8 z-30">
-        <button
-          onClick={() => setIncidentOpen(true)}
-          className="flex items-center gap-2 px-4 py-3 rounded-[14px] bg-red text-white
-                     font-extrabold text-[13px] shadow-lg shadow-red/30
-                     hover:opacity-90 active:scale-95 transition-all duration-150"
-        >
-          <span className="text-base">⚠️</span>
-          Incident
-        </button>
-      </div>
-
-      {/* Modale incident */}
-      <ModalIncident
-        open={incidentOpen}
-        onClose={() => setIncidentOpen(false)}
-        onSubmit={handleIncidentSubmit}
-        zones={allZones}
-        staff={data.staff}
-      />
 
       {/* Modale mission ponctuelle */}
       {ponctuellZone && (

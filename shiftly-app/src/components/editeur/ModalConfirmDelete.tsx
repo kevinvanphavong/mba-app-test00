@@ -2,7 +2,7 @@
 
 interface Props {
   open:        boolean
-  type:        'zone' | 'mission' | 'competence'
+  type:        'zone' | 'mission' | 'competence' | 'tutoriel'
   nom:         string
   missionCount?: number
   competenceCount?: number
@@ -14,6 +14,7 @@ const TYPE_LABEL = {
   zone:        'zone',
   mission:     'mission',
   competence:  'compétence',
+  tutoriel:    'tutoriel',
 }
 
 export default function ModalConfirmDelete({

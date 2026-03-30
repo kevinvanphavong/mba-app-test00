@@ -21,6 +21,7 @@ class MeController extends AbstractController
         return $this->json([
             'id'          => $user->getId(),
             'nom'         => $user->getNom(),
+            'prenom'      => $user->getPrenom(),
             'email'       => $user->getEmail(),
             'role'        => $user->getRole(),
             'avatarColor' => $user->getAvatarColor(),

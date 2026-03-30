@@ -1,7 +1,7 @@
 'use client'
 
 import { cn }                        from '@/lib/cn'
-import { getZoneColor, hexAlpha }    from '@/lib/colors'
+import { hexAlpha }                  from '@/lib/colors'
 import ReadIndicator                 from './ReadIndicator'
 import TutoCardExpanded              from './TutoCardExpanded'
 import type { Tutoriel, TutoNiveau } from '@/types/tutoriel'
@@ -13,19 +13,14 @@ const NIVEAU_CFG: Record<TutoNiveau, { label: string; cls: string }> = {
 }
 
 interface TutoCardProps {
-  tuto:        Tutoriel
-  isExpanded:  boolean
-  onToggle:    (id: number) => void
-  onReadToggle:(id: number, isRead: boolean) => void
+  tuto:       Tutoriel
+  isExpanded: boolean
+  onToggle:   (id: number) => void
 }
 
-export default function TutoCard({
-  tuto,
-  isExpanded,
-  onToggle,
-  onReadToggle,
-}: TutoCardProps) {
-  const zoneColor  = getZoneColor(tuto.zone)
+export default function TutoCard({ tuto, isExpanded, onToggle }: TutoCardProps) {
+  const zoneColor  = tuto.zone?.couleur ?? '#6b7280'
+  const zoneNom    = tuto.zone?.nom ?? null
   const niveauCfg  = NIVEAU_CFG[tuto.niveau]
   const stepCount  = tuto.contenu.filter(b => b.type === 'step').length
 
@@ -50,12 +45,18 @@ export default function TutoCard({
         <div className="flex-1 min-w-0">
           {/* Badges */}
           <div className="flex items-center gap-1.5 flex-wrap mb-2">
-            <span
-              className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-[4px] border"
-              style={{ color: zoneColor, background: hexAlpha(zoneColor, 0.09), borderColor: hexAlpha(zoneColor, 0.21) }}
-            >
-              {tuto.zone}
-            </span>
+            {zoneNom ? (
+              <span
+                className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-[4px] border"
+                style={{ color: zoneColor, background: hexAlpha(zoneColor, 0.09), borderColor: hexAlpha(zoneColor, 0.21) }}
+              >
+                {zoneNom}
+              </span>
+            ) : (
+              <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-[4px] border border-border text-muted">
+                Aucune zone
+              </span>
+            )}
             <span className={cn('text-[9px] font-extrabold px-1.5 py-0.5 rounded-[4px] border', niveauCfg.cls)}>
               {niveauCfg.label}
             </span>
@@ -84,8 +85,7 @@ export default function TutoCard({
         {/* Read indicator */}
         <ReadIndicator
           tutoId={tuto.id}
-          initialRead={tuto.readId !== null}
-          onToggle={onReadToggle}
+          readId={tuto.readId ?? null}
         />
       </div>
 

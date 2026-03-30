@@ -13,6 +13,7 @@ use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\TutorielRepository;
+use App\Entity\Zone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -47,7 +48,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ApiFilter(SearchFilter::class, properties: [
     'titre'  => 'partial',   // ?titre=accueil
-    'zone'   => 'partial',   // ?zone=bar
+    'zone'   => 'exact',     // ?zone=/api/zones/1
     'niveau' => 'exact',     // ?niveau=debutant
     'centre' => 'exact',     // ?centre=/api/centres/1
 ])]
@@ -73,10 +74,11 @@ class Tutoriel
     #[Groups(['tutoriel:read', 'tutoriel:write'])]
     private ?string $titre = null;
 
-    /** Nom de la zone cible (Accueil / Bar / Salle / null = général) */
-    #[ORM\Column(length: 50, nullable: true)]
+    /** Zone cible (nullable — null = tutoriel général) */
+    #[ORM\ManyToOne(targetEntity: Zone::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     #[Groups(['tutoriel:read', 'tutoriel:write'])]
-    private ?string $zone = null;
+    private ?Zone $zone = null;
 
     #[ORM\Column(length: 20)]
     #[Groups(['tutoriel:read', 'tutoriel:write'])]
@@ -112,8 +114,8 @@ class Tutoriel
     public function setCentre(?Centre $centre): static { $this->centre = $centre; return $this; }
     public function getTitre(): ?string { return $this->titre; }
     public function setTitre(string $titre): static { $this->titre = $titre; return $this; }
-    public function getZone(): ?string { return $this->zone; }
-    public function setZone(?string $zone): static { $this->zone = $zone; return $this; }
+    public function getZone(): ?Zone { return $this->zone; }
+    public function setZone(?Zone $zone): static { $this->zone = $zone; return $this; }
     public function getNiveau(): string { return $this->niveau; }
     public function setNiveau(string $niveau): static { $this->niveau = $niveau; return $this; }
     public function getDureMin(): ?int { return $this->dureMin; }

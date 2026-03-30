@@ -1,42 +1,58 @@
 'use client'
 
-import { cn } from '@/lib/cn'
+import { cn }              from '@/lib/cn'
 import { getStaffGradient } from '@/lib/colors'
-import ZoneChips           from './ZoneChips'
-import LevelDots           from './LevelDots'
-import MemberCardExpanded  from './MemberCardExpanded'
-import type { StaffMember, StatusPresence } from '@/types/staff'
-
-// ─── Status dot ──────────────────────────────────────────────────────────────
-const STATUS_DOT: Record<StatusPresence, { cls: string; label: string }> = {
-  present: { cls: 'bg-green',  label: 'Présent' },
-  pause:   { cls: 'bg-yellow', label: 'Pause'   },
-  absent:  { cls: 'bg-red',    label: 'Absent'  },
-}
+import LevelDots            from './LevelDots'
+import MemberCardExpanded   from './MemberCardExpanded'
+import type { StaffMember, StaffMeta } from '@/types/staff'
 
 interface MemberCardProps {
   member:     StaffMember
+  meta:       StaffMeta
   isExpanded: boolean
   onToggle:   (id: number) => void
 }
 
-export default function MemberCard({ member, isExpanded, onToggle }: MemberCardProps) {
-  const initials = member.prenom[0] + (member.nom.split(' ')[0]?.[0] ?? '')
-  const dot      = STATUS_DOT[member.status]
+function ZoneDot({ couleur }: { couleur: string | null }) {
+  return (
+    <span
+      className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+      style={{ background: couleur ?? '#6b7280' }}
+    />
+  )
+}
+
+export default function MemberCard({ member, meta, isExpanded, onToggle }: MemberCardProps) {
+  const initials = (member.prenom?.[0] ?? member.nom[0]) + (member.nom.split(' ')[0]?.[0] ?? '')
   const gradient = getStaffGradient(member.id)
+
+  // Niveau 1-5 = % de compétences acquises sur le total
+  const niveau = meta.competencesTotal > 0
+    ? Math.min(5, Math.max(1, Math.round((member.staffCompetences.length / meta.competencesTotal) * 5)))
+    : 1
+
+  // Zones uniques dérivées des compétences acquises
+  const uniqueZones = Array.from(
+    new Map(
+      member.staffCompetences
+        .filter(c => c.zoneName)
+        .map(c => [c.zoneName!, c.zoneCouleur])
+    ).entries()
+  )
 
   return (
     <div
       className={cn(
         'bg-surface border rounded-[18px] p-4 transition-all duration-200 cursor-pointer select-none',
-        isExpanded ? 'border-border/80 shadow-sm' : 'border-border hover:border-border/80'
+        isExpanded ? 'border-border/80 shadow-sm' : 'border-border hover:border-border/80',
+        !member.actif && 'opacity-50'
       )}
       onClick={() => onToggle(member.id)}
     >
       {/* ── Collapsed row ── */}
       <div className="flex items-center gap-3">
 
-        {/* Avatar + status dot */}
+        {/* Avatar + point de présence */}
         <div className="relative flex-shrink-0">
           <div
             className="w-[46px] h-[46px] rounded-[13px] flex items-center justify-center
@@ -48,41 +64,46 @@ export default function MemberCard({ member, isExpanded, onToggle }: MemberCardP
           <span
             className={cn(
               'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-surface',
-              dot.cls
+              member.isPresent ? 'bg-green' : 'bg-surface2'
             )}
-            title={dot.label}
+            title={member.isPresent ? 'Présent' : 'Absent'}
           />
         </div>
 
-        {/* Name + meta */}
+        {/* Nom + meta */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[14px] font-bold text-text leading-tight">{member.nom}</span>
+            <span className="text-[14px] font-bold text-text leading-tight">
+              {member.prenom ? `${member.prenom} ${member.nom}` : member.nom}
+            </span>
             {member.role === 'MANAGER' && (
               <span className="text-[9px] font-extrabold bg-accent/12 text-accent border border-accent/25 px-1.5 py-0.5 rounded-[5px]">
                 MGR
               </span>
             )}
+            {!member.actif && (
+              <span className="text-[9px] font-extrabold bg-surface2 text-muted border border-border px-1.5 py-0.5 rounded-[5px]">
+                Inactif
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[11px] text-muted font-syne font-bold">
-              {member.points} pts
-            </span>
+            <span className="text-[11px] text-muted font-syne font-bold">{member.points} pts</span>
             <span className="text-[10px] text-muted">·</span>
-            <LevelDots niveau={member.niveau} />
-            <span className="text-[10px] text-muted">Niv. {member.niveau}</span>
+            <LevelDots niveau={niveau} />
           </div>
         </div>
 
-        {/* Right: zone chips + chevron */}
+        {/* Zones + chevron */}
         <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-          <ZoneChips zones={member.zones} size="xs" />
+          <div className="flex items-center gap-1">
+            {uniqueZones.slice(0, 3).map(([nom, couleur]) => (
+              <ZoneDot key={nom} couleur={couleur} />
+            ))}
+          </div>
           <svg
             width="14" height="14" viewBox="0 0 14 14" fill="none"
-            className={cn(
-              'text-muted transition-transform duration-200',
-              isExpanded ? 'rotate-180' : 'rotate-0'
-            )}
+            className={cn('text-muted transition-transform duration-200', isExpanded ? 'rotate-180' : 'rotate-0')}
           >
             <path d="M2.5 5L7 9.5L11.5 5" stroke="currentColor"
               strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -91,7 +112,7 @@ export default function MemberCard({ member, isExpanded, onToggle }: MemberCardP
       </div>
 
       {/* ── Expanded content ── */}
-      {isExpanded && <MemberCardExpanded member={member} />}
+      {isExpanded && <MemberCardExpanded member={member} meta={meta} />}
     </div>
   )
 }

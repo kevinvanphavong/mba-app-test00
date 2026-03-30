@@ -111,6 +111,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['user:read', 'user:write', 'poste:read', 'staffcompetence:read'])]
+    private ?string $prenom = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $tailleHaut = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $tailleBas = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $pointure = null;
+
+    #[ORM\Column(options: ['default' => true])]
+    #[Groups(['user:read', 'user:write'])]
+    private bool $actif = true;
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: StaffCompetence::class, cascade: ['remove'])]
     private Collection $staffCompetences;
 
@@ -129,6 +149,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCentre(?Centre $centre): static { $this->centre = $centre; return $this; }
     public function getNom(): ?string { return $this->nom; }
     public function setNom(string $nom): static { $this->nom = $nom; return $this; }
+    public function getPrenom(): ?string { return $this->prenom; }
+    public function setPrenom(?string $prenom): static { $this->prenom = $prenom; return $this; }
     public function getEmail(): ?string { return $this->email; }
     public function setEmail(string $email): static { $this->email = $email; return $this; }
     public function getRole(): string { return $this->role; }
@@ -139,6 +161,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPoints(int $points): static { $this->points = $points; return $this; }
     public function addPoints(int $pts): static { $this->points += $pts; return $this; }
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function getTailleHaut(): ?string { return $this->tailleHaut; }
+    public function setTailleHaut(?string $t): static { $this->tailleHaut = $t; return $this; }
+    public function getTailleBas(): ?string { return $this->tailleBas; }
+    public function setTailleBas(?string $t): static { $this->tailleBas = $t; return $this; }
+    public function getPointure(): ?string { return $this->pointure; }
+    public function setPointure(?string $p): static { $this->pointure = $p; return $this; }
+    public function isActif(): bool { return $this->actif; }
+    public function setActif(bool $actif): static { $this->actif = $actif; return $this; }
     public function getStaffCompetences(): Collection { return $this->staffCompetences; }
     public function getTutoReads(): Collection { return $this->tutoReads; }
 

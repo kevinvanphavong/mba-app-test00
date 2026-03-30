@@ -6,6 +6,7 @@ const TABS: { id: EditorTab; label: string }[] = [
   { id: 'zones',       label: 'Zones' },
   { id: 'missions',    label: 'Missions' },
   { id: 'competences', label: 'Compétences' },
+  { id: 'tutoriels',   label: 'Tutoriels' },
 ]
 
 interface Props {

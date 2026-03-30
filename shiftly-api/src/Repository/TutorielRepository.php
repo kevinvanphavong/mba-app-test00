@@ -13,6 +13,15 @@ class TutorielRepository extends ServiceEntityRepository
         parent::__construct($registry, Tutoriel::class);
     }
 
+    public function countByCentre(int $centreId): int
+    {
+        return (int) $this->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->andWhere('t.centre = :centreId')
+            ->setParameter('centreId', $centreId)
+            ->getQuery()->getSingleScalarResult();
+    }
+
     public function findByCentre(int $centreId, ?string $zone = null, ?string $niveau = null): array
     {
         $qb = $this->createQueryBuilder('t')

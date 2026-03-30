@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Zone
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
-    #[Groups(['zone:read', 'mission:read', 'poste:read', 'competence:read', 'service:read'])]
+    #[Groups(['zone:read', 'mission:read', 'poste:read', 'competence:read', 'service:read', 'tutoriel:read'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Centre::class, inversedBy: 'zones')]
@@ -46,11 +46,11 @@ class Zone
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
-    #[Groups(['zone:read', 'zone:write', 'mission:read', 'poste:read', 'competence:read', 'service:read'])]
+    #[Groups(['zone:read', 'zone:write', 'mission:read', 'poste:read', 'competence:read', 'service:read', 'tutoriel:read'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    #[Groups(['zone:read', 'zone:write', 'mission:read', 'poste:read', 'competence:read', 'service:read'])]
+    #[Groups(['zone:read', 'zone:write', 'mission:read', 'poste:read', 'competence:read', 'service:read', 'tutoriel:read'])]
     private ?string $couleur = null;
 
     #[ORM\Column]

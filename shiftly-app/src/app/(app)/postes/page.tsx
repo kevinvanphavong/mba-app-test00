@@ -1,109 +1,89 @@
+'use client'
+
+import { useState }    from 'react'
 import type { Metadata } from 'next'
+import { useZones }    from '@/hooks/useZones'
+import PosteCard       from '@/components/postes/PosteCard'
+import type { Zone }   from '@/types/index'
 
-export const metadata: Metadata = { title: 'Postes — Shiftly' }
-
-const zones = [
-  { nom: 'Accueil', color: '#3b82f6', competences: [
-    { titre: 'Gestion des réservations en ligne', diff: 'avancee', pts: 30, prio: 'important' },
-    { titre: 'Accueil et attribution des pistes', diff: 'simple', pts: 15, prio: 'vitale' },
-  ], missions: [
-    { titre: 'Allumer les écrans d\'affichage', cat: 'OUVERTURE', prio: 'vitale' },
-    { titre: 'Vérifier la caisse', cat: 'OUVERTURE', prio: 'vitale' },
-    { titre: 'Accueillir les groupes', cat: 'PENDANT', prio: 'vitale' },
-    { titre: 'Faire la caisse', cat: 'FERMETURE', prio: 'vitale' },
-  ]},
-  { nom: 'Bar', color: '#a855f7', competences: [
-    { titre: 'Préparation cocktails sans alcool', diff: 'avancee', pts: 25, prio: 'important' },
-    { titre: 'Gestion du stock bar', diff: 'experimente', pts: 40, prio: 'important' },
-  ], missions: [
-    { titre: 'Vérifier les stocks de boissons', cat: 'OUVERTURE', prio: 'important' },
-    { titre: 'Préparer les commandes et servir', cat: 'PENDANT', prio: 'vitale' },
-    { titre: 'Nettoyer le comptoir et les tables', cat: 'MENAGE', prio: 'important' },
-  ]},
-  { nom: 'Salle', color: '#22c55e', competences: [
-    { titre: 'Entretien de base des pistes', diff: 'simple', pts: 10, prio: 'vitale' },
-    { titre: 'Diagnostic pannes machines', diff: 'experimente', pts: 50, prio: 'important' },
-  ], missions: [
-    { titre: 'Vérifier le bon fonctionnement des pistes', cat: 'OUVERTURE', prio: 'vitale' },
-    { titre: 'Contrôler les quilles et les boules', cat: 'OUVERTURE', prio: 'important' },
-    { titre: 'Nettoyer les pistes et ranger les boules', cat: 'FERMETURE', prio: 'important' },
-  ]},
-]
-
-const DIFF_STYLES: Record<string, string> = {
-  simple:      'bg-[rgba(34,197,94,0.1)] text-green',
-  avancee:     'bg-[rgba(249,115,22,0.1)] text-accent',
-  experimente: 'bg-[rgba(168,85,247,0.1)] text-purple',
-}
-const CAT_LABELS: Record<string, string> = {
-  OUVERTURE: '🌅', PENDANT: '⚡', MENAGE: '🧹', FERMETURE: '🌙',
-}
+// Note : metadata ne peut pas être exportée depuis un Client Component.
+// Elle est définie dans un layout ou un Server Component parent si besoin.
 
 export default function PostesPage() {
+  const { data: zones, isLoading, isError } = useZones()
+  const [selectedZone, setSelectedZone] = useState<Zone | null>(null)
+
+  // ─── Zone active : première par défaut dès que les données arrivent ─────────
+  const activeZone = selectedZone ?? zones?.[0] ?? null
+
   return (
-    <div className="mx-auto px-5 py-6 lg:max-w-2xl">
+    <div className="mx-auto px-5 py-6">
+
+      {/* ── En-tête ── */}
       <div className="mb-5">
         <h1 className="font-syne font-extrabold text-[20px] text-text">Postes</h1>
         <p className="text-[12px] text-muted mt-0.5">Fiches de poste par zone</p>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {zones.map((z) => (
-          <div key={z.nom} className="bg-surface border border-border rounded-[18px] overflow-hidden">
-            {/* Zone header */}
-            <div className="px-4 py-3 flex items-center gap-2.5"
-                 style={{ background: `${z.color}14`, borderBottom: `1px solid ${z.color}22` }}>
-              <div className="w-2 h-2 rounded-full" style={{ background: z.color }} />
-              <span className="font-syne font-extrabold text-[15px]" style={{ color: z.color }}>
-                {z.nom}
-              </span>
-            </div>
+      {/* ── État loading ── */}
+      {isLoading && (
+        <div className="flex flex-col gap-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-10 rounded-xl bg-surface animate-pulse" />
+          ))}
+        </div>
+      )}
 
-            <div className="p-4 flex flex-col gap-4">
-              {/* Compétences */}
-              <div>
-                <div className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">
-                  Compétences
-                </div>
-                <div className="flex flex-col gap-2">
-                  {z.competences.map((c) => (
-                    <div key={c.titre} className="flex items-center gap-2.5 p-2.5 bg-surface2 rounded-xl">
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[12px] text-text font-medium">{c.titre}</div>
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] mt-1 inline-block ${DIFF_STYLES[c.diff]}`}>
-                          {c.diff}
-                        </span>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className="font-syne font-extrabold text-[15px] text-accent">{c.pts}</div>
-                        <div className="text-[9px] text-muted">pts</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+      {/* ── État erreur ── */}
+      {isError && (
+        <div className="py-10 text-center">
+          <p className="text-[14px] text-red font-semibold">Impossible de charger les postes.</p>
+          <p className="text-[12px] text-muted mt-1">Vérifie ta connexion ou contacte un manager.</p>
+        </div>
+      )}
 
-              {/* Missions */}
-              <div>
-                <div className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">
-                  Missions
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  {z.missions.map((m) => (
-                    <div key={m.titre} className="flex items-center gap-2 py-1.5">
-                      <span className="text-sm">{CAT_LABELS[m.cat]}</span>
-                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                        m.prio === 'vitale' ? 'bg-red' : m.prio === 'important' ? 'bg-yellow' : 'bg-muted'
-                      }`} />
-                      <span className="text-[12px] text-text">{m.titre}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+      {/* ── État vide ── */}
+      {!isLoading && !isError && zones?.length === 0 && (
+        <div className="py-14 text-center">
+          <span className="text-4xl mb-3 block">🗂️</span>
+          <p className="text-[14px] font-bold text-text mb-1">Aucun poste configuré</p>
+          <p className="text-[12px] text-muted">Les zones seront ajoutées par un manager.</p>
+        </div>
+      )}
+
+      {/* ── Liste des zones + carte ── */}
+      {!isLoading && !isError && zones && zones.length > 0 && (
+        <>
+          {/* Onglets de sélection */}
+          <div className="flex gap-2 mb-4 overflow-x-auto pb-1 scrollbar-none">
+            {zones.map(zone => {
+              const isActive = activeZone?.id === zone.id
+              return (
+                <button
+                  key={zone.id}
+                  onClick={() => setSelectedZone(zone)}
+                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                             text-[12px] font-semibold transition-all border"
+                  style={{
+                    background:   isActive ? `${zone.couleur}22` : 'transparent',
+                    borderColor:  isActive ? zone.couleur ?? 'var(--border)' : 'var(--border)',
+                    color:        isActive ? zone.couleur ?? 'var(--text)' : 'var(--muted)',
+                  }}
+                >
+                  <span
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ background: zone.couleur ?? 'var(--muted)' }}
+                  />
+                  {zone.nom}
+                </button>
+              )
+            })}
           </div>
-        ))}
-      </div>
+
+          {/* Fiche de poste de la zone active */}
+          {activeZone && <PosteCard zone={activeZone} />}
+        </>
+      )}
     </div>
   )
 }

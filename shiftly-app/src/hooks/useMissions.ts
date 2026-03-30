@@ -13,7 +13,7 @@ export function useMissions(zoneId: number | null | undefined) {
   return useQuery<Mission[]>({
     queryKey: ['missions', centreId, zoneId],
     queryFn:  () =>
-      api.get('/missions', { params: { zoneId } })
+      api.get('/missions', { params: { zone: `/api/zones/${zoneId}` } })
         .then(r => r.data['hydra:member'] ?? r.data.member ?? r.data),
     enabled: !!centreId && !!zoneId,
   })

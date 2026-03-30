@@ -1,10 +1,10 @@
 'use client'
 
-import { cn }                     from '@/lib/cn'
-import { getZoneColor, hexAlpha } from '@/lib/colors'
-import type { ZoneFilter, NiveauFilter, TutoZone, TutoNiveau } from '@/types/tutoriel'
+import { cn }        from '@/lib/cn'
+import { hexAlpha }  from '@/lib/colors'
+import type { ZoneFilter, NiveauFilter, TutoNiveau } from '@/types/tutoriel'
+import type { Zone } from '@/types/index'
 
-const ZONES:   TutoZone[]   = ['Accueil', 'Bar', 'Salle']
 const NIVEAUX: Array<{ value: TutoNiveau; label: string; cls: string; activeCls: string }> = [
   { value: 'debutant',      label: 'Débutant',      cls: 'text-muted border-border/50', activeCls: 'text-green  bg-green/10  border-green/30'  },
   { value: 'intermediaire', label: 'Intermédiaire', cls: 'text-muted border-border/50', activeCls: 'text-accent bg-accent/10 border-accent/30' },
@@ -12,6 +12,7 @@ const NIVEAUX: Array<{ value: TutoNiveau; label: string; cls: string; activeCls:
 ]
 
 interface TutoFiltersProps {
+  zones:         Zone[]
   zoneFilter:    ZoneFilter
   niveauFilter:  NiveauFilter
   onZoneChange:  (v: ZoneFilter)   => void
@@ -20,10 +21,11 @@ interface TutoFiltersProps {
 
 /**
  * Double filtre tutoriels :
- *  - Row 1 : zones (Toutes / Accueil / Bar / Salle)
+ *  - Row 1 : zones dynamiques depuis la BDD (Toutes / Zone1 / Zone2…)
  *  - Row 2 : niveaux (Tous / Débutant / Intermédiaire / Avancé)
  */
 export default function TutoFilters({
+  zones,
   zoneFilter,
   niveauFilter,
   onZoneChange,
@@ -44,13 +46,13 @@ export default function TutoFilters({
         >
           Toutes zones
         </button>
-        {ZONES.map(zone => {
-          const color  = getZoneColor(zone)
-          const active = zoneFilter === zone
+        {zones.map(zone => {
+          const color  = zone.couleur ?? '#6b7280'
+          const active = zoneFilter === zone.nom
           return (
             <button
-              key={zone}
-              onClick={() => onZoneChange(active ? 'all' : zone)}
+              key={zone.id}
+              onClick={() => onZoneChange(active ? 'all' : zone.nom)}
               className="px-3 py-1.5 rounded-[9px] text-[11px] font-bold border transition-all duration-150"
               style={
                 active
@@ -58,7 +60,7 @@ export default function TutoFilters({
                   : { color: '#6b7280', borderColor: 'rgba(37,42,58,0.4)' }
               }
             >
-              {zone}
+              {zone.nom}
             </button>
           )
         })}

@@ -3,14 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
-import type { Tutoriel } from '@/types/tutoriel'
+import type { TutorielAPI } from '@/types/tutoriel'
 
-// ─── Liste des tutoriels ──────────────────────────────────────────────────────
+// ─── Liste des tutoriels du centre ────────────────────────────────────────────
 
 export function useTutoriels() {
   const centreId = useAuthStore(s => s.centreId)
 
-  return useQuery<Tutoriel[]>({
+  return useQuery<TutorielAPI[]>({
     queryKey: ['tutoriels', centreId],
     queryFn:  () =>
       api.get('/tutoriels', { params: { centreId } })
@@ -19,7 +19,34 @@ export function useTutoriels() {
   })
 }
 
-// ─── Marquer un tutoriel comme lu ────────────────────────────────────────────
+// ─── Lectures de l'utilisateur courant ────────────────────────────────────────
+
+interface TutoReadItem {
+  id:         number
+  tutorielId: number
+}
+
+/** Retourne les tutoriels lus par l'utilisateur sous forme { id, tutorielId }[] */
+export function useTutoReads(userId: number | null | undefined) {
+  return useQuery<TutoReadItem[]>({
+    queryKey: ['tutoReads', userId],
+    queryFn:  () =>
+      api.get('/tuto_reads', { params: { user: `/api/users/${userId}` } })
+        .then(r => {
+          const members = r.data['hydra:member'] ?? r.data.member ?? r.data
+          return members.map((tr: { id: number; tutoriel: string | { id: number } }) => ({
+            id: tr.id,
+            // L'API Platform retourne l'IRI "/api/tutoriels/3" ou un objet
+            tutorielId: typeof tr.tutoriel === 'string'
+              ? parseInt(tr.tutoriel.split('/').pop() ?? '0')
+              : tr.tutoriel.id,
+          }))
+        }),
+    enabled: !!userId,
+  })
+}
+
+// ─── Marquer / démarquer un tutoriel comme lu ─────────────────────────────────
 
 interface MarkAsReadPayload {
   tutorielId: number
@@ -34,15 +61,16 @@ export function useMarkAsRead() {
   return useMutation({
     mutationFn: ({ tutorielId, readId }: MarkAsReadPayload) => {
       if (readId) {
-        // Déjà lu — retire la lecture
-        return api.delete(`/tuto-reads/${readId}`).then(r => r.data)
+        // Déjà lu — retire la lecture (underscore = URL API Platform)
+        return api.delete(`/tuto_reads/${readId}`).then(() => null)
       }
-      // Marquer comme lu
-      return api.post('/tuto-reads', { tutorielId, userId }).then(r => r.data)
+      // Marquer comme lu via endpoint custom (accepte des IDs entiers)
+      return api.post('/tuto-reads/create', { tutorielId }).then(r => r.data)
     },
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tutoriels', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['tutoReads', userId] })
       queryClient.invalidateQueries({ queryKey: ['staff', centreId] })
     },
   })

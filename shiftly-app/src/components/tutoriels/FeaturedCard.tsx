@@ -1,7 +1,7 @@
 'use client'
 
 import { cn }                        from '@/lib/cn'
-import { getZoneColor, hexAlpha }    from '@/lib/colors'
+import { hexAlpha }                  from '@/lib/colors'
 import ReadIndicator                 from './ReadIndicator'
 import TutoCardExpanded              from './TutoCardExpanded'
 import type { Tutoriel, TutoNiveau } from '@/types/tutoriel'
@@ -13,20 +13,15 @@ const NIVEAU_CFG: Record<TutoNiveau, { label: string; cls: string }> = {
 }
 
 interface FeaturedCardProps {
-  tuto:        Tutoriel
-  isExpanded:  boolean
-  onToggle:    (id: number) => void
-  onReadToggle:(id: number, isRead: boolean) => void
+  tuto:       Tutoriel
+  isExpanded: boolean
+  onToggle:   (id: number) => void
 }
 
 /** Carte "à la une" — accent-bar orange, plus grande, badge spécial */
-export default function FeaturedCard({
-  tuto,
-  isExpanded,
-  onToggle,
-  onReadToggle,
-}: FeaturedCardProps) {
-  const zoneColor = getZoneColor(tuto.zone)
+export default function FeaturedCard({ tuto, isExpanded, onToggle }: FeaturedCardProps) {
+  const zoneColor = tuto.zone?.couleur ?? '#6b7280'
+  const zoneNom   = tuto.zone?.nom ?? null
   const niveauCfg = NIVEAU_CFG[tuto.niveau]
   const stepCount = tuto.contenu.filter(b => b.type === 'step').length
 
@@ -49,17 +44,22 @@ export default function FeaturedCard({
             <span className="text-[10px] font-extrabold font-syne text-accent bg-accent/10 border border-accent/25 px-2 py-0.5 rounded-[6px]">
               ⭐ À la une
             </span>
-            <span
-              className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-[4px] border"
-              style={{ color: zoneColor, background: hexAlpha(zoneColor, 0.09), borderColor: hexAlpha(zoneColor, 0.21) }}
-            >
-              {tuto.zone}
-            </span>
+            {zoneNom ? (
+              <span
+                className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-[4px] border"
+                style={{ color: zoneColor, background: hexAlpha(zoneColor, 0.09), borderColor: hexAlpha(zoneColor, 0.21) }}
+              >
+                {zoneNom}
+              </span>
+            ) : (
+              <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-[4px] border border-border text-muted">
+                Aucune zone
+              </span>
+            )}
           </div>
           <ReadIndicator
             tutoId={tuto.id}
-            initialRead={tuto.readId !== null}
-            onToggle={onReadToggle}
+            readId={tuto.readId ?? null}
           />
         </div>
 
