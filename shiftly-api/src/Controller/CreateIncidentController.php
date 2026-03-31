@@ -6,6 +6,7 @@ use App\Entity\Centre;
 use App\Entity\Incident;
 use App\Entity\Service;
 use App\Entity\User;
+use App\Entity\Zone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +24,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  *   "titre":     "Piste 3 en panne",
  *   "severite":  "haute" | "moyenne" | "basse",
  *   "centreId":  1,
- *   "serviceId": 5
+ *   "serviceId": 5,
+ *   "zoneId":    2,        (optionnel)
+ *   "staffIds":  [3, 7]    (optionnel)
  * }
  */
 #[IsGranted('ROLE_USER')]
@@ -42,6 +45,8 @@ class CreateIncidentController extends AbstractController
         $severite  = (string) ($body['severite']  ?? Incident::SEV_BASSE);
         $centreId  = (int)    ($body['centreId']  ?? 0);
         $serviceId = isset($body['serviceId']) ? (int) $body['serviceId'] : null;
+        $zoneId    = isset($body['zoneId'])    ? (int) $body['zoneId']    : null;
+        $staffIds  = isset($body['staffIds'])  ? array_map('intval', (array) $body['staffIds']) : [];
 
         if (!$titre) {
             throw new BadRequestHttpException('titre est requis.');
@@ -73,6 +78,22 @@ class CreateIncidentController extends AbstractController
             $service = $this->em->find(Service::class, $serviceId);
             if ($service) {
                 $incident->setService($service);
+            }
+        }
+
+        if ($zoneId) {
+            $zone = $this->em->find(Zone::class, $zoneId);
+            // Vérification multi-tenant sur la zone
+            if ($zone && $zone->getCentre()?->getId() === $centreId) {
+                $incident->setZone($zone);
+            }
+        }
+
+        foreach ($staffIds as $uid) {
+            $member = $this->em->find(User::class, $uid);
+            // Vérification multi-tenant sur chaque membre
+            if ($member && $member->getCentre()?->getId() === $centreId) {
+                $incident->addStaffImplique($member);
             }
         }
 

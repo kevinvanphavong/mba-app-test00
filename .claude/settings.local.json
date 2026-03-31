@@ -68,7 +68,9 @@
       "Bash(rm -rf .git)",
       "Bash(git init:*)",
       "Bash(ls -la /Users/kevinvanphavong/Desktop/mba-app-test00/shiftly-app/src/app/\\\\\\(app\\\\\\)/reglages/)",
-      "Bash(ls -la /Users/kevinvanphavong/Desktop/mba-app-test00/shiftly-app/src/app/\\\\\\(app\\\\\\)/reglages/editeur/)"
+      "Bash(ls -la /Users/kevinvanphavong/Desktop/mba-app-test00/shiftly-app/src/app/\\\\\\(app\\\\\\)/reglages/editeur/)",
+      "Bash(pkill -f \"symfony serve\")",
+      "Bash(pkill -f \"php.*8000\")"
     ]
   }
 }

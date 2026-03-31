@@ -14,19 +14,28 @@ class ServiceRepository extends ServiceEntityRepository
         parent::__construct($registry, Service::class);
     }
 
+    public function findToday(int $centreId): ?Service
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.centre = :centreId')
+            ->andWhere('s.date = :today')
+            ->setParameter('centreId', $centreId)
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->getQuery()->getOneOrNullResult();
+    }
+
+
     public function findTodayActive(int $centreId): ?Service
     {
         $now = new \DateTimeImmutable();
 
         // Avant 5h → on est encore dans la journée d'hier (service de nuit)
-        $referenceDate = (int)$now->format('H') < 5
+        $referenceDate = (int)$now->format('H') < 2
             ? $now->modify('-1 day')
             : $now;
 
         // JOIN sur centre pour charger les horaires en une seule requête
         $service = $this->createQueryBuilder('s')
-            ->innerJoin('s.centre', 'c')
-            ->addSelect('c')
             ->andWhere('s.centre = :centreId')
             ->andWhere('s.date = :date')
             ->setParameter('centreId', $centreId)

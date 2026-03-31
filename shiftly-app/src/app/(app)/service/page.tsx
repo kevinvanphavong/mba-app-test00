@@ -7,9 +7,12 @@ import ProgressionGlobale       from '@/components/service/ProgressionGlobale'
 import ZoneCard                 from '@/components/service/ZoneCard'
 import ModalMissionPonctuelle   from '@/components/service/ModalMissionPonctuelle'
 import ModalAssignerStaff       from '@/components/service/ModalAssignerStaff'
+import ModalIncident            from '@/components/service/ModalIncident'
 import { useServiceToday }      from '@/hooks/useService'
 import { useDeletePoste }       from '@/hooks/useService'
 import { useToggleCompletion }  from '@/hooks/useMissions'
+import { useCreateIncident }    from '@/hooks/useIncidents'
+import { useZones }             from '@/hooks/useZones'
 import { useCurrentUser }       from '@/hooks/useCurrentUser'
 import { useAuthStore }         from '@/store/authStore'
 import type { ServiceZoneData } from '@/types/service'
@@ -22,6 +25,7 @@ export default function ServicePage() {
   const userRole = useAuthStore(s => s.user?.role)
 
   const { data, isLoading, isError } = useServiceToday()
+  const { data: allZones = [] }      = useZones()
   const loading = userLoading || isLoading || (!centreId && !isError)
 
   // ── Completions optimistes ─────────────────────────────────────────────────
@@ -32,10 +36,30 @@ export default function ServicePage() {
   // ── Modales ────────────────────────────────────────────────────────────────
   const [ponctuellZone,  setPonctuellZone]  = useState<ServiceZoneData | null>(null)
   const [assignZone,     setAssignZone]     = useState<ServiceZoneData | null>(null)
+  const [incidentOpen,   setIncidentOpen]   = useState(false)
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const toggleCompletion = useToggleCompletion()
   const deletePoste      = useDeletePoste()
+  const createIncident   = useCreateIncident()
+
+  // ── Handler incident ───────────────────────────────────────────────────────
+  const handleIncidentSubmit = useCallback(async (payload: {
+    titre:    string
+    severite: 'haute' | 'moyenne' | 'basse'
+    zoneId:   number | null
+    staffIds: number[]
+  }) => {
+    if (!data?.service || !centreId) return
+    await createIncident.mutateAsync({
+      titre:     payload.titre,
+      severite:  payload.severite,
+      serviceId: data.service.id,
+      centreId,
+      zoneId:   payload.zoneId,
+      staffIds: payload.staffIds,
+    })
+  }, [data, centreId, createIncident])
 
   // ── Synchronisation des completions depuis les données serveur ─────────────
   useEffect(() => {
@@ -162,6 +186,7 @@ export default function ServicePage() {
           service={data.service}
           globalPct={globalPct}
           zonePcts={zonePcts}
+          onReportIncident={() => setIncidentOpen(true)}
         />
 
         {/* Progression par zone */}
@@ -186,6 +211,17 @@ export default function ServicePage() {
         ))}
 
       </div>
+
+      {/* Modale incident */}
+      <ModalIncident
+        open={incidentOpen}
+        onClose={() => setIncidentOpen(false)}
+        onSubmit={handleIncidentSubmit}
+        zones={allZones
+          .filter(z => !z.archivee)
+          .map(z => ({ id: z.id, nom: z.nom, couleur: z.couleur ?? '#6b7280', ordre: z.ordre }))}
+        staff={data.staff}
+      />
 
       {/* Modale mission ponctuelle */}
       {ponctuellZone && (

@@ -23,7 +23,8 @@ interface Props {
 
 export default function ModalAssignerPoste({ open, service, zoneId, onClose }: Props) {
   const { data: allZones = [] } = useZones()
-  const { data: allStaff = [] } = useStaff()
+  const { data: staffData }              = useStaff()
+  const allStaff                         = staffData?.members ?? []
   const { mutate, isPending }   = useCreatePoste()
 
   const [selectedZoneId, setSelectedZoneId] = useState<number | null>(zoneId ?? null)

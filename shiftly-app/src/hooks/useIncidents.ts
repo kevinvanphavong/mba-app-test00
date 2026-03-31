@@ -36,13 +36,15 @@ export function useCreateIncident() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ titre, severite, serviceId, centreId: cid }: CreateIncidentPayload) =>
+    mutationFn: ({ titre, severite, serviceId, centreId: cid, zoneId, staffIds }: CreateIncidentPayload) =>
       // Endpoint custom — évite les problèmes de résolution IRI d'API Platform
       api.post('/incidents/create', {
         titre,
         severite,
         centreId:  cid,
         serviceId,
+        zoneId:   zoneId ?? null,
+        staffIds: staffIds ?? [],
       }).then(r => r.data),
 
     onSuccess: (_, variables) => {

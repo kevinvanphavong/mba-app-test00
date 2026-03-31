@@ -2,9 +2,10 @@ import { cn } from '@/lib/cn'
 import type { ServicePageData } from '@/types/service'
 
 interface HeroServiceCardProps {
-  service:     ServicePageData['service']
-  globalPct:   number
-  zonePcts:    Array<{ nom: string; couleur: string; pct: number }>
+  service:            ServicePageData['service']
+  globalPct:          number
+  zonePcts:           Array<{ nom: string; couleur: string; pct: number }>
+  onReportIncident?:  () => void
 }
 
 const STATUT_CONFIG = {
@@ -17,6 +18,7 @@ export default function HeroServiceCard({
   service,
   globalPct,
   zonePcts,
+  onReportIncident,
 }: HeroServiceCardProps) {
   const cfg = STATUT_CONFIG[service.statut] ?? STATUT_CONFIG.PLANIFIE
 
@@ -39,15 +41,25 @@ export default function HeroServiceCard({
             <div className="text-[12px] text-muted mt-0.5 capitalize">{dateLabel}</div>
           </div>
 
-          {/* Live / statut badge */}
-          <div className={cn(
-            'flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] flex-shrink-0',
-            cfg.cls
-          )}>
-            {cfg.dot && (
-              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse_dot" />
+          {/* Droite : badge statut + bouton incident */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {onReportIncident && (
+              <button
+                onClick={onReportIncident}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] bg-red/10 text-red border border-red/20 text-[11px] font-extrabold font-syne hover:bg-red/20 transition-colors"
+              >
+                ⚠ Incident
+              </button>
             )}
-            { <span className="text-[11px] font-extrabold font-syne">{cfg.label}</span> }
+            <div className={cn(
+              'flex items-center gap-1.5 px-2.5 py-1 rounded-[8px]',
+              cfg.cls
+            )}>
+              {cfg.dot && (
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse_dot" />
+              )}
+              <span className="text-[11px] font-extrabold font-syne">{cfg.label}</span>
+            </div>
           </div>
         </div>
 

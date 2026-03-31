@@ -12,6 +12,8 @@ use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\IncidentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -91,6 +93,17 @@ class Incident
     #[Groups(['incident:read', 'incident:write'])]
     private ?User $user = null;
 
+    #[ORM\ManyToOne(targetEntity: Zone::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups(['incident:read', 'incident:write'])]
+    private ?Zone $zone = null;
+
+    /** Staff impliqués dans l'incident (plusieurs membres possibles) */
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'incident_staff')]
+    #[Groups(['incident:read'])]
+    private Collection $staffImpliques;
+
     #[ORM\Column]
     #[Groups(['incident:read'])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -101,7 +114,8 @@ class Incident
 
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt      = new \DateTimeImmutable();
+        $this->staffImpliques = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -124,6 +138,19 @@ class Incident
     }
     public function getUser(): ?User { return $this->user; }
     public function setUser(?User $u): static { $this->user = $u; return $this; }
+    public function getZone(): ?Zone { return $this->zone; }
+    public function setZone(?Zone $z): static { $this->zone = $z; return $this; }
+
+    /** @return Collection<int, User> */
+    public function getStaffImpliques(): Collection { return $this->staffImpliques; }
+    public function addStaffImplique(User $u): static
+    {
+        if (!$this->staffImpliques->contains($u)) {
+            $this->staffImpliques->add($u);
+        }
+        return $this;
+    }
+
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
     public function getResolvedAt(): ?\DateTimeImmutable { return $this->resolvedAt; }
 }

@@ -5,7 +5,6 @@ import { motion }               from 'framer-motion'
 import { listVariants, listItemVariants } from '@/lib/animations'
 import { useAuthStore }         from '@/store/authStore'
 import { useServices, useDeleteService, useAddServiceNote } from '@/hooks/useServices'
-import { isTodayService } from '@/lib/serviceUtils'
 import ServiceCard         from '@/components/services/ServiceCard'
 import ModalCreateService  from '@/components/services/ModalCreateService'
 
@@ -65,8 +64,9 @@ export default function ServicesPage() {
   }
 
   const services      = data ?? []
-  const todayService  = services.find(s => isTodayService(s.date))
-  const otherServices = services.filter(s => !isTodayService(s.date))
+  const todayStr      = new Date().toISOString().slice(0, 10)
+  const todayService  = services.find(s => s.date === todayStr)
+  const otherServices = services.filter(s => s.date !== todayStr)
 
   // ── Empty state ────────────────────────────────────────────────────────────
 

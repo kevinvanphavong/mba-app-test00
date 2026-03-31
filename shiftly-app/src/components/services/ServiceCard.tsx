@@ -6,7 +6,6 @@ import { format, parseISO } from 'date-fns'
 import { fr }               from 'date-fns/locale'
 import { expandVariants }   from '@/lib/animations'
 import { cn }               from '@/lib/cn'
-import { getEffectiveToday } from '@/lib/serviceUtils'
 import { useDeletePoste }   from '@/hooks/useService'
 import type { ServiceListItem } from '@/types/index'
 import ModalAssignerPoste          from '@/components/services/ModalAssignerPoste'
@@ -15,10 +14,10 @@ import ModalAssignerPoste          from '@/components/services/ModalAssignerPost
 
 type BadgeType = 'termine' | 'en_cours' | 'planifie'
 
+// Mapping direct depuis le statut BDD — ne pas recalculer depuis la date
 function resolveBadge(service: ServiceListItem): BadgeType {
-  const today = getEffectiveToday()
-  if (service.date === today) return 'en_cours'
-  if (service.date < today)   return 'termine'
+  if (service.statut === 'EN_COURS') return 'en_cours'
+  if (service.statut === 'TERMINE')  return 'termine'
   return 'planifie'
 }
 

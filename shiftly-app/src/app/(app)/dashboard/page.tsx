@@ -12,6 +12,7 @@ import ModalIncident   from '@/components/service/ModalIncident'
 import { useDashboard }    from '@/hooks/useDashboard'
 import { useServiceToday } from '@/hooks/useService'
 import { useCreateIncident } from '@/hooks/useIncidents'
+import { useZones }        from '@/hooks/useZones'
 import { useAuthStore }    from '@/store/authStore'
 import { useCurrentUser }  from '@/hooks/useCurrentUser'
 
@@ -26,18 +27,20 @@ export default function DashboardPage() {
     }
   }, [user, loading, router])
 
-  if (loading || !user || user.role !== 'MANAGER') return null
   const { data, isLoading, isError } = useDashboard()
   const { data: serviceData }        = useServiceToday()
+  const { data: zonesData = [] }     = useZones()
   const centreId                     = useAuthStore(s => s.centreId)
   const createIncident               = useCreateIncident()
 
   const [incidentOpen, setIncidentOpen] = useState(false)
 
-  // Zones et staff extraits du service du jour (pour la modale incident)
+  // Toutes les zones actives du centre (pour la modale incident)
   const allZones = useMemo(
-    () => serviceData?.zones.map(z => ({ id: z.id, nom: z.nom, couleur: z.couleur, ordre: z.ordre })) ?? [],
-    [serviceData]
+    () => zonesData
+      .filter(z => !z.archivee)
+      .map(z => ({ id: z.id, nom: z.nom, couleur: z.couleur ?? '#6b7280', ordre: z.ordre })),
+    [zonesData]
   )
 
   const handleIncidentSubmit = useCallback(async (payload: {
@@ -52,8 +55,12 @@ export default function DashboardPage() {
       severite:  payload.severite,
       serviceId: serviceData.service.id,
       centreId,
+      zoneId:   payload.zoneId,
+      staffIds: payload.staffIds,
     })
   }, [serviceData, centreId, createIncident])
+
+  if (loading || !user || user.role !== 'MANAGER') return null
 
   return (
     <div className="min-h-full animate-fadeUp">
@@ -80,7 +87,7 @@ export default function DashboardPage() {
         {/* ── Données réelles ── */}
         {data && (
           <>
-            <HeroService data={data.service} />
+            <HeroService data={data.service} onReportIncident={serviceData?.service ? () => setIncidentOpen(true) : undefined} />
 
             <KPIGrid
               data={{

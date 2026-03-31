@@ -2,7 +2,8 @@ import { cn } from '@/lib/cn'
 import type { DashboardService } from '@/types/dashboard'
 
 interface HeroServiceProps {
-  data: DashboardService
+  data:               DashboardService
+  onReportIncident?:  () => void
 }
 
 const RADIUS = 38
@@ -20,7 +21,7 @@ const STATUT_COLOR: Record<string, string> = {
 }
 
 /** Hero card — service du jour + jauge circulaire d'occupation */
-export default function HeroService({ data }: HeroServiceProps) {
+export default function HeroService({ data, onReportIncident }: HeroServiceProps) {
   const { today, tauxOccupation } = data
 
   if (!today) {
@@ -42,7 +43,7 @@ export default function HeroService({ data }: HeroServiceProps) {
       <div className="relative flex items-center justify-between gap-4">
         {/* ── Left: service info ── */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <span
               className={cn(
                 'text-[10px] font-extrabold font-syne uppercase tracking-wider px-2 py-0.5 rounded-[6px]',
@@ -52,6 +53,14 @@ export default function HeroService({ data }: HeroServiceProps) {
               {STATUT_LABEL[today.statut] ?? today.statut}
             </span>
             <span className="text-[11px] text-muted">Service du jour</span>
+            {onReportIncident && (
+              <button
+                onClick={onReportIncident}
+                className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-[6px] bg-red/10 text-red border border-red/20 text-[10px] font-extrabold font-syne hover:bg-red/20 transition-colors"
+              >
+                ⚠ Incident
+              </button>
+            )}
           </div>
 
           <div className="font-syne font-extrabold text-[28px] lg:text-[34px] text-text leading-none mb-1">

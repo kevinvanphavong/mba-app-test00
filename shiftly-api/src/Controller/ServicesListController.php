@@ -44,6 +44,7 @@ class ServicesListController extends AbstractController
 
         $services = $this->serviceRepo->findByCentreDesc($centreId);
 
+        $today  = new \DateTimeImmutable('today');
         $result = [];
 
         foreach ($services as $service) {
@@ -112,12 +113,24 @@ class ServicesListController extends AbstractController
                 ($zonesMeta[$a['id']]->getOrdre() ?? 0) <=> ($zonesMeta[$b['id']]->getOrdre() ?? 0)
             );
 
+            // ── Statut dynamique (priorité à TERMINE explicite, sinon calcul par date) ──
+            $serviceDate = $service->getDate();
+            if ($service->getStatut() === 'TERMINE') {
+                $statut = 'TERMINE';
+            } elseif ($serviceDate !== null && $serviceDate < $today) {
+                $statut = 'TERMINE';
+            } elseif ($serviceDate !== null && $serviceDate->format('Y-m-d') === $today->format('Y-m-d')) {
+                $statut = 'EN_COURS';
+            } else {
+                $statut = 'PLANIFIE';
+            }
+
             $result[] = [
                 'id'             => $service->getId(),
                 'date'           => $service->getDate()?->format('Y-m-d'),
                 'heureDebut'     => $service->getHeureDebut()?->format('H:i'),
                 'heureFin'       => $service->getHeureFin()?->format('H:i'),
-                'statut'         => $service->getStatut(),
+                'statut'         => $statut,
                 'tauxCompletion' => $service->getTauxCompletion(),
                 'note'           => $service->getNote(),
                 'staff'          => $staffList,
