@@ -57,6 +57,18 @@ class Centre
     #[Groups(['centre:read', 'centre:write'])]
     private ?string $slug = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['centre:read', 'centre:write'])]
+    private ?string $adresse = null;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    #[Groups(['centre:read', 'centre:write'])]
+    private ?string $telephone = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['centre:read', 'centre:write'])]
+    private ?string $siteWeb = null;
+
     #[ORM\Column(type: 'json', nullable: true)]
     #[Groups(['centre:read', 'centre:write'])]
     private ?array $openingHours = null;
@@ -89,6 +101,12 @@ class Centre
         }
     }
 
+    public function getAdresse(): ?string { return $this->adresse; }
+    public function setAdresse(?string $adresse): static { $this->adresse = $adresse; return $this; }
+    public function getTelephone(): ?string { return $this->telephone; }
+    public function setTelephone(?string $telephone): static { $this->telephone = $telephone; return $this; }
+    public function getSiteWeb(): ?string { return $this->siteWeb; }
+    public function setSiteWeb(?string $siteWeb): static { $this->siteWeb = $siteWeb; return $this; }
     public function getOpeningHours(): ?array { return $this->openingHours; }
     public function setOpeningHours(?array $openingHours): static { $this->openingHours = $openingHours; return $this; }
 
