@@ -1,4 +1,5 @@
-import Link from 'next/link'
+'use client'
+
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { cn } from '@/lib/cn'
@@ -6,8 +7,7 @@ import Panel from '@/components/ui/Panel'
 import type { DashboardIncidents } from '@/types/dashboard'
 
 interface IncidentsListProps {
-  data:      DashboardIncidents
-  onReport?: () => void
+  data: DashboardIncidents
 }
 
 const SEV_DOT: Record<string, string> = {
@@ -15,42 +15,23 @@ const SEV_DOT: Record<string, string> = {
   moyenne: 'bg-yellow',
   basse:   'bg-muted',
 }
+const SEV_BADGE: Record<string, string> = {
+  haute:   'text-red    bg-red/10',
+  moyenne: 'text-yellow bg-yellow/10',
+  basse:   'text-muted  bg-surface2',
+}
 const SEV_LABEL: Record<string, string> = {
   haute:   'Haute',
   moyenne: 'Moyenne',
   basse:   'Basse',
 }
-const SEV_BADGE: Record<string, string> = {
-  haute:   'text-red   bg-red/10',
-  moyenne: 'text-yellow bg-yellow/10',
-  basse:   'text-muted  bg-surface2',
-}
 
-/** Panel — liste des incidents ouverts avec sévérité et ancienneté */
-export default function IncidentsList({ data, onReport }: IncidentsListProps) {
-  const { alertes, total, haute, moyenne, basse } = data
-
-  // Tous les incidents pour l'affichage (alertes = incidents haute sévérité open)
-  // On construit une liste synthétique depuis les compteurs + alertes
-  const incidents = [
-    ...alertes,
-    ...(moyenne > 0 ? [{
-      id: -1, titre: `${moyenne} incident${moyenne > 1 ? 's' : ''} de sévérité moyenne`,
-      severite: 'moyenne' as const, statut: 'OUVERT', service: null,
-      createdAt: new Date().toISOString(),
-    }] : []),
-    ...(basse > 0 ? [{
-      id: -2, titre: `${basse} incident${basse > 1 ? 's' : ''} de faible sévérité`,
-      severite: 'basse' as const, statut: 'OUVERT', service: null,
-      createdAt: new Date().toISOString(),
-    }] : []),
-  ]
+/** Panel — liste des incidents ouverts, tous affichés individuellement avec leur zone */
+export default function IncidentsList({ data }: IncidentsListProps) {
+  const { alertes, total, haute } = data
 
   return (
-    <Panel
-      title="Incidents ouverts"
-      action={{ label: 'Voir tous →' }}
-    >
+    <Panel title="Incidents ouverts">
       {/* Compteur rapide */}
       <div className="flex items-center gap-2 mb-3">
         <span className="text-[11px] text-muted">{total} ouvert{total > 1 ? 's' : ''}</span>
@@ -68,7 +49,7 @@ export default function IncidentsList({ data, onReport }: IncidentsListProps) {
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {incidents.map((inc, i) => {
+          {alertes.map((inc, i) => {
             const timeAgo = (() => {
               try {
                 return formatDistanceToNow(new Date(inc.createdAt), {
@@ -85,7 +66,7 @@ export default function IncidentsList({ data, onReport }: IncidentsListProps) {
                 key={inc.id ?? i}
                 className="flex items-start gap-2.5 p-2.5 bg-surface2 rounded-[12px] border border-border/50"
               >
-                {/* Severity dot */}
+                {/* Point de sévérité */}
                 <span
                   className={cn(
                     'w-2 h-2 rounded-full mt-1.5 flex-shrink-0',
@@ -93,10 +74,11 @@ export default function IncidentsList({ data, onReport }: IncidentsListProps) {
                   )}
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-[12px] text-text leading-snug truncate">
+                  <div className="text-[12px] text-text leading-snug">
                     {inc.titre}
                   </div>
-                  <div className="flex items-center gap-1.5 mt-1">
+                  <div className="flex items-center flex-wrap gap-1.5 mt-1">
+                    {/* Badge sévérité */}
                     <span
                       className={cn(
                         'text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-[4px]',
@@ -105,6 +87,21 @@ export default function IncidentsList({ data, onReport }: IncidentsListProps) {
                     >
                       {SEV_LABEL[inc.severite]}
                     </span>
+
+                    {/* Zone rattachée */}
+                    {inc.zone && (
+                      <span
+                        className="text-[9px] font-semibold px-1.5 py-0.5 rounded-[4px]"
+                        style={{
+                          color:            inc.zone.couleur,
+                          backgroundColor:  `${inc.zone.couleur}18`,
+                        }}
+                      >
+                        {inc.zone.nom}
+                      </span>
+                    )}
+
+                    {/* Ancienneté */}
                     {timeAgo && (
                       <span className="text-[10px] text-muted">{timeAgo}</span>
                     )}
@@ -114,16 +111,6 @@ export default function IncidentsList({ data, onReport }: IncidentsListProps) {
             )
           })}
         </div>
-      )}
-
-      {onReport && (
-        <button
-          onClick={onReport}
-          className="mt-3 w-full flex items-center justify-center gap-1.5 py-2.5 rounded-[12px] border border-red/30 bg-red/5 text-red text-[12px] font-bold hover:bg-red/10 active:scale-[0.98] transition-all"
-        >
-          <span>⚠️</span>
-          Signaler un incident
-        </button>
       )}
     </Panel>
   )

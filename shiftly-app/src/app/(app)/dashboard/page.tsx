@@ -7,7 +7,7 @@ import HeroService     from '@/components/dashboard/HeroService'
 import KPIGrid         from '@/components/dashboard/KPIGrid'
 import IncidentsList   from '@/components/dashboard/IncidentsList'
 import StaffRanking    from '@/components/dashboard/StaffRanking'
-import AlertsFeed      from '@/components/dashboard/AlertsFeed'
+import Panel           from '@/components/ui/Panel'
 import ModalIncident   from '@/components/service/ModalIncident'
 import { useDashboard }    from '@/hooks/useDashboard'
 import { useServiceToday } from '@/hooks/useService'
@@ -87,7 +87,10 @@ export default function DashboardPage() {
         {/* ── Données réelles ── */}
         {data && (
           <>
-            <HeroService data={data.service} onReportIncident={serviceData?.service ? () => setIncidentOpen(true) : undefined} />
+            <HeroService
+              data={data.service}
+              onReportIncident={serviceData?.service ? () => setIncidentOpen(true) : undefined}
+            />
 
             <KPIGrid
               data={{
@@ -95,14 +98,25 @@ export default function DashboardPage() {
                 staff:     data.staff,
                 incidents: data.incidents,
                 tutoriels: data.tutoriels,
+                stats:     data.stats,
               }}
             />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              <IncidentsList data={data.incidents} onReport={serviceData?.service ? () => setIncidentOpen(true) : undefined} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <IncidentsList data={data.incidents} />
               <StaffRanking  topStaff={data.topStaff} />
-              <AlertsFeed    alertes={data.incidents.alertes} />
             </div>
+
+            {/* Placeholder section Notifications — à implémenter */}
+            <Panel title="Notifications">
+              <div className="flex flex-col items-center justify-center py-8 gap-2 text-center">
+                <span className="text-3xl">🔔</span>
+                <p className="text-[13px] font-semibold text-text">Bientôt disponible</p>
+                <p className="text-[12px] text-muted max-w-[240px]">
+                  Le centre de notifications arrivera prochainement.
+                </p>
+              </div>
+            </Panel>
           </>
         )}
 

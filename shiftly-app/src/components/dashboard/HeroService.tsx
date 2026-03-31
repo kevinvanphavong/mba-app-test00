@@ -22,7 +22,7 @@ const STATUT_COLOR: Record<string, string> = {
 
 /** Hero card — service du jour + jauge circulaire d'occupation */
 export default function HeroService({ data, onReportIncident }: HeroServiceProps) {
-  const { today, tauxOccupation } = data
+  const { today, tauxCompletion } = data
 
   if (!today) {
     return (
@@ -32,7 +32,7 @@ export default function HeroService({ data, onReportIncident }: HeroServiceProps
     )
   }
 
-  const pct        = Math.max(0, Math.min(100, tauxOccupation))
+  const pct        = Math.max(0, Math.min(100, tauxCompletion))
   const dashOffset = CIRCUMFERENCE * (1 - pct / 100)
 
   return (

@@ -36,11 +36,12 @@ class DashboardController extends AbstractController
      * GET /api/dashboard/{centreId}
      *
      * Retourne en une seule requête toutes les données du dashboard :
-     *  - service du jour (statut, postes, taux occupation)
-     *  - staff actif (connecté aujourd'hui ou tout le staff du centre)
-     *  - incidents ouverts (count + par sévérité + alertes haute)
-     *  - top staff (classement par points)
+     *  - service du jour (statut, postes, taux completion corrigé)
+     *  - staff actif (postes assignés au service du jour)
+     *  - incidents ouverts (tous, avec zone rattachée)
+     *  - top staff (classement par points, avec rôle)
      *  - taux tutoriels (lectures / total par centre)
+     *  - stats globales (moyenne completion de tous les services)
      */
     #[Route('/api/dashboard/{centreId}', name: 'api_dashboard', methods: ['GET'], format: 'json')]
     public function __invoke(int $centreId): JsonResponse
@@ -59,27 +60,65 @@ class DashboardController extends AbstractController
             'incidents'  => $this->buildIncidentsSection($centreId),
             'topStaff'   => $this->buildTopStaff($centreId),
             'tutoriels'  => $this->buildTutorielsSection($centreId),
+            'stats'      => $this->buildServicesStats($centreId),
         ]);
     }
 
     // -------------------------------------------------------------------------
 
+    /**
+     * Service du jour — taux de complétion corrigé.
+     *
+     * Utilise findForService (FIXE + PONCTUELLES) et déduplique par zone
+     * pour éviter le double-comptage lorsque plusieurs postes couvrent la même zone.
+     */
     private function buildServiceSection(int $centreId): array
     {
         $service = $this->serviceRepo->findTodayActive($centreId);
         if (!$service) {
-            return ['today' => null, 'tauxOccupation' => 0.0];
+            return [
+                'today'            => null,
+                'tauxCompletion'   => 0.0,
+                'staffActifCount'  => 0,
+                'totalMissions'    => 0,
+                'pointsStaffActif' => 0,
+            ];
         }
 
-        $postes     = $service->getPostes();
-        $totalMissions = 0;
-        $doneCount  = 0;
+        // Grouper les postes par zone + collecter le staff unique
+        $postesByZone = []; // zoneId → ['zone' => Zone, 'postes' => [Poste, ...]]
+        $staffSeen    = []; // userId → true (déduplication)
+        $pointsTotal  = 0;
 
-        foreach ($postes as $poste) {
-            // Compte toutes les missions de la zone du poste
-            $missions      = $this->missionRepo->findByZone($poste->getZone()->getId());
+        foreach ($service->getPostes() as $poste) {
+            $zone = $poste->getZone();
+            $zid  = $zone->getId();
+            $postesByZone[$zid] ??= ['zone' => $zone, 'postes' => []];
+            $postesByZone[$zid]['postes'][] = $poste;
+
+            $user = $poste->getUser();
+            if ($user && !isset($staffSeen[$user->getId()])) {
+                $staffSeen[$user->getId()] = true;
+                $pointsTotal += $user->getPoints();
+            }
+        }
+
+        $totalMissions = 0;
+        $doneCount     = 0;
+
+        foreach ($postesByZone as $zid => $data) {
+            // Missions FIXE + PONCTUELLES (cohérent avec ServiceTodayController)
+            $missions       = $this->missionRepo->findForService($zid, $service->getId());
             $totalMissions += count($missions);
-            $doneCount     += $poste->getCompletions()->count();
+
+            // Déduplication des completions par missionId (plusieurs postes même zone)
+            $completedIds = [];
+            foreach ($data['postes'] as $poste) {
+                foreach ($poste->getCompletions() as $completion) {
+                    $completedIds[$completion->getMission()->getId()] = true;
+                }
+            }
+            $doneCount += count($completedIds);
         }
 
         $taux = $totalMissions > 0 ? round($doneCount / $totalMissions * 100, 1) : 0.0;
@@ -91,9 +130,12 @@ class DashboardController extends AbstractController
                 'heureDebut' => $service->getHeureDebut()?->format('H:i'),
                 'heureFin'   => $service->getHeureFin()?->format('H:i'),
                 'statut'     => $service->getStatut(),
-                'nbPostes'   => $postes->count(),
+                'nbPostes'   => $service->getPostes()->count(),
             ],
-            'tauxOccupation' => $taux,
+            'tauxCompletion'   => $taux,
+            'staffActifCount'  => count($staffSeen),
+            'totalMissions'    => $totalMissions,
+            'pointsStaffActif' => $pointsTotal,
         ];
     }
 
@@ -102,21 +144,23 @@ class DashboardController extends AbstractController
         $staff = $this->userRepo->findByCentre($centreId);
 
         return array_map(fn(User $u) => [
-            'id'         => $u->getId(),
-            'nom'        => $u->getNom(),
-            'role'       => $u->getRole(),
-            'avatarColor'=> $u->getAvatarColor(),
-            'points'     => $u->getPoints(),
+            'id'          => $u->getId(),
+            'nom'         => $u->getNom(),
+            'role'        => $u->getRole(),
+            'avatarColor' => $u->getAvatarColor(),
+            'points'      => $u->getPoints(),
         ], $staff);
     }
 
+    /**
+     * Incidents ouverts — retourne TOUS les incidents open individuellement
+     * avec leur zone rattachée.
+     */
     private function buildIncidentsSection(int $centreId): array
     {
-        $open      = $this->incidentRepo->findOpenByCentre($centreId);
-        $bySev     = $this->incidentRepo->countBySeverite($centreId);
-        $alertes   = array_filter($open, fn(Incident $i) => $i->getSeverite() === Incident::SEV_HAUTE);
+        $open  = $this->incidentRepo->findOpenByCentre($centreId);
+        $bySev = $this->incidentRepo->countBySeverite($centreId);
 
-        // Indexer countBySeverite par clé
         $sevMap = [];
         foreach ($bySev as $row) {
             $sevMap[$row['severite']] = (int) $row['total'];
@@ -127,26 +171,33 @@ class DashboardController extends AbstractController
             'haute'   => $sevMap[Incident::SEV_HAUTE]   ?? 0,
             'moyenne' => $sevMap[Incident::SEV_MOYENNE]  ?? 0,
             'basse'   => $sevMap[Incident::SEV_BASSE]    ?? 0,
-            'alertes' => array_values(array_map(fn(Incident $i) => [
-                'id'       => $i->getId(),
-                'titre'    => $i->getTitre(),
-                'severite' => $i->getSeverite(),
-                'statut'   => $i->getStatut(),
-                'service'  => $i->getService()?->getId(),
-                'createdAt'=> $i->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-            ], $alertes)),
+            'alertes' => array_map(fn(Incident $i) => [
+                'id'        => $i->getId(),
+                'titre'     => $i->getTitre(),
+                'severite'  => $i->getSeverite(),
+                'statut'    => $i->getStatut(),
+                'service'   => $i->getService()?->getId(),
+                'zone'      => $i->getZone() ? [
+                    'id'      => $i->getZone()->getId(),
+                    'nom'     => $i->getZone()->getNom(),
+                    'couleur' => $i->getZone()->getCouleur(),
+                ] : null,
+                'createdAt' => $i->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            ], $open),
         ];
     }
 
-    private function buildTopStaff(int $centreId, int $limit = 5): array
+    /** Top staff — classement par points, inclut le rôle pour le filtrage côté front */
+    private function buildTopStaff(int $centreId, int $limit = 20): array
     {
         $leaders = $this->userRepo->findLeaderboard($centreId);
 
         return array_map(fn(User $u) => [
-            'id'         => $u->getId(),
-            'nom'        => $u->getNom(),
-            'avatarColor'=> $u->getAvatarColor(),
-            'points'     => $u->getPoints(),
+            'id'          => $u->getId(),
+            'nom'         => $u->getNom(),
+            'role'        => $u->getRole(),
+            'avatarColor' => $u->getAvatarColor(),
+            'points'      => $u->getPoints(),
         ], array_slice($leaders, 0, $limit));
     }
 
@@ -159,20 +210,66 @@ class DashboardController extends AbstractController
             return ['total' => 0, 'tauxLecture' => 0.0];
         }
 
-        // Compte les lectures uniques (user × tutoriel) pour ce centre
+        // Lectures uniques (user × tutoriel) pour ce centre
         $lecturesCount = (int) $this->em->createQuery(
             'SELECT COUNT(tr.id) FROM App\Entity\TutoRead tr
              JOIN tr.tutoriel t
              WHERE t.centre = :centreId'
         )->setParameter('centreId', $centreId)->getSingleScalarResult();
 
-        $staffCount = count($this->userRepo->findByCentre($centreId));
+        $staffCount  = count($this->userRepo->findByCentre($centreId));
         $maxLectures = $total * max(1, $staffCount);
 
         return [
             'total'       => $total,
             'lectures'    => $lecturesCount,
             'tauxLecture' => round($lecturesCount / $maxLectures * 100, 1),
+        ];
+    }
+
+    /**
+     * Statistiques globales des services — moyenne de complétion sur tous les services créés.
+     */
+    private function buildServicesStats(int $centreId): array
+    {
+        $services = $this->serviceRepo->findByCentreDesc($centreId);
+
+        if (empty($services)) {
+            return ['moyenneCompletion' => 0.0, 'totalServices' => 0];
+        }
+
+        $cumul = 0.0;
+
+        foreach ($services as $service) {
+            $postesByZone = [];
+            foreach ($service->getPostes() as $poste) {
+                $zid = $poste->getZone()->getId();
+                $postesByZone[$zid] ??= ['zone' => $poste->getZone(), 'postes' => []];
+                $postesByZone[$zid]['postes'][] = $poste;
+            }
+
+            $totalM = 0;
+            $doneM  = 0;
+            foreach ($postesByZone as $zid => $data) {
+                $missions = $this->missionRepo->findForService($zid, $service->getId());
+                $totalM  += count($missions);
+                $done = [];
+                foreach ($data['postes'] as $poste) {
+                    foreach ($poste->getCompletions() as $c) {
+                        $done[$c->getMission()->getId()] = true;
+                    }
+                }
+                $doneM += count($done);
+            }
+
+            $cumul += $totalM > 0 ? ($doneM / $totalM * 100) : 0.0;
+        }
+
+        $nbServices = count($services);
+
+        return [
+            'moyenneCompletion' => round($cumul / $nbServices, 1),
+            'totalServices'     => $nbServices,
         ];
     }
 }

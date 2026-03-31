@@ -2,37 +2,41 @@ import StatCard from '@/components/ui/StatCard'
 import type { DashboardData } from '@/types/dashboard'
 
 interface KPIGridProps {
-  data: Pick<DashboardData, 'service' | 'staff' | 'incidents' | 'tutoriels'>
+  data: Pick<DashboardData, 'service' | 'staff' | 'incidents' | 'tutoriels' | 'stats'>
 }
 
 /**
- * Grille des 4 KPI principaux :
- *  • Taux d'avancement  • Staff présent  • Incidents ouverts  • Taux lecture tutos
+ * Grille des 6 KPI principaux :
+ *  1. Moyenne completion de tous les services
+ *  2. Employés actifs dans le service du jour
+ *  3. Incidents ouverts
+ *  4. Taux lecture tutoriels
+ *  5. Cumul points staff actif
+ *  6. Total missions du service du jour
  */
 export default function KPIGrid({ data }: KPIGridProps) {
-  const { service, staff, incidents, tutoriels } = data
-
-  const staffActif   = staff.length
-  const taux         = service.tauxOccupation
-  const nbIncidents  = incidents.total
-  const tauxLecture  = tutoriels.tauxLecture
+  const { service, incidents, tutoriels, stats } = data
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+      {/* 1 — Moyenne completion tous services */}
       <StatCard
-        icon="📋"
-        value={`${taux.toFixed(0)}%`}
-        label="Avancement missions"
-        trend={{ value: '+8%', up: true }}
+        icon="📊"
+        value={`${stats.moyenneCompletion.toFixed(0)}%`}
+        label="Moy. complétion services"
       />
+
+      {/* 2 — Staff actif dans le service du jour */}
       <StatCard
         icon="👥"
-        value={staffActif}
+        value={service.staffActifCount}
         label="Employés actifs"
       />
+
+      {/* 3 — Incidents ouverts */}
       <StatCard
         icon="⚠️"
-        value={nbIncidents}
+        value={incidents.total}
         label="Incidents ouverts"
         trend={
           incidents.haute > 0
@@ -40,11 +44,26 @@ export default function KPIGrid({ data }: KPIGridProps) {
             : undefined
         }
       />
+
+      {/* 4 — Taux lecture tutoriels */}
       <StatCard
         icon="📖"
-        value={`${tauxLecture.toFixed(0)}%`}
+        value={`${tutoriels.tauxLecture.toFixed(0)}%`}
         label="Taux lecture tutos"
-        trend={{ value: '+5%', up: true }}
+      />
+
+      {/* 5 — Cumul points staff actif */}
+      <StatCard
+        icon="⭐"
+        value={service.pointsStaffActif}
+        label="Points staff actif"
+      />
+
+      {/* 6 — Total missions du service du jour */}
+      <StatCard
+        icon="✅"
+        value={service.totalMissions}
+        label="Missions du service"
       />
     </div>
   )

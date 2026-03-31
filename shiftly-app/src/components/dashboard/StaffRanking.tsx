@@ -1,25 +1,58 @@
+'use client'
+
+import { useState } from 'react'
+import Link from 'next/link'
 import Panel from '@/components/ui/Panel'
 import type { DashboardTopStaff } from '@/types/dashboard'
 
 interface StaffRankingProps {
   topStaff: DashboardTopStaff[]
-  /** Points du 1er pour calculer les barres relatives */
-  maxPoints?: number
 }
 
 const RANK_MEDAL: Record<number, string> = { 0: '🥇', 1: '🥈', 2: '🥉' }
 
-/** Panel — classement top staff par points */
-export default function StaffRanking({ topStaff, maxPoints }: StaffRankingProps) {
-  const max = maxPoints ?? Math.max(...topStaff.map(u => u.points), 1)
+/** Panel — classement staff par points avec toggle managers/employés */
+export default function StaffRanking({ topStaff }: StaffRankingProps) {
+  const [showManagers, setShowManagers] = useState(true)
+
+  // Filtrer selon le toggle
+  const filtered = showManagers
+    ? topStaff
+    : topStaff.filter(u => u.role !== 'MANAGER')
+
+  const max = Math.max(...filtered.map(u => u.points), 1)
 
   return (
-    <Panel title="Top Staff" action={{ label: 'Voir staff →' }}>
-      {topStaff.length === 0 ? (
-        <p className="text-[12px] text-muted py-3">Aucune donnée.</p>
+    <Panel title="Top Staff">
+      {/* Toggle managers / employés seulement */}
+      <div className="flex items-center gap-1.5 mb-4 bg-surface2 rounded-[10px] p-1 w-fit">
+        <button
+          onClick={() => setShowManagers(true)}
+          className={`text-[11px] font-semibold px-3 py-1 rounded-[8px] transition-all ${
+            showManagers
+              ? 'bg-surface text-text shadow-sm'
+              : 'text-muted hover:text-text'
+          }`}
+        >
+          Tous
+        </button>
+        <button
+          onClick={() => setShowManagers(false)}
+          className={`text-[11px] font-semibold px-3 py-1 rounded-[8px] transition-all ${
+            !showManagers
+              ? 'bg-surface text-text shadow-sm'
+              : 'text-muted hover:text-text'
+          }`}
+        >
+          Employés
+        </button>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-[12px] text-muted py-3">Aucun employé dans la liste.</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {topStaff.map((member, idx) => {
+          {filtered.map((member, idx) => {
             const initials = member.nom
               .split(' ')
               .map(w => w[0])
@@ -27,13 +60,13 @@ export default function StaffRanking({ topStaff, maxPoints }: StaffRankingProps)
               .toUpperCase()
               .slice(0, 2)
 
-            const pct = (member.points / max) * 100
+            const pct = Math.round((member.points / max) * 100)
 
             return (
               <div key={member.id} className="flex items-center gap-3">
-                {/* Rank medal / number */}
+                {/* Rang */}
                 <div className="w-5 text-center flex-shrink-0">
-                  {RANK_MEDAL[idx] ? (
+                  {RANK_MEDAL[idx] !== undefined ? (
                     <span className="text-[14px]">{RANK_MEDAL[idx]}</span>
                   ) : (
                     <span className="text-[11px] font-bold text-muted">{idx + 1}</span>
@@ -52,7 +85,7 @@ export default function StaffRanking({ topStaff, maxPoints }: StaffRankingProps)
                   {initials}
                 </div>
 
-                {/* Name + bar */}
+                {/* Nom + barre */}
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
                     <span className="text-[12px] font-medium text-text truncate">
@@ -79,6 +112,15 @@ export default function StaffRanking({ topStaff, maxPoints }: StaffRankingProps)
           })}
         </div>
       )}
+
+      {/* Lien vers la page staff */}
+      <Link
+        href="/staff"
+        className="mt-4 flex items-center justify-center gap-1.5 w-full py-2 rounded-[10px] border border-border text-[11px] text-muted hover:text-text hover:border-border/60 transition-all"
+      >
+        Voir tout le staff
+        <span className="text-[10px]">→</span>
+      </Link>
     </Panel>
   )
 }
