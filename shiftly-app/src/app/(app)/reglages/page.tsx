@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { ty }                from '@/lib/typography'
 import LogoutButton          from '@/components/auth/LogoutButton'
 import ProfileCard           from '@/components/settings/ProfileCard'
 import CentreSettingsSection from '@/components/settings/HorairesSummary'
@@ -10,7 +11,7 @@ export default function ReglagesPage() {
   return (
     <div className="mx-auto px-5 py-6">
       <div className="mb-5">
-        <h1 className="font-syne font-extrabold text-[20px] text-text">Réglages</h1>
+        <h1 className={`${ty.kpi} text-[20px]`}>Réglages</h1>
       </div>
 
       {/* Profile card */}
@@ -18,7 +19,7 @@ export default function ReglagesPage() {
 
       {/* Notifications */}
       <div className="mb-4">
-        <div className="text-[9px] font-syne font-bold uppercase tracking-widest text-muted px-1 mb-2">
+        <div className={`${ty.sectionLabel} px-1 mb-2`}>
           <p>Notifications</p>
         </div>
         <div className="bg-surface border border-border rounded-[18px] overflow-hidden divide-y divide-border">
@@ -29,8 +30,8 @@ export default function ReglagesPage() {
           ].map(item => (
             <div key={item.label} className="flex items-center gap-3 px-4 py-3">
               <div className="flex-1 min-w-0">
-                <div className="text-[13px] text-text font-medium">{item.label}</div>
-                <div className="text-[11px] text-muted">{item.sub}</div>
+                <div className={`${ty.bodyLg} font-medium`}>{item.label}</div>
+                <div className={ty.meta}>{item.sub}</div>
               </div>
               <div className={`w-[44px] h-[24px] rounded-full relative flex-shrink-0 ${
                 item.toggle ? 'bg-green' : 'bg-surface2 border border-border'
@@ -52,7 +53,7 @@ export default function ReglagesPage() {
 
       {/* Danger zone */}
       <div>
-        <div className="text-[9px] font-syne font-bold uppercase tracking-widest text-muted px-1 mb-2">
+        <div className={`${ty.sectionLabel} px-1 mb-2`}>
           Danger
         </div>
         <div className="bg-surface border border-red/20 rounded-[18px] overflow-hidden">

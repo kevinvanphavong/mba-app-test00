@@ -3,6 +3,7 @@
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { cn } from '@/lib/cn'
+import { ty } from '@/lib/typography'
 import Panel from '@/components/ui/Panel'
 import type { DashboardIncidents } from '@/types/dashboard'
 
@@ -34,16 +35,16 @@ export default function IncidentsList({ data }: IncidentsListProps) {
     <Panel title="Incidents ouverts">
       {/* Compteur rapide */}
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-[11px] text-muted">{total} ouvert{total > 1 ? 's' : ''}</span>
+        <span className={ty.meta}>{total} ouvert{total > 1 ? 's' : ''}</span>
         {haute > 0 && (
-          <span className="text-[10px] font-extrabold text-red bg-red/10 px-1.5 py-0.5 rounded-[5px]">
+          <span className={`${ty.badge} text-red bg-red/10 px-1.5 py-0.5 rounded-[5px]`}>
             {haute} haute
           </span>
         )}
       </div>
 
       {total === 0 ? (
-        <div className="flex items-center gap-2 py-3 text-[12px] text-muted">
+        <div className={`${ty.metaLg} flex items-center gap-2 py-3`}>
           <span className="text-xl">✅</span>
           Aucun incident en cours
         </div>
@@ -74,14 +75,14 @@ export default function IncidentsList({ data }: IncidentsListProps) {
                   )}
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-[12px] text-text leading-snug">
+                  <div className={`${ty.body} leading-snug`}>
                     {inc.titre}
                   </div>
                   <div className="flex items-center flex-wrap gap-1.5 mt-1">
                     {/* Badge sévérité */}
                     <span
                       className={cn(
-                        'text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-[4px]',
+                        `${ty.badge} uppercase px-1.5 py-0.5 rounded-[4px]`,
                         SEV_BADGE[inc.severite] ?? 'text-muted bg-surface2'
                       )}
                     >
@@ -91,7 +92,7 @@ export default function IncidentsList({ data }: IncidentsListProps) {
                     {/* Zone rattachée */}
                     {inc.zone && (
                       <span
-                        className="text-[9px] font-semibold px-1.5 py-0.5 rounded-[4px]"
+                        className={`${ty.badge} font-semibold px-1.5 py-0.5 rounded-[4px]`}
                         style={{
                           color:            inc.zone.couleur,
                           backgroundColor:  `${inc.zone.couleur}18`,
@@ -103,7 +104,7 @@ export default function IncidentsList({ data }: IncidentsListProps) {
 
                     {/* Ancienneté */}
                     {timeAgo && (
-                      <span className="text-[10px] text-muted">{timeAgo}</span>
+                      <span className={ty.metaSm}>{timeAgo}</span>
                     )}
                   </div>
                 </div>

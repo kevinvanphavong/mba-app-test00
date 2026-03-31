@@ -7,6 +7,7 @@ import StatsRow                                 from '@/components/staff/StatsRo
 import SearchBar                                from '@/components/staff/SearchBar'
 import FilterTabs                               from '@/components/staff/FilterTabs'
 import MemberCard                               from '@/components/staff/MemberCard'
+import { ty }                                    from '@/lib/typography'
 import { useStaff }                             from '@/hooks/useStaff'
 import { listVariants, listItemVariants, fadeUpVariants } from '@/lib/animations'
 import type { RoleFilter, ZoneFilter }          from '@/types/staff'
@@ -79,8 +80,8 @@ export default function StaffPage() {
       <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
         <Topbar />
         <div className="px-4 py-14 text-center">
-          <p className="text-[14px] font-bold text-red mb-1">Impossible de charger le staff.</p>
-          <p className="text-[12px] text-muted">Vérifie la connexion ou recharge la page.</p>
+          <p className={`${ty.cardTitleMd} font-bold text-red mb-1`}>Impossible de charger le staff.</p>
+          <p className={ty.metaLg}>Vérifie la connexion ou recharge la page.</p>
         </div>
       </motion.div>
     )
@@ -109,7 +110,7 @@ export default function StaffPage() {
 
         {/* ── Compteur ── */}
         <div className="flex items-center justify-between">
-          <p className="text-[11px] text-muted">
+          <p className={ty.meta}>
             {sorted.length} membre{sorted.length > 1 ? 's' : ''}
             {(search || roleFilter !== 'all' || zoneFilter !== 'all') && (
               <span className="ml-1 text-accent font-semibold">· filtré{sorted.length > 1 ? 's' : ''}</span>
@@ -118,7 +119,7 @@ export default function StaffPage() {
           {(search || roleFilter !== 'all' || zoneFilter !== 'all') && (
             <button
               onClick={() => { setSearch(''); setRoleFilter('all'); setZoneFilter('all') }}
-              className="text-[11px] text-muted hover:text-text transition-colors"
+              className={`${ty.meta} hover:text-text transition-colors`}
             >
               Réinitialiser
             </button>
@@ -129,8 +130,8 @@ export default function StaffPage() {
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-14 text-center">
             <span className="text-4xl mb-3">🔍</span>
-            <p className="text-[14px] font-bold text-text mb-1">Aucun membre trouvé</p>
-            <p className="text-[12px] text-muted">Modifie la recherche ou les filtres.</p>
+            <p className={`${ty.cardTitleMd} font-bold mb-1`}>Aucun membre trouvé</p>
+            <p className={ty.metaLg}>Modifie la recherche ou les filtres.</p>
           </div>
         ) : (
           <motion.div

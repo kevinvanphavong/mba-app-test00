@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter }        from 'next/navigation'
+import { ty }               from '@/lib/typography'
 import { useMissions }      from '@/hooks/useMissions'
 import { useCompetences }   from '@/hooks/useCompetences'
 import MissionRow           from './MissionRow'
@@ -32,7 +33,7 @@ export default function PosteCard({ zone }: Props) {
   }) {
     return (
       <div>
-        <div className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">
+        <div className={`${ty.sectionLabel} mb-2`}>
           {label}
         </div>
         {loading && (
@@ -43,10 +44,10 @@ export default function PosteCard({ zone }: Props) {
           </div>
         )}
         {!loading && error && (
-          <p className="text-[11px] text-red py-2">Erreur de chargement.</p>
+          <p className={`${ty.meta} text-red py-2`}>Erreur de chargement.</p>
         )}
         {!loading && !error && empty && (
-          <p className="text-[11px] text-muted py-2">Aucun élément.</p>
+          <p className={`${ty.meta} py-2`}>Aucun élément.</p>
         )}
         {!loading && !error && !empty && children}
       </div>
@@ -65,7 +66,7 @@ export default function PosteCard({ zone }: Props) {
         }}
       >
         <div className="w-2 h-2 rounded-full" style={{ background: zone.couleur ?? 'var(--muted)' }} />
-        <span className="font-syne font-extrabold text-[15px]" style={{ color: zone.couleur ?? 'var(--text)' }}>
+        <span className={ty.kpiSm} style={{ color: zone.couleur ?? 'var(--text)' }}>
           {zone.nom}
         </span>
       </div>

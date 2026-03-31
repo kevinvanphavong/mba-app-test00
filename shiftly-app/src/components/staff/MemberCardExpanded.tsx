@@ -1,3 +1,4 @@
+import { ty } from '@/lib/typography'
 import CompetenceList from './CompetenceList'
 import type { StaffMember, StaffMeta } from '@/types/staff'
 
@@ -19,7 +20,7 @@ export default function MemberCardExpanded({ member, meta }: MemberCardExpandedP
 
       {/* ── Équipement / tailles ── */}
       <div>
-        <p className="text-[10px] font-bold text-muted uppercase tracking-wider mb-2">Équipement</p>
+        <p className={`${ty.sectionLabelMd} mb-2`}>Équipement</p>
         <div className="grid grid-cols-3 gap-2">
           {[
             { label: 'Haut',     value: member.tailleHaut },
@@ -27,8 +28,8 @@ export default function MemberCardExpanded({ member, meta }: MemberCardExpandedP
             { label: 'Pointure', value: member.pointure   },
           ].map(item => (
             <div key={item.label} className="bg-surface2 rounded-[10px] py-2 px-3 text-center">
-              <div className="text-[10px] text-muted mb-0.5">{item.label}</div>
-              <div className="font-syne font-extrabold text-[15px] text-text">
+              <div className={`${ty.metaSm} mb-0.5`}>{item.label}</div>
+              <div className={ty.kpiSm}>
                 {item.value ?? '—'}
               </div>
             </div>
@@ -39,8 +40,8 @@ export default function MemberCardExpanded({ member, meta }: MemberCardExpandedP
       {/* ── Compétences acquises ── */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Compétences</p>
-          <span className="text-[11px] font-extrabold text-accent font-syne">
+          <p className={ty.sectionLabelMd}>Compétences</p>
+          <span className={`${ty.meta} font-extrabold text-accent font-syne`}>
             {member.staffCompetences.length}
             {meta.competencesTotal > 0 && (
               <span className="font-normal text-muted">/{meta.competencesTotal}</span>
@@ -53,8 +54,8 @@ export default function MemberCardExpanded({ member, meta }: MemberCardExpandedP
       {/* ── Tutoriels ── */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Tutoriels lus</p>
-          <span className="text-[11px] text-muted">{member.tutorielsLus}/{meta.tutorielsTotal}</span>
+          <p className={ty.sectionLabelMd}>Tutoriels lus</p>
+          <span className={ty.meta}>{member.tutorielsLus}/{meta.tutorielsTotal}</span>
         </div>
         <div className="h-[5px] bg-surface2 rounded-full overflow-hidden">
           <div
@@ -65,7 +66,7 @@ export default function MemberCardExpanded({ member, meta }: MemberCardExpandedP
             }}
           />
         </div>
-        <p className="text-[10px] text-muted mt-1">{tauxTuto}% complété</p>
+        <p className={`${ty.metaSm} mt-1`}>{tauxTuto}% complété</p>
       </div>
     </div>
   )

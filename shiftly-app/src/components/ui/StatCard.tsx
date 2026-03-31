@@ -1,5 +1,6 @@
 import { cva } from 'class-variance-authority'
 import { cn }   from '@/lib/cn'
+import { ty }   from '@/lib/typography'
 
 // ─── Variants CVA ─────────────────────────────────────────────────────────────
 const trendBadge = cva(
@@ -36,8 +37,8 @@ export default function StatCard({ icon, value, label, trend, className }: StatC
         </span>
       )}
       <div className="text-xl mb-2">{icon}</div>
-      <div className="font-syne font-extrabold text-[28px] text-text leading-none">{value}</div>
-      <div className="text-[12px] text-muted mt-1">{label}</div>
+      <div className={ty.kpi}>{value}</div>
+      <div className={`${ty.metaLg} mt-1`}>{label}</div>
     </div>
   )
 }

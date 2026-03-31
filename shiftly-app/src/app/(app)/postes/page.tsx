@@ -2,6 +2,7 @@
 
 import { useState }    from 'react'
 import type { Metadata } from 'next'
+import { ty }          from '@/lib/typography'
 import { useZones }    from '@/hooks/useZones'
 import PosteCard       from '@/components/postes/PosteCard'
 import type { Zone }   from '@/types/index'
@@ -21,8 +22,8 @@ export default function PostesPage() {
 
       {/* ── En-tête ── */}
       <div className="mb-5">
-        <h1 className="font-syne font-extrabold text-[20px] text-text">Postes</h1>
-        <p className="text-[12px] text-muted mt-0.5">Fiches de poste par zone</p>
+        <h1 className={`${ty.kpi} text-[20px]`}>Postes</h1>
+        <p className={`${ty.metaLg} mt-0.5`}>Fiches de poste par zone</p>
       </div>
 
       {/* ── État loading ── */}
@@ -37,8 +38,8 @@ export default function PostesPage() {
       {/* ── État erreur ── */}
       {isError && (
         <div className="py-10 text-center">
-          <p className="text-[14px] text-red font-semibold">Impossible de charger les postes.</p>
-          <p className="text-[12px] text-muted mt-1">Vérifie ta connexion ou contacte un manager.</p>
+          <p className={`${ty.cardTitleMd} text-red font-semibold`}>Impossible de charger les postes.</p>
+          <p className={`${ty.metaLg} mt-1`}>Vérifie ta connexion ou contacte un manager.</p>
         </div>
       )}
 
@@ -46,8 +47,8 @@ export default function PostesPage() {
       {!isLoading && !isError && zones?.length === 0 && (
         <div className="py-14 text-center">
           <span className="text-4xl mb-3 block">🗂️</span>
-          <p className="text-[14px] font-bold text-text mb-1">Aucun poste configuré</p>
-          <p className="text-[12px] text-muted">Les zones seront ajoutées par un manager.</p>
+          <p className={`${ty.cardTitleMd} font-bold mb-1`}>Aucun poste configuré</p>
+          <p className={ty.metaLg}>Les zones seront ajoutées par un manager.</p>
         </div>
       )}
 

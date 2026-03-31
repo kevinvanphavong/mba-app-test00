@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn'
+import { ty } from '@/lib/typography'
 import type { ServicePageData } from '@/types/service'
 
 interface HeroServiceCardProps {
@@ -35,10 +36,10 @@ export default function HeroServiceCard({
         {/* ── Header row ── */}
         <div className="flex items-start justify-between mb-3">
           <div>
-            <div className="font-syne font-extrabold text-[16px] text-text leading-tight">
+            <div className={ty.cardTitleLg}>
               {service.centreName}
             </div>
-            <div className="text-[12px] text-muted mt-0.5 capitalize">{dateLabel}</div>
+            <div className={`${ty.metaLg} mt-0.5 capitalize`}>{dateLabel}</div>
           </div>
 
           {/* Droite : badge statut + bouton incident */}
@@ -46,7 +47,7 @@ export default function HeroServiceCard({
             {onReportIncident && (
               <button
                 onClick={onReportIncident}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] bg-red/10 text-red border border-red/20 text-[11px] font-extrabold font-syne hover:bg-red/20 transition-colors"
+                className={`${ty.meta} font-extrabold font-syne flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] bg-red/10 text-red border border-red/20 hover:bg-red/20 transition-colors`}
               >
                 ⚠ Incident
               </button>
@@ -58,13 +59,13 @@ export default function HeroServiceCard({
               {cfg.dot && (
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse_dot" />
               )}
-              <span className="text-[11px] font-extrabold font-syne">{cfg.label}</span>
+              <span className={`${ty.meta} font-extrabold font-syne`}>{cfg.label}</span>
             </div>
           </div>
         </div>
 
         {/* Hours */}
-        <div className="font-syne font-extrabold text-[26px] text-text leading-none mb-3">
+        <div className={`${ty.kpi} text-[26px] mb-3`}>
           {service.heureDebut}
           <span className="text-muted font-normal text-[16px] mx-2">→</span>
           {service.heureFin}
@@ -72,9 +73,9 @@ export default function HeroServiceCard({
 
         {/* ── Global progress ── */}
         <div className="mb-3">
-          <div className="flex justify-between text-[11px] mb-1.5">
-            <span className="text-muted">Avancement global</span>
-            <span className="font-extrabold text-accent font-syne">{globalPct}%</span>
+          <div className="flex justify-between mb-1.5">
+            <span className={ty.meta}>Avancement global</span>
+            <span className={`${ty.meta} font-extrabold text-accent font-syne`}>{globalPct}%</span>
           </div>
           <div className="h-[7px] bg-surface2 rounded-full overflow-hidden">
             <div
@@ -93,7 +94,7 @@ export default function HeroServiceCard({
             {zonePcts.map(z => (
               <div key={z.nom} className="bg-surface2/80 rounded-[10px] p-2.5">
                 <div
-                  className="text-[10px] font-extrabold font-syne mb-1.5"
+                  className={`${ty.badgeMd} font-extrabold font-syne mb-1.5`}
                   style={{ color: z.couleur }}
                 >
                   {z.nom}
@@ -104,7 +105,7 @@ export default function HeroServiceCard({
                     style={{ width: `${z.pct}%`, background: z.couleur }}
                   />
                 </div>
-                <div className="text-[10px] text-muted mt-1.5 font-syne font-bold">
+                <div className={`${ty.metaSm} mt-1.5 font-syne font-bold`}>
                   {z.pct}%
                 </div>
               </div>

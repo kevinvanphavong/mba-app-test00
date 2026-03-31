@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { ty } from '@/lib/typography'
 import Panel from '@/components/ui/Panel'
 import type { DashboardAlerte } from '@/types/dashboard'
 
@@ -26,7 +27,7 @@ export default function AlertsFeed({ alertes }: AlertsFeedProps) {
   return (
     <Panel title="Alertes">
       {alertes.length === 0 ? (
-        <div className="flex items-center gap-2 py-3 text-[12px] text-muted">
+        <div className={`${ty.metaLg} flex items-center gap-2 py-3`}>
           <span className="text-xl">🟢</span>
           Aucune alerte active
         </div>
@@ -56,22 +57,20 @@ export default function AlertsFeed({ alertes }: AlertsFeedProps) {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-semibold text-text leading-snug">
+                  <p className={`${ty.body} font-semibold leading-snug`}>
                     {alerte.titre}
                   </p>
 
                   <div className="flex items-center gap-2 mt-1.5">
                     <span
-                      className={
-                        `text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-[4px] ${
-                          STATUT_COLOR[alerte.statut] ?? 'text-muted bg-surface2'
-                        }`
-                      }
+                      className={`${ty.badge} uppercase px-1.5 py-0.5 rounded-[4px] ${
+                        STATUT_COLOR[alerte.statut] ?? 'text-muted bg-surface2'
+                      }`}
                     >
                       {STATUT_LABEL[alerte.statut] ?? alerte.statut}
                     </span>
                     {timeAgo && (
-                      <span className="text-[10px] text-muted">{timeAgo}</span>
+                      <span className={ty.metaSm}>{timeAgo}</span>
                     )}
                   </div>
                 </div>
@@ -81,10 +80,10 @@ export default function AlertsFeed({ alertes }: AlertsFeedProps) {
 
           {/* Summary badge */}
           <div className="flex items-center justify-between pt-1 mt-0.5 border-t border-border">
-            <span className="text-[10px] text-muted">
+            <span className={ty.metaSm}>
               {alertes.length} alerte{alertes.length > 1 ? 's' : ''} haute sévérité
             </span>
-            <button className="text-[10px] text-accent font-semibold hover:opacity-75 transition-opacity">
+            <button className={`${ty.metaSm} text-accent font-semibold hover:opacity-75 transition-opacity`}>
               Gérer →
             </button>
           </div>

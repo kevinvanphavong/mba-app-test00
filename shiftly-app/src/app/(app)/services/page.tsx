@@ -4,6 +4,7 @@ import { useState }             from 'react'
 import { motion }               from 'framer-motion'
 import { listVariants, listItemVariants } from '@/lib/animations'
 import { useAuthStore }         from '@/store/authStore'
+import { ty }                    from '@/lib/typography'
 import { useServices, useDeleteService, useAddServiceNote } from '@/hooks/useServices'
 import ServiceCard         from '@/components/services/ServiceCard'
 import ModalCreateService  from '@/components/services/ModalCreateService'
@@ -48,13 +49,13 @@ export default function ServicesPage() {
       <div className="mx-auto px-5 py-6 lg:max-w-2xl">
         <div className="bg-surface border border-red/20 rounded-[18px] p-8 text-center">
           <p className="text-[28px] mb-2">⚠️</p>
-          <p className="text-red font-semibold text-[14px]">Erreur de chargement</p>
-          <p className="text-muted text-[12px] mt-1 mb-4">
+          <p className={`${ty.cardTitleMd} text-red font-bold`}>Erreur de chargement</p>
+          <p className={`${ty.metaLg} mt-1 mb-4`}>
             Impossible de récupérer le planning.
           </p>
           <button
             onClick={() => refetch()}
-            className="px-4 py-2 bg-surface2 border border-border rounded-[10px] text-[12px] text-text hover:border-accent transition-colors"
+            className={`${ty.body} px-4 py-2 bg-surface2 border border-border rounded-[10px] hover:border-accent transition-colors`}
           >
             Réessayer
           </button>
@@ -75,8 +76,8 @@ export default function ServicesPage() {
       <div className="mx-auto px-5 py-6 lg:max-w-2xl">
         <div className="flex items-start justify-between mb-5">
           <div>
-            <h1 className="font-syne font-extrabold text-[20px] text-text">Services</h1>
-            <p className="text-[12px] text-muted mt-0.5">Aucun service créé pour le moment</p>
+            <h1 className={`${ty.kpi} text-[20px]`}>Services</h1>
+            <p className={`${ty.metaLg} mt-0.5`}>Aucun service créé pour le moment</p>
           </div>
           {isManager && (
             <button
@@ -91,10 +92,10 @@ export default function ServicesPage() {
 
         <div className="bg-surface border border-border rounded-[18px] p-10 text-center">
           <p className="text-[36px] mb-3">📅</p>
-          <p className="text-text font-syne font-bold text-[15px]">
+          <p className={ty.kpiSm}>
             Aucun service planifié
           </p>
-          <p className="text-muted text-[12px] mt-1.5 mb-5">
+          <p className={`${ty.metaLg} mt-1.5 mb-5`}>
             Les services créés apparaîtront ici, triés par date.
           </p>
           {isManager && (
@@ -125,7 +126,7 @@ export default function ServicesPage() {
       <div className="flex items-start justify-between mb-5">
         <div>
           <h1 className="font-syne font-extrabold text-[20px] text-text">Services</h1>
-          <p className="text-[12px] text-muted mt-0.5">
+          <p className={`${ty.metaLg} mt-0.5`}>
             {services.length} service{services.length > 1 ? 's' : ''} · triés par date
           </p>
         </div>
@@ -143,7 +144,7 @@ export default function ServicesPage() {
       {/* ── Aujourd'hui ─────────────────────────────────────────────────────── */}
       {todayService && (
         <div className="mb-5">
-          <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">
+          <p className={`${ty.labelMuted} uppercase tracking-wide mb-2`}>
             Aujourd'hui
           </p>
           <ServiceCard
@@ -163,7 +164,7 @@ export default function ServicesPage() {
       {otherServices.length > 0 && (
         <div>
           {todayService && (
-            <p className="text-[11px] font-semibold text-muted uppercase tracking-wide mb-2">
+            <p className={`${ty.labelMuted} uppercase tracking-wide mb-2`}>
               Planning
             </p>
           )}

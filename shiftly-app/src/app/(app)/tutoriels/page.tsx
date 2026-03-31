@@ -10,6 +10,7 @@ import FeaturedCard   from '@/components/tutoriels/FeaturedCard'
 import TutoCard       from '@/components/tutoriels/TutoCard'
 import TutoFilters    from '@/components/tutoriels/TutoFilters'
 import SearchBar      from '@/components/staff/SearchBar'
+import { ty }                          from '@/lib/typography'
 import { useTutoriels, useTutoReads } from '@/hooks/useTutoriels'
 import { useAuthStore }               from '@/store/authStore'
 import { useZones }                   from '@/hooks/useZones'
@@ -99,8 +100,8 @@ export default function TutorielsPage() {
         {!isLoading && errTutos && (
           <div className="py-14 text-center">
             <span className="text-4xl mb-3 block">⚠️</span>
-            <p className="text-[14px] font-bold text-red mb-1">Impossible de charger les tutoriels.</p>
-            <p className="text-[12px] text-muted">Vérifie ta connexion ou recharge la page.</p>
+            <p className={`${ty.cardTitleMd} font-bold text-red mb-1`}>Impossible de charger les tutoriels.</p>
+            <p className={ty.metaLg}>Vérifie ta connexion ou recharge la page.</p>
           </div>
         )}
 
@@ -108,8 +109,8 @@ export default function TutorielsPage() {
         {!isLoading && !errTutos && tutoriels.length === 0 && (
           <div className="py-14 text-center">
             <span className="text-4xl mb-3 block">📚</span>
-            <p className="text-[14px] font-bold text-text mb-1">Aucun tutoriel disponible</p>
-            <p className="text-[12px] text-muted">Les tutoriels seront ajoutés par un manager.</p>
+            <p className={`${ty.cardTitleMd} font-bold mb-1`}>Aucun tutoriel disponible</p>
+            <p className={ty.metaLg}>Les tutoriels seront ajoutés par un manager.</p>
           </div>
         )}
 
@@ -122,7 +123,7 @@ export default function TutorielsPage() {
             {/* À la une — tutoriel le plus récent */}
             {featured && (
               <div>
-                <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-2 px-1">
+                <p className={`${ty.sectionLabel} mb-2 px-1`}>
                   À la une
                 </p>
                 <FeaturedCard
@@ -151,7 +152,7 @@ export default function TutorielsPage() {
 
             {/* Compteur résultats */}
             <div className="flex items-center justify-between">
-              <p className="text-[11px] text-muted">
+              <p className={ty.meta}>
                 {filtered.length} tutoriel{filtered.length > 1 ? 's' : ''}
                 {hasActiveFilter && (
                   <span className="ml-1 text-accent font-semibold">· filtré{filtered.length > 1 ? 's' : ''}</span>
@@ -160,7 +161,7 @@ export default function TutorielsPage() {
               {hasActiveFilter && (
                 <button
                   onClick={() => { setSearch(''); setZoneFilter('all'); setNiveauFilter('all') }}
-                  className="text-[11px] text-muted hover:text-text transition-colors"
+                  className={`${ty.meta} hover:text-text transition-colors`}
                 >
                   Réinitialiser
                 </button>
@@ -171,8 +172,8 @@ export default function TutorielsPage() {
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-14 text-center">
                 <span className="text-4xl mb-3">📚</span>
-                <p className="text-[14px] font-bold text-text mb-1">Aucun tutoriel trouvé</p>
-                <p className="text-[12px] text-muted">Modifie la recherche ou les filtres.</p>
+                <p className={`${ty.cardTitleMd} font-bold mb-1`}>Aucun tutoriel trouvé</p>
+                <p className={ty.metaLg}>Modifie la recherche ou les filtres.</p>
               </div>
             ) : (
               <motion.div

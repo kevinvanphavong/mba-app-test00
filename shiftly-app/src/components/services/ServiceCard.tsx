@@ -6,6 +6,7 @@ import { format, parseISO } from 'date-fns'
 import { fr }               from 'date-fns/locale'
 import { expandVariants }   from '@/lib/animations'
 import { cn }               from '@/lib/cn'
+import { ty }               from '@/lib/typography'
 import { useDeletePoste }   from '@/hooks/useService'
 import type { ServiceListItem } from '@/types/index'
 import ModalAssignerPoste          from '@/components/services/ModalAssignerPoste'
@@ -95,11 +96,11 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
         >
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
-              <div className="font-syne font-bold text-[14px] text-text capitalize">
+              <div className={`${ty.cardTitleMd} capitalize`}>
                 {dateLabel}
               </div>
               {(service.heureDebut || service.heureFin) && (
-                <div className="text-[11px] text-muted mt-0.5">
+                <div className={`${ty.meta} mt-0.5`}>
                   {service.heureDebut ?? '?'}h – {service.heureFin ?? '?'}h
                 </div>
               )}
@@ -118,7 +119,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                 )}
                 {BADGE_LABEL[badge]}
               </span>
-              <span className="text-muted text-[11px]">{expanded ? '▲' : '▼'}</span>
+              <span className={ty.meta}>{expanded ? '▲' : '▼'}</span>
             </div>
           </div>
 
@@ -130,7 +131,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                 style={{ width: `${service.tauxCompletion}%` }}
               />
             </div>
-            <div className="text-[10px] text-muted mt-1">{service.tauxCompletion}% complété</div>
+            <div className={`${ty.metaSm} mt-1`}>{service.tauxCompletion}% complété</div>
           </div>
 
           {/* Avatars staff */}
@@ -152,9 +153,9 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                 </div>
               ))}
               {service.staff.length > 5 && (
-                <span className="text-[10px] text-muted ml-1">+{service.staff.length - 5}</span>
+                <span className={`${ty.metaSm} ml-1`}>+{service.staff.length - 5}</span>
               )}
-              <span className="text-[11px] text-muted ml-2">
+              <span className={`${ty.meta} ml-2`}>
                 {service.staff.length} membre{service.staff.length > 1 ? 's' : ''}
               </span>
             </div>
@@ -177,7 +178,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                 {/* ── Section Zones & Staff (MANAGER + PLANIFIE uniquement) ───── */}
                 {canEdit && (
                   <div className="flex flex-col gap-2">
-                    <p className="text-[11px] font-semibold text-muted uppercase tracking-wide">
+                    <p className={`${ty.labelMuted} uppercase tracking-wide`}>
                       Zones & Staff
                     </p>
 
@@ -194,7 +195,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                               className="w-2 h-2 rounded-full shrink-0"
                               style={{ backgroundColor: zone.couleur }}
                             />
-                            <span className="text-[12px] font-semibold text-text">
+                            <span className={`${ty.metaLg} font-semibold text-text`}>
                               {zone.nom}
                             </span>
                           </div>
@@ -203,7 +204,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                         {/* Badges staff assignés */}
                         <div className="flex flex-wrap gap-1.5">
                           {zone.postes.length === 0 && (
-                            <span className="text-[11px] text-muted italic">Aucun membre assigné</span>
+                            <span className={`${ty.meta} italic`}>Aucun membre assigné</span>
                           )}
                           {zone.postes.map(poste => (
                             <div
@@ -216,7 +217,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                               >
                                 {poste.nom.charAt(0).toUpperCase()}
                               </div>
-                              <span className="text-[11px] text-text">{poste.nom}</span>
+                              <span className={ty.meta + ' text-text'}>{poste.nom}</span>
                               <button
                                 onClick={() => deletePoste(poste.posteId)}
                                 className="text-muted hover:text-red transition-colors text-[13px] leading-none ml-0.5"
@@ -244,7 +245,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                 {/* ── Progression par zone (lecture seule, tous statuts) ───────── */}
                 {service.zones.length > 0 && (
                   <div className="flex flex-col gap-2">
-                    <p className="text-[11px] font-semibold text-muted uppercase tracking-wide">
+                    <p className={`${ty.labelMuted} uppercase tracking-wide`}>
                       Progression
                     </p>
                     {service.zones.map(zone => (
@@ -253,7 +254,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                           className="w-2 h-2 rounded-full shrink-0"
                           style={{ backgroundColor: zone.couleur }}
                         />
-                        <span className="text-[12px] text-text flex-1 leading-none">{zone.nom}</span>
+                        <span className={`${ty.body} flex-1 leading-none`}>{zone.nom}</span>
                         <div className="flex items-center gap-2 w-28">
                           <div className="flex-1 h-[4px] bg-surface2 rounded-full overflow-hidden">
                             <div
@@ -261,7 +262,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                               style={{ width: `${zone.taux}%`, backgroundColor: zone.couleur }}
                             />
                           </div>
-                          <span className="text-[10px] text-muted w-8 text-right">{zone.taux}%</span>
+                          <span className={`${ty.metaSm} w-8 text-right`}>{zone.taux}%</span>
                         </div>
                       </div>
                     ))}
@@ -271,7 +272,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                 {/* ── Note ─────────────────────────────────────────────────────── */}
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center justify-between">
-                    <p className="text-[11px] font-semibold text-muted uppercase tracking-wide">Note</p>
+                    <p className={`${ty.labelMuted} uppercase tracking-wide`}>Note</p>
                     {isManager && !editingNote && (
                       <button
                         onClick={handleStartEdit}
@@ -310,10 +311,10 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                   ) : service.note ? (
                     <div className="bg-surface2 border border-border rounded-[12px] px-3.5 py-3 flex gap-2.5">
                       <span className="text-[16px] shrink-0">📝</span>
-                      <p className="text-[13px] text-text leading-relaxed">{service.note}</p>
+                      <p className={`${ty.bodyLg} leading-relaxed`}>{service.note}</p>
                     </div>
                   ) : isManager ? null : (
-                    <p className="text-[13px] text-muted italic">Aucune note pour ce service.</p>
+                    <p className={`${ty.bodyLg} text-muted italic`}>Aucune note pour ce service.</p>
                   )}
                 </div>
 
@@ -322,7 +323,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                   <div className="flex justify-end pt-1 border-t border-border">
                     <button
                       onClick={() => onDelete?.(service.id)}
-                      className="text-[11px] text-red/60 hover:text-red transition-colors mt-2"
+                      className={`${ty.meta} text-red/60 hover:text-red transition-colors mt-2`}
                     >
                       Supprimer ce service
                     </button>

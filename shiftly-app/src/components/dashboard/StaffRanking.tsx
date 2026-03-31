@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Panel from '@/components/ui/Panel'
+import { ty } from '@/lib/typography'
 import type { DashboardTopStaff } from '@/types/dashboard'
 
 interface StaffRankingProps {
@@ -28,7 +29,7 @@ export default function StaffRanking({ topStaff }: StaffRankingProps) {
       <div className="flex items-center gap-1.5 mb-4 bg-surface2 rounded-[10px] p-1 w-fit">
         <button
           onClick={() => setShowManagers(true)}
-          className={`text-[11px] font-semibold px-3 py-1 rounded-[8px] transition-all ${
+          className={`${ty.label} px-3 py-1 rounded-[8px] transition-all ${
             showManagers
               ? 'bg-surface text-text shadow-sm'
               : 'text-muted hover:text-text'
@@ -38,7 +39,7 @@ export default function StaffRanking({ topStaff }: StaffRankingProps) {
         </button>
         <button
           onClick={() => setShowManagers(false)}
-          className={`text-[11px] font-semibold px-3 py-1 rounded-[8px] transition-all ${
+          className={`${ty.label} px-3 py-1 rounded-[8px] transition-all ${
             !showManagers
               ? 'bg-surface text-text shadow-sm'
               : 'text-muted hover:text-text'
@@ -49,7 +50,7 @@ export default function StaffRanking({ topStaff }: StaffRankingProps) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-[12px] text-muted py-3">Aucun employé dans la liste.</p>
+        <p className={`${ty.metaLg} py-3`}>Aucun employé dans la liste.</p>
       ) : (
         <div className="flex flex-col gap-3">
           {filtered.map((member, idx) => {
@@ -69,13 +70,13 @@ export default function StaffRanking({ topStaff }: StaffRankingProps) {
                   {RANK_MEDAL[idx] !== undefined ? (
                     <span className="text-[14px]">{RANK_MEDAL[idx]}</span>
                   ) : (
-                    <span className="text-[11px] font-bold text-muted">{idx + 1}</span>
+                    <span className={`${ty.meta} font-bold`}>{idx + 1}</span>
                   )}
                 </div>
 
                 {/* Avatar */}
                 <div
-                  className="w-7 h-7 rounded-[8px] flex items-center justify-center text-white font-extrabold text-[10px] flex-shrink-0"
+                  className={`${ty.badge} w-7 h-7 rounded-[8px] flex items-center justify-center text-white font-extrabold flex-shrink-0`}
                   style={{
                     background: member.avatarColor
                       ? `linear-gradient(135deg, ${member.avatarColor}, ${member.avatarColor}99)`
@@ -88,10 +89,10 @@ export default function StaffRanking({ topStaff }: StaffRankingProps) {
                 {/* Nom + barre */}
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
-                    <span className="text-[12px] font-medium text-text truncate">
+                    <span className={`${ty.body} font-medium truncate`}>
                       {member.nom}
                     </span>
-                    <span className="text-[11px] text-muted ml-2 flex-shrink-0 font-syne font-bold">
+                    <span className={`${ty.statSyne} ml-2 flex-shrink-0`}>
                       {member.points} pts
                     </span>
                   </div>
@@ -116,10 +117,10 @@ export default function StaffRanking({ topStaff }: StaffRankingProps) {
       {/* Lien vers la page staff */}
       <Link
         href="/staff"
-        className="mt-4 flex items-center justify-center gap-1.5 w-full py-2 rounded-[10px] border border-border text-[11px] text-muted hover:text-text hover:border-border/60 transition-all"
+        className={`${ty.meta} mt-4 flex items-center justify-center gap-1.5 w-full py-2 rounded-[10px] border border-border hover:text-text hover:border-border/60 transition-all`}
       >
         Voir tout le staff
-        <span className="text-[10px]">→</span>
+        <span className={ty.metaSm}>→</span>
       </Link>
     </Panel>
   )

@@ -1,4 +1,5 @@
 import { cn } from '@/lib/cn'
+import { ty } from '@/lib/typography'
 import type { DashboardService } from '@/types/dashboard'
 
 interface HeroServiceProps {
@@ -27,7 +28,7 @@ export default function HeroService({ data, onReportIncident }: HeroServiceProps
   if (!today) {
     return (
       <div className="relative bg-surface border border-border rounded-[18px] p-5 overflow-hidden accent-bar">
-        <p className="text-muted text-[13px]">Aucun service planifié aujourd&apos;hui.</p>
+        <p className={`${ty.bodyLg} text-muted`}>Aucun service planifié aujourd&apos;hui.</p>
       </div>
     )
   }
@@ -46,13 +47,13 @@ export default function HeroService({ data, onReportIncident }: HeroServiceProps
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <span
               className={cn(
-                'text-[10px] font-extrabold font-syne uppercase tracking-wider px-2 py-0.5 rounded-[6px]',
+                `${ty.badgeMd} font-syne uppercase tracking-wider px-2 py-0.5 rounded-[6px]`,
                 STATUT_COLOR[today.statut] ?? 'text-muted bg-surface2'
               )}
             >
               {STATUT_LABEL[today.statut] ?? today.statut}
             </span>
-            <span className="text-[11px] text-muted">Service du jour</span>
+            <span className={ty.meta}>Service du jour</span>
             {onReportIncident && (
               <button
                 onClick={onReportIncident}
@@ -63,13 +64,13 @@ export default function HeroService({ data, onReportIncident }: HeroServiceProps
             )}
           </div>
 
-          <div className="font-syne font-extrabold text-[28px] lg:text-[34px] text-text leading-none mb-1">
+          <div className={`${ty.kpi} lg:text-[34px] mb-1`}>
             {today.heureDebut}
             <span className="text-muted font-normal text-[16px] mx-1.5">→</span>
             {today.heureFin}
           </div>
 
-          <p className="text-[12px] text-muted mt-2">
+          <p className={`${ty.metaLg} mt-2`}>
             {today.nbPostes} postes · {new Date(today.date).toLocaleDateString('fr-FR', {
               weekday: 'long', day: 'numeric', month: 'long',
             })}
@@ -77,8 +78,8 @@ export default function HeroService({ data, onReportIncident }: HeroServiceProps
 
           {/* Linear progress fallback (mobile-friendly) */}
           <div className="mt-4 hidden sm:block lg:hidden">
-            <div className="flex justify-between text-[11px] mb-1.5">
-              <span className="text-muted">Avancement missions</span>
+            <div className="flex justify-between mb-1.5">
+              <span className={ty.meta}>Avancement missions</span>
               <span className="text-accent font-bold">{pct.toFixed(0)}%</span>
             </div>
             <div className="h-1.5 bg-surface2 rounded-full overflow-hidden">
@@ -124,10 +125,10 @@ export default function HeroService({ data, onReportIncident }: HeroServiceProps
           </svg>
           {/* Center label */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-syne font-extrabold text-[22px] text-text leading-none">
+            <span className={ty.kpiMd}>
               {pct.toFixed(0)}%
             </span>
-            <span className="text-[9px] text-muted mt-0.5 uppercase tracking-wide">missions</span>
+            <span className={`${ty.badge} text-muted mt-0.5 uppercase tracking-wide`}>missions</span>
           </div>
         </div>
       </div>

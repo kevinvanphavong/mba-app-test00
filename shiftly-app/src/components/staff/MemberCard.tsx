@@ -1,6 +1,7 @@
 'use client'
 
 import { cn }              from '@/lib/cn'
+import { ty }              from '@/lib/typography'
 import { getStaffGradient } from '@/lib/colors'
 import LevelDots            from './LevelDots'
 import MemberCardExpanded   from './MemberCardExpanded'
@@ -73,22 +74,22 @@ export default function MemberCard({ member, meta, isExpanded, onToggle }: Membe
         {/* Nom + meta */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[14px] font-bold text-text leading-tight">
+            <span className={`${ty.cardTitleMd} font-bold leading-tight`}>
               {member.prenom ? `${member.prenom} ${member.nom}` : member.nom}
             </span>
             {member.role === 'MANAGER' && (
-              <span className="text-[9px] font-extrabold bg-accent/12 text-accent border border-accent/25 px-1.5 py-0.5 rounded-[5px]">
+              <span className={`${ty.badge} bg-accent/12 text-accent border border-accent/25 px-1.5 py-0.5 rounded-[5px]`}>
                 MGR
               </span>
             )}
             {!member.actif && (
-              <span className="text-[9px] font-extrabold bg-surface2 text-muted border border-border px-1.5 py-0.5 rounded-[5px]">
+              <span className={`${ty.badge} bg-surface2 text-muted border border-border px-1.5 py-0.5 rounded-[5px]`}>
                 Inactif
               </span>
             )}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[11px] text-muted font-syne font-bold">{member.points} pts</span>
+            <span className={ty.statSyne}>{member.points} pts</span>
             <span className="text-[10px] text-muted">·</span>
             <LevelDots niveau={niveau} />
           </div>
