@@ -26,13 +26,11 @@ chmod 600 "$JWT_DIR/private.pem" 2>/dev/null || true
 chmod 644 "$JWT_DIR/public.pem" 2>/dev/null || true
 
 # Init BDD — schema:create ignore les tables déjà existantes
-# On évite doctrine:migrations:migrate car les migrations sont en dialecte SQLite
+# On n'utilise PAS doctrine:migrations:migrate (migrations en dialecte SQLite)
 php /var/www/html/bin/console doctrine:schema:create --no-interaction --env=prod 2>/dev/null || true
 php /var/www/html/bin/console doctrine:migrations:version --add --all --no-interaction --env=prod 2>/dev/null || true
 
-# Cache — reconstruire et corriger les permissions pour www-data
-rm -rf /var/www/html/var/cache/prod
-php /var/www/html/bin/console cache:warmup --env=prod 2>/dev/null || true
+# Permissions var/ pour php-fpm (www-data)
 chown -R www-data:www-data /var/www/html/var/ 2>/dev/null || true
 
 echo "Démarrage de l'application..."

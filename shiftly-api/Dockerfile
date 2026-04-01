@@ -34,9 +34,14 @@ RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 # Application complète
 COPY . .
 
-# Autoloader optimisé + scripts Symfony
+# Autoloader optimisé + cache pré-compilé
+# Les dummy vars permettent au container Symfony de se compiler.
+# Les vraies valeurs (Railway) remplacent les placeholders à runtime.
 RUN composer dump-autoload --optimize --no-dev \
-    && php bin/console cache:warmup --env=prod 2>/dev/null || true
+    && APP_SECRET=buildsecret1234567890abcdef \
+       DATABASE_URL="mysql://app:secret@localhost:3306/app?serverVersion=8.0&charset=utf8mb4" \
+       CORS_ALLOW_ORIGIN='^.*$' \
+       php bin/console cache:warmup --env=prod
 
 # Config Nginx
 COPY docker/nginx.conf /etc/nginx/nginx.conf
