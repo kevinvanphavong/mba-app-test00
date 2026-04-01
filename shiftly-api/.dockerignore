@@ -1,0 +1,11 @@
+vendor/
+var/cache/
+var/log/
+var/data_dev.db
+.env.local
+.env.dev
+.env.test
+.git/
+.github/
+node_modules/
+compose.override.yaml
