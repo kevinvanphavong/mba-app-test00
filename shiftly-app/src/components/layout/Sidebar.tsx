@@ -36,7 +36,7 @@ export default function Sidebar() {
           <span className="text-accent">Shiftly</span>
           <span className="text-text">.</span>
         </div>
-        <div className="text-[10px] text-muted mt-1 tracking-wide">Bowling Central</div>
+        <div className="text-[10px] text-muted mt-1 tracking-wide">{user.centre.nom}</div>
       </div>
 
       {/* Section label */}

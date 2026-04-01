@@ -58,10 +58,7 @@ export default function CentreInfoSection() {
   ]
 
   return (
-    <div className="mb-4">
-      <div className={`${ty.sectionLabel} px-1 mb-2`}>
-        Informations du centre
-      </div>
+    <div>
       <div className="bg-surface border border-border rounded-[18px] overflow-hidden p-4 space-y-3">
         {fields.map(f => (
           <div key={f.label}>

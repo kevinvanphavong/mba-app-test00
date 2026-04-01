@@ -48,4 +48,7 @@ export {
   STAFF_COLORS,
   getStaffGradient,
   getStaffColor,
+  AVATAR_PALETTE,
+  getGradientFromColor,
 } from './staff-colors'
+export type { AvatarPaletteEntry } from './staff-colors'

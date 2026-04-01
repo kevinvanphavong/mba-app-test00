@@ -2,7 +2,7 @@
 
 import { cn }              from '@/lib/cn'
 import { ty }              from '@/lib/typography'
-import { getStaffGradient } from '@/lib/colors'
+import { getGradientFromColor } from '@/lib/colors'
 import LevelDots            from './LevelDots'
 import MemberCardExpanded   from './MemberCardExpanded'
 import type { StaffMember, StaffMeta } from '@/types/staff'
@@ -24,8 +24,8 @@ function ZoneDot({ couleur }: { couleur: string | null }) {
 }
 
 export default function MemberCard({ member, meta, isExpanded, onToggle }: MemberCardProps) {
-  const initials = (member.prenom?.[0] ?? member.nom[0]) + (member.nom.split(' ')[0]?.[0] ?? '')
-  const gradient = getStaffGradient(member.id)
+  const initials  = (member.prenom?.[0] ?? member.nom[0]) + (member.nom.split(' ')[0]?.[0] ?? '')
+  const gradient  = getGradientFromColor(member.avatarColor)
 
   // Niveau 1-5 = % de compétences acquises sur le total
   const niveau = meta.competencesTotal > 0
@@ -55,12 +55,18 @@ export default function MemberCard({ member, meta, isExpanded, onToggle }: Membe
 
         {/* Avatar + point de présence */}
         <div className="relative flex-shrink-0">
+          {/* Wrapper coloré = border visible */}
           <div
-            className="w-[46px] h-[46px] rounded-[13px] flex items-center justify-center
-                       text-white font-extrabold text-[14px] shadow-sm"
-            style={{ background: gradient }}
+            className="p-[2.5px] rounded-[14px]"
+            style={{ background: member.avatarColor }}
           >
-            {initials.toUpperCase()}
+            <div
+              className="w-[44px] h-[44px] rounded-[12px] flex items-center justify-center
+                         text-white font-extrabold text-[14px]"
+              style={{ background: gradient }}
+            >
+              {initials.toUpperCase()}
+            </div>
           </div>
           <span
             className={cn(

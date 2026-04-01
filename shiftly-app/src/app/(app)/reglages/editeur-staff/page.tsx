@@ -49,7 +49,7 @@ export default function EditeurStaffPage() {
   async function handleSave(data: {
     nom: string; prenom: string | null; email: string; role: 'MANAGER' | 'EMPLOYE'
     tailleHaut: string | null; tailleBas: string | null; pointure: string | null
-    actif: boolean; password?: string
+    actif: boolean; avatarColor: string; password?: string
   }) {
     try {
       if (editMember) {

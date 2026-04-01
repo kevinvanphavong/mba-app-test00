@@ -1,326 +1,889 @@
 # ═══════════════════════════════════════════════════════════
-#  Shiftly — Fixtures de développement
-#  Centre : Bowling Central  |  Staff : 6 membres
-#  Mot de passe : bowling123 (bcrypt cost 12)
+#  Shiftly — Fixtures terrain
+#  Centre : Family Games Center — Blois
+#  Staff  : 12 membres (3 managers, 9 employés)
+#  Missions : 98 (Accueil ×44, Bar ×38, Salle ×16)
+#  Mot de passe : shiftly2026
 # ═══════════════════════════════════════════════════════════
 
+# ─── Centre ──────────────────────────────────────────────────────────────────
 App\Entity\Centre:
-  centre_bowling:
-    nom:  "Bowling Central"
-    slug: "bowling-central"
+  centre_fgc:
+    nom:     "Family Games Center"
+    adresse: "25 rue Robert Nau, 41000 Blois"
 
-# ─── Zones ──────────────────────────────────────────────────────────────────
+# ─── Zones ───────────────────────────────────────────────────────────────────
 App\Entity\Zone:
   zone_accueil:
-    centre: "@centre_bowling"
-    nom:    "Accueil"
+    centre:  "@centre_fgc"
+    nom:     "Accueil"
     couleur: "#3b82f6"
     ordre:   1
 
   zone_bar:
-    centre: "@centre_bowling"
-    nom:    "Bar"
+    centre:  "@centre_fgc"
+    nom:     "Bar"
     couleur: "#a855f7"
     ordre:   2
 
   zone_salle:
-    centre: "@centre_bowling"
-    nom:    "Salle"
+    centre:  "@centre_fgc"
+    nom:     "Salle"
     couleur: "#22c55e"
     ordre:   3
 
-# ─── Staff ──────────────────────────────────────────────────────────────────
+# ─── Staff ───────────────────────────────────────────────────────────────────
 App\Entity\User:
   user_kevin:
-    centre:      "@centre_bowling"
+    centre:      "@centre_fgc"
     nom:         "Kévin"
-    email:       "kevin@bowling-central.fr"
-    # bowling123
-    password:    "<(password_hash('bowling123', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    email:       "kevin@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
     avatarColor: "#f97316"
-    points:      0
+    points:      60
+    actif:       true
+    tailleHaut:  "2 polo manches longues, 1 sweat"
 
-  user_patou:
-    centre:      "@centre_bowling"
-    nom:         "Patou"
-    email:       "patou@bowling-central.fr"
-    password:    "<(password_hash('bowling123', PASSWORD_BCRYPT, ['cost' => 12]))>"
+  user_megane:
+    centre:      "@centre_fgc"
+    nom:         "Mégane"
+    email:       "megane@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
-    role:        "EMPLOYE"
-    avatarColor: "#3b82f6"
-    points:      75
+    role:        "MANAGER"
+    avatarColor: "#ec4899"
+    points:      10
+    actif:       true
 
-  user_aya:
-    centre:      "@centre_bowling"
-    nom:         "Aya"
-    email:       "aya@bowling-central.fr"
-    password:    "<(password_hash('bowling123', PASSWORD_BCRYPT, ['cost' => 12]))>"
+  user_micka:
+    centre:      "@centre_fgc"
+    nom:         "Micka"
+    email:       "micka@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
-    role:        "EMPLOYE"
-    avatarColor: "#a855f7"
-    points:      50
+    role:        "MANAGER"
+    avatarColor: "#8b5cf6"
+    points:      10
+    actif:       true
 
-  user_gabin:
-    centre:      "@centre_bowling"
-    nom:         "Gabin"
-    email:       "gabin@bowling-central.fr"
-    password:    "<(password_hash('bowling123', PASSWORD_BCRYPT, ['cost' => 12]))>"
+  user_erwan:
+    centre:      "@centre_fgc"
+    nom:         "Erwan"
+    email:       "erwan@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#22c55e"
-    points:      65
+    points:      35
+    actif:       true
+    tailleHaut:  "2 tshirts, 1 polo manches courtes"
 
-  user_erwan:
-    centre:      "@centre_bowling"
-    nom:         "Erwan"
-    email:       "erwan@bowling-central.fr"
-    password:    "<(password_hash('bowling123', PASSWORD_BCRYPT, ['cost' => 12]))>"
+  user_patou:
+    centre:      "@centre_fgc"
+    nom:         "Patou"
+    email:       "patou@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#f59e0b"
+    points:      75
+    actif:       true
+    tailleHaut:  "1 veste sans manche"
+
+  user_pol:
+    centre:      "@centre_fgc"
+    nom:         "Pôl"
+    email:       "pol@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#0ea5e9"
+    points:      10
+    actif:       true
+    tailleHaut:  "1 polo manches longues (new)"
+
+  user_cynthia:
+    centre:      "@centre_fgc"
+    nom:         "Cynthia"
+    email:       "cynthia@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#14b8a6"
-    points:      35
+    points:      10
+    actif:       true
+    tailleHaut:  "2 t-shirts, 2 polaires manches longues"
+
+  user_gabin:
+    centre:      "@centre_fgc"
+    nom:         "Gabin"
+    email:       "gabin@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#a855f7"
+    points:      65
+    actif:       true
+    tailleHaut:  "1 polo manches longues + 2 polos"
+
+  user_aya:
+    centre:      "@centre_fgc"
+    nom:         "Aya"
+    email:       "aya@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#6366f1"
+    points:      50
+    actif:       true
+
+  user_securite:
+    centre:      "@centre_fgc"
+    nom:         "Agent de sécurité"
+    email:       "securite@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#475569"
+    points:      25
+    actif:       true
+    tailleHaut:  "Badge"
 
   user_hiba:
-    centre:      "@centre_bowling"
+    centre:      "@centre_fgc"
     nom:         "Hiba"
-    email:       "hiba@bowling-central.fr"
-    password:    "<(password_hash('bowling123', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    email:       "hiba@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#ef4444"
+    points:      10
+    actif:       true
+
+  user_daniela:
+    centre:      "@centre_fgc"
+    nom:         "Daniela"
+    email:       "daniela@bowlingcentral.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#f472b6"
-    points:      90
+    points:      10
+    actif:       true
 
-# ─── Missions Accueil ────────────────────────────────────────────────────────
+# ─── Missions Accueil (44) ───────────────────────────────────────────────────
 App\Entity\Mission:
   # OUVERTURE
   m_acc_ouv_1:
-    zone:     "@zone_accueil"
-    texte:    "Allumer les écrans d'affichage et le système de scoring"
+    zone: "@zone_accueil"
+    texte: "Être en tenue à l'heure"
     categorie: "OUVERTURE"
     frequence: "FIXE"
     priorite: "vitale"
-    ordre:    1
+    ordre: 1
   m_acc_ouv_2:
-    zone:     "@zone_accueil"
-    texte:    "Vérifier la caisse et préparer le fond de caisse"
+    zone: "@zone_accueil"
+    texte: "Allumer ordinateurs, logiciels et TPE"
     categorie: "OUVERTURE"
     frequence: "FIXE"
     priorite: "vitale"
-    ordre:    2
+    ordre: 2
   m_acc_ouv_3:
-    zone:     "@zone_accueil"
-    texte:    "Préparer le stock de chaussures (tri + désinfection)"
+    zone: "@zone_accueil"
+    texte: "Vérifier le matériel d'accueil (rouleaux CB + imprimantes)"
     categorie: "OUVERTURE"
     frequence: "FIXE"
     priorite: "important"
-    ordre:    3
+    ordre: 3
   m_acc_ouv_4:
-    zone:     "@zone_accueil"
-    texte:    "Vérifier les réservations du jour sur le logiciel"
+    zone: "@zone_accueil"
+    texte: "Allumer les lumières extérieures des box karaokés"
     categorie: "OUVERTURE"
     frequence: "FIXE"
     priorite: "important"
-    ordre:    4
+    ordre: 4
+  m_acc_ouv_5:
+    zone: "@zone_accueil"
+    texte: "Vérifier derrière les PC et imprimantes (propreté / câbles)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 5
+  m_acc_ouv_6:
+    zone: "@zone_accueil"
+    texte: "Nettoyer la poussière du comptoir d'accueil"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 6
+  m_acc_ouv_7:
+    zone: "@zone_accueil"
+    texte: "Nettoyer la poussière des chevalets d'annonce"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 7
 
-  # SERVICE
-  m_acc_svc_1:
-    zone:     "@zone_accueil"
-    texte:    "Accueillir les groupes et attribuer les pistes"
+  # PENDANT
+  m_acc_pend_1:
+    zone: "@zone_accueil"
+    texte: "Vérifier les toilettes après chaque pause"
     categorie: "PENDANT"
     frequence: "FIXE"
     priorite: "vitale"
-    ordre:    1
-  m_acc_svc_2:
-    zone:     "@zone_accueil"
-    texte:    "Gérer les files d'attente et les walk-ins"
+    ordre: 1
+  m_acc_pend_2:
+    zone: "@zone_accueil"
+    texte: "Si anniversaires demain : préparer matériel (feuille bar, médailles, invitations, jetons)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_acc_pend_3:
+    zone: "@zone_accueil"
+    texte: "Vérifier propreté des toilettes et quantité de papier (3 fois/jour)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_acc_pend_4:
+    zone: "@zone_accueil"
+    texte: "Enregistrer les clients (bowling / billards / karaoké / VR)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 4
+  m_acc_pend_5:
+    zone: "@zone_accueil"
+    texte: "Vérifier l'état des sur-chaussures (qualité / usure)"
     categorie: "PENDANT"
     frequence: "FIXE"
     priorite: "important"
-    ordre:    2
-  m_acc_svc_3:
-    zone:     "@zone_accueil"
-    texte:    "Distribuer et récupérer les chaussures"
+    ordre: 5
+  m_acc_pend_6:
+    zone: "@zone_accueil"
+    texte: "Vérifier quantité de médailles (environ 10 par couleur)"
     categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre:    3
-  m_acc_svc_4:
-    zone:     "@zone_accueil"
-    texte:    "Prendre les paiements et les encaissements"
+    priorite: "important"
+    ordre: 6
+  m_acc_pend_7:
+    zone: "@zone_accueil"
+    texte: "Vérifier quantité de chaussettes (environ 2 par taille)"
     categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre:    4
+    priorite: "important"
+    ordre: 7
+  m_acc_pend_8:
+    zone: "@zone_accueil"
+    texte: "Vérifier quantité de sur-chaussures"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 8
+  m_acc_pend_9:
+    zone: "@zone_accueil"
+    texte: "Vérifier l'état des casiers blancs"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 9
+  m_acc_pend_10:
+    zone: "@zone_accueil"
+    texte: "Vérifier quantité de jetons pour la machine Rio Carnival"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 10
+  m_acc_pend_11:
+    zone: "@zone_accueil"
+    texte: "Ranger les chaussures de bas en haut (5 à 6 fois/jour)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 11
+  m_acc_pend_12:
+    zone: "@zone_accueil"
+    texte: "Vérifier les embouts des cannes de billard et remplacer si besoin"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 12
+
+  # MENAGE
+  m_acc_men_1:
+    zone: "@zone_accueil"
+    texte: "Nettoyer les vitres de l'entrée et de l'accueil"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 1
+  m_acc_men_2:
+    zone: "@zone_accueil"
+    texte: "Nettoyer les bornes d'enregistrement (support pied)"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 2
+  m_acc_men_3:
+    zone: "@zone_accueil"
+    texte: "Nettoyer la machine à barbe à papa (mercredi et dimanche)"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 3
+  m_acc_men_4:
+    zone: "@zone_accueil"
+    texte: "Nettoyer l'intérieur des casiers blancs"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 4
+  m_acc_men_5:
+    zone: "@zone_accueil"
+    texte: "Dépoussiérer l'écran de surveillance à l'entrée"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 5
+  m_acc_men_6:
+    zone: "@zone_accueil"
+    texte: "Dépoussiérer les écrans de la liste d'attente"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 6
+  m_acc_men_7:
+    zone: "@zone_accueil"
+    texte: "Nettoyer les distributeurs de gel hydro-alcoolique"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 7
+  m_acc_men_8:
+    zone: "@zone_accueil"
+    texte: "Nettoyer les barrières à l'entrée (zone lumières, panneaux publicitaires)"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 8
+  m_acc_men_9:
+    zone: "@zone_accueil"
+    texte: "Dépoussiérer les écrans de l'accueil"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 9
+  m_acc_men_10:
+    zone: "@zone_accueil"
+    texte: "Nettoyer l'intérieur des meubles à chaussures"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 10
+  m_acc_men_11:
+    zone: "@zone_accueil"
+    texte: "Nettoyer la poussière sur les statues Iron Man et Spider Man"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 11
+  m_acc_men_12:
+    zone: "@zone_accueil"
+    texte: "Nettoyer la poussière et les écrans des jeux de Réalité Virtuelle"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 12
+  m_acc_men_13:
+    zone: "@zone_accueil"
+    texte: "Nettoyer la poussière des meubles à chaussures"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 13
 
   # FERMETURE
   m_acc_ferm_1:
-    zone:     "@zone_accueil"
-    texte:    "Faire le compte de caisse et solder les Z"
+    zone: "@zone_accueil"
+    texte: "Vider les poubelles de l'accueil"
     categorie: "FERMETURE"
     frequence: "FIXE"
     priorite: "vitale"
-    ordre:    1
+    ordre: 1
   m_acc_ferm_2:
-    zone:     "@zone_accueil"
-    texte:    "Ranger et désinfecter toutes les chaussures"
+    zone: "@zone_accueil"
+    texte: "Mettre à propre le comptoir, ranger le matériel et mettre les TPE en charge"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "important"
-    ordre:    2
+    priorite: "vitale"
+    ordre: 2
   m_acc_ferm_3:
-    zone:     "@zone_accueil"
-    texte:    "Éteindre les écrans et verrouiller la caisse"
+    zone: "@zone_accueil"
+    texte: "Ranger les chaussures dans les casiers"
     categorie: "FERMETURE"
     frequence: "FIXE"
     priorite: "vitale"
-    ordre:    3
+    ordre: 3
+  m_acc_ferm_4:
+    zone: "@zone_accueil"
+    texte: "Balayer le sol d'entrée, jeter les mégots et vider les poubelles (entrée)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 4
+  m_acc_ferm_5:
+    zone: "@zone_accueil"
+    texte: "Passer l'aspirateur autour de l'accueil, de l'entrée et de la zone chaussures"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 5
+  m_acc_ferm_6:
+    zone: "@zone_accueil"
+    texte: "Nettoyer les toilettes (fin de service)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 6
+  m_acc_ferm_7:
+    zone: "@zone_accueil"
+    texte: "Dépointer puis se changer (fin de service)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 7
+  m_acc_ferm_8:
+    zone: "@zone_accueil"
+    texte: "Vérifier que les casiers blancs sont bien vides (fin de service)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 8
+  m_acc_ferm_9:
+    zone: "@zone_accueil"
+    texte: "Éteindre la climatisation et les télés des pistes et de l'accueil"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 9
+  m_acc_ferm_10:
+    zone: "@zone_accueil"
+    texte: "Éteindre les jeux de la zone d'arcade"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 10
+  m_acc_ferm_11:
+    zone: "@zone_accueil"
+    texte: "Éteindre les box de karaokés"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 11
+  m_acc_ferm_12:
+    zone: "@zone_accueil"
+    texte: "Éteindre les jeux VR et passer l'aspirateur si besoin"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 12
 
-# ─── Missions Bar ─────────────────────────────────────────────────────────────
+# ─── Missions Bar (38) ───────────────────────────────────────────────────────
+  # OUVERTURE
   m_bar_ouv_1:
-    zone:     "@zone_bar"
-    texte:    "Vérifier et compléter les stocks (boissons, sirops, glace)"
+    zone: "@zone_bar"
+    texte: "Être en tenue à l'heure et pointer son heure d'arrivée"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "important"
-    ordre:    1
+    priorite: "vitale"
+    ordre: 1
   m_bar_ouv_2:
-    zone:     "@zone_bar"
-    texte:    "Préparer les garnitures et les citrons pressés"
+    zone: "@zone_bar"
+    texte: "Vérifier mise en place snacks (crêpes, gaufres, brioche, pistache, pizza, hot dog, croque, frites)"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre:    2
+    priorite: "vitale"
+    ordre: 2
   m_bar_ouv_3:
-    zone:     "@zone_bar"
-    texte:    "Mettre en route la machine à café et à glace"
+    zone: "@zone_bar"
+    texte: "Relever les températures des congélateurs (début de service)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_bar_ouv_4:
+    zone: "@zone_bar"
+    texte: "Vérifier et changer si besoin les fûts de bière"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 4
+  m_bar_ouv_5:
+    zone: "@zone_bar"
+    texte: "Allumer la machine à café et vérifier le niveau de lait"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 5
+  m_bar_ouv_6:
+    zone: "@zone_bar"
+    texte: "Contrôler le stock des réfrigérateurs et compléter si nécessaire (dont jus)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 6
+  m_bar_ouv_7:
+    zone: "@zone_bar"
+    texte: "Inspecter la cave du bar et réapprovisionner si besoin (rotation FIFO)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 7
+  m_bar_ouv_8:
+    zone: "@zone_bar"
+    texte: "Vérifier mise en place citron et feuille de menthe"
     categorie: "OUVERTURE"
     frequence: "FIXE"
     priorite: "important"
-    ordre:    3
+    ordre: 8
+  m_bar_ouv_9:
+    zone: "@zone_bar"
+    texte: "Vérifier et remplir si besoin (sucre poudre, sucre glace, chocolat, ketchup, moutarde)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 9
+  m_bar_ouv_10:
+    zone: "@zone_bar"
+    texte: "Allumer le four"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 10
+  m_bar_ouv_11:
+    zone: "@zone_bar"
+    texte: "Mettre en service la machine à glace pilée"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 11
+  m_bar_ouv_12:
+    zone: "@zone_bar"
+    texte: "Remplir les bacs à glaçons"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 12
+  m_bar_ouv_13:
+    zone: "@zone_bar"
+    texte: "Mettre en marche le lave-verre"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 13
+  m_bar_ouv_14:
+    zone: "@zone_bar"
+    texte: "Recharger la machine à cocktails (bouteilles de jus pleines)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 14
+  m_bar_ouv_15:
+    zone: "@zone_bar"
+    texte: "Activer l'éclairage du bar"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 15
 
-  m_bar_svc_1:
-    zone:     "@zone_bar"
-    texte:    "Prendre et servir les commandes boissons"
+  # PENDANT
+  m_bar_pend_1:
+    zone: "@zone_bar"
+    texte: "Mercredi/jeudi : s'assurer que les snacks sont approvisionnés (gaufres, crêpes, brioches, pizzas, croque, hot dogs, frites)"
     categorie: "PENDANT"
     frequence: "FIXE"
     priorite: "vitale"
-    ordre:    1
-  m_bar_svc_2:
-    zone:     "@zone_bar"
-    texte:    "Maintenir la propreté du comptoir en continu"
+    ordre: 1
+  m_bar_pend_2:
+    zone: "@zone_bar"
+    texte: "Mercredi/jeudi : vérifier mise en place (saucissons, chocolat, ketchup, moutarde)"
     categorie: "PENDANT"
     frequence: "FIXE"
     priorite: "important"
-    ordre:    2
+    ordre: 2
 
-  m_bar_menage_1:
-    zone:     "@zone_bar"
-    texte:    "Nettoyer le bar, les tables et les tabourets"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre:    1
-  m_bar_menage_2:
-    zone:     "@zone_bar"
-    texte:    "Laver et ranger la vaisselle"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre:    2
-
+  # FERMETURE
   m_bar_ferm_1:
-    zone:     "@zone_bar"
-    texte:    "Vider et nettoyer les machines (café, glace)"
+    zone: "@zone_bar"
+    texte: "Terminer les dernières tournées de verres à laver"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "important"
-    ordre:    1
+    priorite: "vitale"
+    ordre: 1
   m_bar_ferm_2:
-    zone:     "@zone_bar"
-    texte:    "Faire l'inventaire des consommables et noter les manques"
+    zone: "@zone_bar"
+    texte: "Remplir le frigo pour le lendemain"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_bar_ferm_3:
+    zone: "@zone_bar"
+    texte: "Balayer et passer la serpillière dans le bar et la zone d'accueil"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_bar_ferm_4:
+    zone: "@zone_bar"
+    texte: "Nettoyer pompe à bière et intérieur"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 4
+  m_bar_ferm_5:
+    zone: "@zone_bar"
+    texte: "Mettre le lait au réfrigérateur"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 5
+  m_bar_ferm_6:
+    zone: "@zone_bar"
+    texte: "Nettoyage et remplissage de la machine à cocktails"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 6
+  m_bar_ferm_7:
+    zone: "@zone_bar"
+    texte: "Nettoyer la cuisine (plan de travail, four, micro-ondes, ustensiles)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 7
+  m_bar_ferm_8:
+    zone: "@zone_bar"
+    texte: "Fermer le bar avec autorisation responsable (1h avant la fin)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 8
+  m_bar_ferm_9:
+    zone: "@zone_bar"
+    texte: "Balai + serpillière (cuisine)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 9
+  m_bar_ferm_10:
+    zone: "@zone_bar"
+    texte: "Prévoir des sacs de glaçons pour le lendemain si nécessaire"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 10
+  m_bar_ferm_11:
+    zone: "@zone_bar"
+    texte: "Vider les bacs à glaçons (fin de service)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 11
+  m_bar_ferm_12:
+    zone: "@zone_bar"
+    texte: "Nettoyer la machine pression pour boissons softs"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 12
+  m_bar_ferm_13:
+    zone: "@zone_bar"
+    texte: "Éteindre la lumière des frigos et le lave-verre (à la fin)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 13
+  m_bar_ferm_14:
+    zone: "@zone_bar"
+    texte: "Retirer et nettoyer la grille de la machine à café"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 14
+  m_bar_ferm_15:
+    zone: "@zone_bar"
+    texte: "Éteindre le four (fin de service)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 15
+  m_bar_ferm_16:
+    zone: "@zone_bar"
+    texte: "Lancer nettoyage machine à café avec capsules de nettoyage"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 16
+  m_bar_ferm_17:
+    zone: "@zone_bar"
+    texte: "Éteindre la machine à café"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 17
+  m_bar_ferm_18:
+    zone: "@zone_bar"
+    texte: "Réduire le chauffage (fin de service)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 18
+  m_bar_ferm_19:
+    zone: "@zone_bar"
+    texte: "Nettoyer le bac à marc du levier puis le remettre"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 19
+  m_bar_ferm_20:
+    zone: "@zone_bar"
+    texte: "Vider et nettoyer le bac à capsules de la machine à café"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 20
+  m_bar_ferm_21:
+    zone: "@zone_bar"
+    texte: "Nettoyer le bas de la machine à café (eau chaude + brosse)"
     categorie: "FERMETURE"
     frequence: "FIXE"
     priorite: "ne_pas_oublier"
-    ordre:    2
+    ordre: 21
 
-# ─── Missions Salle ───────────────────────────────────────────────────────────
+# ─── Missions Salle (16) ─────────────────────────────────────────────────────
+  # OUVERTURE
   m_salle_ouv_1:
-    zone:     "@zone_salle"
-    texte:    "Vérifier le fonctionnement de chaque piste (scoring, quillage)"
+    zone: "@zone_salle"
+    texte: "Être en tenue à l'heure et pointer son heure d'arrivée"
     categorie: "OUVERTURE"
     frequence: "FIXE"
     priorite: "vitale"
-    ordre:    1
+    ordre: 1
   m_salle_ouv_2:
-    zone:     "@zone_salle"
-    texte:    "Contrôler l'état des boules (fissures, propreté)"
+    zone: "@zone_salle"
+    texte: "Vérifier fonctionnement des tablettes jusqu'au paiement"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "important"
-    ordre:    2
+    priorite: "vitale"
+    ordre: 2
   m_salle_ouv_3:
-    zone:     "@zone_salle"
-    texte:    "Allumer les jeux d'arcade et vérifier les crédits"
+    zone: "@zone_salle"
+    texte: "Vérifier propreté de la salle et des tables"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_salle_ouv_4:
+    zone: "@zone_salle"
+    texte: "Récupérer et vérifier son fond de caisse (25€)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 4
+  m_salle_ouv_5:
+    zone: "@zone_salle"
+    texte: "Récupérer son matériel de poste (TPE + montre + limonadier)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 5
+  m_salle_ouv_6:
+    zone: "@zone_salle"
+    texte: "Vérifier la propreté de l'entrée client"
     categorie: "OUVERTURE"
     frequence: "FIXE"
     priorite: "important"
-    ordre:    3
-
-  m_salle_svc_1:
-    zone:     "@zone_salle"
-    texte:    "Surveiller les pistes et aider les joueurs débutants"
-    categorie: "PENDANT"
+    ordre: 6
+  m_salle_ouv_7:
+    zone: "@zone_salle"
+    texte: "Aligner tables, banquettes, fauteuils et poufs"
+    categorie: "OUVERTURE"
     frequence: "FIXE"
     priorite: "important"
-    ordre:    1
-  m_salle_svc_2:
-    zone:     "@zone_salle"
-    texte:    "Gérer les incidents techniques (boule coincée, quilles)"
+    ordre: 7
+  m_salle_ouv_8:
+    zone: "@zone_salle"
+    texte: "Nettoyer les écrans des tablettes des pistes et billards"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 8
+  m_salle_ouv_9:
+    zone: "@zone_salle"
+    texte: "Nettoyer les vitres des jeux d'arcades"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 9
+
+  # PENDANT
+  m_salle_pend_1:
+    zone: "@zone_salle"
+    texte: "Vérifier la propreté des toilettes avant chaque pause"
     categorie: "PENDANT"
     frequence: "FIXE"
     priorite: "vitale"
-    ordre:    2
-
-  m_salle_menage_1:
-    zone:     "@zone_salle"
-    texte:    "Nettoyer les pistes avec la machine à huiler"
-    categorie: "MENAGE"
+    ordre: 1
+  m_salle_pend_2:
+    zone: "@zone_salle"
+    texte: "Proposer au moins une fois des boissons à chaque client"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_salle_pend_3:
+    zone: "@zone_salle"
+    texte: "Vérifier les bornes de gel et remplir si besoin"
+    categorie: "PENDANT"
     frequence: "FIXE"
     priorite: "important"
-    ordre:    1
-  m_salle_menage_2:
-    zone:     "@zone_salle"
-    texte:    "Ramasser les déchets entre les pistes"
-    categorie: "MENAGE"
+    ordre: 3
+  m_salle_pend_4:
+    zone: "@zone_salle"
+    texte: "Vérifier / nettoyer / dépoussiérer les zones (arcade, fléchettes, machines à lots, machines, billards, micro-ondes libre-service)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 4
+  m_salle_pend_5:
+    zone: "@zone_salle"
+    texte: "Nettoyer les bornes de désinfection chaussures clients"
+    categorie: "PENDANT"
     frequence: "FIXE"
     priorite: "ne_pas_oublier"
-    ordre:    2
+    ordre: 5
 
+  # FERMETURE
   m_salle_ferm_1:
-    zone:     "@zone_salle"
-    texte:    "Ranger toutes les boules dans les racks"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre:    1
-  m_salle_ferm_2:
-    zone:     "@zone_salle"
-    texte:    "Éteindre les systèmes de scoring et les jeux"
+    zone: "@zone_salle"
+    texte: "Mardi/vendredi (1h avant fin) : rassembler les poubelles (bar, accueil, arcades, pistes)"
     categorie: "FERMETURE"
     frequence: "FIXE"
     priorite: "vitale"
-    ordre:    2
-  m_salle_ferm_3:
-    zone:     "@zone_salle"
-    texte:    "Signaler toute anomalie dans le registre de maintenance"
+    ordre: 1
+  m_salle_ferm_2:
+    zone: "@zone_salle"
+    texte: "Mardi/vendredi : nettoyer toutes les tables en salle et pistes (produit nettoyant)"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre:    3
+    priorite: "vitale"
+    ordre: 2
 
-# ─── Compétences ──────────────────────────────────────────────────────────────
+# ─── Compétences ─────────────────────────────────────────────────────────────
 App\Entity\Competence:
   comp_acc_1:
     zone:       "@zone_accueil"
@@ -370,7 +933,7 @@ App\Entity\Competence:
     points:     35
     difficulte: "avancee"
 
-# ─── StaffCompetences ─────────────────────────────────────────────────────────
+# ─── StaffCompétences ────────────────────────────────────────────────────────
 App\Entity\StaffCompetence:
   # Patou — Accueil confirmé
   sc_patou_1:
@@ -386,7 +949,7 @@ App\Entity\StaffCompetence:
     competence: "@comp_acc_3"
     acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>"
 
-  # Aya — Bar débutante
+  # Aya — Bar
   sc_aya_1:
     user:       "@user_aya"
     competence: "@comp_bar_1"
@@ -420,134 +983,179 @@ App\Entity\StaffCompetence:
     competence: "@comp_salle_1"
     acquiredAt: "<(new \\DateTimeImmutable('2026-03-05'))>"
 
-  # Hiba — experte Salle
-  sc_hiba_1:
-    user:       "@user_hiba"
-    competence: "@comp_salle_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>"
-  sc_hiba_2:
-    user:       "@user_hiba"
-    competence: "@comp_salle_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-11-15'))>"
-  sc_hiba_3:
-    user:       "@user_hiba"
-    competence: "@comp_salle_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-01-08'))>"
-  sc_hiba_4:
-    user:       "@user_hiba"
-    competence: "@comp_acc_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-12'))>"
+  # Kévin — manager polyvalent
+  sc_kevin_1:
+    user:       "@user_kevin"
+    competence: "@comp_acc_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>"
+  sc_kevin_2:
+    user:       "@user_kevin"
+    competence: "@comp_bar_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-10-15'))>"
 
-# ─── Services ────────────────────────────────────────────────────────────────
+# ─── Services (5 jours) ──────────────────────────────────────────────────────
 App\Entity\Service:
-  svc_hier:
-    centre:     "@centre_bowling"
-    date:       "<(new \\DateTime('yesterday'))>"
-    heureDebut: "<(new \\DateTime('10:00:00'))>"
-    heureFin:   "<(new \\DateTime('02:00:00'))>"
-    statut:     "TERMINE"
+  svc_j3:
+    centre:          "@centre_fgc"
+    date:            "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:          "TERMINE"
+    tauxCompletion:  94.0
+    note:            "Soirée chargée, piste 4 en panne en fin de service. Réparation prévue lundi."
+
+  svc_j2:
+    centre:          "@centre_fgc"
+    date:            "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:          "TERMINE"
+    tauxCompletion:  87.0
+    note:            "RAS. Bon service, équipe au complet."
+
+  svc_j1:
+    centre:          "@centre_fgc"
+    date:            "<(new \\DateTimeImmutable((new \\DateTime('-1 day'))->format('Y-m-d')))>"
+    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:          "TERMINE"
+    tauxCompletion:  72.0
 
   svc_today:
-    centre:     "@centre_bowling"
-    date:       "<(new \\DateTime('today'))>"
-    heureDebut: "<(new \\DateTime('10:00:00'))>"
-    heureFin:   "<(new \\DateTime('02:00:00'))>"
-    statut:     "EN_COURS"
+    centre:          "@centre_fgc"
+    date:            "<(new \\DateTimeImmutable('today'))>"
+    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:          "EN_COURS"
+    tauxCompletion:  28.0
+    note:            "Vérifier stock bière avant 18h, livraison annulée hier."
 
-  svc_demain:
-    centre:     "@centre_bowling"
-    date:       "<(new \\DateTime('tomorrow'))>"
-    heureDebut: "<(new \\DateTime('10:00:00'))>"
-    heureFin:   "<(new \\DateTime('02:00:00'))>"
-    statut:     "PLANIFIE"
+  svc_j1_futur:
+    centre:          "@centre_fgc"
+    date:            "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:          "PLANIFIE"
+    tauxCompletion:  0.0
 
-  svc_sam:
-    centre:     "@centre_bowling"
-    date:       "<(new \\DateTime('+2 days'))>"
-    heureDebut: "<(new \\DateTime('10:00:00'))>"
-    heureFin:   "<(new \\DateTime('03:00:00'))>"
-    statut:     "PLANIFIE"
-
-# ─── Postes (affectations staff → zone par service) ───────────────────────────
+# ─── Postes (aujourd'hui + J-1) ──────────────────────────────────────────────
 App\Entity\Poste:
-  # Service d'hier (TERMINE)
-  poste_hier_acc:
-    service: "@svc_hier"
+  # Aujourd'hui (EN_COURS)
+  poste_today_acc_kevin:
+    service: "@svc_today"
     zone:    "@zone_accueil"
-    user:    "@user_patou"
-  poste_hier_bar:
-    service: "@svc_hier"
-    zone:    "@zone_bar"
-    user:    "@user_gabin"
-  poste_hier_salle:
-    service: "@svc_hier"
-    zone:    "@zone_salle"
-    user:    "@user_hiba"
-
-  # Service du jour (EN_COURS)
-  poste_today_acc:
+    user:    "@user_kevin"
+  poste_today_acc_patou:
     service: "@svc_today"
     zone:    "@zone_accueil"
     user:    "@user_patou"
-  poste_today_bar:
-    service: "@svc_today"
-    zone:    "@zone_bar"
-    user:    "@user_aya"
-  poste_today_salle:
+  poste_today_salle_erwan:
     service: "@svc_today"
     zone:    "@zone_salle"
     user:    "@user_erwan"
+  poste_today_bar_gabin:
+    service: "@svc_today"
+    zone:    "@zone_bar"
+    user:    "@user_gabin"
+  poste_today_bar_cynthia:
+    service: "@svc_today"
+    zone:    "@zone_bar"
+    user:    "@user_cynthia"
+  poste_today_salle_aya:
+    service: "@svc_today"
+    zone:    "@zone_salle"
+    user:    "@user_aya"
 
-# ─── Completions (service du jour — quelques tâches cochées) ──────────────────
+  # J-1 (TERMINE)
+  poste_j1_acc_micka:
+    service: "@svc_j1"
+    zone:    "@zone_accueil"
+    user:    "@user_micka"
+  poste_j1_acc_pol:
+    service: "@svc_j1"
+    zone:    "@zone_accueil"
+    user:    "@user_pol"
+  poste_j1_bar_hiba:
+    service: "@svc_j1"
+    zone:    "@zone_bar"
+    user:    "@user_hiba"
+  poste_j1_salle_daniela:
+    service: "@svc_j1"
+    zone:    "@zone_salle"
+    user:    "@user_daniela"
+  poste_j1_salle_erwan:
+    service: "@svc_j1"
+    zone:    "@zone_salle"
+    user:    "@user_erwan"
+
+# ─── Completions (service du jour — ouverture faite) ─────────────────────────
 App\Entity\Completion:
-  # Accueil — ouverture complète
-  c1: { poste: "@poste_today_acc", mission: "@m_acc_ouv_1", user: "@user_patou" }
-  c2: { poste: "@poste_today_acc", mission: "@m_acc_ouv_2", user: "@user_patou" }
-  c3: { poste: "@poste_today_acc", mission: "@m_acc_ouv_3", user: "@user_patou" }
-  c4: { poste: "@poste_today_acc", mission: "@m_acc_ouv_4", user: "@user_patou" }
-  # Accueil — service en cours
-  c5: { poste: "@poste_today_acc", mission: "@m_acc_svc_1", user: "@user_patou" }
-  c6: { poste: "@poste_today_acc", mission: "@m_acc_svc_3", user: "@user_patou" }
+  # Accueil — ouverture complète (Kevin + Patou)
+  c1:  { poste: "@poste_today_acc_kevin",  mission: "@m_acc_ouv_1",  user: "@user_kevin" }
+  c2:  { poste: "@poste_today_acc_kevin",  mission: "@m_acc_ouv_2",  user: "@user_kevin" }
+  c3:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_ouv_3",  user: "@user_patou" }
+  c4:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_ouv_4",  user: "@user_patou" }
+  c5:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_ouv_6",  user: "@user_patou" }
+  # Accueil — pendant partiel
+  c6:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_pend_3", user: "@user_patou" }
+  c7:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_pend_4", user: "@user_patou" }
 
-  # Bar — ouverture complète
-  c7:  { poste: "@poste_today_bar", mission: "@m_bar_ouv_1", user: "@user_aya" }
-  c8:  { poste: "@poste_today_bar", mission: "@m_bar_ouv_3", user: "@user_aya" }
+  # Bar — ouverture partielle (Gabin)
+  c8:  { poste: "@poste_today_bar_gabin",  mission: "@m_bar_ouv_1",  user: "@user_gabin" }
+  c9:  { poste: "@poste_today_bar_gabin",  mission: "@m_bar_ouv_3",  user: "@user_gabin" }
+  c10: { poste: "@poste_today_bar_gabin",  mission: "@m_bar_ouv_4",  user: "@user_gabin" }
+  c11: { poste: "@poste_today_bar_gabin",  mission: "@m_bar_ouv_5",  user: "@user_gabin" }
+  c12: { poste: "@poste_today_bar_cynthia",mission: "@m_bar_ouv_10", user: "@user_cynthia" }
 
-  # Salle — ouverture partielle
-  c9:  { poste: "@poste_today_salle", mission: "@m_salle_ouv_1", user: "@user_erwan" }
+  # Salle — ouverture partielle (Erwan + Aya)
+  c13: { poste: "@poste_today_salle_erwan",mission: "@m_salle_ouv_1",user: "@user_erwan" }
+  c14: { poste: "@poste_today_salle_aya",  mission: "@m_salle_ouv_3",user: "@user_aya" }
+  c15: { poste: "@poste_today_salle_aya",  mission: "@m_salle_ouv_5",user: "@user_aya" }
 
-# ─── Incidents ────────────────────────────────────────────────────────────────
+# ─── Incidents ───────────────────────────────────────────────────────────────
 App\Entity\Incident:
   inc_1:
-    centre:   "@centre_bowling"
-    service:  "@svc_today"
-    titre:    "Piste n°4 — quilles mal repositionnées après reset automatique"
-    severite: "moyenne"
+    centre:   "@centre_fgc"
+    service:  "@svc_j3"
+    titre:    "Panne piste n°4 — retour boules bloqué, mécanisme coincé"
+    severite: "haute"
     statut:   "EN_COURS"
-    user:     "@user_erwan"
+    user:     "@user_kevin"
+    zone:     "@zone_salle"
 
   inc_2:
-    centre:   "@centre_bowling"
-    service:  "@svc_today"
-    titre:    "Rupture de stock Coca-Cola — commande urgente nécessaire"
-    severite: "basse"
+    centre:   "@centre_fgc"
+    service:  "@svc_j1"
+    titre:    "Climatisation salle — bruit anormal depuis 18h, vibrations sur la grille nord"
+    severite: "moyenne"
     statut:   "OUVERT"
-    user:     "@user_aya"
+    user:     "@user_micka"
+    zone:     "@zone_salle"
 
   inc_3:
-    centre:   "@centre_bowling"
-    service:  "@svc_hier"
-    titre:    "Machine à café en panne — groupe électrogène déclenché"
+    centre:   "@centre_fgc"
+    service:  "@svc_j2"
+    titre:    "Machine à cocktails — fuite au niveau du joint inférieur, serviettes posées en attendant"
     severite: "haute"
     statut:   "RESOLU"
-    user:     "@user_gabin"
+    user:     "@user_megane"
+    zone:     "@zone_bar"
 
-# ─── Tutoriels ────────────────────────────────────────────────────────────────
+  inc_4:
+    centre:   "@centre_fgc"
+    service:  "@svc_j3"
+    titre:    "Client ivre refusé à l'entrée, intervention sécurité requise"
+    severite: "moyenne"
+    statut:   "RESOLU"
+    user:     "@user_kevin"
+    zone:     "@zone_accueil"
+
+# ─── Tutoriels ───────────────────────────────────────────────────────────────
 App\Entity\Tutoriel:
   tuto_reservation:
-    centre:  "@centre_bowling"
+    centre:  "@centre_fgc"
     titre:   "Prise en main du logiciel de réservation"
-    zone:    "Accueil"
+    zone:    "@zone_accueil"
     niveau:  "debutant"
     dureMin: 15
     contenu:
@@ -558,9 +1166,9 @@ App\Entity\Tutoriel:
       - { type: "tip", text: "En cas de conflit de réservation, privilégiez toujours le client sur place." }
 
   tuto_cocktails:
-    centre:  "@centre_bowling"
+    centre:  "@centre_fgc"
     titre:   "Préparer les cocktails signature maison"
-    zone:    "Bar"
+    zone:    "@zone_bar"
     niveau:  "intermediaire"
     dureMin: 20
     contenu:
@@ -570,23 +1178,10 @@ App\Entity\Tutoriel:
       - { type: "step", number: 3, title: "Service", text: "Verser dans le verre approprié, garnir avec la tranche de citron ou la cerise selon la recette." }
       - { type: "tip", text: "Proposez systématiquement la version sans alcool à tout le groupe." }
 
-  tuto_pistes:
-    centre:  "@centre_bowling"
-    titre:   "Entretien des pistes — huilage et contrôle"
-    zone:    "Salle"
-    niveau:  "avance"
-    dureMin: 30
-    contenu:
-      - { type: "intro", text: "L'entretien quotidien garantit une expérience de jeu optimale et prolonge la durée de vie du matériel." }
-      - { type: "step", number: 1, title: "Huilage de la surface", text: "Utilisez la machine à huiler. Appliquez selon le motif en Z recommandé par le fabricant." }
-      - { type: "step", number: 2, title: "Contrôle des quilles", text: "Inspectez chaque quille visuellement. Quilles fissurées : remplacement immédiat." }
-      - { type: "step", number: 3, title: "Test du scoring", text: "Lancez un test automatique depuis le tableau de contrôle. Vérifiez la détection sur 3 pistes." }
-      - { type: "tip", text: "L'huilage se fait en dehors des heures de jeu ou pendant les pauses creuses (14h–15h)." }
-
   tuto_caisse:
-    centre:  "@centre_bowling"
+    centre:  "@centre_fgc"
     titre:   "Procédure de clôture de caisse"
-    zone:    "Accueil"
+    zone:    "@zone_accueil"
     niveau:  "avance"
     dureMin: 25
     contenu:
@@ -597,9 +1192,9 @@ App\Entity\Tutoriel:
       - { type: "tip", text: "Ne jamais laisser la caisse ouverte sans surveillance, même 30 secondes." }
 
   tuto_incidents:
-    centre:  "@centre_bowling"
+    centre:  "@centre_fgc"
     titre:   "Signaler et gérer un incident"
-    zone:    null
+    zone:    ~
     niveau:  "debutant"
     dureMin: 10
     contenu:
@@ -607,9 +1202,9 @@ App\Entity\Tutoriel:
       - { type: "step", number: 1, title: "Ouvrir Shiftly", text: "Dans l'app, allez sur 'Service du Jour' → bouton orange '+ Signaler un incident'." }
       - { type: "step", number: 2, title: "Remplir le formulaire", text: "Décrivez clairement l'incident, choisissez la sévérité et la zone concernée." }
       - { type: "step", number: 3, title: "Prévenir le manager", text: "Pour les incidents 'haute' sévérité, prévenez oralement le manager en plus du signalement app." }
-      - { type: "tip", text: "Un incident signalé rapidement, résolution 3 fois plus rapide en moyenne." }
+      - { type: "tip", text: "Un incident signalé rapidement = résolution 3 fois plus rapide en moyenne." }
 
-# ─── TutoReads (lectures du jour) ────────────────────────────────────────────
+# ─── TutoReads ───────────────────────────────────────────────────────────────
 App\Entity\TutoRead:
   tr_patou_1:
     user:     "@user_patou"
@@ -617,21 +1212,18 @@ App\Entity\TutoRead:
   tr_patou_2:
     user:     "@user_patou"
     tutoriel: "@tuto_caisse"
+  tr_gabin_1:
+    user:     "@user_gabin"
+    tutoriel: "@tuto_cocktails"
+  tr_erwan_1:
+    user:     "@user_erwan"
+    tutoriel: "@tuto_incidents"
   tr_aya_1:
     user:     "@user_aya"
     tutoriel: "@tuto_cocktails"
   tr_aya_2:
     user:     "@user_aya"
     tutoriel: "@tuto_incidents"
-  tr_gabin_1:
-    user:     "@user_gabin"
-    tutoriel: "@tuto_cocktails"
-  tr_hiba_1:
-    user:     "@user_hiba"
-    tutoriel: "@tuto_pistes"
-  tr_hiba_2:
-    user:     "@user_hiba"
-    tutoriel: "@tuto_incidents"
-  tr_erwan_1:
-    user:     "@user_erwan"
+  tr_kevin_1:
+    user:     "@user_kevin"
     tutoriel: "@tuto_incidents"

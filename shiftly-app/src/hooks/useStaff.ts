@@ -20,14 +20,15 @@ export function useStaff() {
 // ─── Créer un membre (éditeur staff) ─────────────────────────────────────────
 
 interface CreateStaffPayload {
-  nom:         string
-  prenom?:     string | null
-  email:       string
-  password:    string
-  role:        'MANAGER' | 'EMPLOYE'
-  tailleHaut?: string | null
-  tailleBas?:  string | null
-  pointure?:   string | null
+  nom:          string
+  prenom?:      string | null
+  email:        string
+  password:     string
+  role:         'MANAGER' | 'EMPLOYE'
+  tailleHaut?:  string | null
+  tailleBas?:   string | null
+  pointure?:    string | null
+  avatarColor?: string
 }
 
 export function useCreateStaff() {
@@ -46,16 +47,17 @@ export function useCreateStaff() {
 // ─── Modifier un membre ───────────────────────────────────────────────────────
 
 interface UpdateStaffPayload {
-  id:          number
-  nom?:        string
-  prenom?:     string | null
-  email?:      string
-  role?:       'MANAGER' | 'EMPLOYE'
-  tailleHaut?: string | null
-  tailleBas?:  string | null
-  pointure?:   string | null
-  actif?:      boolean
-  password?:   string
+  id:           number
+  nom?:         string
+  prenom?:      string | null
+  email?:       string
+  role?:        'MANAGER' | 'EMPLOYE'
+  tailleHaut?:  string | null
+  tailleBas?:   string | null
+  pointure?:    string | null
+  actif?:       boolean
+  password?:    string
+  avatarColor?: string
 }
 
 export function useUpdateStaff() {
