@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback }                from 'react'
+import { useState, useMemo, useCallback, Suspense }      from 'react'
 import { useSearchParams }                               from 'next/navigation'
 import { motion }                                        from 'framer-motion'
 import { listVariants, listItemVariants, fadeUpVariants } from '@/lib/animations'
@@ -16,7 +16,7 @@ import { useAuthStore }               from '@/store/authStore'
 import { useZones }                   from '@/hooks/useZones'
 import type { Tutoriel, ZoneFilter, NiveauFilter, TutoBlock } from '@/types/tutoriel'
 
-export default function TutorielsPage() {
+function TutorielsContent() {
   const searchParams = useSearchParams()
   const userId       = useAuthStore(s => s.userId)
 
@@ -197,5 +197,13 @@ export default function TutorielsPage() {
         )}
       </div>
     </motion.div>
+  )
+}
+
+export default function TutorielsPage() {
+  return (
+    <Suspense>
+      <TutorielsContent />
+    </Suspense>
   )
 }
