@@ -24,7 +24,7 @@ if [ ! -s "$JWT_DIR/private.pem" ]; then
     echo "Génération automatique des clés JWT..."
     PASSPHRASE="${JWT_PASSPHRASE:-shiftly_default_passphrase}"
     openssl genpkey -out "$JWT_DIR/private.pem" -aes256 \
-        -algorithm rsa -pkeyopt rsa_keygen_bits:4096 \
+        -algorithm rsa -pkeyopt rsa_keygen_bits:2048 \
         -pass "pass:$PASSPHRASE" 2>/dev/null
     openssl pkey -in "$JWT_DIR/private.pem" -out "$JWT_DIR/public.pem" \
         -pubout -passin "pass:$PASSPHRASE" 2>/dev/null
