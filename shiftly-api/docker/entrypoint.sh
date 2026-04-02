@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+# Force l'environnement prod — écrase le APP_ENV=dev du .env
+export APP_ENV=prod
+export APP_DEBUG=0
+
 # Résolution du port — Railway injecte $PORT dynamiquement
 ACTUAL_PORT="${PORT:-80}"
 echo "Port d'écoute : $ACTUAL_PORT"
