@@ -56,6 +56,7 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Entrypoint (décode les clés JWT depuis env vars base64)
+ARG CACHEBUST=1
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
