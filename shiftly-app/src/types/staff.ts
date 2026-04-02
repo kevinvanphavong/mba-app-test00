@@ -2,6 +2,7 @@
 
 export type DifficulteComp = 'simple' | 'avancee' | 'experimente'
 export type StaffRole      = 'MANAGER' | 'EMPLOYE'
+export type ZoneNom        = 'Accueil' | 'Bar' | 'Salle' | 'Manager'
 
 export interface StaffCompetenceItem {
   id:          number
