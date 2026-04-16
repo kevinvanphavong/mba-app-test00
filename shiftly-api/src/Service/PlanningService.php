@@ -9,6 +9,7 @@ use App\Entity\Service;
 use App\Entity\User;
 use App\Repository\PlanningWeekRepository;
 use App\Repository\ServiceRepository;
+use App\Repository\UserRepository;
 use App\Repository\ZoneRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -21,6 +22,7 @@ class PlanningService
         private readonly ServiceRepository     $serviceRepository,
         private readonly PlanningWeekRepository $planningWeekRepository,
         private readonly ZoneRepository         $zoneRepository,
+        private readonly UserRepository         $userRepository,
         private readonly EntityManagerInterface $em,
     ) {}
 
@@ -89,8 +91,23 @@ class PlanningService
             'couleur' => $z->getCouleur() ?? '#6b7280',
         ], $zones);
 
-        // ── Regroupe les shifts par employé ──
+        // ── Pré-initialise avec tous les staff actifs (même sans shift cette semaine) ──
         $employeesMap = [];
+        foreach ($this->userRepository->findActifByCentre($centreId) as $u) {
+            $employeesMap[$u->getId()] = [
+                'id'          => $u->getId(),
+                'nom'         => $u->getNom(),
+                'prenom'      => $u->getPrenom(),
+                'role'        => $u->getRole(),
+                'avatarColor' => $u->getAvatarColor(),
+                'heuresHebdo' => $u->getHeuresHebdo(),
+                'typeContrat' => $u->getTypeContrat(),
+                'shifts'      => [],
+                'totalHeures' => 0.0,
+            ];
+        }
+
+        // ── Regroupe les shifts par employé ──
         foreach ($postesParDate as $dateStr => $postes) {
             foreach ($postes as $poste) {
                 $user   = $poste->getUser();
