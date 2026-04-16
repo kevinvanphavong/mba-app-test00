@@ -80,7 +80,7 @@ export default function PlanningRow({
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }}
-      className="flex border-b border-[var(--border)]"
+      className="group flex border-b border-[var(--border)]"
     >
       {/* Colonne employé — sticky */}
       <div
@@ -91,7 +91,7 @@ export default function PlanningRow({
         <span
           {...listeners}
           {...attributes}
-          className="mr-1 cursor-grab text-[var(--border)] opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-60 active:cursor-grabbing"
+          className="mr-1 cursor-grab text-[var(--muted)] opacity-30 transition-opacity group-hover:opacity-100 active:cursor-grabbing"
           title="Réordonner"
         >
           ⠿

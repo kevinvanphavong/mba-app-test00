@@ -158,12 +158,12 @@ export default function ShiftModal({
               <div className="flex gap-2 pt-1">
                 {isEdit && (
                   <button type="button" onClick={handleDelete}
-                    className="rounded-[12px] border border-[var(--red)]/40 px-3 py-3 text-[13px] font-semibold text-[var(--red)]">
+                    className="rounded-[12px] bg-[var(--red)] px-4 py-3 font-syne text-[13px] font-extrabold text-white">
                     Supprimer
                   </button>
                 )}
                 <button type="button" onClick={onClose}
-                  className="flex-1 rounded-[12px] border border-[var(--border)] py-3 text-[13px] font-semibold text-[var(--muted)]">
+                  className="flex-1 rounded-[12px] border border-[var(--border)] py-3 font-syne text-[13px] font-bold text-[var(--muted)]">
                   Annuler
                 </button>
                 <button type="submit" disabled={isSubmitting}

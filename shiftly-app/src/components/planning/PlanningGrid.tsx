@@ -8,9 +8,25 @@ import {
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import type { PlanningShift, PlanningWeekData } from '@/types/planning'
 import { useMoveShift } from '@/hooks/usePlanning'
+import { useAuthStore } from '@/store/authStore'
 import { hexAlpha } from '@/lib/colors'
 import DayHeader from './DayHeader'
 import PlanningRow from './PlanningRow'
+
+/** Fusionne l'ordre sauvegardé avec les employés actuels (garde l'ordre, ajoute les nouveaux) */
+function resolveRowOrder(currentIds: number[], storageKey: string): number[] {
+  try {
+    const saved = localStorage.getItem(storageKey)
+    if (!saved) return currentIds
+    const savedIds: number[] = JSON.parse(saved)
+    const currentSet = new Set(currentIds)
+    const kept  = savedIds.filter(id => currentSet.has(id))
+    const added = currentIds.filter(id => !new Set(savedIds).has(id))
+    return kept.length > 0 ? [...kept, ...added] : currentIds
+  } catch {
+    return currentIds
+  }
+}
 
 interface PlanningGridProps {
   data:        PlanningWeekData
@@ -32,8 +48,10 @@ function ShiftPreview({ shift }: { shift: PlanningShift }) {
 
 /** Grille planning complète avec DnD shifts + tri des lignes */
 export default function PlanningGrid({ data, onAddShift, onEditShift }: PlanningGridProps) {
-  const today    = new Date().toISOString().split('T')[0]
-  const moveShift = useMoveShift()
+  const today      = new Date().toISOString().split('T')[0]
+  const moveShift  = useMoveShift()
+  const centreId   = useAuthStore(s => s.centreId)
+  const storageKey = `shiftly_row_order_${centreId}`
 
   const weekDates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(data.weekStart + 'T12:00:00')
@@ -41,13 +59,21 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
     return d.toISOString().split('T')[0]
   })
 
-  // Ordre local des lignes (drag-to-reorder)
-  const [rowOrder, setRowOrder] = useState<number[]>(() => data.employees.map(e => e.id))
+  // Ordre local des lignes — initialisé depuis localStorage si disponible
+  const [rowOrder, setRowOrder] = useState<number[]>(() =>
+    resolveRowOrder(data.employees.map(e => e.id), storageKey)
+  )
 
-  // Resync l'ordre quand on change de semaine (navigation) pour éviter rowOrder obsolète
+  // Resync au changement de semaine en respectant l'ordre sauvegardé
   useEffect(() => {
-    setRowOrder(data.employees.map(e => e.id))
-  }, [data.weekStart])
+    setRowOrder(resolveRowOrder(data.employees.map(e => e.id), storageKey))
+  }, [data.weekStart, storageKey])
+
+  // Persiste l'ordre dans localStorage à chaque modification
+  useEffect(() => {
+    if (rowOrder.length === 0) return
+    localStorage.setItem(storageKey, JSON.stringify(rowOrder))
+  }, [rowOrder, storageKey])
   const orderedEmployees = rowOrder
     .map(id => data.employees.find(e => e.id === id))
     .filter(Boolean) as typeof data.employees
