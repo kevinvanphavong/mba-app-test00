@@ -10,7 +10,10 @@ import AlertPanel from './AlertPanel'
 import ShiftModal from './ShiftModal'
 
 function getCurrentMonday(): string {
-  const d = new Date(); const day = d.getDay()
+  // Construction à midi local pour éviter le décalage UTC de toISOString()
+  const now = new Date()
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0)
+  const day = d.getDay()
   d.setDate(d.getDate() - (day === 0 ? 6 : day - 1))
   return d.toISOString().split('T')[0]
 }
@@ -38,11 +41,6 @@ export default function PlanningManagerView() {
   const publishWeek   = usePublishWeek()
   const duplicateWeek = useDuplicateWeek()
 
-  const weekEnd = (() => {
-    const d = new Date(weekStart + 'T12:00:00'); d.setDate(d.getDate() + 6)
-    return d.toISOString().split('T')[0]
-  })()
-
   function openAdd(date: string, employeeId: number) {
     setEditShift(null); setModalDate(date); setModalEmpId(employeeId); setModalOpen(true)
   }
@@ -68,6 +66,13 @@ export default function PlanningManagerView() {
   const stats   = data?.stats
   const zones   = data?.zones ?? []
 
+  // Source de vérité : le lundi normalisé par le backend (évite le décalage navigator/grille)
+  const displayWeekStart = data!.weekStart
+  const weekEnd = (() => {
+    const d = new Date(displayWeekStart + 'T12:00:00'); d.setDate(d.getDate() + 6)
+    return d.toISOString().split('T')[0]
+  })()
+
   return (
     <>
       {/* ── Header page — sticky ── */}
@@ -84,13 +89,13 @@ export default function PlanningManagerView() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => duplicateWeek.mutate({ sourceWeekStart: weekStart, targetWeekStart: shiftWeek(weekStart, 1) })}
+            onClick={() => duplicateWeek.mutate({ sourceWeekStart: displayWeekStart, targetWeekStart: shiftWeek(displayWeekStart, 1) })}
             className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
           >
             📋 Dupliquer semaine
           </button>
           <button
-            onClick={() => publishWeek.mutate({ weekStart })}
+            onClick={() => publishWeek.mutate({ weekStart: displayWeekStart })}
             disabled={publishWeek.isPending || statut === 'PUBLIE'}
             className="rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
@@ -102,11 +107,11 @@ export default function PlanningManagerView() {
       {/* ── Navigateur semaine — sticky juste en dessous du header ── */}
       <div className="sticky top-[73px] z-10">
         <WeekNavigator
-          weekStart={weekStart}
+          weekStart={displayWeekStart}
           weekEnd={weekEnd}
-          weekNumber={getWeekNumber(weekStart)}
-          onPrev={() => setWeekStart(ws => shiftWeek(ws, -1))}
-          onNext={() => setWeekStart(ws => shiftWeek(ws, +1))}
+          weekNumber={getWeekNumber(displayWeekStart)}
+          onPrev={() => setWeekStart(shiftWeek(displayWeekStart, -1))}
+          onNext={() => setWeekStart(shiftWeek(displayWeekStart, +1))}
           onToday={() => setWeekStart(getCurrentMonday())}
         />
       </div>
