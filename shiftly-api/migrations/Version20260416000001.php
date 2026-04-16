@@ -31,21 +31,21 @@ final class Version20260416000001 extends AbstractMigration
                 ADD COLUMN type_contrat  VARCHAR(30)  DEFAULT NULL AFTER heures_hebdo
             ');
             $this->addSql('CREATE TABLE planning_week (
-                id           INT AUTO_INCREMENT NOT NULL,
-                centre_id    INT          NOT NULL,
-                week_start   DATE         NOT NULL,
-                statut       VARCHAR(20)  NOT NULL DEFAULT \'BROUILLON\',
-                published_at DATETIME     DEFAULT NULL,
-                published_by INT          DEFAULT NULL,
-                note         TEXT         DEFAULT NULL,
+                id              INT AUTO_INCREMENT NOT NULL,
+                centre_id       INT          NOT NULL,
+                week_start      DATE         NOT NULL,
+                statut          VARCHAR(20)  NOT NULL DEFAULT \'BROUILLON\',
+                published_at    DATETIME     DEFAULT NULL,
+                published_by_id INT          DEFAULT NULL,
+                note            TEXT         DEFAULT NULL,
                 PRIMARY KEY (id),
                 UNIQUE KEY uniq_pw_centre_week (centre_id, week_start),
                 INDEX idx_pw_centre (centre_id),
-                INDEX idx_pw_published_by (published_by)
+                INDEX idx_pw_published_by (published_by_id)
             ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ENGINE = InnoDB');
             $this->addSql('ALTER TABLE planning_week
-                ADD CONSTRAINT FK_pw_centre       FOREIGN KEY (centre_id)    REFERENCES centre (id),
-                ADD CONSTRAINT FK_pw_published_by FOREIGN KEY (published_by) REFERENCES `user` (id)
+                ADD CONSTRAINT FK_pw_centre       FOREIGN KEY (centre_id)       REFERENCES centre (id),
+                ADD CONSTRAINT FK_pw_published_by FOREIGN KEY (published_by_id) REFERENCES `user` (id)
             ');
         } else {
             // SQLite (dev local)
@@ -55,20 +55,20 @@ final class Version20260416000001 extends AbstractMigration
             $this->addSql('ALTER TABLE "user" ADD COLUMN heures_hebdo INTEGER DEFAULT NULL');
             $this->addSql('ALTER TABLE "user" ADD COLUMN type_contrat TEXT    DEFAULT NULL');
             $this->addSql('CREATE TABLE planning_week (
-                id           INTEGER      NOT NULL,
-                centre_id    INTEGER      NOT NULL,
-                week_start   TEXT         NOT NULL,
-                statut       VARCHAR(20)  NOT NULL DEFAULT \'BROUILLON\',
-                published_at DATETIME     DEFAULT NULL,
-                published_by INTEGER      DEFAULT NULL,
-                note         TEXT         DEFAULT NULL,
+                id              INTEGER      NOT NULL,
+                centre_id       INTEGER      NOT NULL,
+                week_start      TEXT         NOT NULL,
+                statut          VARCHAR(20)  NOT NULL DEFAULT \'BROUILLON\',
+                published_at    DATETIME     DEFAULT NULL,
+                published_by_id INTEGER      DEFAULT NULL,
+                note            TEXT         DEFAULT NULL,
                 PRIMARY KEY (id AUTOINCREMENT),
-                CONSTRAINT FK_pw_centre       FOREIGN KEY (centre_id)    REFERENCES centre (id),
-                CONSTRAINT FK_pw_published_by FOREIGN KEY (published_by) REFERENCES "user" (id)
+                CONSTRAINT FK_pw_centre       FOREIGN KEY (centre_id)       REFERENCES centre (id),
+                CONSTRAINT FK_pw_published_by FOREIGN KEY (published_by_id) REFERENCES "user" (id)
             )');
             $this->addSql('CREATE UNIQUE INDEX uniq_pw_centre_week ON planning_week (centre_id, week_start)');
             $this->addSql('CREATE INDEX idx_pw_centre       ON planning_week (centre_id)');
-            $this->addSql('CREATE INDEX idx_pw_published_by ON planning_week (published_by)');
+            $this->addSql('CREATE INDEX idx_pw_published_by ON planning_week (published_by_id)');
         }
     }
 
