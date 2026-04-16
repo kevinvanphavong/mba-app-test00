@@ -189,7 +189,7 @@ class PlanningController extends AbstractController
             $date = $date->modify('-' . ($dayOfWeek - 1) . ' days');
         }
 
-        // Remet à minuit pour la comparaison
-        return \DateTimeImmutable::createFromFormat('Y-m-d', $date->format('Y-m-d'));
+        // Le modificateur | force minuit (sans lui, createFromFormat garde l'heure courante)
+        return \DateTimeImmutable::createFromFormat('Y-m-d|', $date->format('Y-m-d'));
     }
 }
