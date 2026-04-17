@@ -27,9 +27,11 @@ export default function HeroServiceCard({
 }: HeroServiceCardProps) {
   const cfg = STATUT_CONFIG[service.statut] ?? STATUT_CONFIG.PLANIFIE
 
-  const dateLabel = new Date(service.date + 'T12:00:00').toLocaleDateString('fr-FR', {
+  const dateLabel    = new Date(service.date + 'T12:00:00').toLocaleDateString('fr-FR', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
+  const realToday    = new Date().toISOString().split('T')[0]
+  const isNightShift = service.date !== realToday
 
   return (
     <div className="relative bg-surface border border-border rounded-[18px] p-4 overflow-hidden accent-bar">
@@ -46,8 +48,13 @@ export default function HeroServiceCard({
             <div className={`${ty.metaLg} mt-0.5 capitalize`}>{dateLabel}</div>
           </div>
 
-          {/* Droite : badge statut + bouton incident */}
+          {/* Droite : badge nuit + badge statut + bouton incident */}
           <div className="flex items-center gap-2 flex-shrink-0">
+            {isNightShift && (
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-surface2 border border-border text-muted">
+                Nuit
+              </span>
+            )}
             {onReportIncident && (
               <button
                 onClick={onReportIncident}

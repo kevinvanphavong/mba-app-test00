@@ -30,7 +30,7 @@ class ServiceRepository extends ServiceEntityRepository
         $now = new \DateTimeImmutable();
 
         // Avant 5h → on est encore dans la journée d'hier (service de nuit)
-        $referenceDate = (int)$now->format('H') < 2
+        $referenceDate = (int)$now->format('H') < 5
             ? $now->modify('-1 day')
             : $now;
 
