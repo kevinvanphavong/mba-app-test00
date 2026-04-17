@@ -6,13 +6,10 @@ import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { useDesktopNavItems } from '@/hooks/useNavItems'
 import { ty } from '@/lib/typography'
 
-function getInitials(nom: string): string {
-  return nom
-    .split(' ')
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2)
+function getInitials(prenom: string, nom: string): string {
+  const p = prenom.trim()[0] ?? ''
+  const n = nom.trim()[0] ?? ''
+  return (p + n).toUpperCase()
 }
 
 function formatRole(role: string): string {
@@ -25,7 +22,8 @@ export default function Sidebar() {
 
   if (!user) return null
 
-  const initials = getInitials(user.nom)
+  const initials  = getInitials(user.prenom, user.nom)
+  const fullName  = `${user.prenom} ${user.nom}`
   const roleLabel = formatRole(user.role)
 
   return (
@@ -76,7 +74,7 @@ export default function Sidebar() {
           {initials}
         </div>
         <div className="min-w-0">
-          <div className="text-[12px] font-semibold text-text truncate leading-tight">{user.nom}</div>
+          <div className="text-[12px] font-semibold text-text truncate leading-tight">{fullName}</div>
           <div className="text-[10px] text-muted leading-tight">{roleLabel}</div>
         </div>
       </div>

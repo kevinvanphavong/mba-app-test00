@@ -16,3 +16,5 @@ shiftly-api/vendor/
 # Build / cache
 shiftly-app/.next/
 shiftly-api/var/
+
+.claude

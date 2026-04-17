@@ -64,8 +64,8 @@ export function useCurrentUser() {
       setUser(r.data)
       return r.data
     }),
-    enabled:  !!token && !user,
-    staleTime: 5 * 60 * 1000, // 5 min
+    enabled:  !!token,
+    staleTime: 5 * 60 * 1000, // 5 min — pas de re-fetch inutile
     retry: false,
   })
 

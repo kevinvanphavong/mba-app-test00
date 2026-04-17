@@ -5,6 +5,7 @@ import { create } from 'zustand'
 export interface AuthUser {
   id:          number
   nom:         string
+  prenom:      string
   email:       string
   role:        'MANAGER' | 'EMPLOYE'
   avatarColor: string | null
