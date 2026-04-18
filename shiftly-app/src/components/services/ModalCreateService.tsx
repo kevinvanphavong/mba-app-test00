@@ -1,14 +1,15 @@
 'use client'
 
-import { useState }                     from 'react'
+import { useState, useEffect }           from 'react'
 import { AnimatePresence, motion }       from 'framer-motion'
-import { useForm }                       from 'react-hook-form'
+import { useForm, useWatch }             from 'react-hook-form'
 import { zodResolver }                   from '@hookform/resolvers/zod'
 import { z }                             from 'zod'
 import { format }                        from 'date-fns'
 import { sheetVariants, backdropVariants } from '@/lib/animations'
 import { useCreateService }              from '@/hooks/useService'
 import { useStaff }                      from '@/hooks/useStaff'
+import { useAuthStore }                  from '@/store/authStore'
 import { cn }                            from '@/lib/cn'
 
 // ─── Validation ───────────────────────────────────────────────────────────────
@@ -30,10 +31,13 @@ interface Props {
 
 // ─── Composant ────────────────────────────────────────────────────────────────
 
+const DAY_NAMES = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi']
+
 export default function ModalCreateService({ open, onClose }: Props) {
   const { mutate, isPending } = useCreateService()
   const { data: staffData } = useStaff()
   const managers = (staffData?.members ?? []).filter(m => m.role === 'MANAGER')
+  const openingHours = useAuthStore(s => s.user?.centre?.openingHours)
 
   const [apiError,          setApiError]          = useState<string | null>(null)
   const [selectedManagerIds, setSelectedManagerIds] = useState<number[]>([])
@@ -44,15 +48,29 @@ export default function ModalCreateService({ open, onClose }: Props) {
     register,
     handleSubmit,
     reset,
+    control,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       date:       '',
-      heureDebut: '10:00',
-      heureFin:   '22:00',
+      heureDebut: '',
+      heureFin:   '',
     },
   })
+
+  const dateValue = useWatch({ control, name: 'date' })
+
+  // Auto-fill heures depuis les horaires du centre lors du changement de date
+  useEffect(() => {
+    if (!dateValue || !openingHours) return
+    const dayName = DAY_NAMES[new Date(dateValue + 'T12:00:00').getDay()]
+    const h = openingHours[dayName]
+    if (!h) return
+    if (h.ouverture) setValue('heureDebut', h.ouverture)
+    if (h.fermeture) setValue('heureFin', h.fermeture)
+  }, [dateValue, openingHours, setValue])
 
   function handleClose() {
     reset()
