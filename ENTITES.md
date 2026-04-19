@@ -593,3 +593,73 @@ Centre
 10. TutoRead
 11. TaskCompletion
 12. Incident
+
+---
+
+## 13. PlanningWeek
+
+Statut de publication d'une semaine de planning pour un centre.
+Une semaine sans entrée est implicitement en BROUILLON.
+
+| Champ | Type | Nullable | Notes |
+|---|---|---|---|
+| `id` | int | non | Auto-généré |
+| `centre` | Centre | non | FK multi-tenant |
+| `weekStart` | date_immutable | non | Lundi de la semaine (toujours un lundi) |
+| `statut` | string(20) | non | `BROUILLON` \| `PUBLIE` |
+| `publishedAt` | datetime_immutable | oui | Horodatage de la dernière publication |
+| `publishedBy` | User | oui | Manager qui a publié |
+| `note` | text | oui | Note visible par le staff |
+
+**Contraintes uniques :** `(centre_id, week_start)`
+
+**Relations :**
+- `centre` → ManyToOne → Centre
+- `publishedBy` → ManyToOne → User
+
+---
+
+## 14. PlanningSnapshot
+
+Archivage légal immuable de chaque publication de planning.
+Créé automatiquement à chaque appel de `POST /api/planning/publish`.
+
+**Règles :**
+- Immuable — jamais modifié ni supprimé après création
+- Conservation minimum 3 ans (prescription prud'homale heures supplémentaires)
+- Le `checksum` SHA-256 prouve que le contenu n'a pas été altéré après coup
+- Preuve opposable en cas de litige prud'homal ou de contrôle de l'inspection du travail
+
+| Champ | Type | Nullable | Notes |
+|---|---|---|---|
+| `id` | int | non | Auto-généré |
+| `centre` | Centre | non | FK multi-tenant |
+| `weekStart` | date_immutable | non | Lundi de la semaine archivée |
+| `publishedAt` | datetime_immutable | non | Horodatage exact de cette publication |
+| `publishedBy` | User | non | Manager qui a publié |
+| `data` | json | non | Copie intégrale du planning (structure `PlanningWeekData`) |
+| `motifModification` | text | oui | Obligatoire si publication hors délai (< 7j) ou republication |
+| `checksum` | string(64) | non | SHA-256 du JSON `data` |
+| `delaiRespect` | boolean | non | `false` si publié à moins de 7 jours calendaires (CC IDCC 1790) |
+
+**Relations :**
+- `centre` → ManyToOne → Centre
+- `publishedBy` → ManyToOne → User
+
+---
+
+## Note — Alertes légales du module Planning
+
+Le `PlanningService::getLegalAlerts()` génère 6 alertes basées sur le Code du travail.
+Ces alertes ont le champ `categorie: 'legal'` et un champ `baseLegale` (référence de l'article).
+
+| Type | Condition | Base légale |
+|---|---|---|
+| `MAX_JOURNALIER` | Shift > 10h sur un jour | Art. L3121-18 C. travail |
+| `MAX_HEBDO_ABSOLU` | Total > 48h sur la semaine | Art. L3121-20 C. travail |
+| `MAX_HEBDO_MOYENNE` | Moyenne > 44h sur 12 semaines glissantes | Art. L3121-22 C. travail |
+| `REPOS_QUOTIDIEN` | < 11h entre fin d'un shift (jour J) et début (jour J+1) | Art. L3131-1 C. travail |
+| `REPOS_HEBDO` | Plage consécutive sans shift < 35h dans la semaine | Art. L3132-2 C. travail |
+| `PAUSE_6H` | Shift > 6h et pauseMinutes < 20 | Art. L3121-16 C. travail |
+
+Différenciées visuellement des alertes métier dans `AlertPanel.tsx` par un badge ⚖️.
