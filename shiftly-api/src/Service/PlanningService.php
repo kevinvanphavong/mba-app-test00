@@ -9,6 +9,8 @@ use App\Entity\PlanningWeek;
 use App\Entity\Service;
 use App\Entity\User;
 use App\Exception\DelaiPrevenanceException;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use App\Repository\PlanningSnapshotRepository;
 use App\Repository\PlanningWeekRepository;
 use App\Repository\ServiceRepository;
@@ -424,6 +426,136 @@ class PlanningService
     public function getAlerts(Centre $centre, \DateTimeImmutable $weekStart): array
     {
         return $this->getWeekData($centre, $weekStart)['alertes'];
+    }
+
+    /**
+     * Génère le PDF légal du planning (document pour l'inspection du travail).
+     * Retourne le contenu brut du PDF (string binaire).
+     */
+    public function generatePdf(Centre $centre, \DateTimeImmutable $weekStart): string
+    {
+        $data    = $this->getWeekData($centre, $weekStart);
+        $weekEnd = $weekStart->modify('+6 days');
+
+        $JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+        $dates = [];
+        for ($i = 0; $i < 7; $i++) {
+            $dates[] = $weekStart->modify("+{$i} days")->format('Y-m-d');
+        }
+
+        // ── Construction de l'HTML ──
+        $publishedAt = '';
+        if (!empty($data['publishedAt'])) {
+            $publishedAt = (new \DateTimeImmutable($data['publishedAt']))->format('d/m/Y à H:i');
+        } else {
+            $publishedAt = 'Non publié';
+        }
+
+        $rows = '';
+        foreach ($data['employees'] as $emp) {
+            // Indexe les shifts par date
+            $shiftsByDate = [];
+            foreach ($emp['shifts'] as $s) {
+                $shiftsByDate[$s['date']][] = $s;
+            }
+
+            $cells = '';
+            foreach ($dates as $date) {
+                $content = '';
+                foreach ($shiftsByDate[$date] ?? [] as $s) {
+                    $hd = $s['heureDebut'] ?? '—';
+                    $hf = $s['heureFin']   ?? '—';
+                    $content .= "<div style='font-size:9px;'>{$hd}–{$hf}</div>";
+                    $content .= "<div style='font-size:8px;color:#6b7280;'>{$s['zoneNom']}</div>";
+                }
+                if (!$content) $content = "<span style='color:#d1d5db;'>—</span>";
+                $cells .= "<td style='border:1px solid #e5e7eb;padding:4px 6px;text-align:center;vertical-align:top;min-width:60px;'>{$content}</td>";
+            }
+
+            $total    = number_format($emp['totalHeures'], 1);
+            $contrat  = $emp['heuresHebdo'] !== null ? $emp['heuresHebdo'] . 'h' : '—';
+            $ecart    = $emp['heuresHebdo'] !== null
+                ? sprintf('%+.1f', $emp['ecartContrat'])
+                : '—';
+            $ecartColor = $emp['ecartContrat'] < -2 ? '#ef4444' : ($emp['ecartContrat'] > 2 ? '#f97316' : '#22c55e');
+
+            $rows .= "
+            <tr>
+              <td style='border:1px solid #e5e7eb;padding:4px 8px;font-size:11px;white-space:nowrap;'>
+                <strong>{$emp['nom']}</strong><br>
+                <span style='color:#6b7280;font-size:9px;'>{$emp['typeContrat']} — {$contrat}</span>
+              </td>
+              {$cells}
+              <td style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;font-size:11px;font-weight:bold;'>{$total}h</td>
+              <td style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;font-size:11px;color:{$ecartColor};font-weight:bold;'>{$ecart}h</td>
+            </tr>";
+        }
+
+        $headerCells = '';
+        foreach ($JOURS as $i => $j) {
+            $d = new \DateTimeImmutable($dates[$i]);
+            $headerCells .= "<th style='border:1px solid #e5e7eb;padding:4px 6px;text-align:center;font-size:10px;background:#f9fafb;'>{$j}<br>{$d->format('d/m')}</th>";
+        }
+
+        $generatedAt = (new \DateTimeImmutable())->format('d/m/Y à H:i');
+        $statut = $data['statut'] === 'PUBLIE' ? '✓ Publié' : 'Brouillon';
+        $statutColor = $data['statut'] === 'PUBLIE' ? '#22c55e' : '#f97316';
+
+        $html = "
+        <!DOCTYPE html>
+        <html lang='fr'>
+        <head><meta charset='utf-8'></head>
+        <body style='font-family:Arial,sans-serif;color:#111;margin:0;padding:20px;'>
+
+          <!-- En-tête -->
+          <div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;border-bottom:2px solid #f97316;padding-bottom:12px;'>
+            <div>
+              <h1 style='margin:0;font-size:18px;color:#f97316;'>Planning — {$centre->getNom()}</h1>
+              <p style='margin:4px 0 0;font-size:12px;color:#6b7280;'>
+                Semaine du {$weekStart->format('d/m/Y')} au {$weekEnd->format('d/m/Y')}
+              </p>
+            </div>
+            <div style='text-align:right;'>
+              <p style='margin:0;font-size:11px;color:{$statutColor};font-weight:bold;'>{$statut}</p>
+              <p style='margin:2px 0 0;font-size:10px;color:#6b7280;'>Communiqué le : {$publishedAt}</p>
+              <p style='margin:2px 0 0;font-size:9px;color:#9ca3af;'>Généré le {$generatedAt}</p>
+            </div>
+          </div>
+
+          <!-- Tableau planning -->
+          <table style='width:100%;border-collapse:collapse;font-size:11px;'>
+            <thead>
+              <tr>
+                <th style='border:1px solid #e5e7eb;padding:4px 8px;text-align:left;background:#f9fafb;font-size:10px;min-width:120px;'>Employé</th>
+                {$headerCells}
+                <th style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;background:#f9fafb;font-size:10px;'>Total</th>
+                <th style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;background:#f9fafb;font-size:10px;'>Écart</th>
+              </tr>
+            </thead>
+            <tbody>
+              {$rows}
+            </tbody>
+          </table>
+
+          <!-- Pied de page légal -->
+          <p style='margin-top:20px;font-size:9px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:8px;'>
+            Document généré par Shiftly — Conservation minimum 3 ans (Art. L3171-1 C. travail).
+            Ce planning constitue le décompte légal du temps de travail.
+            Convention Collective IDCC 1790 — Espaces de loisirs, attractions et culturels.
+          </p>
+        </body>
+        </html>";
+
+        $options = new Options();
+        $options->set('isRemoteEnabled', false);
+        $options->set('isPhpEnabled', false);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        return $dompdf->output();
     }
 
     /**

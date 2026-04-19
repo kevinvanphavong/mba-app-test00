@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { usePlanningWeek, useDuplicateWeek } from '@/hooks/usePlanning'
+import { usePlanningWeek, useDuplicateWeek, useExportPlanningPdf } from '@/hooks/usePlanning'
 import type { PlanningShift } from '@/types/planning'
 import WeekNavigator from './WeekNavigator'
 import PlanningGrid from './PlanningGrid'
@@ -42,7 +42,8 @@ export default function PlanningManagerView() {
   const [editShift, setEditShift]         = useState<PlanningShift | null>(null)
 
   const { data, isLoading, isError } = usePlanningWeek(weekStart)
-  const duplicateWeek = useDuplicateWeek()
+  const duplicateWeek  = useDuplicateWeek()
+  const exportPdf      = useExportPlanningPdf()
 
   function openAdd(date: string, employeeId: number) {
     setEditShift(null); setModalDate(date); setModalEmpId(employeeId); setModalOpen(true)
@@ -91,6 +92,12 @@ export default function PlanningManagerView() {
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportPdf(displayWeekStart)}
+            className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
+          >
+            📥 Export PDF
+          </button>
           <button
             onClick={() => setShowSnapshots(v => !v)}
             className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"

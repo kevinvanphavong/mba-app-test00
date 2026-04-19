@@ -165,6 +165,19 @@ export function useMoveShift() {
   })
 }
 
+// ─── Export PDF légal ─────────────────────────────────────────────────────────
+
+export function useExportPlanningPdf() {
+  const centreId = useAuthStore(s => s.centreId)
+
+  return (weekStart: string) => {
+    if (!centreId) return
+    const params = new URLSearchParams({ centreId: String(centreId), weekStart })
+    // Ouvre le PDF dans un nouvel onglet — le navigateur déclenche le téléchargement
+    window.open(`${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/planning/export-pdf?${params}`)
+  }
+}
+
 // ─── Dupliquer une semaine ────────────────────────────────────────────────────
 
 export function useDuplicateWeek() {

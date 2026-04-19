@@ -9,6 +9,7 @@ use App\Service\PlanningService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -229,6 +230,42 @@ class PlanningController extends AbstractController
         $alertes   = $this->planningService->getAlerts($centre, $weekStart);
 
         return $this->json($alertes);
+    }
+
+    /**
+     * GET /api/planning/export-pdf?centreId={id}&weekStart=YYYY-MM-DD
+     * Retourne le planning en PDF — document légal (Art. L3171-1 C. travail).
+     */
+    #[Route('/export-pdf', name: 'export_pdf', methods: ['GET'])]
+    #[IsGranted('ROLE_MANAGER')]
+    public function exportPdf(Request $request): Response
+    {
+        $centreId  = (int) $request->query->get('centreId', 0);
+        $weekParam = $request->query->get('weekStart', '');
+
+        if (!$centreId) {
+            return $this->json(['error' => 'centreId requis'], 400);
+        }
+
+        /** @var \App\Entity\User $currentUser */
+        $currentUser = $this->getUser();
+        if ($currentUser->getCentre()?->getId() !== $centreId) {
+            throw $this->createAccessDeniedException('Accès refusé à ce centre.');
+        }
+
+        $centre = $this->centreRepository->find($centreId);
+        if (!$centre) {
+            return $this->json(['error' => 'Centre introuvable'], 404);
+        }
+
+        $weekStart = $this->resolveMonday($weekParam);
+        $pdf       = $this->planningService->generatePdf($centre, $weekStart);
+        $filename  = sprintf('planning_%s.pdf', $weekStart->format('Y-m-d'));
+
+        return new Response($pdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
     }
 
     /**
