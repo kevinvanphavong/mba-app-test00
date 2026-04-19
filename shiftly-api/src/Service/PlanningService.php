@@ -4,9 +4,12 @@ namespace App\Service;
 
 use App\Entity\Centre;
 use App\Entity\Poste;
+use App\Entity\PlanningSnapshot;
 use App\Entity\PlanningWeek;
 use App\Entity\Service;
 use App\Entity\User;
+use App\Exception\DelaiPrevenanceException;
+use App\Repository\PlanningSnapshotRepository;
 use App\Repository\PlanningWeekRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\UserRepository;
@@ -19,11 +22,12 @@ use Doctrine\ORM\EntityManagerInterface;
 class PlanningService
 {
     public function __construct(
-        private readonly ServiceRepository     $serviceRepository,
-        private readonly PlanningWeekRepository $planningWeekRepository,
-        private readonly ZoneRepository         $zoneRepository,
-        private readonly UserRepository         $userRepository,
-        private readonly EntityManagerInterface $em,
+        private readonly ServiceRepository          $serviceRepository,
+        private readonly PlanningWeekRepository      $planningWeekRepository,
+        private readonly PlanningSnapshotRepository  $planningSnapshotRepository,
+        private readonly ZoneRepository              $zoneRepository,
+        private readonly UserRepository              $userRepository,
+        private readonly EntityManagerInterface      $em,
     ) {}
 
     /**
@@ -194,10 +198,70 @@ class PlanningService
     }
 
     /**
-     * Publie une semaine de planning — crée ou met à jour PlanningWeek → PUBLIE.
+     * Calcule le nombre de jours calendaires entre aujourd'hui et le lundi de la semaine.
+     * Retourne 0 si la semaine est déjà passée ou en cours ce jour.
      */
-    public function publishWeek(Centre $centre, \DateTimeImmutable $weekStart, User $publisher): PlanningWeek
+    public function calculateDelaiPrevenance(\DateTimeImmutable $weekStart): int
     {
+        $today = new \DateTimeImmutable('today midnight');
+        $diff  = $today->diff($weekStart);
+        return max(0, $diff->invert ? -$diff->days : $diff->days);
+    }
+
+    /**
+     * Crée un snapshot immuable du planning — archivage légal (preuve prud'homale).
+     * Appelle getWeekData() pour sérialiser l'état complet en JSON + SHA-256.
+     */
+    public function createSnapshot(
+        Centre $centre,
+        \DateTimeImmutable $weekStart,
+        User $publisher,
+        ?string $motif,
+        bool $delaiRespect
+    ): PlanningSnapshot {
+        $weekData = $this->getWeekData($centre, $weekStart);
+        $json     = json_encode($weekData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $checksum = hash('sha256', $json);
+
+        $snapshot = new PlanningSnapshot();
+        $snapshot->setCentre($centre);
+        $snapshot->setWeekStart($weekStart);
+        $snapshot->setPublishedAt(new \DateTimeImmutable());
+        $snapshot->setPublishedBy($publisher);
+        $snapshot->setData($weekData);
+        $snapshot->setMotifModification($motif);
+        $snapshot->setChecksum($checksum);
+        $snapshot->setDelaiRespect($delaiRespect);
+
+        $this->em->persist($snapshot);
+
+        return $snapshot;
+    }
+
+    /**
+     * Publie une semaine de planning — crée ou met à jour PlanningWeek → PUBLIE.
+     *
+     * @throws DelaiPrevenanceException si délai < 7j et forcePublication = false
+     * @throws \InvalidArgumentException si forcePublication = true sans motif
+     */
+    public function publishWeek(
+        Centre $centre,
+        \DateTimeImmutable $weekStart,
+        User $publisher,
+        ?string $motif = null,
+        bool $force = false
+    ): PlanningWeek {
+        $delai        = $this->calculateDelaiPrevenance($weekStart);
+        $delaiRespect = $delai >= 7;
+
+        if (!$delaiRespect && !$force) {
+            throw new DelaiPrevenanceException($delai);
+        }
+
+        if (!$delaiRespect && $force && !$motif) {
+            throw new \InvalidArgumentException('Un motif est obligatoire pour publier en dehors du délai de prévenance.');
+        }
+
         $centreId = $centre->getId();
         $pw       = $this->planningWeekRepository->findByCentreAndWeek($centreId, $weekStart);
 
@@ -211,6 +275,10 @@ class PlanningService
         $pw->setStatut(PlanningWeek::STATUT_PUBLIE);
         $pw->setPublishedAt(new \DateTimeImmutable());
         $pw->setPublishedBy($publisher);
+
+        // Snapshot immuable créé à chaque publication
+        $this->createSnapshot($centre, $weekStart, $publisher, $motif, $delaiRespect);
+
         $this->em->flush();
 
         return $pw;

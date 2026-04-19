@@ -1,13 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { usePlanningWeek, usePublishWeek, useDuplicateWeek } from '@/hooks/usePlanning'
+import { usePlanningWeek, useDuplicateWeek } from '@/hooks/usePlanning'
 import type { PlanningShift } from '@/types/planning'
 import WeekNavigator from './WeekNavigator'
 import PlanningGrid from './PlanningGrid'
 import StatsBar from './StatsBar'
 import AlertPanel from './AlertPanel'
 import ShiftModal from './ShiftModal'
+import PublishModal from './PublishModal'
+import SnapshotPanel from './SnapshotPanel'
 
 function getCurrentMonday(): string {
   // Construction à midi local pour éviter le décalage UTC de toISOString()
@@ -30,15 +32,16 @@ function getWeekNumber(ws: string): number {
 
 /** Vue Manager du module Planning */
 export default function PlanningManagerView() {
-  const [weekStart, setWeekStart]   = useState<string>(getCurrentMonday)
-  const [showAlerts, setShowAlerts] = useState(false)
-  const [modalOpen, setModalOpen]   = useState(false)
-  const [modalDate, setModalDate]   = useState('')
-  const [modalEmpId, setModalEmpId] = useState<number | undefined>()
-  const [editShift, setEditShift]   = useState<PlanningShift | null>(null)
+  const [weekStart, setWeekStart]         = useState<string>(getCurrentMonday)
+  const [showAlerts, setShowAlerts]       = useState(false)
+  const [showSnapshots, setShowSnapshots] = useState(false)
+  const [publishOpen, setPublishOpen]     = useState(false)
+  const [modalOpen, setModalOpen]         = useState(false)
+  const [modalDate, setModalDate]         = useState('')
+  const [modalEmpId, setModalEmpId]       = useState<number | undefined>()
+  const [editShift, setEditShift]         = useState<PlanningShift | null>(null)
 
   const { data, isLoading, isError } = usePlanningWeek(weekStart)
-  const publishWeek   = usePublishWeek()
   const duplicateWeek = useDuplicateWeek()
 
   function openAdd(date: string, employeeId: number) {
@@ -89,17 +92,23 @@ export default function PlanningManagerView() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setShowSnapshots(v => !v)}
+            className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
+          >
+            🗄️ Historique
+          </button>
+          <button
             onClick={() => duplicateWeek.mutate({ sourceWeekStart: displayWeekStart, targetWeekStart: shiftWeek(displayWeekStart, 1) })}
             className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
           >
             📋 Dupliquer semaine
           </button>
           <button
-            onClick={() => publishWeek.mutate({ weekStart: displayWeekStart })}
-            disabled={publishWeek.isPending || statut === 'PUBLIE'}
+            onClick={() => setPublishOpen(true)}
+            disabled={statut === 'PUBLIE'}
             className="rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {publishWeek.isPending ? '…' : '✓ Publier'}
+            ✓ Publier
           </button>
         </div>
       </div>
@@ -135,7 +144,14 @@ export default function PlanningManagerView() {
       )}
       <AlertPanel alertes={alertes} show={showAlerts} />
 
-      {/* ── Modal ── */}
+      {/* ── Historique snapshots ── */}
+      {data && (
+        <div className="px-4 pb-2 md:px-6">
+          <SnapshotPanel weekStart={displayWeekStart} show={showSnapshots} />
+        </div>
+      )}
+
+      {/* ── Modal shift ── */}
       <ShiftModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -144,6 +160,16 @@ export default function PlanningManagerView() {
         shift={editShift}
         defaultEmployeeId={modalEmpId}
       />
+
+      {/* ── Modal publication ── */}
+      {data && (
+        <PublishModal
+          open={publishOpen}
+          onClose={() => setPublishOpen(false)}
+          weekStart={displayWeekStart}
+          data={data}
+        />
+      )}
     </>
   )
 }

@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Exception\DelaiPrevenanceException;
 use App\Repository\CentreRepository;
+use App\Repository\PlanningSnapshotRepository;
 use App\Service\PlanningService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -14,8 +16,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class PlanningController extends AbstractController
 {
     public function __construct(
-        private readonly PlanningService  $planningService,
-        private readonly CentreRepository $centreRepository,
+        private readonly PlanningService           $planningService,
+        private readonly CentreRepository          $centreRepository,
+        private readonly PlanningSnapshotRepository $snapshotRepository,
     ) {}
 
     /**
@@ -55,15 +58,19 @@ class PlanningController extends AbstractController
 
     /**
      * POST /api/planning/publish
-     * Body : { "weekStart": "2026-04-13" }
-     * Publie la semaine — crée ou met à jour PlanningWeek → PUBLIE.
+     * Body : { "weekStart": "2026-04-13", "motifModification"?: "...", "forcePublication"?: false }
+     *
+     * Garde-fou IDCC 1790 : retourne 422 si délai < 7j et forcePublication=false.
+     * Crée automatiquement un PlanningSnapshot immuable après publication.
      */
     #[Route('/publish', name: 'publish', methods: ['POST'])]
     #[IsGranted('ROLE_MANAGER')]
     public function publish(Request $request): JsonResponse
     {
         $body      = json_decode($request->getContent(), true);
-        $weekParam = $body['weekStart'] ?? '';
+        $weekParam = $body['weekStart']          ?? '';
+        $motif     = $body['motifModification']  ?? null;
+        $force     = (bool) ($body['forcePublication'] ?? false);
 
         /** @var \App\Entity\User $currentUser */
         $currentUser = $this->getUser();
@@ -74,13 +81,66 @@ class PlanningController extends AbstractController
         }
 
         $weekStart = $this->resolveMonday($weekParam);
-        $pw        = $this->planningService->publishWeek($centre, $weekStart, $currentUser);
+
+        try {
+            $pw = $this->planningService->publishWeek($centre, $weekStart, $currentUser, $motif, $force);
+        } catch (DelaiPrevenanceException $e) {
+            $delai    = $e->getDelaiJours();
+            $severity = $e->getSeverity();
+            $message  = $severity === 'critique'
+                ? "Le minimum exceptionnel de 3 jours calendaires est atteint. Vous publiez à {$delai} jour(s)."
+                : "La Convention Collective IDCC 1790 impose 7 jours calendaires de prévenance. Vous publiez à {$delai} jours.";
+
+            return $this->json([
+                'warning'       => 'DELAI_PREVENANCE_NON_RESPECTE',
+                'delaiJours'    => $delai,
+                'message'       => $message,
+                'severity'      => $severity,
+                'requiresMotif' => true,
+            ], 422);
+        } catch (\InvalidArgumentException $e) {
+            return $this->json(['error' => $e->getMessage()], 400);
+        }
 
         return $this->json([
             'weekStart'   => $pw->getWeekStart()->format('Y-m-d'),
             'statut'      => $pw->getStatut(),
             'publishedAt' => $pw->getPublishedAt()?->format(\DATE_ATOM),
         ]);
+    }
+
+    /**
+     * GET /api/planning/snapshots?centreId={id}&weekStart=YYYY-MM-DD
+     * Historique des publications immuables d'une semaine (archivage légal).
+     */
+    #[Route('/snapshots', name: 'snapshots', methods: ['GET'])]
+    #[IsGranted('ROLE_MANAGER')]
+    public function snapshots(Request $request): JsonResponse
+    {
+        $centreId  = (int) $request->query->get('centreId', 0);
+        $weekParam = $request->query->get('weekStart', '');
+
+        if (!$centreId) {
+            return $this->json(['error' => 'centreId requis'], 400);
+        }
+
+        /** @var \App\Entity\User $currentUser */
+        $currentUser = $this->getUser();
+        if ($currentUser->getCentre()?->getId() !== $centreId) {
+            throw $this->createAccessDeniedException('Accès refusé à ce centre.');
+        }
+
+        $weekStart = $this->resolveMonday($weekParam);
+        $snapshots = $this->snapshotRepository->findByWeek($centreId, $weekStart);
+
+        return $this->json(array_map(fn($s) => [
+            'id'                => $s->getId(),
+            'weekStart'         => $s->getWeekStart()->format('Y-m-d'),
+            'publishedAt'       => $s->getPublishedAt()->format(\DATE_ATOM),
+            'publishedByNom'    => $s->getPublishedBy()->getNom(),
+            'motifModification' => $s->getMotifModification(),
+            'delaiRespect'      => $s->isDelaiRespect(),
+        ], $snapshots));
     }
 
     /**

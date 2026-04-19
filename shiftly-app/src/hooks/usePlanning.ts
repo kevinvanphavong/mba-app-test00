@@ -12,6 +12,7 @@ import type {
   PublishWeekPayload,
   DuplicateWeekPayload,
   MoveShiftPayload,
+  PlanningSnapshotSummary,
 } from '@/types/planning'
 
 // ─── Planning hebdo (vue Manager) ────────────────────────────────────────────
@@ -105,6 +106,9 @@ export function useDeleteShift() {
 }
 
 // ─── Publier une semaine ──────────────────────────────────────────────────────
+// Note : le composant appelant doit gérer onError avec status 422
+// pour afficher la modal de confirmation avec saisie du motif.
+// Flow : 1er appel (forcePublication: false) → 422 → modal → 2e appel (forcePublication: true + motif)
 
 export function usePublishWeek() {
   const centreId    = useAuthStore(s => s.centreId)
@@ -117,7 +121,21 @@ export function usePublishWeek() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planning', 'week', centreId] })
       queryClient.invalidateQueries({ queryKey: ['planning', 'employee'] })
+      queryClient.invalidateQueries({ queryKey: ['planning', 'snapshots', centreId] })
     },
+  })
+}
+
+// ─── Historique des snapshots (archivage légal) ───────────────────────────────
+
+export function usePlanningSnapshots(weekStart: string) {
+  const centreId = useAuthStore(s => s.centreId)
+
+  return useQuery<PlanningSnapshotSummary[]>({
+    queryKey: ['planning', 'snapshots', centreId, weekStart],
+    queryFn:  () =>
+      api.get('/planning/snapshots', { params: { centreId, weekStart } }).then(r => r.data),
+    enabled: !!centreId && !!weekStart,
   })
 }
 
