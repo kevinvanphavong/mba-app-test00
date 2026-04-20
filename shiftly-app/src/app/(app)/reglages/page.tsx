@@ -39,7 +39,7 @@ export default function ReglagesPage() {
       {/* Danger zone */}
       <div>
         <div className={`${ty.sectionLabel} px-1 mb-2`}>
-          Danger
+          Compte
         </div>
         <div className="bg-surface border border-red/20 rounded-[18px] overflow-hidden">
           <LogoutButton />

@@ -75,12 +75,12 @@ export default function AbsenceModal({ employeNom, date, onConfirm, onClose, loa
           </div>
 
           {/* Grille des types */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             {ABSENCE_TYPES.map(({ type, label, icon, color }) => (
               <button
                 key={type}
                 onClick={() => setSelected(type)}
-                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left"
+                className="flex min-h-[44px] items-center gap-2 rounded-lg px-3 py-3 text-sm font-medium transition-all text-left"
                 style={{
                   background:   selected === type ? `${color}22` : 'var(--surface2)',
                   border:       `1px solid ${selected === type ? color : 'var(--border)'}`,

@@ -131,7 +131,8 @@ export default function ShiftModal({
             className="fixed inset-0 z-40 bg-black/65 backdrop-blur-sm" onClick={onClose} />
 
           <motion.div variants={sheetVariants} initial="closed" animate="open" exit="exit"
-            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-[480px] rounded-t-[24px] border border-[var(--border)] bg-[var(--surface)] px-4 pb-8 pt-5">
+            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-[480px] rounded-t-[24px] border border-[var(--border)] bg-[var(--surface)] px-4 pt-5"
+            style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom, 2rem))' }}>
 
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[var(--border)]" />
             <h2 className="font-syne text-[18px] font-extrabold text-[var(--text)]">

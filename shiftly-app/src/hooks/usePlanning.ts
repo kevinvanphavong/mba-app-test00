@@ -170,11 +170,19 @@ export function useMoveShift() {
 export function useExportPlanningPdf() {
   const centreId = useAuthStore(s => s.centreId)
 
-  return (weekStart: string) => {
+  return async (weekStart: string) => {
     if (!centreId) return
-    const params = new URLSearchParams({ centreId: String(centreId), weekStart })
-    // Ouvre le PDF dans un nouvel onglet — le navigateur déclenche le téléchargement
-    window.open(`${process.env.NEXT_PUBLIC_API_URL ?? ''}/api/planning/export-pdf?${params}`)
+    // axios envoie automatiquement le header Authorization (JWT)
+    const response = await api.get('/planning/export-pdf', {
+      params:       { centreId, weekStart },
+      responseType: 'blob',
+    })
+    const url  = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }))
+    const link = document.createElement('a')
+    link.href     = url
+    link.download = `planning-s${weekStart}.pdf`
+    link.click()
+    URL.revokeObjectURL(url)
   }
 }
 

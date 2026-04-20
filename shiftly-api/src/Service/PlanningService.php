@@ -201,14 +201,16 @@ class PlanningService
         $creneauxVides = count(array_filter($alertes, fn($a) => $a['type'] === 'ZONE_NON_COUVERTE'));
 
         return [
-            'weekStart'  => $weekStart->format('Y-m-d'),
-            'weekEnd'    => $weekEnd->format('Y-m-d'),
-            'statut'     => $statut,
-            'note'       => $note,
-            'zones'      => $zonesData,
-            'employees'  => array_values($employees),
-            'alertes'    => $alertes,
-            'stats'      => [
+            'weekStart'   => $weekStart->format('Y-m-d'),
+            'weekEnd'     => $weekEnd->format('Y-m-d'),
+            'statut'      => $statut,
+            'publishedAt' => $planningWeek?->getPublishedAt()?->format('Y-m-d H:i:s'),
+            'publishedBy' => $planningWeek?->getPublishedBy()?->getNom(),
+            'note'        => $note,
+            'zones'       => $zonesData,
+            'employees'   => array_values($employees),
+            'alertes'     => $alertes,
+            'stats'       => [
                 'employesPlanifies' => $employesPlanifies,
                 'totalHeures'       => round($totalHeures, 1),
                 'creneauxVides'     => $creneauxVides,
@@ -496,6 +498,28 @@ class PlanningService
      * Génère le PDF légal du planning (document pour l'inspection du travail).
      * Retourne le contenu brut du PDF (string binaire).
      */
+    /** Convertit un float d'heures en format lisible : 7.75 → "7h45", -0.5 → "-0h30" */
+    private function formatHeures(float $h): string
+    {
+        $sign    = $h < 0 ? '-' : '';
+        $abs     = abs($h);
+        $heures  = (int) floor($abs);
+        $minutes = (int) round(($abs - $heures) * 60);
+        if ($minutes === 60) { $heures++; $minutes = 0; }
+        return sprintf('%s%dh%02d', $sign, $heures, $minutes);
+    }
+
+    /** Idem avec signe forcé pour les écarts : +7h45, -0h30 */
+    private function formatEcart(float $h): string
+    {
+        $sign   = $h >= 0 ? '+' : '-';
+        $abs    = abs($h);
+        $heures = (int) floor($abs);
+        $mins   = (int) round(($abs - $heures) * 60);
+        if ($mins === 60) { $heures++; $mins = 0; }
+        return sprintf('%s%dh%02d', $sign, $heures, $mins);
+    }
+
     public function generatePdf(Centre $centre, \DateTimeImmutable $weekStart): string
     {
         $data    = $this->getWeekData($centre, $weekStart);
@@ -527,38 +551,54 @@ class PlanningService
             foreach ($dates as $date) {
                 $content = '';
                 foreach ($shiftsByDate[$date] ?? [] as $s) {
-                    $hd = $s['heureDebut'] ?? '—';
-                    $hf = $s['heureFin']   ?? '—';
-                    $content .= "<div style='font-size:9px;'>{$hd}–{$hf}</div>";
+                    $hd    = $s['heureDebut']    ?? '—';
+                    $hf    = $s['heureFin']       ?? '—';
+                    $pause = ($s['pauseMinutes'] ?? 0) > 0
+                        ? "<div style='font-size:7px;color:#9ca3af;'>pause {$s['pauseMinutes']}min</div>"
+                        : '';
+                    $content .= "<div style='font-size:9px;font-weight:600;'>{$hd}–{$hf}</div>";
                     $content .= "<div style='font-size:8px;color:#6b7280;'>{$s['zoneNom']}</div>";
+                    $content .= $pause;
                 }
                 if (!$content) $content = "<span style='color:#d1d5db;'>—</span>";
                 $cells .= "<td style='border:1px solid #e5e7eb;padding:4px 6px;text-align:center;vertical-align:top;min-width:60px;'>{$content}</td>";
             }
 
-            $total    = number_format($emp['totalHeures'], 1);
-            $contrat  = $emp['heuresHebdo'] !== null ? $emp['heuresHebdo'] . 'h' : '—';
-            $ecart    = $emp['heuresHebdo'] !== null
-                ? sprintf('%+.1f', $emp['ecartContrat'])
+            $total   = $this->formatHeures($emp['totalHeures']);
+            $contrat = $emp['heuresHebdo'] !== null ? $emp['heuresHebdo'] . 'h' : '—';
+            $ecart   = $emp['heuresHebdo'] !== null
+                ? $this->formatEcart($emp['ecartContrat'])
                 : '—';
-            $ecartColor = $emp['ecartContrat'] < -2 ? '#ef4444' : ($emp['ecartContrat'] > 2 ? '#f97316' : '#22c55e');
+
+            // Vert < -3h | Rouge entre -3h et +3h | Orange/marron > +3h
+            $ecartVal = $emp['ecartContrat'];
+            if ($ecartVal < -3) {
+                $ecartColor = '#16a34a'; // vert
+            } elseif ($ecartVal <= 3) {
+                $ecartColor = '#ef4444'; // rouge
+            } else {
+                $ecartColor = '#f97316'; // orange/marron
+            }
+
+            $prenom = htmlspecialchars($emp['prenom'] ?? '');
+            $nom    = htmlspecialchars($emp['nom']    ?? '');
 
             $rows .= "
             <tr>
-              <td style='border:1px solid #e5e7eb;padding:4px 8px;font-size:11px;white-space:nowrap;'>
-                <strong>{$emp['nom']}</strong><br>
+              <td style='border:1px solid #e5e7eb;padding:5px 8px;font-size:11px;white-space:nowrap;'>
+                <span style='font-weight:700;'>{$prenom} {$nom}</span><br>
                 <span style='color:#6b7280;font-size:9px;'>{$emp['typeContrat']} — {$contrat}</span>
               </td>
               {$cells}
-              <td style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;font-size:11px;font-weight:bold;'>{$total}h</td>
-              <td style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;font-size:11px;color:{$ecartColor};font-weight:bold;'>{$ecart}h</td>
+              <td style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;font-size:11px;font-weight:700;'>{$total}h</td>
+              <td style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;font-size:11px;color:{$ecartColor};font-weight:700;'>{$ecart}h</td>
             </tr>";
         }
 
         $headerCells = '';
         foreach ($JOURS as $i => $j) {
             $d = new \DateTimeImmutable($dates[$i]);
-            $headerCells .= "<th style='border:1px solid #e5e7eb;padding:4px 6px;text-align:center;font-size:10px;background:#f9fafb;'>{$j}<br>{$d->format('d/m')}</th>";
+            $headerCells .= "<th>{$j}<br><span style='font-weight:400;font-size:9px;color:#6b7280;'>{$d->format('d/m')}</span></th>";
         }
 
         $generatedAt = (new \DateTimeImmutable())->format('d/m/Y à H:i');
@@ -568,32 +608,72 @@ class PlanningService
         $html = "
         <!DOCTYPE html>
         <html lang='fr'>
-        <head><meta charset='utf-8'></head>
-        <body style='font-family:Arial,sans-serif;color:#111;margin:0;padding:20px;'>
+        <head>
+          <meta charset='utf-8'>
+          <style>
+            * { box-sizing: border-box; }
+            body {
+              font-family: Helvetica, Arial, sans-serif;
+              color: #111827;
+              margin: 0;
+              padding: 20px 24px;
+              font-size: 11px;
+              line-height: 1.4;
+            }
+            h1 {
+              font-family: Helvetica, Arial, sans-serif;
+              font-size: 20px;
+              font-weight: 900;
+              letter-spacing: -0.4px;
+              margin: 0;
+              color: #f97316;
+            }
+            table { width: 100%; border-collapse: collapse; }
+            th {
+              font-family: Helvetica, Arial, sans-serif;
+              font-weight: 700;
+              font-size: 9px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              background: #f3f4f6;
+              color: #374151;
+              border: 1px solid #e5e7eb;
+              padding: 5px 6px;
+              text-align: center;
+            }
+            th.col-emp { text-align: left; min-width: 130px; }
+            td { border: 1px solid #e5e7eb; padding: 4px 6px; vertical-align: top; }
+            tr:nth-child(even) td { background: #fafafa; }
+            .legend { display: flex; gap: 16px; margin-top: 10px; font-size: 9px; color: #6b7280; }
+            .legend-item { display: flex; align-items: center; gap: 4px; }
+            .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+          </style>
+        </head>
+        <body>
 
           <!-- En-tête -->
-          <div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;border-bottom:2px solid #f97316;padding-bottom:12px;'>
+          <div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;border-bottom:2px solid #f97316;padding-bottom:10px;'>
             <div>
-              <h1 style='margin:0;font-size:18px;color:#f97316;'>Planning — {$centre->getNom()}</h1>
-              <p style='margin:4px 0 0;font-size:12px;color:#6b7280;'>
+              <h1>Planning — {$centre->getNom()}</h1>
+              <p style='margin:3px 0 0;font-size:11px;color:#6b7280;letter-spacing:0.2px;'>
                 Semaine du {$weekStart->format('d/m/Y')} au {$weekEnd->format('d/m/Y')}
               </p>
             </div>
             <div style='text-align:right;'>
-              <p style='margin:0;font-size:11px;color:{$statutColor};font-weight:bold;'>{$statut}</p>
+              <p style='margin:0;font-size:11px;color:{$statutColor};font-weight:700;letter-spacing:0.3px;'>{$statut}</p>
               <p style='margin:2px 0 0;font-size:10px;color:#6b7280;'>Communiqué le : {$publishedAt}</p>
               <p style='margin:2px 0 0;font-size:9px;color:#9ca3af;'>Généré le {$generatedAt}</p>
             </div>
           </div>
 
           <!-- Tableau planning -->
-          <table style='width:100%;border-collapse:collapse;font-size:11px;'>
+          <table>
             <thead>
               <tr>
-                <th style='border:1px solid #e5e7eb;padding:4px 8px;text-align:left;background:#f9fafb;font-size:10px;min-width:120px;'>Employé</th>
+                <th class='col-emp'>Employé</th>
                 {$headerCells}
-                <th style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;background:#f9fafb;font-size:10px;'>Total</th>
-                <th style='border:1px solid #e5e7eb;padding:4px 8px;text-align:center;background:#f9fafb;font-size:10px;'>Écart</th>
+                <th style='min-width:44px;'>Total</th>
+                <th style='min-width:44px;'>Écart</th>
               </tr>
             </thead>
             <tbody>
@@ -601,8 +681,15 @@ class PlanningService
             </tbody>
           </table>
 
+          <!-- Légende écarts -->
+          <div class='legend'>
+            <div class='legend-item'><span class='dot' style='background:#16a34a;'></span> Écart &lt; −3h</div>
+            <div class='legend-item'><span class='dot' style='background:#ef4444;'></span> Écart entre −3h et +3h</div>
+            <div class='legend-item'><span class='dot' style='background:#f97316;'></span> Écart &gt; +3h</div>
+          </div>
+
           <!-- Pied de page légal -->
-          <p style='margin-top:20px;font-size:9px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:8px;'>
+          <p style='margin-top:14px;font-size:8.5px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:7px;'>
             Document généré par Shiftly — Conservation minimum 3 ans (Art. L3171-1 C. travail).
             Ce planning constitue le décompte légal du temps de travail.
             Convention Collective IDCC 1790 — Espaces de loisirs, attractions et culturels.
