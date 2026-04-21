@@ -27,6 +27,7 @@ export interface StaffMember {
   pointure:         string | null
   heuresHebdo:      number | null
   typeContrat:      string | null
+  codePointage:     string | null
   staffCompetences: StaffCompetenceItem[]
   tutorielsLus:     number
   isPresent:        boolean

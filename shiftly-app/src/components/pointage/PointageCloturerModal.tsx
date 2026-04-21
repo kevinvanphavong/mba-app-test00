@@ -1,6 +1,6 @@
 'use client'
 
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { backdropVariants, sheetVariants } from '@/lib/animations'
 import type { PointageStats } from '@/types/pointage'
 
@@ -16,20 +16,19 @@ export default function PointageCloturerModal({ stats, onConfirm, onCancel, isLo
   const prevus  = stats.prevus
 
   return (
-    <AnimatePresence>
+    <motion.div
+      variants={backdropVariants}
+      initial="closed" animate="open" exit="exit"
+      className="fixed inset-0 z-50 flex items-end justify-center p-4 md:items-center"
+      style={{ background: 'rgba(0,0,0,0.7)' }}
+      onClick={onCancel}
+    >
       <motion.div
-        variants={backdropVariants}
+        variants={sheetVariants}
         initial="closed" animate="open" exit="exit"
-        className="fixed inset-0 z-50 flex items-end justify-center p-4 md:items-center"
-        style={{ background: 'rgba(0,0,0,0.7)' }}
-        onClick={onCancel}
+        className="action-modal w-full max-w-sm p-6 flex flex-col gap-5"
+        onClick={e => e.stopPropagation()}
       >
-        <motion.div
-          variants={sheetVariants}
-          initial="closed" animate="open" exit="exit"
-          className="action-modal w-full max-w-sm p-6 flex flex-col gap-5"
-          onClick={e => e.stopPropagation()}
-        >
           {/* Icône + titre */}
           <div className="flex flex-col items-center gap-3 text-center">
             <div className="action-modal-icon red flex items-center justify-center text-2xl">
@@ -82,8 +81,7 @@ export default function PointageCloturerModal({ stats, onConfirm, onCancel, isLo
               {isLoading ? 'Clôture…' : 'Clôturer'}
             </button>
           </div>
-        </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </motion.div>
   )
 }

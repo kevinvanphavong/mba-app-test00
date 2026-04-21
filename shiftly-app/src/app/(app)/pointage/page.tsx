@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react'
 import { AnimatePresence, motion }        from 'framer-motion'
+import { listVariants }                  from '@/lib/animations'
 import { useManagerGuard }                from '@/hooks/useManagerGuard'
 import { useServiceToday }                from '@/hooks/useService'
 import {
@@ -102,15 +103,15 @@ export default function PointagePage() {
 
   if (!isManager) return null
 
-  if (!serviceToday || serviceToday.service.statut !== 'EN_COURS') {
+  if (!serviceToday?.service || serviceToday.service.statut === 'PLANIFIE') {
     return (
       <div className="flex-1 flex flex-col">
         <Topbar />
         <div className="flex-1 flex items-center justify-center flex-col gap-2 px-6 text-center">
-          <p className="text-3xl">⏸️</p>
-          <p className="font-semibold font-syne" style={{ color: 'var(--text)' }}>Aucun service en cours</p>
+          <p className="text-3xl">📋</p>
+          <p className="font-semibold font-syne" style={{ color: 'var(--text)' }}>Aucun service aujourd'hui</p>
           <p className="text-sm" style={{ color: 'var(--muted)' }}>
-            Le pointage est disponible uniquement pendant un service actif.
+            Le pointage sera disponible dès qu'un service est créé pour aujourd'hui.
           </p>
         </div>
       </div>
@@ -151,7 +152,12 @@ export default function PointagePage() {
             <PointageKpiRow stats={data.stats} pointages={data.pointages} />
 
             {/* Liste des cartes staff */}
-            <motion.div className="flex flex-col gap-2 px-4 md:px-6">
+            <motion.div
+              variants={listVariants}
+              initial="hidden"
+              animate="show"
+              className="flex flex-col gap-2 px-4 md:px-6"
+            >
               {pointageLoading
                 ? <p className="text-xs text-center py-4" style={{ color: 'var(--muted)' }}>Chargement…</p>
                 : sortedPointages.length === 0

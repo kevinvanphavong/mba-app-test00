@@ -171,24 +171,14 @@ export default function PointagePinPad({
         ))}
       </div>
 
-      {/* Bypass manager + Annuler */}
-      <div className="flex flex-col items-center gap-2 w-full">
-        <button
-          onClick={() => onValidate(null, true)}
-          disabled={!!verrou || isLoading}
-          className="text-xs w-full py-1"
-          style={{ color: 'var(--muted)' }}
-        >
-          Manager : passer sans code
-        </button>
-        <button
-          onClick={onCancel}
-          className="text-xs font-semibold w-full py-2 rounded-lg"
-          style={{ color: 'var(--text)', background: 'var(--surface2)' }}
-        >
-          Annuler
-        </button>
-      </div>
+      {/* Annuler */}
+      <button
+        onClick={onCancel}
+        className="text-xs font-semibold w-full py-2 rounded-lg"
+        style={{ color: 'var(--text)', background: 'var(--surface2)' }}
+      >
+        Annuler
+      </button>
     </motion.div>
   )
 }

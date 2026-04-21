@@ -31,6 +31,7 @@ interface CreateStaffPayload {
   avatarColor?:  string
   heuresHebdo?:  number | null
   typeContrat?:  string | null
+  codePointage?: string | null
 }
 
 export function useCreateStaff() {
@@ -62,6 +63,7 @@ interface UpdateStaffPayload {
   avatarColor?:  string
   heuresHebdo?:  number | null
   typeContrat?:  string | null
+  codePointage?: string | null
 }
 
 export function useUpdateStaff() {

@@ -37,7 +37,12 @@ export default function PointageHeader({ data, onCloturerClick }: Props) {
   }, [])
 
   const { service } = data
-  const enCours     = service.statut === 'EN_COURS'
+
+  const badge = service.statut === 'EN_COURS'
+    ? { label: 'En direct',  bg: 'rgba(34,197,94,0.15)',   color: 'var(--green)',  dot: true  }
+    : service.statut === 'TERMINE'
+    ? { label: 'Clôturé',    bg: 'rgba(107,114,128,0.15)', color: 'var(--muted)', dot: false }
+    : { label: 'À venir',    bg: 'rgba(59,130,246,0.15)',  color: 'var(--blue)',  dot: false }
 
   return (
     <motion.div
@@ -51,12 +56,13 @@ export default function PointageHeader({ data, onCloturerClick }: Props) {
           <span className="text-lg font-bold font-syne text-[var(--text)]">
             Pointage
           </span>
-          {enCours && (
-            <span className="pointage-live-badge flex items-center gap-1.5 px-2 py-0.5">
-              <span className="pointage-live-dot" />
-              EN DIRECT
-            </span>
-          )}
+          <span
+            className="flex items-center gap-1.5 px-2 py-0.5 text-[12px] font-bold rounded-lg"
+            style={{ background: badge.bg, color: badge.color }}
+          >
+            {badge.dot && <span className="pointage-live-dot" />}
+            {badge.label}
+          </span>
         </div>
 
         <p className="text-xs text-[var(--muted)]">
@@ -72,7 +78,7 @@ export default function PointageHeader({ data, onCloturerClick }: Props) {
       <div className="flex items-center gap-3 shrink-0">
         <span className="pointage-clock">{heure}</span>
 
-        {enCours && (
+        {service.statut === 'EN_COURS' && (
           <button
             onClick={onCloturerClick}
             className="px-3 py-1.5 rounded-lg text-xs font-semibold"

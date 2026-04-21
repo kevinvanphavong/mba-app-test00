@@ -14,18 +14,19 @@ const DEFAULT_COLOR = '#f97316'
 const CONTRATS = ['CDI', 'CDD', 'EXTRA', 'ALTERNANCE', 'STAGE'] as const
 
 interface SaveData {
-  nom:          string
-  prenom:       string | null
-  email:        string
-  role:         'MANAGER' | 'EMPLOYE'
-  tailleHaut:   string | null
-  tailleBas:    string | null
-  pointure:     string | null
-  actif:        boolean
-  avatarColor:  string
-  heuresHebdo:  number | null
-  typeContrat:  string | null
-  password?:    string
+  nom:           string
+  prenom:        string | null
+  email:         string
+  role:          'MANAGER' | 'EMPLOYE'
+  tailleHaut:    string | null
+  tailleBas:     string | null
+  pointure:      string | null
+  actif:         boolean
+  avatarColor:   string
+  heuresHebdo:   number | null
+  typeContrat:   string | null
+  codePointage:  string | null
+  password?:     string
 }
 
 interface Props {
@@ -46,8 +47,9 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
   const [actif,        setActif]        = useState(true)
   const [password,     setPassword]     = useState('')
   const [avatarColor,  setAvatarColor]  = useState(DEFAULT_COLOR)
-  const [heuresHebdo,  setHeuresHebdo]  = useState('')
-  const [typeContrat,  setTypeContrat]  = useState('')
+  const [heuresHebdo,   setHeuresHebdo]   = useState('')
+  const [typeContrat,   setTypeContrat]   = useState('')
+  const [codePointage,  setCodePointage]  = useState('')
 
   useEffect(() => {
     if (!open) return
@@ -63,12 +65,13 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
       setAvatarColor(member.avatarColor ?? DEFAULT_COLOR)
       setHeuresHebdo(member.heuresHebdo != null ? String(member.heuresHebdo) : '')
       setTypeContrat(member.typeContrat ?? '')
+      setCodePointage(member.codePointage ?? '')
       setPassword('')
     } else {
       setNom(''); setPrenom(''); setEmail(''); setRole('EMPLOYE')
       setTailleHaut(''); setTailleBas(''); setPointure('')
       setActif(true); setAvatarColor(DEFAULT_COLOR)
-      setHeuresHebdo(''); setTypeContrat(''); setPassword('')
+      setHeuresHebdo(''); setTypeContrat(''); setCodePointage(''); setPassword('')
     }
   }, [open, member])
 
@@ -84,9 +87,10 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
       pointure:    pointure.trim() || null,
       actif,
       avatarColor,
-      heuresHebdo: heuresHebdo !== '' ? parseInt(heuresHebdo, 10) : null,
-      typeContrat: typeContrat || null,
-      password:    password || undefined,
+      heuresHebdo:  heuresHebdo !== '' ? parseInt(heuresHebdo, 10) : null,
+      typeContrat:  typeContrat || null,
+      codePointage: codePointage.length === 4 ? codePointage : null,
+      password:     password || undefined,
     })
   }
 
@@ -220,6 +224,26 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
             <input value={pointure} onChange={e => setPointure(e.target.value)}
               placeholder="Pointure" className={inputCls} />
           </div>
+        </div>
+
+        {/* Code PIN pointage */}
+        <div>
+          <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">
+            Code PIN pointage
+          </p>
+          <input
+            value={codePointage}
+            onChange={e => setCodePointage(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            placeholder="4 chiffres (ex : 1234)"
+            inputMode="numeric"
+            maxLength={4}
+            className={inputCls}
+          />
+          {codePointage.length > 0 && codePointage.length < 4 && (
+            <p className="text-[11px] mt-1" style={{ color: 'var(--yellow)' }}>
+              Le code doit comporter exactement 4 chiffres
+            </p>
+          )}
         </div>
 
         {/* Statut actif */}
