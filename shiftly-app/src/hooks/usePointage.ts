@@ -94,7 +94,9 @@ export function usePointageCloturerService() {
   return useMutation({
     mutationFn: (serviceId: number) =>
       api.post(`/pointage/cloturer-service/${serviceId}`).then(r => r.data),
-    onSuccess: (_data, serviceId) =>
-      queryClient.invalidateQueries({ queryKey: key(serviceId) }),
+    onSuccess: (_data, serviceId) => {
+      queryClient.invalidateQueries({ queryKey: key(serviceId) })
+      queryClient.invalidateQueries({ queryKey: ['service', 'today'] })
+    },
   })
 }

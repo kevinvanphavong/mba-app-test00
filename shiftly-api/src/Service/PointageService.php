@@ -191,6 +191,7 @@ class PointageService
             }
         }
 
+        $service->setStatut('TERMINE');
         $this->em->flush();
 
         return ['clotures' => $clotures, 'absents' => $absents];

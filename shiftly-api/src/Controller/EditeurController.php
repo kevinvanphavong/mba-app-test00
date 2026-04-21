@@ -436,6 +436,7 @@ class EditeurController extends AbstractController
         $user->setAvatarColor($data['avatarColor'] ?? null);
         $user->setHeuresHebdo(isset($data['heuresHebdo']) ? (int) $data['heuresHebdo'] : null);
         $user->setTypeContrat($data['typeContrat'] ?? null);
+        if (array_key_exists('codePointage', $data)) $user->setCodePointage($data['codePointage'] ?: null);
         $user->setPassword($this->hasher->hashPassword($user, $data['password']));
 
         $this->em->persist($user);
@@ -469,6 +470,7 @@ class EditeurController extends AbstractController
         if (array_key_exists('avatarColor', $data))   $user->setAvatarColor($data['avatarColor']);
         if (array_key_exists('heuresHebdo', $data))   $user->setHeuresHebdo($data['heuresHebdo'] !== null ? (int) $data['heuresHebdo'] : null);
         if (array_key_exists('typeContrat', $data))   $user->setTypeContrat($data['typeContrat'] ?: null);
+        if (array_key_exists('codePointage', $data))  $user->setCodePointage($data['codePointage'] ?: null);
         if (!empty($data['password']))  $user->setPassword($this->hasher->hashPassword($user, $data['password']));
 
         $this->em->flush();
@@ -611,8 +613,9 @@ class EditeurController extends AbstractController
             'tailleBas'   => $u->getTailleBas(),
             'pointure'    => $u->getPointure(),
             'avatarColor' => $u->getAvatarColor(),
-            'heuresHebdo' => $u->getHeuresHebdo(),
-            'typeContrat' => $u->getTypeContrat(),
+            'heuresHebdo'  => $u->getHeuresHebdo(),
+            'typeContrat'  => $u->getTypeContrat(),
+            'codePointage' => $u->getCodePointage(),
         ];
     }
 }

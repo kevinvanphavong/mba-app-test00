@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { backdropVariants, sheetVariants } from '@/lib/animations'
 import type { PointageEntry, PauseType } from '@/types/pointage'
 
@@ -52,20 +52,19 @@ export default function PointageActionModal({ pointage, action, onConfirm, onCan
     : pointage.user.nom
 
   return (
-    <AnimatePresence>
+    <motion.div
+      variants={backdropVariants}
+      initial="closed" animate="open" exit="exit"
+      className="fixed inset-0 z-50 flex items-end justify-center p-4 md:items-center"
+      style={{ background: 'rgba(0,0,0,0.6)' }}
+      onClick={onCancel}
+    >
       <motion.div
-        variants={backdropVariants}
+        variants={sheetVariants}
         initial="closed" animate="open" exit="exit"
-        className="fixed inset-0 z-50 flex items-end justify-center p-4 md:items-center"
-        style={{ background: 'rgba(0,0,0,0.6)' }}
-        onClick={onCancel}
+        className="action-modal w-full max-w-sm p-6 flex flex-col gap-4"
+        onClick={e => e.stopPropagation()}
       >
-        <motion.div
-          variants={sheetVariants}
-          initial="closed" animate="open" exit="exit"
-          className="action-modal w-full max-w-sm p-6 flex flex-col gap-4"
-          onClick={e => e.stopPropagation()}
-        >
           {/* Icône + titre */}
           <div className="flex flex-col items-center gap-3 text-center">
             <div className={`action-modal-icon ${cfg.color} flex items-center justify-center text-2xl`}>
@@ -154,8 +153,7 @@ export default function PointageActionModal({ pointage, action, onConfirm, onCan
               Fermeture automatique…
             </p>
           )}
-        </motion.div>
       </motion.div>
-    </AnimatePresence>
+    </motion.div>
   )
 }
