@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
+import { useToastStore } from '@/store/toastStore'
 import type { Incident } from '@/types/index'
 import type { IncidentFull } from '@/types/incident'
 
@@ -47,6 +48,7 @@ interface CreateIncidentPayload {
 export function useCreateIncident() {
   const centreId    = useAuthStore(s => s.centreId)
   const queryClient = useQueryClient()
+  const showToast   = useToastStore(s => s.show)
 
   return useMutation({
     mutationFn: ({ titre, severite, serviceId, centreId: cid, zoneId, staffIds }: CreateIncidentPayload) =>
@@ -64,6 +66,11 @@ export function useCreateIncident() {
       queryClient.invalidateQueries({ queryKey: ['incidents', centreId, undefined] })
       queryClient.invalidateQueries({ queryKey: ['incidents', 'list', centreId] })
       queryClient.invalidateQueries({ queryKey: ['dashboard', centreId] })
+      showToast('Incident signalé avec succès', 'success')
+    },
+
+    onError: () => {
+      showToast('Erreur lors de la création de l\'incident', 'error')
     },
   })
 }

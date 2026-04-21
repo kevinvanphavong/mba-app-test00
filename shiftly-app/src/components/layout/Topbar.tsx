@@ -16,7 +16,7 @@ export default function Topbar() {
   const centreName  = user?.centre?.nom ?? '…'
   const avatarColor = user?.avatarColor ?? '#f97316'
   const initials    = user
-    ? user.nom.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
+    ? ((user.prenom[0] ?? '') + (user.nom[0] ?? '')).toUpperCase()
     : '…'
 
   return (
@@ -38,7 +38,7 @@ export default function Topbar() {
       <div
         className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0 shadow-lg"
         style={{ background: `linear-gradient(135deg, ${avatarColor}, ${avatarColor}cc)` }}
-        title={user?.nom}
+        title={user ? `${user.prenom} ${user.nom}` : ''}
       >
         {initials}
       </div>

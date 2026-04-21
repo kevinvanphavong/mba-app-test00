@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — Planning Vue Employé</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14; --surface: #151820; --surface2: #1c2030; --surface3: #111318;
+    --border: #252a3a; --text: #e8eaf0; --muted: #6b7280;
+    --accent: #f97316; --accent2: #fb923c;
+    --blue: #3b82f6; --green: #22c55e; --red: #ef4444; --yellow: #eab308; --purple: #a855f7;
+    --radius: 12px; --radius-sm: 8px; --sidebar-w: 230px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+
+  /* ─── Sidebar ─── */
+  .sidebar {
+    width: var(--sidebar-w); height: 100vh; position: fixed; top: 0; left: 0;
+    background: var(--surface3); border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; z-index: 100;
+  }
+  .sidebar-header { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .sidebar-centre { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+    border-radius: var(--radius-sm); font-size: 14px; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all 0.15s; text-decoration: none; position: relative;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+  .nav-item.active { background: rgba(249,115,22,0.1); color: var(--accent); }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 20px; background: var(--accent); border-radius: 0 3px 3px 0;
+  }
+  .nav-icon { font-size: 17px; width: 22px; text-align: center; }
+  .sidebar-footer {
+    padding: 16px 20px; border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sidebar-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: white; flex-shrink: 0;
+  }
+  .sidebar-user-name { font-size: 13px; font-weight: 600; }
+  .sidebar-user-role { font-size: 11px; color: var(--muted); }
+
+  /* ─── Main ─── */
+  .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ─── Top Bar ─── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px; border-bottom: 1px solid var(--border);
+    background: var(--surface); position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .topbar h1 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; }
+  .badge-status {
+    font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .badge-brouillon { color: var(--accent); background: rgba(249,115,22,0.12); }
+  .badge-publie { color: var(--green); background: rgba(34,197,94,0.12); }
+  .topbar-actions { display: flex; gap: 8px; }
+  .btn {
+    display: flex; align-items: center; gap: 6px; padding: 8px 16px;
+    border-radius: var(--radius-sm); border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 13px;
+    font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s;
+  }
+  .btn:hover { border-color: var(--accent); background: rgba(249,115,22,0.08); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-color: transparent; color: white; font-weight: 600;
+  }
+  .btn-primary:hover { opacity: 0.9; border-color: transparent; }
+
+  /* ─── Week Navigator ─── */
+  .week-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px; border-bottom: 1px solid var(--border); background: var(--surface);
+  }
+  .week-nav-center { display: flex; align-items: center; gap: 16px; }
+  .week-arrow {
+    width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .week-arrow:hover { border-color: var(--accent); color: var(--accent); }
+  .week-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+  .week-dates { font-size: 13px; color: var(--muted); }
+  .week-nav-right { display: flex; gap: 8px; align-items: center; }
+  .today-btn {
+    font-size: 12px; font-weight: 600; color: var(--accent); cursor: pointer;
+    padding: 6px 12px; border-radius: var(--radius-sm);
+    background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.2);
+    transition: all 0.15s;
+  }
+  .today-btn:hover { background: rgba(249,115,22,0.15); }
+
+  /* ─── Planning Grid ─── */
+  .planning-container { flex: 1; overflow-x: auto; padding: 0; }
+
+  .planning-grid {
+    display: grid;
+    grid-template-columns: 200px repeat(7, 1fr);
+    min-width: 1000px;
+  }
+
+  /* Header row */
+  .grid-header {
+    display: contents;
+  }
+  .grid-header-cell {
+    padding: 12px 8px; text-align: center;
+    border-bottom: 1px solid var(--border); border-right: 1px solid var(--border);
+    background: var(--surface); position: sticky; top: 0; z-index: 10;
+  }
+  .grid-header-cell:first-child { text-align: left; padding-left: 20px; }
+  .day-name { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 600; }
+  .day-num { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-top: 2px; }
+  .day-today .day-num {
+    color: var(--accent); background: rgba(249,115,22,0.12);
+    width: 32px; height: 32px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* Employee rows */
+  .grid-row { display: contents; }
+
+  .grid-employee {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border); background: var(--surface);
+    display: flex; align-items: center; gap: 10px;
+    position: sticky; left: 0; z-index: 5;
+  }
+  .emp-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px; color: white; flex-shrink: 0;
+  }
+  .emp-name { font-weight: 600; font-size: 13px; }
+  .emp-contrat { font-size: 11px; color: var(--muted); }
+  .emp-hours {
+    margin-left: auto; display: flex; flex-direction: column; align-items: flex-end;
+  }
+  .emp-hours-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
+  .emp-hours-max { font-size: 10px; color: var(--muted); }
+  .emp-hours-bar {
+    width: 50px; height: 4px; border-radius: 2px;
+    background: var(--surface2); margin-top: 3px; overflow: hidden;
+  }
+  .emp-hours-fill { height: 100%; border-radius: 2px; }
+
+  /* Day cells */
+  .grid-cell {
+    padding: 6px; border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border); min-height: 70px;
+    background: var(--bg); position: relative; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .grid-cell:hover { background: rgba(249,115,22,0.03); }
+  .grid-cell.today { background: rgba(249,115,22,0.04); }
+
+  /* Shift blocks */
+  .shift-block {
+    border-radius: 6px; padding: 6px 8px; margin-bottom: 4px;
+    font-size: 11px; cursor: pointer; transition: all 0.15s;
+    border-left: 3px solid; position: relative;
+  }
+  .shift-block:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  .shift-time { font-weight: 700; }
+  .shift-zone { font-size: 10px; opacity: 0.8; margin-top: 1px; }
+  .shift-pause { font-size: 9px; opacity: 0.6; }
+
+  .shift-accueil { background: rgba(59,130,246,0.12); border-color: var(--blue); color: var(--blue); }
+  .shift-bar { background: rgba(168,85,247,0.12); border-color: var(--purple); color: var(--purple); }
+  .shift-salle { background: rgba(34,197,94,0.12); border-color: var(--green); color: var(--green); }
+  .shift-manager { background: rgba(249,115,22,0.12); border-color: var(--accent); color: var(--accent); }
+
+  /* Add shift hint */
+  .add-hint {
+    opacity: 0; position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px; color: var(--muted); transition: opacity 0.15s;
+  }
+  .grid-cell:hover .add-hint { opacity: 0.5; }
+  .grid-cell:has(.shift-block):hover .add-hint { opacity: 0; }
+
+  /* ─── Stats Bar ─── */
+  .stats-bar {
+    display: flex; align-items: center; gap: 24px;
+    padding: 14px 28px; border-top: 1px solid var(--border);
+    background: var(--surface); position: sticky; bottom: 0;
+  }
+  .stat-item { display: flex; align-items: center; gap: 8px; }
+  .stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .stat-label { font-size: 12px; color: var(--muted); }
+  .stat-value { font-weight: 700; font-size: 14px; }
+  .stat-separator { width: 1px; height: 24px; background: var(--border); }
+
+  /* ─── Zone Legend ─── */
+  .zone-legend {
+    display: flex; gap: 16px; margin-left: auto;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">Shiftly</div>
+    <div class="sidebar-centre">Family Games Center</div>
+  </div>
+  <div class="sidebar-nav">
+    <a class="nav-item" href="#"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item active" href="#"><span class="nav-icon">📅</span>Planning</a>
+    <a class="nav-item" href="#"><span class="nav-icon">📋</span>Service du jour</a>
+    <a class="nav-item" href="#"><span class="nav-icon">🗓️</span>Services</a>
+    <a class="nav-item" href="#"><span class="nav-icon">🗂️</span>Postes</a>
+    <a class="nav-item" href="#"><span class="nav-icon">👥</span>Staff</a>
+    <a class="nav-item" href="#"><span class="nav-icon">📖</span>Tutoriels</a>
+    <a class="nav-item" href="#"><span class="nav-icon">⚙️</span>Réglages</a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--accent),var(--accent2));">KV</div>
+    <div>
+      <div class="sidebar-user-name">Kévin</div>
+      <div class="sidebar-user-role">Manager</div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Planning</h1>
+      <span class="badge-status badge-brouillon">Brouillon</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn">📋 Dupliquer semaine</button>
+      <button class="btn btn-primary">✓ Publier</button>
+    </div>
+  </div>
+
+  <!-- Week navigator -->
+  <div class="week-nav">
+    <div style="width:80px;"></div>
+    <div class="week-nav-center">
+      <div class="week-arrow">←</div>
+      <div style="text-align:center;">
+        <div class="week-label">Semaine 16</div>
+        <div class="week-dates">14 — 20 avril 2026</div>
+      </div>
+      <div class="week-arrow">→</div>
+    </div>
+    <div class="week-nav-right">
+      <div class="today-btn">Aujourd'hui</div>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="planning-container">
+    <div class="planning-grid">
+
+      <!-- Header -->
+      <div class="grid-header">
+        <div class="grid-header-cell"><span class="day-name" style="font-size:13px;font-weight:700;color:var(--text);">Employés</span></div>
+        <div class="grid-header-cell"><div class="day-name">Lun</div><div class="day-num">14</div></div>
+        <div class="grid-header-cell"><div class="day-name">Mar</div><div class="day-num">15</div></div>
+        <div class="grid-header-cell day-today"><div class="day-name">Mer</div><div class="day-num">16</div></div>
+        <div class="grid-header-cell"><div class="day-name">Jeu</div><div class="day-num">17</div></div>
+        <div class="grid-header-cell"><div class="day-name">Ven</div><div class="day-num">18</div></div>
+        <div class="grid-header-cell"><div class="day-name">Sam</div><div class="day-num">19</div></div>
+        <div class="grid-header-cell"><div class="day-name">Dim</div><div class="day-num">20</div></div>
+      </div>
+
+      <!-- ── Kévin ── -->
+      <div class="grid-row">
+        <div class="grid-employee">
+          <div class="emp-avatar" style="background:linear-gradient(135deg,#f97316,#fb923c);">KV</div>
+          <div><div class="emp-name">Kévin</div><div class="emp-contrat">CDI · 39h</div></div>
+          <div class="emp-hours">
+            <div class="emp-hours-val" style="color:var(--green);">38.5h</div>
+            <div class="emp-hours-max">/ 39h</div>
+            <div class="emp-hours-bar"><div class="emp-hours-fill" style="width:98%;background:var(--green);"></div></div>
+          </div>
+        </div>
+        <div class="grid-cell"><div class="shift-block shift-manager"><div class="shift-time">09:00 – 17:00</div><div class="shift-zone">Manager</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-manager"><div class="shift-time">09:00 – 17:00</div><div class="shift-zone">Manager</div></div></div>
+        <div class="grid-cell today"><div class="shift-block shift-accueil"><div class="shift-time">14:00 – 22:00</div><div class="shift-zone">Accueil</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-manager"><div class="shift-time">09:00 – 17:00</div><div class="shift-zone">Manager</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-manager"><div class="shift-time">14:00 – 23:00</div><div class="shift-zone">Manager</div></div></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+      </div>
+
+      <!-- ── Mégane ── -->
+      <div class="grid-row">
+        <div class="grid-employee">
+          <div class="emp-avatar" style="background:linear-gradient(135deg,#ec4899,#f472b6);">MG</div>
+          <div><div class="emp-name">Mégane</div><div class="emp-contrat">CDI · 39h</div></div>
+          <div class="emp-hours">
+            <div class="emp-hours-val" style="color:var(--green);">39h</div>
+            <div class="emp-hours-max">/ 39h</div>
+            <div class="emp-hours-bar"><div class="emp-hours-fill" style="width:100%;background:var(--green);"></div></div>
+          </div>
+        </div>
+        <div class="grid-cell"><div class="shift-block shift-bar"><div class="shift-time">14:00 – 22:00</div><div class="shift-zone">Bar</div></div></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell today"><div class="shift-block shift-manager"><div class="shift-time">09:00 – 17:00</div><div class="shift-zone">Manager</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-bar"><div class="shift-time">14:00 – 23:00</div><div class="shift-zone">Bar</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-manager"><div class="shift-time">09:00 – 17:00</div><div class="shift-zone">Manager</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-accueil"><div class="shift-time">14:00 – 01:00</div><div class="shift-zone">Accueil</div><div class="shift-pause">30min pause</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-manager"><div class="shift-time">14:00 – 22:00</div><div class="shift-zone">Manager</div></div></div>
+      </div>
+
+      <!-- ── Erwan ── -->
+      <div class="grid-row">
+        <div class="grid-employee">
+          <div class="emp-avatar" style="background:linear-gradient(135deg,#3b82f6,#60a5fa);">ER</div>
+          <div><div class="emp-name">Erwan</div><div class="emp-contrat">CDI · 39h</div></div>
+          <div class="emp-hours">
+            <div class="emp-hours-val" style="color:var(--yellow);">34h</div>
+            <div class="emp-hours-max">/ 39h</div>
+            <div class="emp-hours-bar"><div class="emp-hours-fill" style="width:87%;background:var(--yellow);"></div></div>
+          </div>
+        </div>
+        <div class="grid-cell"><div class="shift-block shift-salle"><div class="shift-time">14:00 – 22:00</div><div class="shift-zone">Salle</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-accueil"><div class="shift-time">09:00 – 17:00</div><div class="shift-zone">Accueil</div></div></div>
+        <div class="grid-cell today"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><div class="shift-block shift-salle"><div class="shift-time">14:00 – 22:00</div><div class="shift-zone">Salle</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-accueil"><div class="shift-time">14:00 – 23:00</div><div class="shift-zone">Accueil</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-salle"><div class="shift-time">10:00 – 18:00</div><div class="shift-zone">Salle</div></div></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+      </div>
+
+      <!-- ── Patou ── -->
+      <div class="grid-row">
+        <div class="grid-employee">
+          <div class="emp-avatar" style="background:linear-gradient(135deg,#22c55e,#4ade80);">PA</div>
+          <div><div class="emp-name">Patou</div><div class="emp-contrat">CDI · 35h</div></div>
+          <div class="emp-hours">
+            <div class="emp-hours-val" style="color:var(--green);">35h</div>
+            <div class="emp-hours-max">/ 35h</div>
+            <div class="emp-hours-bar"><div class="emp-hours-fill" style="width:100%;background:var(--green);"></div></div>
+          </div>
+        </div>
+        <div class="grid-cell"><div class="shift-block shift-accueil"><div class="shift-time">09:00 – 17:00</div><div class="shift-zone">Accueil</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-salle"><div class="shift-time">14:00 – 22:00</div><div class="shift-zone">Salle</div></div></div>
+        <div class="grid-cell today"><div class="shift-block shift-bar"><div class="shift-time">14:00 – 22:00</div><div class="shift-zone">Bar</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-accueil"><div class="shift-time">09:00 – 17:00</div><div class="shift-zone">Accueil</div></div></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><div class="shift-block shift-bar"><div class="shift-time">14:00 – 01:00</div><div class="shift-zone">Bar</div><div class="shift-pause">30min pause</div></div></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+      </div>
+
+      <!-- ── Gabin ── -->
+      <div class="grid-row">
+        <div class="grid-employee">
+          <div class="emp-avatar" style="background:linear-gradient(135deg,#a855f7,#c084fc);">GA</div>
+          <div><div class="emp-name">Gabin</div><div class="emp-contrat">CDI · 25h</div></div>
+          <div class="emp-hours">
+            <div class="emp-hours-val" style="color:var(--green);">25h</div>
+            <div class="emp-hours-max">/ 25h</div>
+            <div class="emp-hours-bar"><div class="emp-hours-fill" style="width:100%;background:var(--green);"></div></div>
+          </div>
+        </div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><div class="shift-block shift-bar"><div class="shift-time">17:00 – 01:00</div><div class="shift-zone">Bar</div></div></div>
+        <div class="grid-cell today"><div class="shift-block shift-salle"><div class="shift-time">14:00 – 22:00</div><div class="shift-zone">Salle</div></div></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><div class="shift-block shift-bar"><div class="shift-time">17:00 – 01:00</div><div class="shift-zone">Bar</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-salle"><div class="shift-time">14:00 – 22:00</div><div class="shift-zone">Salle</div></div></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+      </div>
+
+      <!-- ── Aya ── -->
+      <div class="grid-row">
+        <div class="grid-employee">
+          <div class="emp-avatar" style="background:linear-gradient(135deg,#06b6d4,#22d3ee);">AY</div>
+          <div><div class="emp-name">Aya</div><div class="emp-contrat">CDD · 15h</div></div>
+          <div class="emp-hours">
+            <div class="emp-hours-val" style="color:var(--red);">18h</div>
+            <div class="emp-hours-max">/ 15h</div>
+            <div class="emp-hours-bar"><div class="emp-hours-fill" style="width:100%;background:var(--red);"></div></div>
+          </div>
+        </div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell today"><div class="shift-block shift-accueil"><div class="shift-time">14:00 – 20:00</div><div class="shift-zone">Accueil</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-accueil"><div class="shift-time">14:00 – 20:00</div><div class="shift-zone">Accueil</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-salle"><div class="shift-time">17:00 – 23:00</div><div class="shift-zone">Salle</div></div></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+      </div>
+
+      <!-- ── Hiba ── -->
+      <div class="grid-row">
+        <div class="grid-employee">
+          <div class="emp-avatar" style="background:linear-gradient(135deg,#eab308,#facc15);">HI</div>
+          <div><div class="emp-name">Hiba</div><div class="emp-contrat">EXTRA · 15h</div></div>
+          <div class="emp-hours">
+            <div class="emp-hours-val" style="color:var(--yellow);">10h</div>
+            <div class="emp-hours-max">/ 15h</div>
+            <div class="emp-hours-bar"><div class="emp-hours-fill" style="width:67%;background:var(--yellow);"></div></div>
+          </div>
+        </div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell today"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+        <div class="grid-cell"><div class="shift-block shift-bar"><div class="shift-time">17:00 – 23:00</div><div class="shift-zone">Bar</div></div></div>
+        <div class="grid-cell"><div class="shift-block shift-accueil"><div class="shift-time">14:00 – 18:00</div><div class="shift-zone">Accueil</div></div></div>
+        <div class="grid-cell"><span class="add-hint">+</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-dot" style="background:var(--green);"></div>
+      <span class="stat-label">Employés planifiés</span>
+      <span class="stat-value">7 / 12</span>
+    </div>
+    <div class="stat-separator"></div>
+    <div class="stat-item">
+      <div class="stat-dot" style="background:var(--blue);"></div>
+      <span class="stat-label">Total heures</span>
+      <span class="stat-value">199.5h</span>
+    </div>
+    <div class="stat-separator"></div>
+    <div class="stat-item">
+      <div class="stat-dot" style="background:var(--red);"></div>
+      <span class="stat-label">Dépassements</span>
+      <span class="stat-value" style="color:var(--red);">1</span>
+    </div>
+    <div class="stat-separator"></div>
+    <div class="stat-item">
+      <div class="stat-dot" style="background:var(--yellow);"></div>
+      <span class="stat-label">Sous-planifiés</span>
+      <span class="stat-value" style="color:var(--yellow);">1</span>
+    </div>
+
+    <div class="zone-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue);"></div>Accueil</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--purple);"></div>Bar</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green);"></div>Salle</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent);"></div>Manager</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

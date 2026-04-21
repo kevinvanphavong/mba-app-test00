@@ -2,12 +2,10 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useRouter }               from 'next/navigation'
-import Link                        from 'next/link'
 import { formatDistanceToNow }     from 'date-fns'
 import { fr }                      from 'date-fns/locale'
 import { cn }                      from '@/lib/cn'
 import { ty }                      from '@/lib/typography'
-import Topbar                      from '@/components/layout/Topbar'
 import ModalIncidentDetail         from '@/components/dashboard/ModalIncidentDetail'
 import ModalIncidentEdit           from '@/components/dashboard/ModalIncidentEdit'
 import { useIncidentsFull, useUpdateIncidentFull } from '@/hooks/useIncidents'
@@ -97,23 +95,23 @@ export default function IncidentsReglagesPage() {
 
   return (
     <>
-      <div className="min-h-full animate-fadeUp">
-        <Topbar />
-        <div className="px-5 pb-28 lg:px-7 space-y-4">
+      <div className="mx-auto px-4 pb-24 lg:max-w-2xl">
 
-          {/* En-tête */}
-          <div className="flex items-center gap-3 pt-1">
-            <Link href="/reglages" className="text-muted hover:text-text transition-colors text-[13px]">
-              ← Réglages
-            </Link>
-          </div>
-          <div>
-            <h1 className={`${ty.kpiMd} mb-0.5`}>Incidents</h1>
-            <p className={ty.meta}>{incidents.length} au total</p>
-          </div>
+        {/* Header */}
+        <div className="py-4 flex justify-between items-center">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1.5 text-accent text-[13px] font-semibold"
+          >
+            ← Réglages
+          </button>
+        </div>
 
-          {/* Filtre par statut */}
-          <div className="flex items-center gap-1.5 bg-surface2 rounded-[10px] p-1 w-fit">
+        <h1 className="font-syne font-extrabold text-[20px] text-text mb-0.5">Gestion des incidents</h1>
+        <p className="text-[12px] text-muted mb-4">{incidents.length} au total</p>
+
+        {/* Filtre par statut */}
+        <div className="flex items-center gap-1.5 bg-surface2 rounded-[10px] p-1 w-fit mb-4">
             {(['TOUS', 'OUVERT', 'EN_COURS', 'RESOLU'] as StatutFilter[]).map(s => (
               <button
                 key={s}
@@ -239,7 +237,6 @@ export default function IncidentsReglagesPage() {
               })}
             </div>
           )}
-        </div>
       </div>
 
       {/* Modales */}

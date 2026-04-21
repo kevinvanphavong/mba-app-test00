@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\PlanningWeek;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 class PlanningWeekRepository extends ServiceEntityRepository
@@ -20,7 +21,7 @@ class PlanningWeekRepository extends ServiceEntityRepository
             ->andWhere('pw.centre = :centreId')
             ->andWhere('pw.weekStart = :weekStart')
             ->setParameter('centreId', $centreId)
-            ->setParameter('weekStart', $weekStart)
+            ->setParameter('weekStart', $weekStart, Types::DATE_IMMUTABLE)
             ->getQuery()
             ->getOneOrNullResult();
     }
@@ -34,8 +35,8 @@ class PlanningWeekRepository extends ServiceEntityRepository
             ->andWhere('pw.weekStart BETWEEN :from AND :to')
             ->setParameter('centreId', $centreId)
             ->setParameter('statut', PlanningWeek::STATUT_PUBLIE)
-            ->setParameter('from', $from)
-            ->setParameter('to', $to)
+            ->setParameter('from', $from, Types::DATE_IMMUTABLE)
+            ->setParameter('to', $to, Types::DATE_IMMUTABLE)
             ->orderBy('pw.weekStart', 'ASC')
             ->getQuery()
             ->getResult();

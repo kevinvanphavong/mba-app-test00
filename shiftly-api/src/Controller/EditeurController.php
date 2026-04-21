@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Contrôleur dédié à l'éditeur de contenu (zones, missions, compétences).
+ * Contrôleur dédié à la gestion du contenu (zones, missions, compétences).
  * Contourne le bug API Platform parse() on null sur les opérations d'écriture.
  */
 #[Route('/api/editeur')]
@@ -434,6 +434,8 @@ class EditeurController extends AbstractController
         $user->setPointure($data['pointure'] ?? null);
         $user->setActif(true);
         $user->setAvatarColor($data['avatarColor'] ?? null);
+        $user->setHeuresHebdo(isset($data['heuresHebdo']) ? (int) $data['heuresHebdo'] : null);
+        $user->setTypeContrat($data['typeContrat'] ?? null);
         $user->setPassword($this->hasher->hashPassword($user, $data['password']));
 
         $this->em->persist($user);
@@ -464,7 +466,9 @@ class EditeurController extends AbstractController
         if (array_key_exists('tailleBas', $data))   $user->setTailleBas($data['tailleBas']);
         if (array_key_exists('pointure', $data))    $user->setPointure($data['pointure']);
         if (isset($data['actif']))      $user->setActif((bool) $data['actif']);
-        if (array_key_exists('avatarColor', $data)) $user->setAvatarColor($data['avatarColor']);
+        if (array_key_exists('avatarColor', $data))   $user->setAvatarColor($data['avatarColor']);
+        if (array_key_exists('heuresHebdo', $data))   $user->setHeuresHebdo($data['heuresHebdo'] !== null ? (int) $data['heuresHebdo'] : null);
+        if (array_key_exists('typeContrat', $data))   $user->setTypeContrat($data['typeContrat'] ?: null);
         if (!empty($data['password']))  $user->setPassword($this->hasher->hashPassword($user, $data['password']));
 
         $this->em->flush();
@@ -607,6 +611,8 @@ class EditeurController extends AbstractController
             'tailleBas'   => $u->getTailleBas(),
             'pointure'    => $u->getPointure(),
             'avatarColor' => $u->getAvatarColor(),
+            'heuresHebdo' => $u->getHeuresHebdo(),
+            'typeContrat' => $u->getTypeContrat(),
         ];
     }
 }

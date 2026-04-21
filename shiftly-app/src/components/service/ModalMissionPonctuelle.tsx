@@ -213,7 +213,7 @@ export default function ModalMissionPonctuelle({ open, zone, serviceId, onClose 
             <div className="flex gap-2.5 px-5 py-4 border-t border-border flex-shrink-0">
               <button
                 onClick={handleClose}
-                className="flex-1 py-3 rounded-[12px] bg-surface2 border border-border text-[13px] font-bold text-muted hover:text-text transition-colors"
+                className="flex-1 py-3 rounded-[12px] bg-surface2 border border-border text-[15px] font-bold text-muted hover:text-text transition-colors"
               >
                 Annuler
               </button>

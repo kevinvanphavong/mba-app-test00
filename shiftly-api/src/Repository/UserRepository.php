@@ -26,6 +26,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
+    public function findActifByCentre(int $centreId): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.centre = :centreId')
+            ->andWhere('u.actif = true')
+            ->setParameter('centreId', $centreId)
+            ->orderBy('u.nom', 'ASC')
+            ->getQuery()->getResult();
+    }
+
     public function findByCentre(int $centreId): array
     {
         return $this->createQueryBuilder('u')

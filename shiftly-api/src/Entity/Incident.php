@@ -151,6 +151,12 @@ class Incident
         return $this;
     }
 
+    public function removeStaffImplique(User $u): static
+    {
+        $this->staffImpliques->removeElement($u);
+        return $this;
+    }
+
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
     public function getResolvedAt(): ?\DateTimeImmutable { return $this->resolvedAt; }
 }

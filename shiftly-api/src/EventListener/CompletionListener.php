@@ -42,33 +42,67 @@ class CompletionListener
 
         $serviceId = $service->getId();
 
-        // Compte toutes les missions du service (FIXE par zone + PONCTUELLES)
-        $totalMissions = 0;
+        // Groupe les zones uniques du service
+        $zonesByZoneId = [];
         foreach ($service->getPostes() as $poste) {
-            $missions = $this->missionRepo->findForService(
-                $poste->getZone()->getId(),
-                $serviceId
-            );
-            $totalMissions += count($missions);
+            $zone = $poste->getZone();
+            $zonesByZoneId[$zone->getId()] = $zone;
         }
 
-        // Compte les completions en BDD (déjà à jour après flush)
-        $done = (int) $this->em->createQuery(
-            'SELECT COUNT(c.id)
+        // Compte toutes les missions du service (FIXE par zone + PONCTUELLES)
+        $totalMissions = 0;
+        foreach ($zonesByZoneId as $zoneId => $_) {
+            $totalMissions += count($this->missionRepo->findForService($zoneId, $serviceId));
+        }
+
+        // Completions en BDD (PostRemove : déjà supprimée / PostPersist : déjà insérée)
+        $completionRows = $this->em->createQuery(
+            'SELECT m.id AS mId, m.texte, m.categorie, m.priorite,
+                    z.id AS zId, z.nom AS zNom,
+                    u.id AS uId, u.nom AS uNom, u.prenom AS uPrenom,
+                    c.completedAt
              FROM App\Entity\Completion c
+             JOIN c.mission m
+             JOIN c.user u
              JOIN c.poste p
-             WHERE p.service = :sId'
-        )->setParameter('sId', $service)->getSingleScalarResult();
+             JOIN p.zone z
+             WHERE p.service = :svc'
+        )->setParameter('svc', $service)->getArrayResult();
 
-        // PostRemove : la completion est déjà supprimée de la BDD, done est correct
-        // PostPersist : la completion vient d'être insérée, done est correct
-
+        $done = count(array_unique(array_column($completionRows, 'mId')));
         $taux = $totalMissions > 0 ? round($done / $totalMissions * 100, 1) : 0.0;
 
-        // Mise à jour directe DBAL pour éviter un double flush Doctrine
+        // Construit le snapshot (première completion par mission = validation retenue)
+        $completionByMission = [];
+        foreach ($completionRows as $row) {
+            $completionByMission[$row['mId']] ??= $row;
+        }
+
+        $snapshot = [];
+        foreach ($zonesByZoneId as $zoneId => $zone) {
+            foreach ($this->missionRepo->findForService($zoneId, $serviceId) as $mission) {
+                $mId = $mission->getId();
+                $c   = $completionByMission[$mId] ?? null;
+                $snapshot[] = [
+                    'missionId' => $mId,
+                    'texte'     => $mission->getTexte(),
+                    'categorie' => $mission->getCategorie(),
+                    'priorite'  => $mission->getPriorite(),
+                    'zone'      => $zone->getNom(),
+                    'zoneId'    => $zoneId,
+                    'valide'    => $c !== null,
+                    'validePar' => $c ? ['id' => $c['uId'], 'nom' => $c['uNom'], 'prenom' => $c['uPrenom']] : null,
+                    'valideA'   => $c ? ($c['completedAt'] instanceof \DateTimeInterface
+                        ? $c['completedAt']->format(\DateTimeInterface::ATOM)
+                        : (string) $c['completedAt']) : null,
+                ];
+            }
+        }
+
+        // Mise à jour directe DBAL — évite un double flush Doctrine
         $this->em->getConnection()->executeStatement(
-            'UPDATE service SET taux_completion = ? WHERE id = ?',
-            [$taux, $serviceId]
+            'UPDATE service SET taux_completion = ?, missions_snapshot = ? WHERE id = ?',
+            [$taux, json_encode($snapshot, JSON_UNESCAPED_UNICODE), $serviceId]
         );
     }
 }

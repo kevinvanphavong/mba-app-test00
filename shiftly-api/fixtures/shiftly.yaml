@@ -32,17 +32,24 @@ App\Entity\Zone:
     couleur: "#22c55e"
     ordre:   3
 
+  zone_cuisine:
+    centre:  "@centre_fgc"
+    nom:     "Cuisine"
+    couleur: "#f97316"
+    ordre:   4
+
 # ─── Staff ───────────────────────────────────────────────────────────────────
 App\Entity\User:
   user_kevin:
     centre:      "@centre_fgc"
-    nom:         "Kévin"
+    nom:         "Vong"
+    prenom:      "Kevin"
     email:       "kevin@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
     avatarColor: "#f97316"
-    points:      60
+    points:      165
     actif:       true
     tailleHaut:  "2 polo manches longues, 1 sweat"
     heuresHebdo: 39
@@ -50,39 +57,42 @@ App\Entity\User:
 
   user_megane:
     centre:      "@centre_fgc"
-    nom:         "Mégane"
+    nom:         "Goueffon"
+    prenom:      "Mégane"
     email:       "megane@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
     avatarColor: "#ec4899"
-    points:      10
+    points:      90
     actif:       true
     heuresHebdo: 39
     typeContrat: "CDI"
 
   user_micka:
     centre:      "@centre_fgc"
-    nom:         "Micka"
+    nom:         "Ferreira"
+    prenom:      "Mickael"
     email:       "micka@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
     avatarColor: "#8b5cf6"
-    points:      10
+    points:      140
     actif:       true
     heuresHebdo: 39
     typeContrat: "CDI"
 
   user_erwan:
     centre:      "@centre_fgc"
-    nom:         "Erwan"
+    nom:         "Vallée"
+    prenom:      "Erwan"
     email:       "erwan@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#22c55e"
-    points:      35
+    points:      105
     actif:       true
     tailleHaut:  "2 tshirts, 1 polo manches courtes"
     heuresHebdo: 39
@@ -90,13 +100,14 @@ App\Entity\User:
 
   user_patou:
     centre:      "@centre_fgc"
-    nom:         "Patou"
+    nom:         "Veron"
+    prenom:      "Patrice"
     email:       "patou@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#f59e0b"
-    points:      75
+    points:      80
     actif:       true
     tailleHaut:  "1 veste sans manche"
     heuresHebdo: 35
@@ -104,13 +115,14 @@ App\Entity\User:
 
   user_pol:
     centre:      "@centre_fgc"
-    nom:         "Pôl"
+    nom:         "Degrassi"
+    prenom:      "Pôl"
     email:       "pol@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#0ea5e9"
-    points:      10
+    points:      70
     actif:       true
     tailleHaut:  "1 polo manches longues (new)"
     heuresHebdo: 35
@@ -118,13 +130,14 @@ App\Entity\User:
 
   user_cynthia:
     centre:      "@centre_fgc"
-    nom:         "Cynthia"
+    nom:         "Quari"
+    prenom:      "Cynthia"
     email:       "cynthia@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#14b8a6"
-    points:      10
+    points:      95
     actif:       true
     tailleHaut:  "2 t-shirts, 2 polaires manches longues"
     heuresHebdo: 35
@@ -132,13 +145,14 @@ App\Entity\User:
 
   user_gabin:
     centre:      "@centre_fgc"
-    nom:         "Gabin"
+    nom:         "Rossignol"
+    prenom:      "Gabin"
     email:       "gabin@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#a855f7"
-    points:      65
+    points:      75
     actif:       true
     tailleHaut:  "1 polo manches longues + 2 polos"
     heuresHebdo: 25
@@ -146,26 +160,28 @@ App\Entity\User:
 
   user_aya:
     centre:      "@centre_fgc"
-    nom:         "Aya"
+    nom:         "Nata"
+    prenom:      "Aya"
     email:       "aya@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#6366f1"
-    points:      50
+    points:      45
     actif:       true
     heuresHebdo: 15
     typeContrat: "CDD"
 
   user_securite:
     centre:      "@centre_fgc"
-    nom:         "Agent de sécurité"
+    nom:         "Debdoug"
+    prenom:      "Mohcine"
     email:       "securite@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#475569"
-    points:      25
+    points:      0
     actif:       true
     tailleHaut:  "Badge"
     heuresHebdo: 0
@@ -173,26 +189,28 @@ App\Entity\User:
 
   user_hiba:
     centre:      "@centre_fgc"
-    nom:         "Hiba"
+    nom:         "Nata"
+    prenom:      "Hiba"
     email:       "hiba@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#ef4444"
-    points:      10
+    points:      45
     actif:       true
     heuresHebdo: 15
     typeContrat: "EXTRA"
 
   user_daniela:
     centre:      "@centre_fgc"
-    nom:         "Daniela"
+    nom:         "Nata"
+    prenom:      "Daniela"
     email:       "daniela@bowlingcentral.fr"
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
     avatarColor: "#f472b6"
-    points:      10
+    points:      60
     actif:       true
     heuresHebdo: 15
     typeContrat: "EXTRA"
@@ -957,222 +975,444 @@ App\Entity\Competence:
     points:     35
     difficulte: "avancee"
 
-# ─── StaffCompétences ────────────────────────────────────────────────────────
+# ─── StaffCompétences (41) ───────────────────────────────────────────────────
 App\Entity\StaffCompetence:
-  # Patou — Accueil confirmé
-  sc_patou_1:
+  # Kévin — manager polyvalent (7)
+  sc_k1:
+    user:       "@user_kevin"
+    competence: "@comp_acc_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>"
+  sc_k2:
+    user:       "@user_kevin"
+    competence: "@comp_acc_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-09-15'))>"
+  sc_k3:
+    user:       "@user_kevin"
+    competence: "@comp_acc_3"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>"
+  sc_k4:
+    user:       "@user_kevin"
+    competence: "@comp_bar_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-10-15'))>"
+  sc_k5:
+    user:       "@user_kevin"
+    competence: "@comp_bar_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-11-01'))>"
+  sc_k6:
+    user:       "@user_kevin"
+    competence: "@comp_bar_3"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-11-15'))>"
+  sc_k7:
+    user:       "@user_kevin"
+    competence: "@comp_salle_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>"
+
+  # Mégane — manager accueil/bar (4)
+  sc_m1:
+    user:       "@user_megane"
+    competence: "@comp_acc_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>"
+  sc_m2:
+    user:       "@user_megane"
+    competence: "@comp_acc_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-10-15'))>"
+  sc_m3:
+    user:       "@user_megane"
+    competence: "@comp_acc_3"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-11-01'))>"
+  sc_m4:
+    user:       "@user_megane"
+    competence: "@comp_bar_3"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-12-15'))>"
+
+  # Micka — manager bar/accueil (6)
+  sc_mc1:
+    user:       "@user_micka"
+    competence: "@comp_bar_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>"
+  sc_mc2:
+    user:       "@user_micka"
+    competence: "@comp_bar_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-09-15'))>"
+  sc_mc3:
+    user:       "@user_micka"
+    competence: "@comp_bar_3"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>"
+  sc_mc4:
+    user:       "@user_micka"
+    competence: "@comp_acc_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-10-15'))>"
+  sc_mc5:
+    user:       "@user_micka"
+    competence: "@comp_acc_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-11-01'))>"
+  sc_mc6:
+    user:       "@user_micka"
+    competence: "@comp_salle_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>"
+
+  # Erwan — polyvalent en progression (4)
+  sc_e1:
+    user:       "@user_erwan"
+    competence: "@comp_acc_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>"
+  sc_e2:
+    user:       "@user_erwan"
+    competence: "@comp_acc_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-03-01'))>"
+  sc_e3:
+    user:       "@user_erwan"
+    competence: "@comp_salle_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-03-05'))>"
+  sc_e4:
+    user:       "@user_erwan"
+    competence: "@comp_salle_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-04-01'))>"
+
+  # Patou — accueil confirmé (4)
+  sc_p1:
     user:       "@user_patou"
     competence: "@comp_acc_1"
     acquiredAt: "<(new \\DateTimeImmutable('2026-01-10'))>"
-  sc_patou_2:
+  sc_p2:
     user:       "@user_patou"
     competence: "@comp_acc_2"
     acquiredAt: "<(new \\DateTimeImmutable('2026-01-05'))>"
-  sc_patou_3:
+  sc_p3:
     user:       "@user_patou"
     competence: "@comp_acc_3"
     acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>"
-
-  # Aya — Bar
-  sc_aya_1:
-    user:       "@user_aya"
-    competence: "@comp_bar_1"
+  sc_p4:
+    user:       "@user_patou"
+    competence: "@comp_salle_1"
     acquiredAt: "<(new \\DateTimeImmutable('2026-02-15'))>"
-  sc_aya_2:
-    user:       "@user_aya"
-    competence: "@comp_bar_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-20'))>"
 
-  # Gabin — Bar + Salle
-  sc_gabin_1:
+  # Pôl — accueil en montée (3)
+  sc_po1:
+    user:       "@user_pol"
+    competence: "@comp_acc_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-01-15'))>"
+  sc_po2:
+    user:       "@user_pol"
+    competence: "@comp_acc_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>"
+  sc_po3:
+    user:       "@user_pol"
+    competence: "@comp_acc_3"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-03-01'))>"
+
+  # Cynthia — bar confirmée (4)
+  sc_cy1:
+    user:       "@user_cynthia"
+    competence: "@comp_bar_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-11-01'))>"
+  sc_cy2:
+    user:       "@user_cynthia"
+    competence: "@comp_bar_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-01-15'))>"
+  sc_cy3:
+    user:       "@user_cynthia"
+    competence: "@comp_bar_3"
+    acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>"
+  sc_cy4:
+    user:       "@user_cynthia"
+    competence: "@comp_salle_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>"
+
+  # Gabin — bar expérimenté (3)
+  sc_g1:
     user:       "@user_gabin"
     competence: "@comp_bar_1"
     acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>"
-  sc_gabin_2:
+  sc_g2:
     user:       "@user_gabin"
     competence: "@comp_bar_2"
     acquiredAt: "<(new \\DateTimeImmutable('2026-01-20'))>"
-  sc_gabin_3:
+  sc_g3:
     user:       "@user_gabin"
     competence: "@comp_salle_1"
     acquiredAt: "<(new \\DateTimeImmutable('2026-02-10'))>"
 
-  # Erwan — débutant
-  sc_erwan_1:
-    user:       "@user_erwan"
-    competence: "@comp_acc_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-03-01'))>"
-  sc_erwan_2:
-    user:       "@user_erwan"
+  # Aya — bar (2)
+  sc_a1:
+    user:       "@user_aya"
+    competence: "@comp_bar_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-02-15'))>"
+  sc_a2:
+    user:       "@user_aya"
+    competence: "@comp_bar_3"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-02-20'))>"
+
+  # Hiba — bar débutante (2)
+  sc_h1:
+    user:       "@user_hiba"
+    competence: "@comp_bar_1"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-03-10'))>"
+  sc_h2:
+    user:       "@user_hiba"
+    competence: "@comp_bar_3"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-03-20'))>"
+
+  # Daniela — salle (2)
+  sc_d1:
+    user:       "@user_daniela"
     competence: "@comp_salle_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-03-05'))>"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-03-01'))>"
+  sc_d2:
+    user:       "@user_daniela"
+    competence: "@comp_salle_2"
+    acquiredAt: "<(new \\DateTimeImmutable('2026-04-01'))>"
 
-  # Kévin — manager polyvalent
-  sc_kevin_1:
-    user:       "@user_kevin"
-    competence: "@comp_acc_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>"
-  sc_kevin_2:
-    user:       "@user_kevin"
-    competence: "@comp_bar_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-10-15'))>"
-
-# ─── Services (5 jours) ──────────────────────────────────────────────────────
+# ─── Services (8) ────────────────────────────────────────────────────────────
 App\Entity\Service:
+  svc_j8:
+    centre:         "@centre_fgc"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-8 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 91.0
+
+  svc_j4:
+    centre:         "@centre_fgc"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-4 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 88.0
+
   svc_j3:
-    centre:          "@centre_fgc"
-    date:            "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
-    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:          "TERMINE"
-    tauxCompletion:  94.0
-    note:            "Soirée chargée, piste 4 en panne en fin de service. Réparation prévue lundi."
+    centre:         "@centre_fgc"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 94.0
+    note:           "Soirée chargée, piste 4 en panne en fin de service. Réparation prévue lundi."
 
   svc_j2:
-    centre:          "@centre_fgc"
-    date:            "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
-    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:          "TERMINE"
-    tauxCompletion:  87.0
-    note:            "RAS. Bon service, équipe au complet."
-
-  svc_j1:
-    centre:          "@centre_fgc"
-    date:            "<(new \\DateTimeImmutable((new \\DateTime('-1 day'))->format('Y-m-d')))>"
-    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:          "TERMINE"
-    tauxCompletion:  72.0
+    centre:         "@centre_fgc"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 87.0
+    note:           "RAS. Bon service, équipe au complet."
 
   svc_today:
-    centre:          "@centre_fgc"
-    date:            "<(new \\DateTimeImmutable('today'))>"
-    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:          "EN_COURS"
-    tauxCompletion:  28.0
-    note:            "Vérifier stock bière avant 18h, livraison annulée hier."
+    centre:         "@centre_fgc"
+    date:           "<(new \\DateTimeImmutable('today'))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "EN_COURS"
+    tauxCompletion: 0.0
+    note:           "Vérifier stock bière avant 18h, livraison annulée hier."
 
-  svc_j1_futur:
-    centre:          "@centre_fgc"
-    date:            "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
-    heureDebut:      "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:        "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:          "PLANIFIE"
-    tauxCompletion:  0.0
+  svc_j1:
+    centre:         "@centre_fgc"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "PLANIFIE"
+    tauxCompletion: 0.0
 
-# ─── Postes (aujourd'hui + J-1) ──────────────────────────────────────────────
+  svc_j2p:
+    centre:         "@centre_fgc"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "PLANIFIE"
+    tauxCompletion: 0.0
+
+  svc_j3p:
+    centre:         "@centre_fgc"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('+3 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "PLANIFIE"
+    tauxCompletion: 0.0
+
+# ─── Postes (14) ─────────────────────────────────────────────────────────────
 App\Entity\Poste:
-  # Aujourd'hui (EN_COURS)
+  # Aujourd'hui EN_COURS (6)
   poste_today_acc_kevin:
-    service: "@svc_today"
-    zone:    "@zone_accueil"
-    user:    "@user_kevin"
-  poste_today_acc_patou:
-    service: "@svc_today"
-    zone:    "@zone_accueil"
-    user:    "@user_patou"
-  poste_today_salle_erwan:
-    service: "@svc_today"
-    zone:    "@zone_salle"
-    user:    "@user_erwan"
-  poste_today_bar_gabin:
-    service: "@svc_today"
-    zone:    "@zone_bar"
-    user:    "@user_gabin"
-  poste_today_bar_cynthia:
-    service: "@svc_today"
-    zone:    "@zone_bar"
-    user:    "@user_cynthia"
-  poste_today_salle_aya:
-    service: "@svc_today"
-    zone:    "@zone_salle"
-    user:    "@user_aya"
+    service:      "@svc_today"
+    zone:         "@zone_accueil"
+    user:         "@user_kevin"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
 
-  # J-1 (TERMINE)
-  poste_j1_acc_micka:
-    service: "@svc_j1"
-    zone:    "@zone_accueil"
-    user:    "@user_micka"
-  poste_j1_acc_pol:
-    service: "@svc_j1"
-    zone:    "@zone_accueil"
-    user:    "@user_pol"
-  poste_j1_bar_hiba:
-    service: "@svc_j1"
-    zone:    "@zone_bar"
-    user:    "@user_hiba"
-  poste_j1_salle_daniela:
-    service: "@svc_j1"
-    zone:    "@zone_salle"
-    user:    "@user_daniela"
-  poste_j1_salle_erwan:
-    service: "@svc_j1"
-    zone:    "@zone_salle"
-    user:    "@user_erwan"
+  poste_today_acc_patou:
+    service:      "@svc_today"
+    zone:         "@zone_accueil"
+    user:         "@user_patou"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+
+  poste_today_salle_erwan:
+    service:      "@svc_today"
+    zone:         "@zone_salle"
+    user:         "@user_erwan"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+
+  poste_today_bar_gabin:
+    service:      "@svc_today"
+    zone:         "@zone_bar"
+    user:         "@user_gabin"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+
+  poste_today_bar_cynthia:
+    service:      "@svc_today"
+    zone:         "@zone_bar"
+    user:         "@user_cynthia"
+    heureDebut:   "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 0
+
+  poste_today_salle_aya:
+    service:      "@svc_today"
+    zone:         "@zone_salle"
+    user:         "@user_aya"
+    heureDebut:   "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 0
+
+  # J-2 TERMINE (5)
+  poste_j2_acc_micka:
+    service:      "@svc_j2"
+    zone:         "@zone_accueil"
+    user:         "@user_micka"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+
+  poste_j2_acc_pol:
+    service:      "@svc_j2"
+    zone:         "@zone_accueil"
+    user:         "@user_pol"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+
+  poste_j2_bar_hiba:
+    service:      "@svc_j2"
+    zone:         "@zone_bar"
+    user:         "@user_hiba"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+
+  poste_j2_salle_daniela:
+    service:      "@svc_j2"
+    zone:         "@zone_salle"
+    user:         "@user_daniela"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+
+  poste_j2_salle_erwan:
+    service:      "@svc_j2"
+    zone:         "@zone_salle"
+    user:         "@user_erwan"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 0
+
+  # J-4 TERMINE (3)
+  poste_j4_acc_kevin:
+    service:      "@svc_j4"
+    zone:         "@zone_accueil"
+    user:         "@user_kevin"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+
+  poste_j4_bar_gabin:
+    service:      "@svc_j4"
+    zone:         "@zone_bar"
+    user:         "@user_gabin"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+
+  poste_j4_salle_patou:
+    service:      "@svc_j4"
+    zone:         "@zone_salle"
+    user:         "@user_patou"
+    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
 
 # ─── Completions (service du jour — ouverture faite) ─────────────────────────
 App\Entity\Completion:
-  # Accueil — ouverture complète (Kevin + Patou)
+  # Accueil — ouverture partielle (Kevin + Patou)
   c1:  { poste: "@poste_today_acc_kevin",  mission: "@m_acc_ouv_1",  user: "@user_kevin" }
   c2:  { poste: "@poste_today_acc_kevin",  mission: "@m_acc_ouv_2",  user: "@user_kevin" }
   c3:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_ouv_3",  user: "@user_patou" }
   c4:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_ouv_4",  user: "@user_patou" }
   c5:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_ouv_6",  user: "@user_patou" }
-  # Accueil — pendant partiel
   c6:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_pend_3", user: "@user_patou" }
   c7:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_pend_4", user: "@user_patou" }
 
-  # Bar — ouverture partielle (Gabin)
-  c8:  { poste: "@poste_today_bar_gabin",  mission: "@m_bar_ouv_1",  user: "@user_gabin" }
-  c9:  { poste: "@poste_today_bar_gabin",  mission: "@m_bar_ouv_3",  user: "@user_gabin" }
-  c10: { poste: "@poste_today_bar_gabin",  mission: "@m_bar_ouv_4",  user: "@user_gabin" }
-  c11: { poste: "@poste_today_bar_gabin",  mission: "@m_bar_ouv_5",  user: "@user_gabin" }
-  c12: { poste: "@poste_today_bar_cynthia",mission: "@m_bar_ouv_10", user: "@user_cynthia" }
+  # Bar — ouverture partielle (Gabin + Cynthia)
+  c8:  { poste: "@poste_today_bar_gabin",   mission: "@m_bar_ouv_1",  user: "@user_gabin" }
+  c9:  { poste: "@poste_today_bar_gabin",   mission: "@m_bar_ouv_3",  user: "@user_gabin" }
+  c10: { poste: "@poste_today_bar_gabin",   mission: "@m_bar_ouv_4",  user: "@user_gabin" }
+  c11: { poste: "@poste_today_bar_gabin",   mission: "@m_bar_ouv_5",  user: "@user_gabin" }
+  c12: { poste: "@poste_today_bar_cynthia", mission: "@m_bar_ouv_10", user: "@user_cynthia" }
 
   # Salle — ouverture partielle (Erwan + Aya)
-  c13: { poste: "@poste_today_salle_erwan",mission: "@m_salle_ouv_1",user: "@user_erwan" }
-  c14: { poste: "@poste_today_salle_aya",  mission: "@m_salle_ouv_3",user: "@user_aya" }
-  c15: { poste: "@poste_today_salle_aya",  mission: "@m_salle_ouv_5",user: "@user_aya" }
+  c13: { poste: "@poste_today_salle_erwan", mission: "@m_salle_ouv_1", user: "@user_erwan" }
+  c14: { poste: "@poste_today_salle_aya",   mission: "@m_salle_ouv_3", user: "@user_aya" }
+  c15: { poste: "@poste_today_salle_aya",   mission: "@m_salle_ouv_5", user: "@user_aya" }
 
-# ─── Incidents ───────────────────────────────────────────────────────────────
+# ─── Incidents (4) ───────────────────────────────────────────────────────────
 App\Entity\Incident:
   inc_1:
-    centre:   "@centre_fgc"
-    service:  "@svc_j3"
-    titre:    "Panne piste n°4 — retour boules bloqué, mécanisme coincé"
-    severite: "haute"
-    statut:   "EN_COURS"
-    user:     "@user_kevin"
-    zone:     "@zone_salle"
+    centre:         "@centre_fgc"
+    service:        "@svc_j3"
+    titre:          "Panne piste n°4 — retour boules bloqué, mécanisme coincé"
+    severite:       "haute"
+    statut:         "EN_COURS"
+    user:           "@user_kevin"
+    zone:           "@zone_salle"
+    staffImpliques: ["@user_kevin", "@user_megane", "@user_erwan"]
 
   inc_2:
-    centre:   "@centre_fgc"
-    service:  "@svc_j1"
-    titre:    "Climatisation salle — bruit anormal depuis 18h, vibrations sur la grille nord"
-    severite: "moyenne"
-    statut:   "OUVERT"
-    user:     "@user_micka"
-    zone:     "@zone_salle"
+    centre:         "@centre_fgc"
+    service:        "@svc_j2"
+    titre:          "Climatisation salle — bruit anormal depuis 18h, vibrations sur la grille nord"
+    severite:       "moyenne"
+    statut:         "OUVERT"
+    user:           "@user_micka"
+    zone:           "@zone_salle"
+    staffImpliques: ["@user_micka", "@user_pol"]
 
   inc_3:
-    centre:   "@centre_fgc"
-    service:  "@svc_j2"
-    titre:    "Machine à cocktails — fuite au niveau du joint inférieur, serviettes posées en attendant"
-    severite: "haute"
-    statut:   "RESOLU"
-    user:     "@user_megane"
-    zone:     "@zone_bar"
+    centre:         "@centre_fgc"
+    service:        "@svc_j3"
+    titre:          "Machine à cocktails — fuite au niveau du joint inférieur, serviettes posées en attendant"
+    severite:       "haute"
+    statut:         "RESOLU"
+    user:           "@user_megane"
+    zone:           "@zone_bar"
+    staffImpliques: ["@user_megane", "@user_gabin", "@user_cynthia", "@user_hiba"]
 
   inc_4:
-    centre:   "@centre_fgc"
-    service:  "@svc_j3"
-    titre:    "Client ivre refusé à l'entrée, intervention sécurité requise"
-    severite: "moyenne"
-    statut:   "RESOLU"
-    user:     "@user_kevin"
-    zone:     "@zone_accueil"
+    centre:         "@centre_fgc"
+    service:        "@svc_j4"
+    titre:          "Client ivre refusé à l'entrée, intervention sécurité requise"
+    severite:       "moyenne"
+    statut:         "RESOLU"
+    user:           "@user_kevin"
+    zone:           "@zone_accueil"
+    staffImpliques: ["@user_kevin", "@user_securite", "@user_patou"]
 
 # ─── Tutoriels ───────────────────────────────────────────────────────────────
 App\Entity\Tutoriel:
@@ -1228,7 +1468,7 @@ App\Entity\Tutoriel:
       - { type: "step", number: 3, title: "Prévenir le manager", text: "Pour les incidents 'haute' sévérité, prévenez oralement le manager en plus du signalement app." }
       - { type: "tip", text: "Un incident signalé rapidement = résolution 3 fois plus rapide en moyenne." }
 
-# ─── TutoReads ───────────────────────────────────────────────────────────────
+# ─── TutoReads (10) ──────────────────────────────────────────────────────────
 App\Entity\TutoRead:
   tr_patou_1:
     user:     "@user_patou"
@@ -1242,6 +1482,9 @@ App\Entity\TutoRead:
   tr_erwan_1:
     user:     "@user_erwan"
     tutoriel: "@tuto_incidents"
+  tr_erwan_2:
+    user:     "@user_erwan"
+    tutoriel: "@tuto_reservation"
   tr_aya_1:
     user:     "@user_aya"
     tutoriel: "@tuto_cocktails"
@@ -1251,3 +1494,26 @@ App\Entity\TutoRead:
   tr_kevin_1:
     user:     "@user_kevin"
     tutoriel: "@tuto_incidents"
+  tr_cynthia_1:
+    user:     "@user_cynthia"
+    tutoriel: "@tuto_cocktails"
+  tr_pol_1:
+    user:     "@user_pol"
+    tutoriel: "@tuto_reservation"
+
+# ─── Planning Weeks (2) ──────────────────────────────────────────────────────
+App\Entity\PlanningWeek:
+  pw_last:
+    centre:      "@centre_fgc"
+    weekStart:   "<(new \\DateTimeImmutable('monday last week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday last week 09:30:00'))>"
+    publishedBy: "@user_kevin"
+    note:        "Semaine standard — pas de remarques particulières."
+
+  pw_current:
+    centre:      "@centre_fgc"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 08:45:00'))>"
+    publishedBy: "@user_megane"

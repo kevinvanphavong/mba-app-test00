@@ -61,6 +61,20 @@ class CreateServiceController extends AbstractController
             throw $this->createAccessDeniedException('Utilisateur sans centre.');
         }
 
+        // Fallback : heures du centre pour ce jour de la semaine si non fournies
+        if (!$heureDebut || !$heureFin) {
+            $dayMap = ['1'=>'lundi','2'=>'mardi','3'=>'mercredi','4'=>'jeudi','5'=>'vendredi','6'=>'samedi','7'=>'dimanche'];
+            $dayKey = $dayMap[$date->format('N')] ?? null;
+            $hours  = $centre->getOpeningHours() ?? [];
+
+            if (!$heureDebut && $dayKey && !empty($hours[$dayKey]['ouverture'])) {
+                $heureDebut = $hours[$dayKey]['ouverture'];
+            }
+            if (!$heureFin && $dayKey && !empty($hours[$dayKey]['fermeture'])) {
+                $heureFin = $hours[$dayKey]['fermeture'];
+            }
+        }
+
         $service = new Service();
         $service->setCentre($centre);
         $service->setDate($date);

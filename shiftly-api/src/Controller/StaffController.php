@@ -92,6 +92,8 @@ class StaffController extends AbstractController
                 'tailleHaut'       => $user->getTailleHaut(),
                 'tailleBas'        => $user->getTailleBas(),
                 'pointure'         => $user->getPointure(),
+                'heuresHebdo'      => $user->getHeuresHebdo(),
+                'typeContrat'      => $user->getTypeContrat(),
                 'staffCompetences' => $staffComps,
                 'tutorielsLus'     => $tutorielsLus,
                 'isPresent'        => in_array($user->getId(), $presentUserIds, true),

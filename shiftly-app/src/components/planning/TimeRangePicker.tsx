@@ -17,7 +17,7 @@ const inputCls = `
 /** Sélecteurs heure début, heure fin et pause (utilisés dans ShiftModal) */
 export default function TimeRangePicker({ register, errors }: TimeRangePickerProps) {
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       <div>
         <label className="mb-[5px] block text-[10px] font-bold uppercase tracking-[0.8px] text-[var(--muted)]">
           Début

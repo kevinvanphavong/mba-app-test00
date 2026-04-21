@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — Super Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ─── Variables Shiftly ─────────────────────────────────────── */
+  :root {
+    --bg:       #0d0f14;
+    --surface:  #151820;
+    --surface2: #1c2030;
+    --border:   #252a3a;
+    --text:     #e8eaf0;
+    --muted:    #6b7280;
+    --accent:   #f97316;
+    --accent2:  #fb923c;
+    --blue:     #3b82f6;
+    --green:    #22c55e;
+    --red:      #ef4444;
+    --yellow:   #eab308;
+    --purple:   #a855f7;
+    --cyan:     #06b6d4;
+    --radius:   12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Top Bar Admin ─────────────────────────────────────────── */
+  .admin-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .admin-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .admin-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .admin-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--bg);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .admin-topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .admin-date {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .admin-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+  }
+
+  /* ─── Toolbar ───────────────────────────────────────────────── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .toolbar h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-toolbar:hover {
+    border-color: var(--accent);
+    background: rgba(249, 115, 22, 0.08);
+  }
+
+  .btn-toolbar.active {
+    border-color: var(--accent);
+    background: rgba(249, 115, 22, 0.12);
+    color: var(--accent);
+  }
+
+  .lock-indicator {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ─── Grid Dashboard ────────────────────────────────────────── */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 24px 32px;
+    min-height: calc(100vh - 140px);
+  }
+
+  /* ─── Widget Card ───────────────────────────────────────────── */
+  .widget {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+    position: relative;
+  }
+
+  .widget:hover {
+    border-color: rgba(249, 115, 22, 0.3);
+  }
+
+  .widget.dragging {
+    opacity: 0.5;
+    transform: scale(0.97);
+    border-color: var(--accent);
+    box-shadow: 0 0 30px rgba(249, 115, 22, 0.15);
+  }
+
+  .widget.drag-over {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.1);
+    background: rgba(249, 115, 22, 0.03);
+  }
+
+  .widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .widget-header:active { cursor: grabbing; }
+
+  .widget-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .widget-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .widget-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .widget-drag-handle {
+    color: var(--muted);
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .widget:hover .widget-drag-handle {
+    opacity: 1;
+  }
+
+  .widget-body {
+    padding: 0 20px 20px;
+  }
+
+  /* ─── Spans ─────────────────────────────────────────────────── */
+  .widget.span-2 { grid-column: span 2; }
+  .widget.span-3 { grid-column: span 3; }
+  .widget.span-4 { grid-column: span 4; }
+  .widget.row-2  { grid-row: span 2; }
+
+  /* ─── KPI Cards ─────────────────────────────────────────────── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .kpi-card {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+  }
+
+  .kpi-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .kpi-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .kpi-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 6px;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .kpi-trend.up {
+    color: var(--green);
+    background: rgba(34, 197, 94, 0.1);
+  }
+
+  .kpi-trend.down {
+    color: var(--red);
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  /* ─── Centre List ───────────────────────────────────────────── */
+  .centre-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .centre-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  .centre-row:hover {
+    background: rgba(249, 115, 22, 0.06);
+  }
+
+  .centre-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .centre-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .centre-name {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .centre-sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .centre-stats {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .centre-stat-val {
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .status-badge.active {
+    color: var(--green);
+    background: rgba(34, 197, 94, 0.12);
+  }
+
+  .status-badge.trial {
+    color: var(--yellow);
+    background: rgba(234, 179, 8, 0.12);
+  }
+
+  .status-badge.churned {
+    color: var(--red);
+    background: rgba(239, 68, 68, 0.12);
+  }
+
+  /* ─── Chart Placeholder ─────────────────────────────────────── */
+  .chart-area {
+    width: 100%;
+    height: 180px;
+    position: relative;
+    margin-top: 8px;
+  }
+
+  .chart-svg { width: 100%; height: 100%; }
+
+  .chart-bar-group { cursor: pointer; }
+  .chart-bar-group:hover rect { opacity: 0.9; }
+
+  .chart-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    padding: 0 4px;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .chart-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ─── Mini Bar Chart ────────────────────────────────────────── */
+  .mini-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 60px;
+    margin-top: 12px;
+  }
+
+  .mini-bar {
+    flex: 1;
+    border-radius: 3px 3px 0 0;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .mini-bar:hover { opacity: 0.8; }
+
+  /* ─── Donut Chart ───────────────────────────────────────────── */
+  .donut-container {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 8px;
+  }
+
+  .donut-svg {
+    width: 120px;
+    height: 120px;
+    transform: rotate(-90deg);
+  }
+
+  .donut-labels { display: flex; flex-direction: column; gap: 10px; }
+
+  .donut-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+
+  .donut-label-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .donut-label-value {
+    font-weight: 700;
+    margin-left: auto;
+    min-width: 30px;
+    text-align: right;
+  }
+
+  /* ─── Activity Feed ─────────────────────────────────────────── */
+  .activity-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+  }
+
+  .activity-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .activity-text { flex: 1; line-height: 1.4; }
+  .activity-text strong { color: var(--accent); font-weight: 600; }
+  .activity-time { font-size: 11px; color: var(--muted); white-space: nowrap; margin-top: 2px; }
+
+  /* ─── Module Usage ──────────────────────────────────────────── */
+  .module-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .module-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .module-name {
+    font-size: 13px;
+    font-weight: 500;
+    width: 100px;
+    flex-shrink: 0;
+  }
+
+  .module-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .module-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  .module-pct {
+    font-size: 13px;
+    font-weight: 700;
+    width: 42px;
+    text-align: right;
+  }
+
+  /* ─── Health Score ──────────────────────────────────────────── */
+  .health-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .health-card {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    text-align: center;
+  }
+
+  .health-score {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    line-height: 1;
+  }
+
+  .health-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ─── Drop Indicator ────────────────────────────────────────── */
+  .drop-placeholder {
+    border: 2px dashed var(--accent);
+    border-radius: var(--radius);
+    background: rgba(249, 115, 22, 0.04);
+    min-height: 200px;
+    display: none;
+  }
+
+  /* ─── Scrollbar ─────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══ -->
+<header class="admin-topbar">
+  <div class="admin-topbar-left">
+    <span class="admin-logo">Shiftly</span>
+    <span class="admin-badge">Super Admin</span>
+  </div>
+  <div class="admin-topbar-right">
+    <span class="admin-date">Mercredi 16 avril 2026</span>
+    <div class="admin-avatar">KV</div>
+  </div>
+</header>
+
+<!-- ═══ TOOLBAR ═══ -->
+<div class="toolbar">
+  <div class="toolbar-left">
+    <h1>Vue d'ensemble</h1>
+    <span class="lock-indicator" id="lockIndicator">
+      <span id="lockIcon">🔓</span>
+      <span id="lockText">Widgets déplaçables</span>
+    </span>
+  </div>
+  <div class="toolbar-actions">
+    <button class="btn-toolbar" id="btnLock" onclick="toggleLock()">
+      <span id="btnLockIcon">🔒</span> Verrouiller
+    </button>
+    <button class="btn-toolbar" onclick="resetLayout()">↻ Réinitialiser</button>
+  </div>
+</div>
+
+<!-- ═══ DASHBOARD GRID ═══ -->
+<div class="dashboard-grid" id="dashboardGrid">
+
+  <!-- ─── Widget 1 : KPI Business ─── -->
+  <div class="widget span-4" draggable="true" data-widget="kpi-business">
+    <div class="widget-header">
+      <div class="widget-header-left">
+        <div class="widget-icon" style="background: rgba(249,115,22,0.12);">💰</div>
+        <span class="widget-title">Métriques Business</span>
+      </div>
+      <span class="widget-drag-handle">⠿</span>
+    </div>
+    <div class="widget-body">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Centres actifs</div>
+          <div class="kpi-value" style="color: var(--accent);">12</div>
+          <span class="kpi-trend up">↑ +3 ce mois</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">MRR</div>
+          <div class="kpi-value" style="color: var(--green);">4 680€</div>
+          <span class="kpi-trend up">↑ +18%</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Churn rate</div>
+          <div class="kpi-value" style="color: var(--yellow);">2.1%</div>
+          <span class="kpi-trend down">↑ +0.3%</span>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Users totaux</div>
+          <div class="kpi-value" style="color: var(--blue);">147</div>
+          <span class="kpi-trend up">↑ +22</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Widget 2 : Croissance MRR ─── -->
+  <div class="widget span-2" draggable="true" data-widget="mrr-chart">
+    <div class="widget-header">
+      <div class="widget-header-left">
+        <div class="widget-icon" style="background: rgba(34,197,94,0.12);">📈</div>
+        <span class="widget-title">Croissance MRR</span>
+      </div>
+      <span class="widget-drag-handle">⠿</span>
+    </div>
+    <div class="widget-body">
+      <div class="chart-area">
+        <svg class="chart-svg" viewBox="0 0 400 160">
+          <!-- Grille -->
+          <line x1="40" y1="10" x2="40" y2="140" stroke="#252a3a" stroke-width="1"/>
+          <line x1="40" y1="140" x2="390" y2="140" stroke="#252a3a" stroke-width="1"/>
+          <line x1="40" y1="107" x2="390" y2="107" stroke="#252a3a" stroke-width="0.5" stroke-dasharray="4"/>
+          <line x1="40" y1="74" x2="390" y2="74" stroke="#252a3a" stroke-width="0.5" stroke-dasharray="4"/>
+          <line x1="40" y1="41" x2="390" y2="41" stroke="#252a3a" stroke-width="0.5" stroke-dasharray="4"/>
+          <!-- Labels Y -->
+          <text x="34" y="143" fill="#6b7280" font-size="10" text-anchor="end">0€</text>
+          <text x="34" y="110" fill="#6b7280" font-size="10" text-anchor="end">2k€</text>
+          <text x="34" y="77" fill="#6b7280" font-size="10" text-anchor="end">4k€</text>
+          <text x="34" y="44" fill="#6b7280" font-size="10" text-anchor="end">6k€</text>
+          <!-- Aire + Ligne MRR -->
+          <defs>
+            <linearGradient id="mrrGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f97316" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#f97316" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          <path d="M60,130 L110,125 L160,115 L210,105 L260,88 L310,68 L360,42 L360,140 L60,140 Z" fill="url(#mrrGrad)"/>
+          <polyline points="60,130 110,125 160,115 210,105 260,88 310,68 360,42" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Points -->
+          <circle cx="60" cy="130" r="3.5" fill="#f97316"/>
+          <circle cx="110" cy="125" r="3.5" fill="#f97316"/>
+          <circle cx="160" cy="115" r="3.5" fill="#f97316"/>
+          <circle cx="210" cy="105" r="3.5" fill="#f97316"/>
+          <circle cx="260" cy="88" r="3.5" fill="#f97316"/>
+          <circle cx="310" cy="68" r="3.5" fill="#f97316"/>
+          <circle cx="360" cy="42" r="4.5" fill="#f97316" stroke="#0d0f14" stroke-width="2"/>
+          <!-- Label dernier point -->
+          <text x="360" y="34" fill="#f97316" font-size="11" font-weight="700" text-anchor="middle">4 680€</text>
+        </svg>
+      </div>
+      <div class="chart-labels">
+        <span>Oct</span><span>Nov</span><span>Déc</span><span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Widget 3 : Répartition formules ─── -->
+  <div class="widget span-2" draggable="true" data-widget="formules">
+    <div class="widget-header">
+      <div class="widget-header-left">
+        <div class="widget-icon" style="background: rgba(168,85,247,0.12);">🧩</div>
+        <span class="widget-title">Répartition formules</span>
+      </div>
+      <span class="widget-drag-handle">⠿</span>
+    </div>
+    <div class="widget-body">
+      <div class="donut-container">
+        <svg class="donut-svg" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#252a3a" stroke-width="12"/>
+          <!-- Socle: 5/12 = 41.6% → 261.8 * 0.416 = 109 -->
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#3b82f6" stroke-width="12"
+            stroke-dasharray="109 205" stroke-dashoffset="0" stroke-linecap="round"/>
+          <!-- Socle+Planning: 4/12 = 33.3% → 261.8 * 0.333 = 87.2 -->
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#f97316" stroke-width="12"
+            stroke-dasharray="87 227" stroke-dashoffset="-109" stroke-linecap="round"/>
+          <!-- Complet: 3/12 = 25% → 261.8 * 0.25 = 65.5 -->
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#22c55e" stroke-width="12"
+            stroke-dasharray="62 252" stroke-dashoffset="-196" stroke-linecap="round"/>
+        </svg>
+        <div class="donut-labels">
+          <div class="donut-label">
+            <span class="donut-label-dot" style="background: var(--blue);"></span>
+            <span>Socle</span>
+            <span class="donut-label-value">5</span>
+          </div>
+          <div class="donut-label">
+            <span class="donut-label-dot" style="background: var(--accent);"></span>
+            <span>Socle + Planning</span>
+            <span class="donut-label-value">4</span>
+          </div>
+          <div class="donut-label">
+            <span class="donut-label-dot" style="background: var(--green);"></span>
+            <span>Complet</span>
+            <span class="donut-label-value">3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Widget 4 : Liste centres ─── -->
+  <div class="widget span-3 row-2" draggable="true" data-widget="centres">
+    <div class="widget-header">
+      <div class="widget-header-left">
+        <div class="widget-icon" style="background: rgba(59,130,246,0.12);">🏢</div>
+        <span class="widget-title">Centres clients</span>
+      </div>
+      <span class="widget-drag-handle">⠿</span>
+    </div>
+    <div class="widget-body">
+      <div class="centre-list">
+        <div class="centre-row">
+          <div class="centre-info">
+            <div class="centre-dot" style="background: var(--green);"></div>
+            <div>
+              <div class="centre-name">Family Games Center</div>
+              <div class="centre-sub">Blois · Bowling, Arcade, VR</div>
+            </div>
+          </div>
+          <div class="centre-stats">
+            <span><span class="centre-stat-val">12</span> staff</span>
+            <span><span class="centre-stat-val">87%</span> complétion</span>
+            <span class="status-badge active">Actif</span>
+          </div>
+        </div>
+        <div class="centre-row">
+          <div class="centre-info">
+            <div class="centre-dot" style="background: var(--green);"></div>
+            <div>
+              <div class="centre-name">Strike Bowl Paris</div>
+              <div class="centre-sub">Paris 11e · Bowling, Bar</div>
+            </div>
+          </div>
+          <div class="centre-stats">
+            <span><span class="centre-stat-val">18</span> staff</span>
+            <span><span class="centre-stat-val">92%</span> complétion</span>
+            <span class="status-badge active">Actif</span>
+          </div>
+        </div>
+        <div class="centre-row">
+          <div class="centre-info">
+            <div class="centre-dot" style="background: var(--green);"></div>
+            <div>
+              <div class="centre-name">Laser Nation Lyon</div>
+              <div class="centre-sub">Lyon 3e · Laser Game, Arcade</div>
+            </div>
+          </div>
+          <div class="centre-stats">
+            <span><span class="centre-stat-val">8</span> staff</span>
+            <span><span class="centre-stat-val">78%</span> complétion</span>
+            <span class="status-badge active">Actif</span>
+          </div>
+        </div>
+        <div class="centre-row">
+          <div class="centre-info">
+            <div class="centre-dot" style="background: var(--yellow);"></div>
+            <div>
+              <div class="centre-name">Fun Park Nantes</div>
+              <div class="centre-sub">Nantes · Bowling, Karaoké</div>
+            </div>
+          </div>
+          <div class="centre-stats">
+            <span><span class="centre-stat-val">6</span> staff</span>
+            <span><span class="centre-stat-val">45%</span> complétion</span>
+            <span class="status-badge trial">Essai</span>
+          </div>
+        </div>
+        <div class="centre-row">
+          <div class="centre-info">
+            <div class="centre-dot" style="background: var(--green);"></div>
+            <div>
+              <div class="centre-name">Mega Bowl Bordeaux</div>
+              <div class="centre-sub">Bordeaux · Bowling, Billards</div>
+            </div>
+          </div>
+          <div class="centre-stats">
+            <span><span class="centre-stat-val">15</span> staff</span>
+            <span><span class="centre-stat-val">81%</span> complétion</span>
+            <span class="status-badge active">Actif</span>
+          </div>
+        </div>
+        <div class="centre-row">
+          <div class="centre-info">
+            <div class="centre-dot" style="background: var(--red);"></div>
+            <div>
+              <div class="centre-name">GameZone Lille</div>
+              <div class="centre-sub">Lille · Arcade, VR</div>
+            </div>
+          </div>
+          <div class="centre-stats">
+            <span><span class="centre-stat-val">5</span> staff</span>
+            <span><span class="centre-stat-val">—</span> complétion</span>
+            <span class="status-badge churned">Churné</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Widget 5 : Santé opérationnelle ─── -->
+  <div class="widget row-2" draggable="true" data-widget="health">
+    <div class="widget-header">
+      <div class="widget-header-left">
+        <div class="widget-icon" style="background: rgba(34,197,94,0.12);">💚</div>
+        <span class="widget-title">Santé globale</span>
+      </div>
+      <span class="widget-drag-handle">⠿</span>
+    </div>
+    <div class="widget-body">
+      <div class="health-grid">
+        <div class="health-card">
+          <div class="health-score" style="color: var(--green);">84%</div>
+          <div class="health-label">Complétion moy.</div>
+        </div>
+        <div class="health-card">
+          <div class="health-score" style="color: var(--blue);">91%</div>
+          <div class="health-label">Plannings publiés</div>
+        </div>
+        <div class="health-card">
+          <div class="health-score" style="color: var(--yellow);">7</div>
+          <div class="health-label">Incidents ouverts</div>
+        </div>
+        <div class="health-card">
+          <div class="health-score" style="color: var(--accent);">96%</div>
+          <div class="health-label">Staff actif</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">Connexions 7 derniers jours</div>
+        <div class="mini-bars">
+          <div class="mini-bar" style="height: 65%; background: var(--accent);"></div>
+          <div class="mini-bar" style="height: 82%; background: var(--accent);"></div>
+          <div class="mini-bar" style="height: 45%; background: var(--accent); opacity: 0.6;"></div>
+          <div class="mini-bar" style="height: 90%; background: var(--accent);"></div>
+          <div class="mini-bar" style="height: 78%; background: var(--accent);"></div>
+          <div class="mini-bar" style="height: 55%; background: var(--accent); opacity: 0.6;"></div>
+          <div class="mini-bar" style="height: 100%; background: linear-gradient(to top, var(--accent), var(--accent2));"></div>
+        </div>
+        <div class="chart-labels" style="margin-top: 4px;">
+          <span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span><span>Lun</span><span>Mar</span><span>Mer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Widget 6 : Adoption modules ─── -->
+  <div class="widget span-2" draggable="true" data-widget="modules">
+    <div class="widget-header">
+      <div class="widget-header-left">
+        <div class="widget-icon" style="background: rgba(6,182,212,0.12);">📊</div>
+        <span class="widget-title">Adoption des modules</span>
+      </div>
+      <span class="widget-drag-handle">⠿</span>
+    </div>
+    <div class="widget-body">
+      <div class="module-list">
+        <div class="module-row">
+          <span class="module-name">Service du Jour</span>
+          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 100%; background: var(--green);"></div></div>
+          <span class="module-pct" style="color: var(--green);">100%</span>
+        </div>
+        <div class="module-row">
+          <span class="module-name">Staff</span>
+          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 100%; background: var(--green);"></div></div>
+          <span class="module-pct" style="color: var(--green);">100%</span>
+        </div>
+        <div class="module-row">
+          <span class="module-name">Planning</span>
+          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 67%; background: var(--accent);"></div></div>
+          <span class="module-pct" style="color: var(--accent);">67%</span>
+        </div>
+        <div class="module-row">
+          <span class="module-name">Tutoriels</span>
+          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 58%; background: var(--blue);"></div></div>
+          <span class="module-pct" style="color: var(--blue);">58%</span>
+        </div>
+        <div class="module-row">
+          <span class="module-name">Compétences</span>
+          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 42%; background: var(--yellow);"></div></div>
+          <span class="module-pct" style="color: var(--yellow);">42%</span>
+        </div>
+        <div class="module-row">
+          <span class="module-name">Incidents</span>
+          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 33%; background: var(--purple);"></div></div>
+          <span class="module-pct" style="color: var(--purple);">33%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Widget 7 : Activité récente ─── -->
+  <div class="widget span-2" draggable="true" data-widget="activity">
+    <div class="widget-header">
+      <div class="widget-header-left">
+        <div class="widget-icon" style="background: rgba(234,179,8,0.12);">⚡</div>
+        <span class="widget-title">Activité récente</span>
+      </div>
+      <span class="widget-drag-handle">⠿</span>
+    </div>
+    <div class="widget-body">
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-dot" style="background: var(--green);"></div>
+          <div class="activity-text"><strong>Fun Park Nantes</strong> a commencé son essai gratuit</div>
+          <div class="activity-time">Il y a 2h</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background: var(--blue);"></div>
+          <div class="activity-text"><strong>Strike Bowl Paris</strong> a publié le planning S17</div>
+          <div class="activity-time">Il y a 5h</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background: var(--accent);"></div>
+          <div class="activity-text"><strong>Mega Bowl Bordeaux</strong> a activé le module Planning</div>
+          <div class="activity-time">Hier 18:30</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background: var(--red);"></div>
+          <div class="activity-text"><strong>GameZone Lille</strong> — abonnement annulé (churn)</div>
+          <div class="activity-time">Hier 14:15</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background: var(--green);"></div>
+          <div class="activity-text"><strong>Family Games Center</strong> — 98% complétion service hier</div>
+          <div class="activity-time">Hier 01:05</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-dot" style="background: var(--purple);"></div>
+          <div class="activity-text"><strong>Laser Nation Lyon</strong> a créé 3 nouveaux tutoriels</div>
+          <div class="activity-time">Lun 16:40</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ DRAG & DROP SCRIPT ═══ -->
+<script>
+  let locked = false;
+  let draggedWidget = null;
+
+  // ─── Init drag events ──────────────────────────────────────
+  function initDragEvents() {
+    const widgets = document.querySelectorAll('.widget');
+
+    widgets.forEach(widget => {
+      widget.addEventListener('dragstart', handleDragStart);
+      widget.addEventListener('dragend', handleDragEnd);
+      widget.addEventListener('dragover', handleDragOver);
+      widget.addEventListener('dragenter', handleDragEnter);
+      widget.addEventListener('dragleave', handleDragLeave);
+      widget.addEventListener('drop', handleDrop);
+    });
+  }
+
+  function handleDragStart(e) {
+    if (locked) { e.preventDefault(); return; }
+    draggedWidget = this;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', this.dataset.widget);
+  }
+
+  function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    document.querySelectorAll('.widget').forEach(w => w.classList.remove('drag-over'));
+    draggedWidget = null;
+  }
+
+  function handleDragOver(e) {
+    if (locked) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  }
+
+  function handleDragEnter(e) {
+    if (locked || this === draggedWidget) return;
+    this.classList.add('drag-over');
+  }
+
+  function handleDragLeave(e) {
+    this.classList.remove('drag-over');
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    this.classList.remove('drag-over');
+
+    if (locked || !draggedWidget || this === draggedWidget) return;
+
+    const grid = document.getElementById('dashboardGrid');
+    const allWidgets = [...grid.children];
+    const draggedIdx = allWidgets.indexOf(draggedWidget);
+    const targetIdx = allWidgets.indexOf(this);
+
+    if (draggedIdx < targetIdx) {
+      grid.insertBefore(draggedWidget, this.nextSibling);
+    } else {
+      grid.insertBefore(draggedWidget, this);
+    }
+  }
+
+  // ─── Lock / Unlock ─────────────────────────────────────────
+  function toggleLock() {
+    locked = !locked;
+    const widgets = document.querySelectorAll('.widget');
+    widgets.forEach(w => w.setAttribute('draggable', !locked));
+
+    document.getElementById('lockIcon').textContent = locked ? '🔒' : '🔓';
+    document.getElementById('lockText').textContent = locked ? 'Widgets verrouillés' : 'Widgets déplaçables';
+    document.getElementById('btnLockIcon').textContent = locked ? '🔓' : '🔒';
+    document.getElementById('btnLock').querySelector('span:last-child') ||
+      (document.getElementById('btnLock').childNodes[1].textContent = locked ? ' Déverrouiller' : ' Verrouiller');
+
+    if (locked) {
+      document.getElementById('btnLock').classList.add('active');
+    } else {
+      document.getElementById('btnLock').classList.remove('active');
+    }
+  }
+
+  // ─── Reset layout ──────────────────────────────────────────
+  function resetLayout() {
+    const grid = document.getElementById('dashboardGrid');
+    const widgets = [...grid.children];
+    const order = ['kpi-business', 'mrr-chart', 'formules', 'centres', 'health', 'modules', 'activity'];
+
+    order.forEach(name => {
+      const widget = widgets.find(w => w.dataset.widget === name);
+      if (widget) grid.appendChild(widget);
+    });
+  }
+
+  // ─── Init ──────────────────────────────────────────────────
+  initDragEvents();
+</script>
+
+</body>
+</html>

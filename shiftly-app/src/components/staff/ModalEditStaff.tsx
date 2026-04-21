@@ -11,17 +11,21 @@ const ROLES = [
 
 const DEFAULT_COLOR = '#f97316'
 
+const CONTRATS = ['CDI', 'CDD', 'EXTRA', 'ALTERNANCE', 'STAGE'] as const
+
 interface SaveData {
-  nom:         string
-  prenom:      string | null
-  email:       string
-  role:        'MANAGER' | 'EMPLOYE'
-  tailleHaut:  string | null
-  tailleBas:   string | null
-  pointure:    string | null
-  actif:       boolean
-  avatarColor: string
-  password?:   string
+  nom:          string
+  prenom:       string | null
+  email:        string
+  role:         'MANAGER' | 'EMPLOYE'
+  tailleHaut:   string | null
+  tailleBas:    string | null
+  pointure:     string | null
+  actif:        boolean
+  avatarColor:  string
+  heuresHebdo:  number | null
+  typeContrat:  string | null
+  password?:    string
 }
 
 interface Props {
@@ -39,9 +43,11 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
   const [tailleHaut,  setTailleHaut]  = useState('')
   const [tailleBas,   setTailleBas]   = useState('')
   const [pointure,    setPointure]    = useState('')
-  const [actif,       setActif]       = useState(true)
-  const [password,    setPassword]    = useState('')
-  const [avatarColor, setAvatarColor] = useState(DEFAULT_COLOR)
+  const [actif,        setActif]        = useState(true)
+  const [password,     setPassword]     = useState('')
+  const [avatarColor,  setAvatarColor]  = useState(DEFAULT_COLOR)
+  const [heuresHebdo,  setHeuresHebdo]  = useState('')
+  const [typeContrat,  setTypeContrat]  = useState('')
 
   useEffect(() => {
     if (!open) return
@@ -55,11 +61,14 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
       setPointure(member.pointure ?? '')
       setActif(member.actif)
       setAvatarColor(member.avatarColor ?? DEFAULT_COLOR)
+      setHeuresHebdo(member.heuresHebdo != null ? String(member.heuresHebdo) : '')
+      setTypeContrat(member.typeContrat ?? '')
       setPassword('')
     } else {
       setNom(''); setPrenom(''); setEmail(''); setRole('EMPLOYE')
       setTailleHaut(''); setTailleBas(''); setPointure('')
-      setActif(true); setAvatarColor(DEFAULT_COLOR); setPassword('')
+      setActif(true); setAvatarColor(DEFAULT_COLOR)
+      setHeuresHebdo(''); setTypeContrat(''); setPassword('')
     }
   }, [open, member])
 
@@ -75,6 +84,8 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
       pointure:    pointure.trim() || null,
       actif,
       avatarColor,
+      heuresHebdo: heuresHebdo !== '' ? parseInt(heuresHebdo, 10) : null,
+      typeContrat: typeContrat || null,
       password:    password || undefined,
     })
   }
@@ -128,6 +139,30 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
               {r.label}
             </button>
           ))}
+        </div>
+
+        {/* Contrat */}
+        <div>
+          <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">Contrat</p>
+          <div className="flex gap-2 mb-2 flex-wrap">
+            {CONTRATS.map(c => (
+              <button
+                key={c}
+                onClick={() => setTypeContrat(v => v === c ? '' : c)}
+                className={`px-3 py-1.5 rounded-[8px] text-[11px] font-bold border transition-all ${
+                  typeContrat === c ? 'bg-accent/10 border-accent/40 text-accent' : 'border-border text-muted'
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+          <input
+            value={heuresHebdo}
+            onChange={e => setHeuresHebdo(e.target.value.replace(/\D/g, ''))}
+            placeholder="Heures / semaine (ex : 35)"
+            className={inputCls}
+          />
         </div>
 
         {/* Couleur avatar */}

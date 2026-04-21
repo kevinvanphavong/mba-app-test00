@@ -263,6 +263,78 @@ INSERT INTO centre (nom, slug, created_at) VALUES
 -- Format mot de passe fixture : prenom123
 
 -- ============================================================
+-- TABLE : planning_week
+-- Statut de publication d'une semaine de planning pour un centre.
+-- Une semaine sans entrée est implicitement BROUILLON.
+-- ============================================================
+
+CREATE TABLE planning_week (
+    id           INT AUTO_INCREMENT NOT NULL,
+    centre_id    INT          NOT NULL,
+    week_start   DATE         NOT NULL COMMENT '(DC2Type:date_immutable) — toujours un lundi',
+    statut       VARCHAR(20)  NOT NULL DEFAULT 'BROUILLON',  -- BROUILLON | PUBLIE
+    published_at DATETIME     DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
+    published_by INT          DEFAULT NULL,
+    note         TEXT         DEFAULT NULL,
+    UNIQUE KEY uniq_pw_centre_week (centre_id, week_start),
+    INDEX idx_pw_centre (centre_id),
+    INDEX idx_pw_published_by (published_by),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_pw_centre       FOREIGN KEY (centre_id)    REFERENCES centre (id),
+    CONSTRAINT FK_pw_published_by FOREIGN KEY (published_by) REFERENCES `user` (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLE : planning_snapshot
+-- Archivage légal immuable de chaque publication de planning.
+-- Conservation minimum 3 ans (prescription prud'homale heures sup).
+-- SHA-256 garantit l'intégrité du contenu après archivage.
+-- ============================================================
+
+CREATE TABLE planning_snapshot (
+    id                 INT AUTO_INCREMENT NOT NULL,
+    centre_id          INT          NOT NULL,
+    week_start         DATE         NOT NULL COMMENT '(DC2Type:date_immutable)',
+    published_at       DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    published_by       INT          NOT NULL,
+    data               JSON         NOT NULL,            -- copie intégrale PlanningWeekData
+    motif_modification TEXT         DEFAULT NULL,        -- obligatoire si délai < 7j
+    checksum           VARCHAR(64)  NOT NULL,            -- SHA-256 du JSON data
+    delai_respect      TINYINT(1)   NOT NULL DEFAULT 1,  -- false si publié à < 7j calendaires
+    INDEX idx_ps_centre_week (centre_id, week_start),
+    INDEX idx_ps_published_by (published_by),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_ps_centre       FOREIGN KEY (centre_id)    REFERENCES centre (id),
+    CONSTRAINT FK_ps_published_by FOREIGN KEY (published_by) REFERENCES `user` (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLE : absence
+-- Absence journalière d'un employé (CP, RTT, maladie, repos planifié…)
+-- Contrainte UNIQUE (user_id, date) : une seule absence par jour par employé.
+-- type : 'CP' | 'RTT' | 'MALADIE' | 'REPOS' | 'EVENEMENT_FAMILLE' | 'AUTRE'
+-- ============================================================
+
+CREATE TABLE absence (
+    id          INT AUTO_INCREMENT NOT NULL,
+    centre_id   INT          NOT NULL,
+    user_id     INT          NOT NULL,
+    date        DATE         NOT NULL COMMENT '(DC2Type:date_immutable)',
+    type        VARCHAR(30)  NOT NULL,
+    motif       VARCHAR(255) DEFAULT NULL,
+    created_at  DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    created_by  INT          DEFAULT NULL,
+    UNIQUE KEY  uniq_absence_user_date (user_id, date),
+    INDEX idx_absence_centre (centre_id),
+    INDEX idx_absence_user   (user_id),
+    INDEX idx_absence_date   (date),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_absence_centre     FOREIGN KEY (centre_id)  REFERENCES centre (id),
+    CONSTRAINT FK_absence_user       FOREIGN KEY (user_id)    REFERENCES `user` (id),
+    CONSTRAINT FK_absence_created_by FOREIGN KEY (created_by) REFERENCES `user` (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- NOTES MÉTIER
 -- ============================================================
 

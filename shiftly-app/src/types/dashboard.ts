@@ -3,9 +3,9 @@
 
 export interface DashboardServiceToday {
   id:         number
-  date:       string        // 'YYYY-MM-DD'
-  heureDebut: string        // 'HH:mm'
-  heureFin:   string        // 'HH:mm'
+  date:       string             // 'YYYY-MM-DD'
+  heureDebut: string | null      // 'HH:mm' — null si non défini
+  heureFin:   string | null      // 'HH:mm' — null si non défini
   statut:     'PLANIFIE' | 'EN_COURS' | 'TERMINE'
   nbPostes:   number
 }

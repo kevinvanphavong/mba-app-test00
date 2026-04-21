@@ -348,4 +348,4 @@ Chaque entité est isolée par `centre_id`. Le JWT embarque `centre_id` pour fil
 | 5 | Staff | CRUD complet, valide compétences | Voir collègues | Inclus |
 | 6 | Tutoriels | CRUD + suivi lecture équipe | Lit + marque lu | Inclus |
 | 7 | Réglages | Accès complet + éditeur | Notifs + infos | Inclus |
-| 8 | Éditeur de contenu | Zones + missions + compétences | ✗ | Dans Réglages |
+| 8 | Gestion du contenu | Zones + missions + compétences | ✗ | Dans Réglages |

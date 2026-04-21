@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { listItemVariants } from '@/lib/animations'
-import type { EmployeeWeek } from '@/types/planning'
+import type { EmployeeWeek, PlanningAbsence } from '@/types/planning'
 import EmployeeShiftRow from './EmployeeShiftRow'
 
 interface WeekCardProps {
@@ -24,6 +24,12 @@ export default function WeekCard({ week }: WeekCardProps) {
       acc[s.date] = acc[s.date] ? [...acc[s.date], s] : [s]
       return acc
     },
+    {}
+  )
+
+  // Indexe les absences par date
+  const absenceByDate = (week.absences ?? []).reduce<Record<string, PlanningAbsence>>(
+    (acc, a) => { acc[a.date] = a; return acc },
     {}
   )
 
@@ -52,7 +58,12 @@ export default function WeekCard({ week }: WeekCardProps) {
       {/* Lignes jours */}
       <div className="divide-y divide-[var(--border)]">
         {dates.map(date => (
-          <EmployeeShiftRow key={date} date={date} shifts={shiftsByDate[date] ?? []} />
+          <EmployeeShiftRow
+            key={date}
+            date={date}
+            shifts={shiftsByDate[date] ?? []}
+            absence={absenceByDate[date] ?? null}
+          />
         ))}
       </div>
     </motion.div>

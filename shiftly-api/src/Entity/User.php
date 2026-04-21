@@ -141,6 +141,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?string $typeContrat = null;
 
+    /** Code PIN à 4 chiffres pour le module Pointage — jamais exposé dans les réponses publiques */
+    #[ORM\Column(length: 4, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $codePointage = null;
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: StaffCompetence::class, cascade: ['remove'])]
     private Collection $staffCompetences;
 
@@ -183,6 +188,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setHeuresHebdo(?int $h): static { $this->heuresHebdo = $h; return $this; }
     public function getTypeContrat(): ?string { return $this->typeContrat; }
     public function setTypeContrat(?string $t): static { $this->typeContrat = $t; return $this; }
+
+    public function getCodePointage(): ?string { return $this->codePointage; }
+    public function setCodePointage(?string $code): static { $this->codePointage = $code; return $this; }
+
     public function getStaffCompetences(): Collection { return $this->staffCompetences; }
     public function getTutoReads(): Collection { return $this->tutoReads; }
 

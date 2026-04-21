@@ -6,12 +6,13 @@ import {
   type DragStartEvent, type DragEndEvent,
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
-import type { PlanningShift, PlanningWeekData } from '@/types/planning'
-import { useMoveShift } from '@/hooks/usePlanning'
+import type { PlanningAbsence, PlanningShift, PlanningWeekData, AbsenceType } from '@/types/planning'
+import { useMoveShift, useCreateAbsence, useDeleteAbsence } from '@/hooks/usePlanning'
 import { useAuthStore } from '@/store/authStore'
 import { hexAlpha } from '@/lib/colors'
 import DayHeader from './DayHeader'
 import PlanningRow from './PlanningRow'
+import AbsenceModal from './AbsenceModal'
 
 /** Fusionne l'ordre sauvegardé avec les employés actuels (garde l'ordre, ajoute les nouveaux) */
 function resolveRowOrder(currentIds: number[], storageKey: string): number[] {
@@ -48,10 +49,18 @@ function ShiftPreview({ shift }: { shift: PlanningShift }) {
 
 /** Grille planning complète avec DnD shifts + tri des lignes */
 export default function PlanningGrid({ data, onAddShift, onEditShift }: PlanningGridProps) {
-  const today      = new Date().toISOString().split('T')[0]
-  const moveShift  = useMoveShift()
-  const centreId   = useAuthStore(s => s.centreId)
-  const storageKey = `shiftly_row_order_${centreId}`
+  const today         = new Date().toISOString().split('T')[0]
+  const moveShift     = useMoveShift()
+  const createAbsence = useCreateAbsence()
+  const deleteAbsence = useDeleteAbsence()
+  const centreId      = useAuthStore(s => s.centreId)
+  const storageKey    = `shiftly_row_order_${centreId}`
+
+  // État modal absence
+  const [absenceTarget, setAbsenceTarget] = useState<{ date: string; employeeId: number } | null>(null)
+  const absenceEmployee = absenceTarget
+    ? data.employees.find(e => e.id === absenceTarget.employeeId)
+    : null
 
   const weekDates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(data.weekStart + 'T12:00:00')
@@ -138,10 +147,11 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
   const rowIds = rowOrder.map(id => `row-${id}`)
 
   return (
+    <>
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
-        {/* En-tête sticky */}
-        <div className="flex border-b border-[var(--border)] bg-[var(--surface)]" style={{ minWidth: 1040, position: 'sticky', top: 0, zIndex: 10 }}>
+        {/* En-tête sticky — top calculé pour rester sous les deux headers externes */}
+        <div className="flex border-b border-[var(--border)] bg-[var(--surface)]" style={{ minWidth: 1040, position: 'sticky', top: 0, zIndex: 5 }}>
           <div className="flex w-[200px] shrink-0 items-center border-r border-[var(--border)] px-4 py-3">
             <span className="text-[13px] font-bold text-[var(--text)]">Employés</span>
           </div>
@@ -164,6 +174,8 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
                 isDraggingRow={isDraggingRow}
                 onAddShift={onAddShift}
                 onEditShift={onEditShift}
+                onAddAbsence={(date, employeeId) => setAbsenceTarget({ date, employeeId })}
+                onDelAbsence={(absence: PlanningAbsence) => deleteAbsence.mutate(absence.id)}
               />
             ))}
           </SortableContext>
@@ -175,5 +187,25 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
         {activeShift && <ShiftPreview shift={activeShift} />}
       </DragOverlay>
     </DndContext>
+
+    {/* Modal absence */}
+    {absenceTarget && absenceEmployee && (
+      <AbsenceModal
+        employeNom={`${absenceEmployee.prenom ?? ''} ${absenceEmployee.nom}`.trim()}
+        date={absenceTarget.date}
+        loading={createAbsence.isPending}
+        onClose={() => setAbsenceTarget(null)}
+        onConfirm={async (type: AbsenceType, motif?: string) => {
+          await createAbsence.mutateAsync({
+            userId: absenceTarget.employeeId,
+            date:   absenceTarget.date,
+            type,
+            motif,
+          })
+          setAbsenceTarget(null)
+        }}
+      />
+    )}
+    </>
   )
 }

@@ -67,7 +67,7 @@ export default function ModalAddTutoriel({ open, editTutoriel, zones, onClose, o
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative bg-surface border-t border-border rounded-t-[24px] px-5 pt-5 pb-10 max-h-[90vh] overflow-y-auto flex flex-col gap-4">
+      <div className="relative bg-surface border-t border-border rounded-t-[24px] px-5 pt-5 pb-20 max-h-[90vh] overflow-y-auto flex flex-col gap-4">
 
         <div className="flex items-center justify-between">
           <h3 className="font-syne font-extrabold text-[16px] text-text">

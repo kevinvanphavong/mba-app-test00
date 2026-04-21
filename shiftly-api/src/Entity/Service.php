@@ -100,6 +100,10 @@ class Service
     #[Groups(['service:read', 'service:write'])]
     private ?string $note = null;
 
+    /** Snapshot JSON de toutes les missions au moment de la clôture du service */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $missionsSnapshot = null;
+
     /** Postes du jour — exposés uniquement dans l'item */
     #[ORM\OneToMany(mappedBy: 'service', targetEntity: Poste::class, cascade: ['remove'])]
     #[Groups(['service:item:read'])]
@@ -139,6 +143,8 @@ class Service
     public function setTauxCompletion(float $v): static { $this->tauxCompletion = $v; return $this; }
     public function getNote(): ?string { return $this->note; }
     public function setNote(?string $note): static { $this->note = $note; return $this; }
+    public function getMissionsSnapshot(): ?array { return $this->missionsSnapshot; }
+    public function setMissionsSnapshot(?array $v): static { $this->missionsSnapshot = $v; return $this; }
     public function getPostes(): Collection { return $this->postes; }
     public function getIncidents(): Collection { return $this->incidents; }
 }

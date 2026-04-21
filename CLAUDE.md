@@ -96,7 +96,7 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 | Staff | `/staff` | Manager (écriture) / Employé (lecture) |
 | Tutoriels | `/tutoriels` | Manager + Employé |
 | Réglages | `/reglages` | Manager (tout) / Employé (profil + notifs) |
-| Éditeur de contenu | `/reglages/editeur` | Manager uniquement |
+| Gestion du contenu | `/reglages/editeur` | Manager uniquement |
 
 Redirection par défaut : `/` → `/service`
 

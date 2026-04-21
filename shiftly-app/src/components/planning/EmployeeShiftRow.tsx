@@ -1,17 +1,27 @@
 'use client'
 
-import type { EmployeeShift } from '@/types/planning'
+import type { EmployeeShift, PlanningAbsence, AbsenceType } from '@/types/planning'
 import { hexAlpha } from '@/lib/colors'
 
+const ABSENCE_CONFIG: Record<AbsenceType, { label: string; icon: string; color: string }> = {
+  CP:                { label: 'Congés payés',       icon: '🏖️', color: '#6366f1' },
+  RTT:               { label: 'RTT',                icon: '📅', color: '#0ea5e9' },
+  MALADIE:           { label: 'Arrêt maladie',      icon: '🤒', color: '#ef4444' },
+  REPOS:             { label: 'Repos planifié',      icon: '😴', color: '#6b7280' },
+  EVENEMENT_FAMILLE: { label: 'Événement familial',  icon: '👨‍👩‍👧', color: '#a855f7' },
+  AUTRE:             { label: 'Absence',             icon: '📌', color: '#6b7280' },
+}
+
 interface EmployeeShiftRowProps {
-  date:   string
-  shifts: EmployeeShift[]
+  date:    string
+  shifts:  EmployeeShift[]
+  absence: PlanningAbsence | null
 }
 
 const JOURS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']
 
 /** Ligne d'un jour dans la carte semaine employé */
-export default function EmployeeShiftRow({ date, shifts }: EmployeeShiftRowProps) {
+export default function EmployeeShiftRow({ date, shifts, absence }: EmployeeShiftRowProps) {
   const d       = new Date(date + 'T12:00:00')
   const dayName = JOURS[d.getDay()]
   const dayNum  = d.getDate()
@@ -30,9 +40,26 @@ export default function EmployeeShiftRow({ date, shifts }: EmployeeShiftRowProps
         </span>
       </div>
 
-      {/* Shifts ou repos */}
+      {/* Shifts, absence ou repos */}
       <div className="flex flex-1 flex-col gap-1.5">
-        {shifts.length === 0 ? (
+        {absence ? (
+          // Bloc absence — prioritaire sur les shifts
+          (() => {
+            const cfg = ABSENCE_CONFIG[absence.type]
+            return (
+              <div
+                className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs"
+                style={{ backgroundColor: hexAlpha(cfg.color, 0.10), borderLeft: `3px solid ${cfg.color}` }}
+              >
+                <span>{cfg.icon}</span>
+                <span className="font-semibold" style={{ color: cfg.color }}>{cfg.label}</span>
+                {absence.motif && (
+                  <span className="text-[var(--muted)] truncate">— {absence.motif}</span>
+                )}
+              </div>
+            )
+          })()
+        ) : shifts.length === 0 ? (
           <span className="text-xs text-[var(--muted)]">Repos</span>
         ) : (
           shifts.map((s, i) => (

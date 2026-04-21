@@ -5,9 +5,9 @@ import { ty }        from '@/lib/typography'
 import { useAuthStore } from '@/store/authStore'
 
 const LINKS = [
-  { href: '/reglages/editeur',       label: 'Éditeur de contenu', sub: 'Zones, missions, compétences, tutoriels' },
-  { href: '/reglages/editeur-staff', label: 'Gestion du staff',   sub: 'Membres, rôles, tailles, activation'     },
-  { href: '/reglages/incidents',     label: 'Incidents',          sub: 'Voir, modifier et clôturer les incidents' },
+  { href: '/reglages/editeur',       label: 'Gestion du contenu',     sub: 'Zones, missions, compétences, tutoriels' },
+  { href: '/reglages/editeur-staff', label: 'Gestion du staff',       sub: 'Membres, rôles, tailles, activation'     },
+  { href: '/reglages/incidents',     label: 'Gestion des incidents',  sub: 'Voir, modifier et clôturer les incidents'},
 ]
 
 /** Section visible uniquement pour les managers */

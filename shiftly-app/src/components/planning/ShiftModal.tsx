@@ -47,8 +47,26 @@ export default function ShiftModal({
       defaultValues: { userId: 0, zoneId: 0, heureDebut: '09:00', heureFin: '17:00', pauseMinutes: 0 },
     })
 
-  const zoneId = watch('zoneId')
-  const userId = watch('userId')
+  const zoneId       = watch('zoneId')
+  const userId       = watch('userId')
+  const heureDebut   = watch('heureDebut')
+  const heureFin     = watch('heureFin')
+  const pauseMinutes = watch('pauseMinutes')
+
+  const durationLabel = (() => {
+    if (!heureDebut || !heureFin) return null
+    const [dh, dm] = heureDebut.split(':').map(Number)
+    const [fh, fm] = heureFin.split(':').map(Number)
+    let mins = (fh * 60 + fm) - (dh * 60 + dm)
+    const crossesMidnight = mins < 0
+    if (crossesMidnight) mins += 1440
+    mins -= (pauseMinutes ?? 0)
+    if (mins <= 0) return null
+    const h = Math.floor(mins / 60)
+    const m = mins % 60
+    const label = m > 0 ? `${h}h${String(m).padStart(2, '0')}` : `${h}h`
+    return { label, crossesMidnight }
+  })()
 
   useEffect(() => {
     if (open) {
@@ -113,7 +131,8 @@ export default function ShiftModal({
             className="fixed inset-0 z-40 bg-black/65 backdrop-blur-sm" onClick={onClose} />
 
           <motion.div variants={sheetVariants} initial="closed" animate="open" exit="exit"
-            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-[480px] rounded-t-[24px] border border-[var(--border)] bg-[var(--surface)] px-4 pb-8 pt-5">
+            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-[480px] rounded-t-[24px] border border-[var(--border)] bg-[var(--surface)] px-4 pt-5"
+            style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom, 2rem))' }}>
 
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[var(--border)]" />
             <h2 className="font-syne text-[18px] font-extrabold text-[var(--text)]">
@@ -153,6 +172,13 @@ export default function ShiftModal({
 
               {/* Horaires */}
               <TimeRangePicker register={register} errors={errors} />
+              {/* Durée calculée — gestion passage minuit */}
+              {durationLabel && (
+                <p className="-mt-2 text-[12px] text-[var(--muted)]">
+                  {durationLabel.crossesMidnight && '🌙 '}
+                  Durée : <span className="font-semibold text-[var(--text)]">{durationLabel.label}</span>
+                </p>
+              )}
 
               {/* Actions */}
               <div className="flex gap-2 pt-1">

@@ -3,32 +3,42 @@
 import { useDroppable } from '@dnd-kit/core'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import type { PlanningEmployee, PlanningShift } from '@/types/planning'
+import type { PlanningAbsence, PlanningEmployee, PlanningShift } from '@/types/planning'
 import ShiftBlock from './ShiftBlock'
+import AbsenceBlock from './AbsenceBlock'
 
 interface PlanningRowProps {
-  employee:    PlanningEmployee
-  weekDates:   string[]
-  today:       string
+  employee:      PlanningEmployee
+  weekDates:     string[]
+  today:         string
   isDraggingRow: boolean
-  onAddShift:  (date: string, employeeId: number) => void
-  onEditShift: (shift: PlanningShift) => void
+  onAddShift:    (date: string, employeeId: number) => void
+  onEditShift:   (shift: PlanningShift) => void
+  onAddAbsence:  (date: string, employeeId: number) => void
+  onDelAbsence:  (absence: PlanningAbsence) => void
 }
 
 /** Cellule droppable pour un jour */
 function DayCell({
-  date, employeeId, shifts, isToday, isDraggingRow, onAdd, onEdit,
+  date, employeeId, shifts, absence, isToday, isDraggingRow, onAdd, onEdit, onAddAbsence, onDelAbsence,
 }: {
-  date: string; employeeId: number; shifts: PlanningShift[]
+  date: string; employeeId: number; shifts: PlanningShift[]; absence: PlanningAbsence | null
   isToday: boolean; isDraggingRow: boolean
   onAdd: () => void; onEdit: (s: PlanningShift) => void
+  onAddAbsence: () => void; onDelAbsence: (a: PlanningAbsence) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `drop-${employeeId}-${date}`, data: { date, employeeId } })
+
+  // Clic sur cellule vide → absence si aucun shift, sinon shift
+  const handleCellClick = () => {
+    if (absence) return
+    if (!shifts.length) onAdd()
+  }
 
   return (
     <div
       ref={setNodeRef}
-      onClick={() => { if (!shifts.length) onAdd() }}
+      onClick={handleCellClick}
       className="group relative flex-1 border-l border-[var(--border)] px-1.5 py-1.5 transition-colors"
       style={{
         minWidth:        120,
@@ -38,16 +48,31 @@ function DayCell({
           : isToday
             ? 'rgba(249,115,22,0.04)'
             : 'var(--bg)',
-        cursor:          !shifts.length ? 'pointer' : 'default',
+        cursor:          absence ? 'default' : (!shifts.length ? 'pointer' : 'default'),
       }}
     >
-      {shifts.map(s => (
-        <ShiftBlock key={s.posteId} shift={s} onClick={onEdit} />
-      ))}
-      {!shifts.length && !isDraggingRow && (
-        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl text-[var(--muted)] opacity-0 transition-opacity group-hover:opacity-40">
-          +
-        </span>
+      {absence ? (
+        <AbsenceBlock
+          absence={absence}
+          onDelete={() => onDelAbsence(absence)}
+        />
+      ) : (
+        <>
+          {shifts.map(s => (
+            <ShiftBlock key={s.posteId} shift={s} onClick={onEdit} />
+          ))}
+          {!shifts.length && !isDraggingRow && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <span className="text-xl text-[var(--muted)] opacity-40">+</span>
+              <button
+                onClick={e => { e.stopPropagation(); onAddAbsence() }}
+                className="text-[9px] text-[var(--muted)] hover:text-[var(--text)] transition-colors px-1.5 py-0.5 rounded bg-[var(--surface2)] border border-[var(--border)]"
+              >
+                Absence
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
@@ -55,7 +80,7 @@ function DayCell({
 
 /** Ligne d'un employé dans la grille planning — sortable + droppable */
 export default function PlanningRow({
-  employee, weekDates, today, isDraggingRow, onAddShift, onEditShift,
+  employee, weekDates, today, isDraggingRow, onAddShift, onEditShift, onAddAbsence, onDelAbsence,
 }: PlanningRowProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id:   `row-${employee.id}`,
@@ -64,6 +89,11 @@ export default function PlanningRow({
 
   const shiftsByDate = employee.shifts.reduce<Record<string, PlanningShift[]>>(
     (acc, s) => { acc[s.date] = acc[s.date] ? [...acc[s.date], s] : [s]; return acc },
+    {}
+  )
+
+  const absenceByDate = (employee.absences ?? []).reduce<Record<string, PlanningAbsence>>(
+    (acc, a) => { acc[a.date] = a; return acc },
     {}
   )
 
@@ -133,10 +163,13 @@ export default function PlanningRow({
           date={date}
           employeeId={employee.id}
           shifts={shiftsByDate[date] ?? []}
+          absence={absenceByDate[date] ?? null}
           isToday={date === today}
           isDraggingRow={isDraggingRow}
           onAdd={() => onAddShift(date, employee.id)}
           onEdit={onEditShift}
+          onAddAbsence={() => onAddAbsence(date, employee.id)}
+          onDelAbsence={onDelAbsence}
         />
       ))}
     </div>

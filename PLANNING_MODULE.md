@@ -22,14 +22,23 @@ espaces de loisirs : 7 jours calendaires minimum de prévenance).
 - Duplication de semaine
 - Vue employé : 3 semaines glissantes (semaine en cours + 2 prochaines publiées)
 
+### Périmètre — Phase C (conformité juridique)
+
+- Archivage légal des publications (PlanningSnapshot avec checksum SHA-256)
+- Garde-fou délai de prévenance IDCC 1790 (7j / 3j exceptionnel)
+- Alertes Code du travail (6 alertes sur limites légales absolues)
+- Export PDF du planning (document légal pour inspection du travail)
+
 ### Périmètre — Avancé (Phase D, différé)
 
 - Templates de semaine type
 - Drag & drop des shifts
-- Export PDF du planning
 - Indisponibilités employé
 - Compteurs mensuels / annuels
 - Calcul automatique des coûts (taux horaire × heures)
+- Validation des écarts d'heures (salarié déclare, manager valide)
+- Journal d'audit automatique
+- Champs contractuels étendus sur User
 
 ---
 
@@ -72,7 +81,32 @@ postes sur le même service s'ils sont dans des zones différentes.
 > Note : `heuresHebdo` existe déjà dans ENTITES.md comme champ prévu.
 > `typeContrat` est un ajout pour le planning (affichage + filtrage).
 
-### 2.3 Nouvelle entité `PlanningWeek`
+### 2.3 Nouvelle entité `PlanningSnapshot`
+
+Chaque publication d'un planning crée un snapshot immuable — c'est la **preuve légale**
+en cas de litige prud'homal ou de contrôle de l'inspection du travail. Si un planning
+est modifié puis republié, l'ancienne version reste archivée.
+
+| Champ | Type | Nullable | Défaut | Notes |
+|---|---|---|---|---|
+| `id` | int | non | auto | PK |
+| `centre` | Centre | non | — | FK multi-tenant |
+| `weekStart` | date_immutable | non | — | Lundi de la semaine |
+| `publishedAt` | datetime_immutable | non | — | Horodatage exact de cette publication |
+| `publishedBy` | User | non | — | Manager qui a publié |
+| `data` | json | non | — | Copie intégrale du planning (employés, shifts, heures, zones) |
+| `motifModification` | text | oui | null | Obligatoire si republication ou si délai < 7j |
+| `checksum` | string(64) | non | — | SHA-256 du JSON `data` (preuve d'intégrité) |
+| `delaiRespect` | boolean | non | true | false si publié à moins de 7j calendaires |
+
+**Règles :**
+- Un snapshot est **immuable** — jamais modifié ni supprimé
+- Créé automatiquement à chaque appel de `POST /planning/publish`
+- Conservation minimum **3 ans** (prescription prud'homale des heures sup)
+- Le champ `data` contient le JSON complet tel que retourné par `GET /planning/week`
+- Le `checksum` = SHA-256 du JSON sérialisé (prouve que le contenu n'a pas été altéré après coup)
+
+### 2.4 Nouvelle entité `PlanningWeek`
 
 Représente l'état de publication d'une semaine de planning pour un centre.
 
@@ -114,7 +148,26 @@ ALTER TABLE `user`
     ADD COLUMN heures_hebdo INT DEFAULT NULL AFTER actif,
     ADD COLUMN type_contrat VARCHAR(30) DEFAULT NULL AFTER heures_hebdo;
 
--- 3. Nouvelle table planning_week
+-- 3. Nouvelle table planning_snapshot (archivage légal)
+CREATE TABLE planning_snapshot (
+    id                INT AUTO_INCREMENT NOT NULL,
+    centre_id         INT          NOT NULL,
+    week_start        DATE         NOT NULL,
+    published_at      DATETIME     NOT NULL,
+    published_by      INT          NOT NULL,
+    data              JSON         NOT NULL,
+    motif_modification TEXT        DEFAULT NULL,
+    checksum          VARCHAR(64)  NOT NULL,
+    delai_respect     TINYINT(1)   NOT NULL DEFAULT 1,
+    INDEX idx_ps_centre (centre_id),
+    INDEX idx_ps_week (centre_id, week_start),
+    INDEX idx_ps_published_by (published_by),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_ps_centre       FOREIGN KEY (centre_id)    REFERENCES centre (id),
+    CONSTRAINT FK_ps_published_by FOREIGN KEY (published_by) REFERENCES `user` (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. Nouvelle table planning_week
 CREATE TABLE planning_week (
     id           INT AUTO_INCREMENT NOT NULL,
     centre_id    INT          NOT NULL,
@@ -203,14 +256,39 @@ CREATE TABLE planning_week (
 **Body :**
 ```json
 {
-  "weekStart": "2026-04-13"
+  "weekStart": "2026-04-13",
+  "motifModification": null,
+  "forcePublication": false
 }
 ```
 
 **Logique :**
 1. Vérifie que des postes existent pour cette semaine
-2. Crée ou met à jour `PlanningWeek` → statut = PUBLIE, publishedAt = now()
-3. Retourne le `PlanningWeek` mis à jour
+2. **Calcule le délai de prévenance** : nombre de jours calendaires entre `now()` et le lundi de la semaine
+3. **Garde-fou IDCC 1790** :
+   - Si délai ≥ 7 jours → publication normale
+   - Si délai < 7 jours et `forcePublication = false` → retourne **HTTP 422** avec :
+     ```json
+     {
+       "warning": "DELAI_PREVENANCE_NON_RESPECTE",
+       "delaiJours": 4,
+       "message": "La Convention Collective impose 7 jours calendaires de prévenance. Vous publiez à 4 jours.",
+       "requiresMotif": true
+     }
+     ```
+   - Si délai < 7 jours et `forcePublication = true` → `motifModification` **obligatoire** (sinon 400)
+   - Si délai < 3 jours → le warning inclut `"severity": "critique"` et le message mentionne le minimum exceptionnel de 3 jours
+4. Crée ou met à jour `PlanningWeek` → statut = PUBLIE, publishedAt = now()
+5. **Crée un `PlanningSnapshot`** automatiquement :
+   - Appelle `PlanningService::getWeekData()` pour obtenir le JSON complet
+   - Calcule le SHA-256 du JSON sérialisé
+   - Stocke le snapshot avec le motif et le flag `delaiRespect`
+6. Retourne le `PlanningWeek` mis à jour
+
+**Côté frontend** — le hook `usePublishWeek` gère le flow en 2 temps :
+1. Premier appel avec `forcePublication: false`
+2. Si le serveur retourne 422 → affiche une modal d'avertissement avec le message
+3. Le manager saisit un motif → deuxième appel avec `forcePublication: true` + motif
 
 **Accès :** ROLE_MANAGER uniquement
 
@@ -280,13 +358,34 @@ CREATE TABLE planning_week (
 
 **Types d'alertes :**
 
+#### Alertes métier (existantes)
+
 | Type | Condition | Sévérité |
 |---|---|---|
 | `DEPASSEMENT_HEURES` | totalHeures > heuresHebdo + 2h | haute |
 | `SOUS_PLANIFIE` | totalHeures < heuresHebdo - 4h | moyenne |
 | `ZONE_NON_COUVERTE` | aucun poste sur une zone pour un jour avec service | haute |
-| `SANS_PAUSE` | shift > 6h sans pause (pauseMinutes = 0) | moyenne |
-| `JOUR_SANS_REPOS` | employé planifié 7/7 jours | haute |
+
+#### Alertes légales — Code du travail (NOUVELLES)
+
+Ces alertes sont basées sur les **limites absolues du Code du travail** et de la
+Convention Collective IDCC 1790. Elles doivent être affichées avec un badge ⚖️
+pour les distinguer des alertes métier.
+
+| Type | Condition | Base légale | Sévérité |
+|---|---|---|---|
+| `MAX_JOURNALIER` | un shift > 10h sur un jour | Art. L3121-18 C. travail | haute |
+| `MAX_HEBDO_ABSOLU` | total heures > 48h sur la semaine | Art. L3121-20 C. travail | haute |
+| `MAX_HEBDO_MOYENNE` | moyenne > 44h sur 12 semaines glissantes | Art. L3121-22 C. travail | haute |
+| `REPOS_QUOTIDIEN` | moins de 11h entre fin d'un shift (jour J) et début du suivant (jour J+1) | Art. L3131-1 C. travail | haute |
+| `REPOS_HEBDO` | moins de 35h consécutives de repos dans la semaine (24h + 11h) | Art. L3132-2 C. travail | haute |
+| `PAUSE_6H` | shift > 6h continues et pauseMinutes < 20 | Art. L3121-16 C. travail | moyenne |
+
+**Notes d'implémentation :**
+- `MAX_HEBDO_MOYENNE` nécessite de regarder les **11 semaines précédentes** + la semaine en cours. Le `PlanningService::getAlerts()` doit appeler `ServiceRepository::findBetween()` sur une plage de 12 semaines pour calculer la moyenne glissante.
+- `REPOS_QUOTIDIEN` nécessite de comparer le `heureFin` du dernier shift d'un jour avec le `heureDebut` du premier shift du lendemain pour chaque employé. Si la différence < 11h → alerte.
+- `REPOS_HEBDO` : chercher la plus longue plage consécutive sans shift dans la semaine. Si < 35h → alerte.
+- Ces alertes doivent aussi s'afficher comme **warnings dans la modal de publication** : si des alertes légales haute sévérité existent, le manager voit un récapitulatif avant de confirmer.
 
 ---
 
@@ -327,21 +426,30 @@ export interface PlanningEmployee {
 // ─── Alerte planning ─────────────────────────────────────────────────────────
 
 export type AlerteType =
+  // Alertes métier
   | 'DEPASSEMENT_HEURES'
   | 'SOUS_PLANIFIE'
   | 'ZONE_NON_COUVERTE'
-  | 'SANS_PAUSE'
-  | 'JOUR_SANS_REPOS'
+  // Alertes légales Code du travail
+  | 'MAX_JOURNALIER'
+  | 'MAX_HEBDO_ABSOLU'
+  | 'MAX_HEBDO_MOYENNE'
+  | 'REPOS_QUOTIDIEN'
+  | 'REPOS_HEBDO'
+  | 'PAUSE_6H'
 
 export type AlerteSeverite = 'haute' | 'moyenne'
+export type AlerteCategorie = 'metier' | 'legal'
 
 export interface PlanningAlerte {
-  type:      AlerteType
-  severite:  AlerteSeverite
-  message:   string
-  date?:     string
-  zoneId?:   number
-  userId?:   number
+  type:        AlerteType
+  severite:    AlerteSeverite
+  categorie:   AlerteCategorie     // 'legal' → badge ⚖️ dans l'UI
+  message:     string
+  baseLegale?: string              // ex: "Art. L3121-18 C. travail"
+  date?:       string
+  zoneId?:     number
+  userId?:     number
 }
 
 // ─── Zone résumée ────────────────────────────────────────────────────────────
@@ -417,12 +525,39 @@ export interface UpdateShiftPayload {
 }
 
 export interface PublishWeekPayload {
-  weekStart: string          // 'YYYY-MM-DD' (lundi)
+  weekStart:          string          // 'YYYY-MM-DD' (lundi)
+  motifModification?: string          // obligatoire si délai < 7j
+  forcePublication?:  boolean         // true pour confirmer malgré délai < 7j
+}
+
+// Réponse 422 quand délai de prévenance non respecté
+export interface PublishWarningResponse {
+  warning:       'DELAI_PREVENANCE_NON_RESPECTE'
+  delaiJours:    number
+  message:       string
+  severity:      'attention' | 'critique'   // critique si < 3j
+  requiresMotif: true
 }
 
 export interface DuplicateWeekPayload {
   sourceWeekStart: string
   targetWeekStart: string
+}
+
+// ─── Snapshot (archivage légal) ─────────────────────────────────────────────
+
+export interface PlanningSnapshotSummary {
+  id:                 number
+  weekStart:          string
+  publishedAt:        string           // ISO datetime
+  publishedByNom:     string
+  motifModification:  string | null
+  delaiRespect:       boolean          // false = publié à moins de 7j
+}
+
+export interface PlanningSnapshotDetail extends PlanningSnapshotSummary {
+  data:     PlanningWeekData           // copie complète du planning
+  checksum: string                     // SHA-256
 }
 ```
 
@@ -540,7 +675,7 @@ export function useDeleteShift() {
   })
 }
 
-// ─── Publier une semaine ─────────────────────────────────────────────────────
+// ─── Publier une semaine (avec garde-fou délai de prévenance) ────────────────
 
 export function usePublishWeek() {
   const centreId    = useAuthStore(s => s.centreId)
@@ -553,7 +688,25 @@ export function usePublishWeek() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planning', 'week', centreId] })
       queryClient.invalidateQueries({ queryKey: ['planning', 'employee'] })
+      queryClient.invalidateQueries({ queryKey: ['planning', 'snapshots', centreId] })
     },
+    // Note : le composant appelant doit gérer onError avec status 422
+    // pour afficher la modal de confirmation avec saisie du motif.
+    // Flow : 1er appel (forcePublication: false) → 422 → modal → 2e appel (forcePublication: true + motif)
+  })
+}
+
+// ─── Historique des snapshots (archivage légal) ──────────────────────────────
+
+export function usePlanningSnapshots(weekStart: string) {
+  const centreId = useAuthStore(s => s.centreId)
+
+  return useQuery<PlanningSnapshotSummary[]>({
+    queryKey: ['planning', 'snapshots', centreId, weekStart],
+    queryFn:  () =>
+      api.get('/planning/snapshots', { params: { centreId, weekStart } })
+        .then(r => r.data),
+    enabled: !!centreId && !!weekStart,
   })
 }
 
@@ -590,7 +743,10 @@ components/planning/
   │   │   │   └── ShiftBlock.tsx     ← Bloc shift coloré par zone (cliquable)
   │   │   └── DayHeader.tsx          ← En-tête jour (Lun 14, Mar 15…)
   │   ├── StatsBar.tsx               ← Barre stats en bas (employés, heures, alertes)
-  │   ├── AlertPanel.tsx             ← Panneau latéral d'alertes
+  │   ├── AlertPanel.tsx             ← Panneau latéral d'alertes (métier + légales avec badge ⚖️)
+  │   ├── PublishModal.tsx           ← NOUVEAU — Modal de publication avec garde-fou délai
+  │   │   └── DelaiWarning.tsx       ← NOUVEAU — Avertissement 7j/3j + champ motif
+  │   ├── SnapshotPanel.tsx          ← NOUVEAU — Historique des versions publiées
   │   └── ShiftModal.tsx             ← Modal création / édition d'un shift
   │       ├── TimeRangePicker.tsx    ← Sélection heure début / fin
   │       └── ZoneSelector.tsx       ← Choix de la zone
@@ -640,7 +796,28 @@ components/planning/
 - Panneau latéral (desktop) ou bottom sheet (mobile)
 - Liste des alertes triées par sévérité
 - Icônes : 🔴 haute, 🟡 moyenne
+- **Deux sections** : "Alertes métier" et "Alertes légales ⚖️"
+- Les alertes légales affichent la base légale (ex: "Art. L3121-18 C. travail")
 - Click sur alerte → scroll vers la ligne/cellule concernée
+
+**PublishModal** (NOUVEAU)
+- S'ouvre quand le manager clique "Publier"
+- Affiche le récapitulatif : nombre d'employés, total heures, alertes en cours
+- **Si alertes légales haute sévérité** → section warning rouge avec liste des infractions
+- **Si délai < 7j** (réponse 422 du serveur) → affiche `DelaiWarning`
+- Boutons : "Confirmer la publication" / "Annuler"
+
+**DelaiWarning** (NOUVEAU)
+- Texte d'avertissement CC IDCC 1790 avec nombre de jours restants
+- Si < 3j → style critique (fond rouge, texte "minimum exceptionnel dépassé")
+- Champ textarea obligatoire "Motif de la publication hors délai"
+- Le motif est envoyé au serveur et archivé dans le PlanningSnapshot
+
+**SnapshotPanel** (NOUVEAU)
+- Accessible via un bouton "Historique" dans le WeekNavigator
+- Liste les snapshots de la semaine sélectionnée (date, heure, qui, motif)
+- Badge rouge si `delaiRespect = false`
+- Click sur un snapshot → vue en lecture seule du planning tel qu'il était à cette date
 
 **PlanningEmployeeView**
 - 3 cartes semaines empilées verticalement
@@ -684,14 +861,16 @@ src/Controller/PlanningController.php
 
 Routes :
   GET  /api/planning/week       → week()
-  POST /api/planning/publish    → publish()
+  POST /api/planning/publish    → publish()       ← inclut garde-fou délai + snapshot auto
   POST /api/planning/duplicate  → duplicate()
   GET  /api/planning/employee   → employee()
   GET  /api/planning/alerts     → alerts()
+  GET  /api/planning/snapshots  → snapshots()     ← NOUVEAU — historique des publications
+  GET  /api/planning/export-pdf → exportPdf()     ← NOUVEAU — export PDF légal
 ```
 
 Chaque route est sécurisée :
-- `week`, `publish`, `duplicate`, `alerts` → `ROLE_MANAGER`
+- `week`, `publish`, `duplicate`, `alerts`, `snapshots`, `export-pdf` → `ROLE_MANAGER`
 - `employee` → `ROLE_USER` (tout employé connecté)
 
 Le `centreId` est extrait du JWT pour toutes les routes (multi-tenant).
@@ -704,10 +883,15 @@ src/Service/PlanningService.php
 Méthodes principales :
   getWeekData(Centre, DateTimeImmutable weekStart): array
   getEmployeeWeeks(User): array
-  publishWeek(Centre, DateTimeImmutable weekStart, User publisher): PlanningWeek
+  publishWeek(Centre, DateTimeImmutable weekStart, User publisher, ?string motif, bool force): PlanningWeek
   duplicateWeek(Centre, DateTimeImmutable source, DateTimeImmutable target): void
   getAlerts(Centre, DateTimeImmutable weekStart): array
   calculateShiftDuration(Poste): float  // en heures décimales
+  createSnapshot(Centre, DateTimeImmutable weekStart, User publisher, ?string motif): PlanningSnapshot
+  getSnapshots(Centre, DateTimeImmutable weekStart): array
+  calculateDelaiPrevenance(DateTimeImmutable weekStart): int  // jours calendaires
+  generatePdf(Centre, DateTimeImmutable weekStart): string    // retourne le chemin du PDF
+  getLegalAlerts(Centre, DateTimeImmutable weekStart): array   // alertes Code du travail
 ```
 
 **Logique `getWeekData`** :
@@ -785,7 +969,66 @@ class PlanningWeek
 
 ---
 
-## 11. Ordre d'implémentation
+## 11. Entité PlanningSnapshot — Doctrine
+
+```php
+// src/Entity/PlanningSnapshot.php
+
+#[ORM\Entity(repositoryClass: PlanningSnapshotRepository::class)]
+#[ORM\Index(name: 'idx_ps_centre_week', columns: ['centre_id', 'week_start'])]
+class PlanningSnapshot
+{
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\ManyToOne(targetEntity: Centre::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Centre $centre = null;
+
+    #[ORM\Column(type: 'date_immutable')]
+    private ?\DateTimeImmutable $weekStart = null;
+
+    #[ORM\Column(type: 'datetime_immutable')]
+    private ?\DateTimeImmutable $publishedAt = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $publishedBy = null;
+
+    #[ORM\Column(type: 'json')]
+    private array $data = [];
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $motifModification = null;
+
+    #[ORM\Column(length: 64)]
+    private string $checksum = '';
+
+    #[ORM\Column]
+    private bool $delaiRespect = true;
+
+    // Getters / Setters ...
+}
+```
+
+**PlanningSnapshotRepository** :
+```php
+public function findByWeek(int $centreId, \DateTimeImmutable $weekStart): array
+{
+    return $this->createQueryBuilder('ps')
+        ->andWhere('ps.centre = :centreId')
+        ->andWhere('ps.weekStart = :weekStart')
+        ->setParameter('centreId', $centreId)
+        ->setParameter('weekStart', $weekStart)
+        ->orderBy('ps.publishedAt', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+```
+
+---
+
+## 12. Ordre d'implémentation
 
 ### Phase A — Base (priorité 1)
 
@@ -801,39 +1044,48 @@ class PlanningWeek
 10. **PlanningGrid** + PlanningRow + ShiftBlock + DayHeader
 11. **WeekNavigator** : navigation entre semaines
 
-### Phase B — Indicateurs (priorité 2)
+### Phase B — Indicateurs + Alertes légales (priorité 2)
 
 12. **StatsBar** : métriques en bas de grille
-13. **AlertPanel** : panneau d'alertes
+13. **AlertPanel** : panneau d'alertes (métier + légales avec badge ⚖️)
 14. **Hook usePlanningAlerts**
 15. **PlanningController::alerts()**
-16. **PlanningService::getAlerts()**
-17. Barre de progression heures par employé (dans PlanningRow)
+16. **PlanningService::getAlerts()** — inclut les 3 alertes métier
+17. **PlanningService::getLegalAlerts()** — 6 alertes Code du travail (MAX_JOURNALIER, MAX_HEBDO_ABSOLU, MAX_HEBDO_MOYENNE, REPOS_QUOTIDIEN, REPOS_HEBDO, PAUSE_6H)
+18. Barre de progression heures par employé (dans PlanningRow)
 
-### Phase C — Confort (priorité 3)
+### Phase C — Publication, conformité et export (priorité 3)
 
-18. **ShiftModal** : création / édition shift (React Hook Form + Zod)
-19. **useCreateShift + useUpdateShift + useDeleteShift**
-20. **PlanningController::publish()** + usePublishWeek
-21. **PlanningController::duplicate()** + useDuplicateWeek
-22. **GET /planning/employee** + useEmployeePlanning
-23. **PlanningEmployeeView** : vue 3 semaines
-24. **Navigation** : ajout item Planning dans sidebar + bottom nav
+19. **ShiftModal** : création / édition shift (React Hook Form + Zod)
+20. **useCreateShift + useUpdateShift + useDeleteShift**
+21. **Entité PlanningSnapshot** + migration SQL + PlanningSnapshotRepository
+22. **PlanningController::publish()** avec garde-fou délai de prévenance (flow 422 + motif)
+23. **PlanningService::createSnapshot()** — archivage automatique à chaque publication
+24. **PublishModal + DelaiWarning** — modal de confirmation avec avertissements légaux
+25. **SnapshotPanel + usePlanningSnapshots** — historique des versions publiées
+26. **PlanningController::duplicate()** + useDuplicateWeek
+27. **GET /planning/employee** + useEmployeePlanning
+28. **PlanningEmployeeView** : vue 3 semaines
+29. **Export PDF du planning** — `PlanningService::generatePdf()` + `GET /planning/export-pdf` (document légal avec date de publication, horodatage, tableau complet)
+30. **Navigation** : ajout item Planning dans sidebar + bottom nav
 
 ### Phase D — Avancé (différé)
 
-25. Templates de semaine type
-26. Drag & drop (react-beautiful-dnd ou @dnd-kit)
-27. Export PDF du planning
-28. Indisponibilités employé
-29. Compteurs mensuels / annuels
-30. Calcul automatique des coûts
+31. Templates de semaine type
+32. Drag & drop (react-beautiful-dnd ou @dnd-kit)
+33. Indisponibilités employé
+34. Compteurs mensuels / annuels
+35. Calcul automatique des coûts (taux horaire × heures)
+36. Validation des écarts d'heures (ShiftAdjustment — déclaration salarié + validation manager)
+37. Journal d'audit automatique (PlanningAuditLog)
+38. Champs contractuels étendus sur User (joursContractuels, plageHoraireContrat, dateEmbauche)
+39. Score de conformité globale (indicateur visuel pré-publication)
 
 ---
 
-## 12. Pièges à éviter — Notes pour l'implémentation
+## 13. Pièges à éviter — Notes pour l'implémentation
 
-### 12.1 Poste.php — Ajouter une opération PATCH
+### 13.1 Poste.php — Ajouter une opération PATCH
 
 L'entité Poste actuelle n'a PAS d'opération Patch dans ses déclarations API Platform.
 Le hook `useUpdateShift` utilise `PATCH /postes/{posteId}`. Il faut donc ajouter :
@@ -848,7 +1100,7 @@ new Patch(
 ),
 ```
 
-### 12.2 Groupes de sérialisation des nouveaux champs
+### 13.2 Groupes de sérialisation des nouveaux champs
 
 **Poste.php** — les 3 nouveaux champs doivent avoir les bons groupes :
 ```php
@@ -876,7 +1128,7 @@ private ?int $heuresHebdo = null;
 private ?string $typeContrat = null;
 ```
 
-### 12.3 Navigation — mobileOrder actuels et conflits
+### 13.3 Navigation — mobileOrder actuels et conflits
 
 Les `mobileOrder` actuels dans `navigation.ts` sont :
 ```
@@ -901,7 +1153,7 @@ Après ajout du Planning, **recaler tous les mobileOrder** :
 { href: '/reglages',  label: 'Réglages',        icon: '⚙️',  managerOnly: false, showOnMobile: true, mobileOrder: 7 },
 ```
 
-### 12.4 PlanningWeekRepository — méthode requise
+### 13.4 PlanningWeekRepository — méthode requise
 
 ```php
 // src/Repository/PlanningWeekRepository.php
@@ -943,13 +1195,13 @@ class PlanningWeekRepository extends ServiceEntityRepository
 }
 ```
 
-### 12.5 ServiceRepository::findBetween — déjà existant
+### 13.5 ServiceRepository::findBetween — déjà existant
 
 `ServiceRepository` a déjà une méthode `findBetween(centreId, from, to)` qui retourne
 les services triés par date ASC. Le `PlanningService::getWeekData()` doit l'utiliser
 directement — pas besoin de la recréer.
 
-### 12.6 Création de shift — le Service doit exister
+### 13.6 Création de shift — le Service doit exister
 
 Le hook `useCreateShift` appelle `POST /postes/create` (endpoint custom existant).
 Cet endpoint doit être **modifié** pour :
@@ -959,7 +1211,7 @@ Cet endpoint doit être **modifié** pour :
 Vérifier le controller existant qui gère `/postes/create` (probablement dans un
 PosteController custom) et l'adapter.
 
-### 12.7 Pattern multi-tenant — à suivre
+### 13.7 Pattern multi-tenant — à suivre
 
 Suivre le pattern de `DashboardController` pour le guard multi-tenant :
 ```php
@@ -971,7 +1223,7 @@ if ($currentUser->getCentre()?->getId() !== $centreId) {
 
 ---
 
-## 13. Points d'attention
+## 14. Points d'attention
 
 **Performance** : La requête GET /planning/week fait N+1 si mal optimisée.
 Utiliser des JOINs Doctrine (QueryBuilder avec leftJoin + select) pour charger
@@ -985,10 +1237,16 @@ sur plusieurs zones le même jour (ex: Accueil le matin, Bar l'après-midi)
 mais pas deux fois sur la même zone pour le même service.
 
 **Convention collective IDCC 1790** :
-- Planning communiqué 7 jours calendaires à l'avance minimum
+- Planning communiqué 7 jours calendaires à l'avance minimum (3 jours en cas exceptionnel)
 - Repos hebdomadaire : 2 jours consécutifs ou non (selon accord d'entreprise)
 - Durée maximale journalière : 10h (alerte si shift > 10h)
 - Pause obligatoire : 20 min après 6h de travail continu
+
+**Conformité juridique — implémentée dans ce module** :
+- **Archivage légal** : chaque publication crée un PlanningSnapshot immuable (JSON + SHA-256). Conservation 3 ans minimum (prescription prud'homale). Preuve en cas de litige sur les heures sup ou le délai de prévenance.
+- **Garde-fou publication** : le endpoint POST /publish retourne 422 si le délai < 7 jours calendaires. Le manager doit confirmer avec un motif écrit qui est archivé dans le snapshot.
+- **Alertes Code du travail** : 6 alertes supplémentaires basées sur les limites légales absolues (art. L3121-16/18/20/22, L3131-1, L3132-2). Différenciées visuellement des alertes métier par un badge ⚖️.
+- **Export PDF** : document horodaté avec date de publication, servant de preuve pour l'inspection du travail (obligation L3171-1 de décompte du temps de travail).
 
 **Compatibilité Service du Jour** : Le module Planning crée des Services + Postes
 qui sont ensuite utilisés par la page Service du Jour. Les deux modules partagent

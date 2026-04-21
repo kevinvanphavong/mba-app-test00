@@ -64,14 +64,18 @@ export default function HeroService({ data, onReportIncident }: HeroServiceProps
             )}
           </div>
 
-          <div className={`${ty.kpi} lg:text-[34px] mb-1`}>
-            {today.heureDebut}
-            <span className="text-muted font-normal text-[16px] mx-1.5">→</span>
-            {today.heureFin}
-          </div>
+          {today.heureDebut && today.heureFin ? (
+            <div className={`${ty.kpi} lg:text-[34px] mb-1`}>
+              {today.heureDebut}
+              <span className="text-muted font-normal text-[16px] mx-1.5">→</span>
+              {today.heureFin}
+            </div>
+          ) : (
+            <p className={`${ty.metaLg} mb-1 text-muted italic`}>Horaires non définis</p>
+          )}
 
           <p className={`${ty.metaLg} mt-2`}>
-            {today.nbPostes} postes · {new Date(today.date).toLocaleDateString('fr-FR', {
+            {today.nbPostes} poste{today.nbPostes !== 1 ? 's' : ''} · {new Date(today.date).toLocaleDateString('fr-FR', {
               weekday: 'long', day: 'numeric', month: 'long',
             })}
           </p>

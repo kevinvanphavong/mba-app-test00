@@ -5,16 +5,18 @@ import { create } from 'zustand'
 export interface AuthUser {
   id:          number
   nom:         string
+  prenom:      string
   email:       string
   role:        'MANAGER' | 'EMPLOYE'
   avatarColor: string | null
   points:      number
   centre: {
-    id:        number
-    nom:       string
-    adresse:   string | null
-    telephone: string | null
-    siteWeb:   string | null
+    id:           number
+    nom:          string
+    adresse:      string | null
+    telephone:    string | null
+    siteWeb:      string | null
+    openingHours: Record<string, { ouvert: boolean; ouverture: string | null; fermeture: string | null }> | null
   } | null
 }
 
