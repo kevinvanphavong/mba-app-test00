@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — Pointage : Validation hebdomadaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --surface3: #232838;
+    --border: #252a3a;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--accent);
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .sidebar-section {
+    padding: 12px 16px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active {
+    color: var(--accent);
+    background: rgba(249, 115, 22, 0.08);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  .nav-item .icon { font-size: 18px; width: 24px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .nav-badge.warn { background: var(--yellow); color: #000; }
+
+  /* ── Main ── */
+  .main {
+    margin-left: 240px;
+    flex: 1;
+    padding: 24px 32px;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+  }
+  .page-title span { color: var(--accent); }
+  .header-actions { display: flex; gap: 10px; }
+  .btn {
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(249,115,22,0.3); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Week Control + Status ── */
+  .week-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .week-nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .week-arrow {
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--accent);
+    transition: all 0.15s;
+  }
+  .week-arrow:hover { transform: scale(1.2); }
+  .week-label {
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .week-dates {
+    font-size: 13px;
+    color: var(--muted);
+    margin-left: 8px;
+  }
+  .status-badge {
+    background: rgba(249, 115, 22, 0.15);
+    color: var(--accent);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* ── KPI Row ── */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .kpi-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .kpi-icon.green { background: rgba(34,197,94,0.12); }
+  .kpi-icon.red { background: rgba(239,68,68,0.12); }
+  .kpi-icon.blue { background: rgba(59,130,246,0.12); }
+  .kpi-icon.yellow { background: rgba(234,179,8,0.12); }
+  .kpi-icon.orange { background: rgba(249,115,22,0.12); }
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    line-height: 1;
+  }
+  .kpi-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .kpi-trend {
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .kpi-trend.up { color: var(--green); }
+  .kpi-trend.down { color: var(--red); }
+  .kpi-trend.accent { color: var(--accent); }
+
+  /* ── Main Table ── */
+  .table-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .table-header {
+    display: sticky;
+    top: 0;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    z-index: 5;
+  }
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    position: sticky;
+    top: 0;
+  }
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(37, 42, 58, 0.5);
+  }
+  tbody tr:hover {
+    background: rgba(249, 115, 22, 0.03);
+  }
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* ── Row Status Border ── */
+  tbody tr.validated {
+    border-left: 4px solid var(--green);
+  }
+  tbody tr.pending {
+    border-left: 4px solid var(--yellow);
+  }
+  tbody tr.issue {
+    border-left: 4px solid var(--red);
+  }
+
+  /* ── Employee Name (sticky) ── */
+  .employee-name {
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+  }
+  .employee-role {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── Day Cell ── */
+  .day-cell {
+    text-align: center;
+    position: relative;
+    min-width: 90px;
+  }
+  .day-time {
+    font-weight: 500;
+    color: var(--text);
+  }
+  .day-hours {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .day-rest {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .day-absent {
+    color: var(--red);
+    font-weight: 600;
+  }
+  .day-inprogress {
+    color: var(--blue);
+    font-weight: 600;
+    position: relative;
+  }
+  .day-inprogress::before {
+    content: '●';
+    animation: pulse 2s infinite;
+    margin-right: 4px;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .retard-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    margin-left: 4px;
+  }
+
+  /* ── Totals & Status ── */
+  .total-cell {
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+  }
+  .total-cell.green { color: var(--green); }
+  .total-cell.orange { color: var(--accent); }
+  .total-cell.red { color: var(--red); }
+
+  .status-badge-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .status-badge-small.validated {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--green);
+  }
+  .status-badge-small.pending {
+    background: rgba(234, 179, 8, 0.15);
+    color: var(--yellow);
+  }
+  .status-badge-small.issue {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--red);
+  }
+
+  /* ── Notes ── */
+  .row-note {
+    font-size: 10px;
+    color: var(--yellow);
+    margin-top: 4px;
+    font-weight: 600;
+  }
+
+  /* ── Content Grid ── */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-body { padding: 16px 20px; }
+  .card-action {
+    font-size: 12px;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .card-action:hover { text-decoration: underline; }
+
+  /* ── Employee Detail Breakdown ── */
+  .detail-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    gap: 12px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-day {
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 80px;
+  }
+  .detail-times {
+    flex: 1;
+  }
+  .detail-time-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .detail-time-item span { color: var(--muted); font-size: 11px; }
+  .detail-net {
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    color: var(--green);
+    min-width: 60px;
+    text-align: right;
+  }
+
+  /* ── Alert Item ── */
+  .alert-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .alert-item:last-child { border-bottom: none; }
+  .alert-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .alert-icon.warn { background: rgba(234, 179, 8, 0.15); }
+  .alert-icon.danger { background: rgba(239, 68, 68, 0.15); }
+  .alert-icon.ok { background: rgba(34, 197, 94, 0.15); }
+  .alert-content { flex: 1; }
+  .alert-title { font-weight: 600; color: var(--text); }
+  .alert-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── Summary Stats ── */
+  .summary-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .summary-stat:last-child { border-bottom: none; }
+  .summary-stat-label { color: var(--muted); }
+  .summary-stat-value {
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+  }
+  .summary-stat-value.accent { color: var(--accent); }
+  .summary-stat-value.green { color: var(--green); }
+  .summary-stat-value.red { color: var(--red); }
+
+  /* ── Buttons in card ── */
+  .card-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .btn-small {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .btn-small.success {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--green);
+    border: 1px solid var(--green);
+  }
+  .btn-small.success:hover { background: rgba(34, 197, 94, 0.25); }
+  .btn-small.outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-small.outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Responsive ── */
+  @media (max-width: 1400px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .content-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">Shiftly</div>
+
+  <div class="sidebar-section">Service</div>
+  <div class="nav-item">
+    <span class="icon">📋</span> Dashboard
+  </div>
+  <div class="nav-item">
+    <span class="icon">📅</span> Service du jour
+  </div>
+  <div class="nav-item">
+    <span class="icon">📆</span> Planning
+  </div>
+
+  <div class="sidebar-section">Pointage</div>
+  <div class="nav-item">
+    <span class="icon">⏱️</span> Temps réel
+  </div>
+  <div class="nav-item active">
+    <span class="icon">✓</span> Validation hebdo
+  </div>
+  <div class="nav-item">
+    <span class="icon">📊</span> Historique
+  </div>
+
+  <div class="sidebar-section">Gestion</div>
+  <div class="nav-item">
+    <span class="icon">👥</span> Staff
+  </div>
+  <div class="nav-item">
+    <span class="icon">💼</span> Postes
+  </div>
+  <div class="nav-item">
+    <span class="icon">🎓</span> Tutoriels
+  </div>
+
+  <div class="sidebar-section">Système</div>
+  <div class="nav-item">
+    <span class="icon">⚙️</span> Réglages
+  </div>
+</aside>
+
+<!-- ══════════ MAIN ══════════ -->
+<div class="main">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="page-title">Pointage — <span>Validation hebdomadaire</span></div>
+    <div class="header-actions">
+      <button class="btn btn-outline">📥 Export CSV</button>
+      <button class="btn btn-outline">📄 Export PDF</button>
+      <button class="btn btn-primary">✓ Tout valider</button>
+    </div>
+  </div>
+
+  <!-- Week Control -->
+  <div class="week-control">
+    <div class="week-nav">
+      <span class="week-arrow">←</span>
+      <div>
+        <div class="week-label">Semaine 16</div>
+        <div class="week-dates">14 au 20 avril 2026</div>
+      </div>
+      <span class="week-arrow">→</span>
+    </div>
+    <div class="status-badge">6/10 validés</div>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-icon blue">🕐</div>
+      <div>
+        <div class="kpi-value" style="color:var(--blue)">342.5h</div>
+        <div class="kpi-label">Heures travaillées</div>
+        <div class="kpi-trend up">↑ +12h vs prévu</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">📅</div>
+      <div>
+        <div class="kpi-value" style="color:var(--text)">330h</div>
+        <div class="kpi-label">Heures prévues</div>
+        <div class="kpi-trend">Planning</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon orange">➕</div>
+      <div>
+        <div class="kpi-value" style="color:var(--accent)">+12.5h</div>
+        <div class="kpi-label">Écart prévu/réel</div>
+        <div class="kpi-trend accent">dont 8h sup</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon green">⏰</div>
+      <div>
+        <div class="kpi-value" style="color:var(--green)">94%</div>
+        <div class="kpi-label">Taux ponctualité</div>
+        <div class="kpi-trend up">47/50 à l'heure</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Table -->
+  <div class="table-container">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Employé</th>
+            <th colspan="7" style="text-align:center">Semaine 16</th>
+            <th>Total<br>réel</th>
+            <th>Total<br>prévu</th>
+            <th>Écart</th>
+            <th>Sup</th>
+            <th>Statut</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th>Lun 14</th>
+            <th>Mar 15</th>
+            <th>Mer 16</th>
+            <th>Jeu 17</th>
+            <th>Ven 18</th>
+            <th>Sam 19</th>
+            <th>Dim 20</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Kévin V. -->
+          <tr class="validated">
+            <td style="font-weight:600">
+              <div class="employee-name">Kévin V.<div class="employee-role">Manager</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">09:00–18:00</div><div class="day-hours">8h15</div></td>
+            <td class="day-cell"><div class="day-time">09:00–18:00</div><div class="day-hours">8h15</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">09:00–18:00</div><div class="day-hours">8h15</div></td>
+            <td class="day-cell"><div class="day-time">09:00–18:00</div><div class="day-hours">8h15</div></td>
+            <td class="day-cell"><div class="day-time">09:00–18:00</div><div class="day-hours">8h</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell green">39h00</td>
+            <td class="total-cell">39h</td>
+            <td class="total-cell green">0h</td>
+            <td class="total-cell">0h</td>
+            <td><span class="status-badge-small validated">✓ Validé</span></td>
+          </tr>
+
+          <!-- Sarah L. -->
+          <tr class="pending">
+            <td style="font-weight:600">
+              <div class="employee-name">Sarah L.<div class="employee-role">Bar</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:15</div><div class="day-hours">7h55</div></td>
+            <td class="day-cell"><div class="day-time">10:00–18:00</div><div class="day-hours">7h30</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:30</div><div class="day-hours">8h10</div></td>
+            <td class="day-cell"><div class="day-inprogress">en cours</div><div class="day-hours">14:00–??</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell green">35h15</td>
+            <td class="total-cell">35h</td>
+            <td class="total-cell green">+0h15</td>
+            <td class="total-cell">0h</td>
+            <td><span class="status-badge-small pending">⏳ À valider</span></td>
+          </tr>
+
+          <!-- Marc R. -->
+          <tr class="pending">
+            <td style="font-weight:600">
+              <div class="employee-name">Marc R.<div class="employee-role">Salle</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:05–22:10<span class="retard-dot"></span></div><div class="day-hours">7h45</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-inprogress">en cours<span class="retard-dot"></span></div><div class="day-hours">14:05–??</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell green">35h00</td>
+            <td class="total-cell">35h</td>
+            <td class="total-cell green">0h</td>
+            <td class="total-cell">0h</td>
+            <td>
+              <span class="status-badge-small pending">⏳ À valider</span>
+              <div class="row-note">2 retards cette semaine</div>
+            </td>
+          </tr>
+
+          <!-- Tom K. -->
+          <tr class="pending">
+            <td style="font-weight:600">
+              <div class="employee-name">Tom K.<div class="employee-role">Accueil</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">08:00–16:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">08:00–16:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">08:00–16:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-inprogress">en cours</div><div class="day-hours">13:48–??</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell orange">36h20</td>
+            <td class="total-cell">35h</td>
+            <td class="total-cell orange">+1h20</td>
+            <td class="total-cell orange">1h20</td>
+            <td><span class="status-badge-small pending">⏳ À valider</span></td>
+          </tr>
+
+          <!-- Léa P. -->
+          <tr class="issue">
+            <td style="font-weight:600">
+              <div class="employee-name">Léa P.<div class="employee-role">Bar</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell" style="background:rgba(239,68,68,0.1)"><div class="day-absent">ABS</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell red">30h40</td>
+            <td class="total-cell">35h</td>
+            <td class="total-cell red">−4h20</td>
+            <td class="total-cell">0h</td>
+            <td>
+              <span class="status-badge-small issue">⚠️ Absence</span>
+              <div class="row-note">Non justifiée Sam 19</div>
+            </td>
+          </tr>
+
+          <!-- Julie M. -->
+          <tr class="validated">
+            <td style="font-weight:600">
+              <div class="employee-name">Julie M.<div class="employee-role">Bar</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell green">35h00</td>
+            <td class="total-cell">35h</td>
+            <td class="total-cell green">0h</td>
+            <td class="total-cell">0h</td>
+            <td><span class="status-badge-small validated">✓ Validé</span></td>
+          </tr>
+
+          <!-- Lucas D. -->
+          <tr class="pending">
+            <td style="font-weight:600">
+              <div class="employee-name">Lucas D.<div class="employee-role">Salle</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">14:05–22:00<span class="retard-dot"></span></div><div class="day-hours">7h35</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">14:10–22:00<span class="retard-dot"></span></div><div class="day-hours">7h35</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-inprogress">en cours<span class="retard-dot"></span></div><div class="day-hours">14:15–??</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell green">34h30</td>
+            <td class="total-cell">35h</td>
+            <td class="total-cell red">−0h30</td>
+            <td class="total-cell">0h</td>
+            <td>
+              <span class="status-badge-small pending">⏳ À valider</span>
+              <div class="row-note">3 retards cette semaine</div>
+            </td>
+          </tr>
+
+          <!-- Emma P. -->
+          <tr class="validated">
+            <td style="font-weight:600">
+              <div class="employee-name">Emma P.<div class="employee-role">Accueil</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">08:00–16:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">08:00–16:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">08:00–16:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">08:00–16:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">08:00–16:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell green">35h00</td>
+            <td class="total-cell">35h</td>
+            <td class="total-cell green">0h</td>
+            <td class="total-cell">0h</td>
+            <td><span class="status-badge-small validated">✓ Validé</span></td>
+          </tr>
+
+          <!-- Thomas B. -->
+          <tr class="validated">
+            <td style="font-weight:600">
+              <div class="employee-name">Thomas B.<div class="employee-role">Manager</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">09:00–18:30</div><div class="day-hours">8h45</div></td>
+            <td class="day-cell"><div class="day-time">09:00–18:00</div><div class="day-hours">8h15</div></td>
+            <td class="day-cell"><div class="day-time">09:00–18:30</div><div class="day-hours">8h45</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">09:00–18:15</div><div class="day-hours">8h30</div></td>
+            <td class="day-cell"><div class="day-time">09:00–18:00</div><div class="day-hours">8h15</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell orange">41h30</td>
+            <td class="total-cell">39h</td>
+            <td class="total-cell orange">+2h30</td>
+            <td class="total-cell orange">2h30</td>
+            <td><span class="status-badge-small validated">✓ Validé</span></td>
+          </tr>
+
+          <!-- Nina F. -->
+          <tr class="validated">
+            <td style="font-weight:600">
+              <div class="employee-name">Nina F.<div class="employee-role">Salle</div></div>
+            </td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="day-cell"><div class="day-time">14:00–22:00</div><div class="day-hours">7h40</div></td>
+            <td class="day-cell"><div class="day-rest">—</div></td>
+            <td class="total-cell green">35h00</td>
+            <td class="total-cell">35h</td>
+            <td class="total-cell green">0h</td>
+            <td class="total-cell">0h</td>
+            <td><span class="status-badge-small validated">✓ Validé</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bottom Section: Detail + Alerts -->
+  <div class="content-grid">
+    <!-- ── Employee Detail ── -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">👤 Détail employé — Sarah L.</div>
+      </div>
+      <div class="card-body">
+        <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">Sarah Lemoine</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Employée • Bar</div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-day">Lun 14</div>
+          <div class="detail-times">
+            <div class="detail-time-item">Arrivée 14:00 <span>✓</span></div>
+            <div class="detail-time-item">Pause 17:30–17:50 <span>(20 min)</span></div>
+            <div class="detail-time-item">Départ 22:00 <span>✓</span></div>
+          </div>
+          <div class="detail-net">7h40</div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-day">Mer 16</div>
+          <div class="detail-times">
+            <div class="detail-time-item">Arrivée 14:00 <span>✓</span></div>
+            <div class="detail-time-item">Pause 17:45–18:05 <span>(20 min)</span></div>
+            <div class="detail-time-item">Départ 22:15 <span>+15 min</span></div>
+          </div>
+          <div class="detail-net">7h55</div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-day">Jeu 17</div>
+          <div class="detail-times">
+            <div class="detail-time-item">Arrivée 10:00 <span>✓</span></div>
+            <div class="detail-time-item">Pause 13:00–13:20 <span>(20 min)</span></div>
+            <div class="detail-time-item">Départ 18:00 <span>✓</span></div>
+          </div>
+          <div class="detail-net">7h30</div>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-day">Ven 18</div>
+          <div class="detail-times">
+            <div class="detail-time-item">Arrivée 14:00 <span>✓</span></div>
+            <div class="detail-time-item">Pause 17:45–18:05 <span>(20 min)</span></div>
+            <div class="detail-time-item">Départ 22:30 <span>+30 min</span></div>
+          </div>
+          <div class="detail-net">8h10</div>
+        </div>
+
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--muted)">
+          Historique corrections : <strong style="color:var(--green)">Aucune correction cette semaine</strong>
+        </div>
+
+        <div class="card-buttons">
+          <button class="btn-small success">✓ Valider</button>
+          <button class="btn-small outline">✏️ Corriger</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Résumé & Alertes ── -->
+    <div>
+      <!-- Résumé -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">📊 Résumé semaine</div>
+        </div>
+        <div class="card-body">
+          <div class="summary-stat">
+            <span class="summary-stat-label">Total heures équipe</span>
+            <span class="summary-stat-value" style="color:var(--blue)">342.5h</span>
+          </div>
+          <div class="summary-stat">
+            <span class="summary-stat-label">Heures supplémentaires</span>
+            <span class="summary-stat-value accent">3h50</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-left:auto;margin-top:2px">Tom K. +1h20 • Thomas B. +2h30</div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"></div>
+          <div class="summary-stat">
+            <span class="summary-stat-label">Retards détectés</span>
+            <span class="summary-stat-value red">7 incidents</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-left:auto;margin-top:2px">Marc 2 • Lucas 3 • Tom 1 • Sarah 1</div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"></div>
+          <div class="summary-stat">
+            <span class="summary-stat-label">Absences</span>
+            <span class="summary-stat-value red">1</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-left:auto;margin-top:2px">Léa P. — sam 19 (non justifiée)</div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)"></div>
+          <div class="summary-stat">
+            <span class="summary-stat-label">Pauses conformes</span>
+            <span class="summary-stat-value green">96%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertes légales -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⚠️ Alertes légales</div>
+        </div>
+        <div class="card-body">
+          <div class="alert-item">
+            <div class="alert-icon warn">⏱️</div>
+            <div class="alert-content">
+              <div class="alert-title">Tom K. — Dépassement hebdo</div>
+              <div class="alert-detail">36h20 cette semaine • Attention au seuil 44h/12 semaines</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon warn">⏱️</div>
+            <div class="alert-content">
+              <div class="alert-title">Thomas B. — Majorations 25%</div>
+              <div class="alert-detail">+2h30 sup à 25% — à appliquer sur salaire</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon danger">🔴</div>
+            <div class="alert-content">
+              <div class="alert-title">Léa P. — Absence non justifiée</div>
+              <div class="alert-detail">Sam 19 — Action requise (contact employé, documentation)</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon ok">✅</div>
+            <div class="alert-content">
+              <div class="alert-title">Repos quotidien 11h — Conforme</div>
+              <div class="alert-detail">Tous les employés respectent le seuil légal</div>
+            </div>
+          </div>
+          <div class="alert-item">
+            <div class="alert-icon ok">✅</div>
+            <div class="alert-content">
+              <div class="alert-title">Repos hebdomadaire 35h — Conforme</div>
+              <div class="alert-detail">Tous les employés respectent le seuil légal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
