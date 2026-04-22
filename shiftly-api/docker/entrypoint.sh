@@ -34,8 +34,21 @@ chown www-data:www-data "$JWT_DIR"/*.pem 2>/dev/null || true
 chmod 600 "$JWT_DIR/private.pem" 2>/dev/null || true
 chmod 644 "$JWT_DIR/public.pem" 2>/dev/null || true
 
-# Init BDD
-php /var/www/html/bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --env=prod 2>&1 || true
+# Init BDD — fail-loud : si une migration casse, on bloque le déploiement.
+# Ne JAMAIS rajouter de `|| true` ici : un schéma cassé silencieux (ex. table user droppée
+# par une migration auto-generated SQLite appliquée sur MySQL) provoque des 500 sur le
+# endpoint de login alors que le container démarre comme si tout allait bien.
+echo "Migration du schéma BDD..."
+php /var/www/html/bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --env=prod
+
+# Réensemencement opt-in — à activer avec LOAD_FIXTURES=1 dans les variables Railway
+# pour une exécution unique, puis à remettre sur 0 sinon les données sont rechargées
+# (et donc écrasées) à chaque redémarrage du container.
+if [ "$LOAD_FIXTURES" = "1" ]; then
+    echo "LOAD_FIXTURES=1 détecté — purge + rechargement des fixtures Alice..."
+    php /var/www/html/bin/console doctrine:fixtures:load --no-interaction --purge-with-truncate --env=prod
+    echo "Fixtures rechargées. N'oublie pas de remettre LOAD_FIXTURES=0 sur Railway."
+fi
 
 chown -R www-data:www-data /var/www/html/var/ 2>/dev/null || true
 

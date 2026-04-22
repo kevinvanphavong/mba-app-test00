@@ -4,22 +4,39 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Auto-generated Migration: Please modify to your needs!
+ * Migration auto-générée par Doctrine sur SQLite (dev local).
+ *
+ * IMPORTANT — Platform-aware :
+ *  - Sur MySQL (prod Railway), cette migration est un NO-OP : les migrations précédentes
+ *    (Version20260419000001 pour absence, Version20260418000001 pour planning_snapshot,
+ *    Version20260421000001 pour pointage / pointage_pause / user.code_pointage) ont déjà
+ *    créé ces tables avec leur schéma final. Rejouer des CREATE TEMPORARY/DROP/CREATE en
+ *    syntaxe SQLite sur MySQL casse la base (le DROP TABLE user auto-commit avant que
+ *    le CREATE TABLE user (...AUTOINCREMENT...) ne parte en erreur → table user perdue).
+ *  - Sur SQLite (dev local), on conserve le comportement d'origine : Doctrine régénère
+ *    les tables pour appliquer les renommages d'index / contraintes de clé étrangère
+ *    que SQLite ne peut pas altérer via ALTER TABLE.
  */
 final class Version20260421011520 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Normalisation des index / FK sur absence, planning_snapshot, pointage, pointage_pause, service, user (SQLite uniquement — no-op MySQL).';
     }
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        // MySQL (prod) : schéma déjà cohérent via les migrations précédentes — rien à faire.
+        if (!$this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            return;
+        }
+
+        // SQLite (dev local) : comportement auto-generated d'origine conservé à l'identique.
         $this->addSql('CREATE TEMPORARY TABLE __temp__absence AS SELECT id, centre_id, user_id, date, type, motif, created_at, created_by FROM absence');
         $this->addSql('DROP TABLE absence');
         $this->addSql('CREATE TABLE absence (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, centre_id INTEGER NOT NULL, user_id INTEGER NOT NULL, date DATE NOT NULL, type VARCHAR(30) NOT NULL, motif VARCHAR(255) DEFAULT NULL, created_at DATETIME NOT NULL, created_by INTEGER DEFAULT NULL, CONSTRAINT FK_absence_centre FOREIGN KEY (centre_id) REFERENCES centre (id) ON UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_absence_user FOREIGN KEY (user_id) REFERENCES user (id) ON UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_absence_created_by FOREIGN KEY (created_by) REFERENCES user (id) ON UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE)');
@@ -71,7 +88,12 @@ final class Version20260421011520 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
+        // MySQL (prod) : up() étant un no-op, down() l'est aussi.
+        if (!$this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            return;
+        }
+
+        // SQLite (dev local) : rollback auto-generated d'origine conservé à l'identique.
         $this->addSql('CREATE TEMPORARY TABLE __temp__absence AS SELECT id, date, type, motif, created_at, centre_id, user_id, created_by FROM absence');
         $this->addSql('DROP TABLE absence');
         $this->addSql('CREATE TABLE absence (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date DATE NOT NULL, type VARCHAR(30) NOT NULL, motif VARCHAR(255) DEFAULT NULL, created_at DATETIME NOT NULL, centre_id INTEGER NOT NULL, user_id INTEGER NOT NULL, created_by INTEGER DEFAULT NULL, CONSTRAINT FK_765AE0C9463CD7C3 FOREIGN KEY (centre_id) REFERENCES centre (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_765AE0C9A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_765AE0C9DE12AB56 FOREIGN KEY (created_by) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
