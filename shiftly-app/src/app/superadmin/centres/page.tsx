@@ -100,11 +100,11 @@ export default function SuperAdminCentresPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-5 gap-3 mb-5">
-        <QuickStat label="Total centres"  value={stats.total}      color="text-text"   />
-        <QuickStat label="MRR cumulé"     value={`${stats.mrr} €`} color="text-green"  />
-        <QuickStat label="En essai"       value={stats.essai}      color="text-blue"   />
-        <QuickStat label="Échéance < 30j" value={stats.echeance}   color="text-yellow" />
-        <QuickStat label="Suspendus"      value={stats.suspendus}  color="text-red"    />
+        <QuickStat label="Total centres"        value={stats.total}      color="text-text"   />
+        <QuickStat label="Revenus mensuels"     value={`${stats.mrr} €`} color="text-green"  />
+        <QuickStat label="Période d'essai"      value={stats.essai}      color="text-blue"   />
+        <QuickStat label="Renouvellement < 30j" value={stats.echeance}   color="text-yellow" />
+        <QuickStat label="Suspendus"            value={stats.suspendus}  color="text-red"    />
       </div>
 
       {/* Filters */}
@@ -124,7 +124,7 @@ export default function SuperAdminCentresPage() {
         </div>
 
         <select value={plan} onChange={e => setPlan(e.target.value)} className="bg-surface2 text-text border border-border py-2 px-3 rounded-lg text-[13px] cursor-pointer">
-          <option value="">Tous les plans</option>
+          <option value="">Toutes les formules</option>
           <option value="starter">Starter</option>
           <option value="pro">Pro</option>
           <option value="enterprise">Enterprise</option>
@@ -138,7 +138,7 @@ export default function SuperAdminCentresPage() {
 
         <select value={tri} onChange={e => setTri(e.target.value)} className="bg-surface2 text-text border border-border py-2 px-3 rounded-lg text-[13px] cursor-pointer">
           <option value="activity">Tri : Dernière activité</option>
-          <option value="mrr">Tri : MRR</option>
+          <option value="mrr">Tri : Revenus</option>
           <option value="date">Tri : Date d'inscription</option>
           <option value="nom">Tri : Nom</option>
         </select>
@@ -148,7 +148,7 @@ export default function SuperAdminCentresPage() {
             onClick={() => setPlan('')}
             className="inline-flex items-center gap-1.5 bg-accent/10 text-accent border border-accent/30 px-2.5 py-1 rounded-[14px] text-[11px] font-semibold"
           >
-            Plan : {PLAN_META[plan as CentrePlan]?.label} <span className="opacity-60 hover:opacity-100">×</span>
+            Formule : {PLAN_META[plan as CentrePlan]?.label} <span className="opacity-60 hover:opacity-100">×</span>
           </button>
         )}
       </div>
@@ -164,10 +164,10 @@ export default function SuperAdminCentresPage() {
               <thead>
                 <tr>
                   <Th active>Centre <span className="ml-1 text-[9px]">▼</span></Th>
-                  <Th>Plan</Th>
-                  <Th>MRR</Th>
-                  <Th>Users</Th>
-                  <Th>Pointages 30j</Th>
+                  <Th>Formule</Th>
+                  <Th>Revenus</Th>
+                  <Th>Employés</Th>
+                  <Th>Pointages (30j)</Th>
                   <Th>Dernière activité</Th>
                   <Th>Statut</Th>
                   <Th>Actions</Th>
@@ -264,9 +264,9 @@ function Row({ centre }: { centre: CentreSummary }) {
 
       <td className="py-3.5 px-4 border-b border-border/50">
         <div className="flex gap-1.5">
-          <RowAction title="Voir détail" icon="👁" href={`/superadmin/centres/${centre.id}`} />
-          <RowAction title="Impersonate" icon="🎭" />
-          <RowAction title="Plus"        icon="⋯" />
+          <RowAction title="Voir le détail"            icon="👁" href={`/superadmin/centres/${centre.id}`} />
+          <RowAction title="Se connecter au centre"    icon="🎭" />
+          <RowAction title="Plus d'options"            icon="⋯" />
         </div>
       </td>
     </tr>

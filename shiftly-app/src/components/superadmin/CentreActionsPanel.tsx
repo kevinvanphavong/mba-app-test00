@@ -44,7 +44,7 @@ export default function CentreActionsPanel({ centre }: Props) {
             fontSize: 13, fontWeight: 600, opacity: impersonate.isPending ? 0.6 : 1,
           }}
         >
-          {impersonate.isPending ? 'Connexion…' : '🔑 Impersonate manager'}
+          {impersonate.isPending ? 'Connexion…' : '🔑 Se connecter en tant que manager'}
         </button>
 
         {centre.actif ? (

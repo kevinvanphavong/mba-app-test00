@@ -33,7 +33,7 @@ export default function ImpersonationBanner() {
           }}
         >
           <span>
-            🔴 Mode impersonation — Centre : {impersonatedCentre?.nom ?? '…'}
+            🔴 Vous êtes connecté au centre : {impersonatedCentre?.nom ?? '…'}
           </span>
           <button
             onClick={stopImpersonation}

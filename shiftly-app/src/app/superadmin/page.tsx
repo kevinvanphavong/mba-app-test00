@@ -7,8 +7,8 @@ import { useSuperAdminDashboard } from '@/hooks/useSuperAdminDashboard'
 import type { DashboardKPIs, TopCentre, AuditLogEntry } from '@/types/superadmin'
 
 // ─── Mock data Phase 1 (remplacé en Phase 2 par Stripe + Sentry réel) ────────
-const MRR_HISTORY = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-const MRR_MONTHS  = ['Mai 25', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc', 'Jan 26', 'Fév', 'Mars', 'Avr']
+const REVENUE_HISTORY = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+const REVENUE_MONTHS  = ['Mai 25', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc', 'Jan 26', 'Fév', 'Mars', 'Avr']
 
 const MODULE_ADOPTION = [
   { label: 'Pointage',        icon: '⏱️', pct: 100, color: 'bg-green'  },
@@ -63,7 +63,7 @@ export default function SuperAdminDashboardPage() {
           trend={{ label: `+${data.totalCentres} au total`, kind: 'neutral' }}
         />
         <KpiCard
-          label="MRR"
+          label="Revenus mensuels"
           value={`${data.mrr} €`}
           valueColor="text-green"
           accentBar="bg-green"
@@ -81,7 +81,7 @@ export default function SuperAdminDashboardPage() {
           trend={{ label: `Sur ${data.totalCentres} centre${data.totalCentres > 1 ? 's' : ''}`, kind: 'neutral' }}
         />
         <KpiCard
-          label="Erreurs Sentry (7j)"
+          label="Erreurs (7 jours)"
           value={data.sentryStats.total}
           valueColor="text-red"
           accentBar="bg-red"
@@ -93,7 +93,7 @@ export default function SuperAdminDashboardPage() {
 
       {/* Top widgets */}
       <div className="grid grid-cols-[2fr_1fr] gap-[18px] mb-5 max-[1100px]:grid-cols-1">
-        <MrrWidget />
+        <RevenueWidget />
         <SentryWidget total={data.sentryStats.total} />
       </div>
 
@@ -168,12 +168,12 @@ function WidgetShell({
   )
 }
 
-// ─── MRR Widget ───────────────────────────────────────────────────────────────
+// ─── Revenue Widget ───────────────────────────────────────────────────────────
 
-function MrrWidget() {
-  const max   = Math.max(...MRR_HISTORY, 1)
-  const pts   = MRR_HISTORY.map((v, i) => {
-    const x = (i / (MRR_HISTORY.length - 1)) * 600
+function RevenueWidget() {
+  const max   = Math.max(...REVENUE_HISTORY, 1)
+  const pts   = REVENUE_HISTORY.map((v, i) => {
+    const x = (i / (REVENUE_HISTORY.length - 1)) * 600
     const y = 180 - (v / max) * 160 - 10
     return `${x},${y}`
   }).join(' L ')
@@ -181,11 +181,11 @@ function MrrWidget() {
   const fill  = `M ${pts} L 600,180 L 0,180 Z`
 
   return (
-    <WidgetShell icon="📈" title="Croissance MRR" action="Voir détails →">
+    <WidgetShell icon="📈" title="Évolution des revenus" action="Voir détails →">
       <div className="h-[180px] relative my-2 mb-3">
         <svg className="w-full h-full" viewBox="0 0 600 180" preserveAspectRatio="none">
           <defs>
-            <linearGradient id="mrrGrad" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%"   stopColor="#22c55e" stopOpacity="0.4" />
               <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
             </linearGradient>
@@ -193,19 +193,19 @@ function MrrWidget() {
           <line x1="0" y1="30"  x2="600" y2="30"  stroke="#252a3a" strokeDasharray="3,3" />
           <line x1="0" y1="80"  x2="600" y2="80"  stroke="#252a3a" strokeDasharray="3,3" />
           <line x1="0" y1="130" x2="600" y2="130" stroke="#252a3a" strokeDasharray="3,3" />
-          <path d={fill} fill="url(#mrrGrad)" />
+          <path d={fill} fill="url(#revenueGrad)" />
           <path d={path} stroke="#22c55e" strokeWidth="2.5" fill="none" />
         </svg>
       </div>
 
       <div className="flex justify-between px-1 text-[10px] text-muted">
-        {MRR_MONTHS.map(m => <span key={m}>{m}</span>)}
+        {REVENUE_MONTHS.map(m => <span key={m}>{m}</span>)}
       </div>
 
       <div className="grid grid-cols-3 gap-3.5 mt-3.5 pt-3.5 border-t border-border">
-        <ChartStat label="MRR actuel"       value="0 €"       color="text-green"  />
-        <ChartStat label="New MRR (30j)"    value="—"         color="text-accent" />
-        <ChartStat label="Churn MRR (30j)"  value="—"         color="text-red"    />
+        <ChartStat label="Revenus du mois"        value="0 €" color="text-green"  />
+        <ChartStat label="Nouveaux revenus (30j)" value="—"   color="text-accent" />
+        <ChartStat label="Revenus perdus (30j)"   value="—"   color="text-red"    />
       </div>
     </WidgetShell>
   )
@@ -226,7 +226,7 @@ function SentryWidget({ total }: { total: number }) {
   const isHealthy = total === 0
 
   return (
-    <WidgetShell icon="🛡️" title="Santé Sentry" action="Sentry ↗">
+    <WidgetShell icon="🛡️" title="Santé du système" action="Voir les erreurs ↗">
       <div className="flex items-center gap-3.5 mb-3.5">
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-[22px] ${isHealthy ? 'bg-green/10' : 'bg-yellow/10'}`}>
           {isHealthy ? '✓' : '⚠'}
@@ -243,12 +243,12 @@ function SentryWidget({ total }: { total: number }) {
 
       {isHealthy && (
         <p className="text-[12px] text-muted">
-          Sentry surveille l'API et l'app. Les erreurs apparaîtront ici par ordre de fréquence.
+          Surveillance automatique de l'API et de l'application. Les erreurs apparaîtront ici par ordre de fréquence.
         </p>
       )}
 
       <div className="text-center mt-3.5 pt-3 border-t border-border text-accent text-[11px] font-semibold cursor-pointer">
-        {isHealthy ? 'Ouvrir Sentry' : `Voir les ${total} erreurs →`}
+        {isHealthy ? 'Ouvrir le tableau de bord' : `Voir les ${total} erreurs →`}
       </div>
     </WidgetShell>
   )
@@ -257,7 +257,7 @@ function SentryWidget({ total }: { total: number }) {
 // ─── Activity Widget ──────────────────────────────────────────────────────────
 
 const ACTION_META: Record<string, { icon: string; color: string; label: string }> = {
-  IMPERSONATE_START: { icon: '🎭', color: 'bg-purple/10 text-purple', label: 'Impersonation démarrée' },
+  IMPERSONATE_START: { icon: '🎭', color: 'bg-purple/10 text-purple', label: 'Connexion au centre' },
   ADD_NOTE:          { icon: '📝', color: 'bg-blue/10 text-blue',     label: 'Note ajoutée'           },
   CENTRE_SUSPEND:    { icon: '⏸',  color: 'bg-red/10 text-red',       label: 'Centre suspendu'        },
   CENTRE_REACTIVATE: { icon: '▶',  color: 'bg-green/10 text-green',   label: 'Centre réactivé'        },
@@ -306,7 +306,7 @@ function TopCentresWidget({ centres }: { centres: TopCentre[] }) {
   }
 
   return (
-    <WidgetShell icon="🏆" title="Top 5 centres (engagement 30j)">
+    <WidgetShell icon="🏆" title="Centres les plus actifs (30 derniers jours)">
       {centres.length === 0 ? (
         <p className="text-[13px] text-muted">Aucune donnée</p>
       ) : (
@@ -335,7 +335,7 @@ function TopCentresWidget({ centres }: { centres: TopCentre[] }) {
 
 function ModuleAdoptionWidget() {
   return (
-    <WidgetShell icon="📦" title="Adoption modules">
+    <WidgetShell icon="📦" title="Utilisation des modules">
       <div className="flex flex-col">
         {MODULE_ADOPTION.map(m => (
           <div key={m.label} className="flex items-center justify-between py-2.5 border-b border-border last:border-b-0">
