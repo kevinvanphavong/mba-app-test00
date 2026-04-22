@@ -4,13 +4,18 @@ namespace App\Service;
 
 use App\Entity\Absence;
 use App\Entity\Centre;
+use App\Entity\CorrectionPointage;
 use App\Entity\Pointage;
 use App\Entity\PointagePause;
 use App\Entity\User;
+use App\Entity\ValidationHebdo;
 use App\Repository\AbsenceRepository;
+use App\Repository\CorrectionPointageRepository;
 use App\Repository\PointageRepository;
 use App\Repository\UserRepository;
 use App\Repository\PosteRepository;
+use App\Repository\ValidationHebdoRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Service de calcul pour la validation hebdomadaire des pointages.
@@ -19,10 +24,13 @@ use App\Repository\PosteRepository;
 class ValidationHebdoService
 {
     public function __construct(
-        private readonly PointageRepository $pointageRepo,
-        private readonly AbsenceRepository  $absenceRepo,
-        private readonly UserRepository     $userRepo,
-        private readonly PosteRepository    $posteRepo,
+        private readonly PointageRepository       $pointageRepo,
+        private readonly AbsenceRepository        $absenceRepo,
+        private readonly UserRepository           $userRepo,
+        private readonly PosteRepository          $posteRepo,
+        private readonly ValidationHebdoRepository $validationRepo,
+        private readonly CorrectionPointageRepository $correctionRepo,
+        private readonly EntityManagerInterface   $em,
     ) {}
 
     /**
@@ -291,8 +299,8 @@ class ValidationHebdoService
             return false;
         }
 
-        $serviceDate    = $pointage->getService()->getDate();
-        $heureDebutStr  = $serviceDate->format('Y-m-d') . ' ' . $poste->getHeureDebut();
+        $serviceDate     = $pointage->getService()->getDate();
+        $heureDebutStr   = $serviceDate->format('Y-m-d') . ' ' . $poste->getHeureDebut()->format('H:i:s');
         $heureDebutPoste = new \DateTimeImmutable($heureDebutStr);
 
         $retardMinutes = ($pointage->getHeureArrivee()->getTimestamp() - $heureDebutPoste->getTimestamp()) / 60;
@@ -466,6 +474,137 @@ class ValidationHebdoService
         return $alertes;
     }
 
+    // ─── Actions ─────────────────────────────────────────────────────────────
+
+    /**
+     * Valide les heures d'un employé pour une semaine.
+     * Crée ou met à jour l'entité ValidationHebdo.
+     */
+    public function validerEmploye(int $centreId, int $userId, \DateTimeImmutable $lundi, User $manager): ValidationHebdo
+    {
+        $validation = $this->validationRepo->findOneByUserAndSemaine($centreId, $userId, $lundi);
+
+        if ($validation === null) {
+            $validation = new ValidationHebdo();
+            $validation->setCentre($this->em->getReference(Centre::class, $centreId));
+            $validation->setUser($this->em->getReference(User::class, $userId));
+            $validation->setSemaine($lundi);
+        }
+
+        // Recalculer les totaux depuis les pointages réels
+        $employes = $this->getSemaineData($centreId, $lundi)['employes'];
+        foreach ($employes as $employe) {
+            if ($employe['userId'] === $userId) {
+                $validation->setHeuresTravaillees($employe['totalTravaille']);
+                $validation->setHeuresPrevues($employe['totalPrevu']);
+                $validation->setEcart($employe['ecart']);
+                $validation->setHeuresSup($employe['heuresSup']);
+                $validation->setNbRetards($employe['nbRetards']);
+                $validation->setNbAbsences($employe['nbAbsences']);
+                break;
+            }
+        }
+
+        $validation->setStatut(ValidationHebdo::STATUT_VALIDEE);
+        $validation->setValidePar($manager);
+        $validation->setValideAt(new \DateTimeImmutable());
+        $validation->setUpdatedAt(new \DateTimeImmutable());
+
+        $this->em->persist($validation);
+        $this->em->flush();
+
+        return $validation;
+    }
+
+    /**
+     * Valide tous les employés d'une semaine d'un coup.
+     *
+     * @return ValidationHebdo[]
+     */
+    public function validerSemaine(int $centreId, \DateTimeImmutable $lundi, User $manager): array
+    {
+        $semaineData = $this->getSemaineData($centreId, $lundi);
+        $validations = [];
+
+        foreach ($semaineData['employes'] as $employe) {
+            $validations[] = $this->validerEmploye($centreId, $employe['userId'], $lundi, $manager);
+        }
+
+        return $validations;
+    }
+
+    /**
+     * Applique une correction sur un pointage et trace la modification.
+     */
+    public function corrigerPointage(
+        int    $pointageId,
+        string $champ,
+        string $nouvelleValeurStr,
+        ?string $motif,
+        User   $manager
+    ): CorrectionPointage {
+        $pointage = $this->pointageRepo->find($pointageId);
+
+        if ($pointage === null) {
+            throw new \InvalidArgumentException("Pointage {$pointageId} introuvable.");
+        }
+
+        if (!in_array($champ, CorrectionPointage::CHAMPS, true)) {
+            throw new \InvalidArgumentException("Champ {$champ} non modifiable.");
+        }
+
+        $nouvelleValeur = new \DateTimeImmutable($nouvelleValeurStr);
+
+        // Récupérer l'ancienne valeur
+        $ancienneValeur = match ($champ) {
+            'heureArrivee' => $pointage->getHeureArrivee(),
+            'heureDepart'  => $pointage->getHeureDepart(),
+            default        => null,
+        };
+
+        // Appliquer la correction
+        match ($champ) {
+            'heureArrivee' => $pointage->setHeureArrivee($nouvelleValeur),
+            'heureDepart'  => $pointage->setHeureDepart($nouvelleValeur),
+            default        => null,
+        };
+
+        $pointage->setUpdatedAt(new \DateTimeImmutable());
+
+        // Tracer la correction
+        $correction = new CorrectionPointage();
+        $correction->setPointage($pointage);
+        $correction->setChampModifie($champ);
+        $correction->setAncienneValeur($ancienneValeur);
+        $correction->setNouvelleValeur($nouvelleValeur);
+        $correction->setMotif($motif);
+        $correction->setCorrigePar($manager);
+
+        $this->em->persist($correction);
+        $this->em->flush();
+
+        return $correction;
+    }
+
+    /**
+     * Retourne les corrections d'un pointage, formatées pour le frontend.
+     */
+    public function getCorrectionsFormatees(int $pointageId): array
+    {
+        $corrections = $this->correctionRepo->findByPointage($pointageId);
+
+        return array_map(fn(CorrectionPointage $c) => [
+            'id'             => $c->getId(),
+            'pointageId'     => $c->getPointage()->getId(),
+            'champModifie'   => $c->getChampModifie(),
+            'ancienneValeur' => $c->getAncienneValeur()?->format('Y-m-d H:i:s'),
+            'nouvelleValeur' => $c->getNouvelleValeur()?->format('Y-m-d H:i:s'),
+            'motif'          => $c->getMotif(),
+            'corrigePar'     => $c->getCorrigePar()->getNom(),
+            'createdAt'      => $c->getCreatedAt()->format('Y-m-d H:i:s'),
+        ], $corrections);
+    }
+
     // ─── Helpers privés ──────────────────────────────────────────────────────
 
     private function buildAlerte(string $type, string $severite, int $userId, string $nom, string $titre, string $detail): array
@@ -510,8 +649,8 @@ class ValidationHebdoService
             return null;
         }
 
-        $debut = new \DateTimeImmutable('1970-01-01 ' . $poste->getHeureDebut());
-        $fin   = new \DateTimeImmutable('1970-01-01 ' . $poste->getHeureFin());
+        $debut = new \DateTimeImmutable('1970-01-01 ' . $poste->getHeureDebut()->format('H:i:s'));
+        $fin   = new \DateTimeImmutable('1970-01-01 ' . $poste->getHeureFin()->format('H:i:s'));
 
         // Gérer le cas où la fin est le lendemain (service de nuit)
         if ($fin < $debut) {
