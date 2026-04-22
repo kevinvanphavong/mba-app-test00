@@ -23,7 +23,7 @@ export default function SuperAdminCentreDetailPage({ params }: Props) {
   if (isError || !data) return <p style={{ color: 'var(--red)', fontSize: 14 }}>Centre introuvable</p>
 
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="visible" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <motion.div variants={fadeUp} initial="hidden" animate="show" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <Link href="/superadmin/centres" style={{ fontSize: 13, color: 'var(--muted)', textDecoration: 'none' }}>
         ← Retour aux centres
       </Link>

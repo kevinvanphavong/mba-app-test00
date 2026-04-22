@@ -26,7 +26,7 @@ export default function SuperAdminLoginPage() {
       <motion.div
         variants={fadeUp}
         initial="hidden"
-        animate="visible"
+        animate="show"
         style={{
           background: 'var(--surface)',
           border: '1px solid var(--border)',
