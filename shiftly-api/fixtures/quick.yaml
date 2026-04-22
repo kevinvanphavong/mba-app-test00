@@ -1,0 +1,928 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 2 : Quick — Centre-ville Tours (franchise fast food)
+#  Staff  : 13 membres (2 managers, 11 équipiers)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_quick:
+    nom:     "Quick — Centre-ville Tours"
+    adresse: "45 rue Nationale, 37000 Tours"
+    openingHours:
+      lundi:
+        ouvert:    true
+        ouverture: "10:00"
+        fermeture: "23:00"
+      mardi:
+        ouvert:    true
+        ouverture: "10:00"
+        fermeture: "23:00"
+      mercredi:
+        ouvert:    true
+        ouverture: "10:00"
+        fermeture: "23:00"
+      jeudi:
+        ouvert:    true
+        ouverture: "10:00"
+        fermeture: "23:00"
+      vendredi:
+        ouvert:    true
+        ouverture: "10:00"
+        fermeture: "00:00"
+      samedi:
+        ouvert:    true
+        ouverture: "09:00"
+        fermeture: "01:00"
+      dimanche:
+        ouvert:    true
+        ouverture: "10:00"
+        fermeture: "23:00"
+
+App\Entity\Zone:
+  zone_q_production:
+    centre:  "@centre_quick"
+    nom:     "Production"
+    couleur: "#f97316"
+    ordre:   1
+  zone_q_caisse:
+    centre:  "@centre_quick"
+    nom:     "Caisse / Accueil"
+    couleur: "#3b82f6"
+    ordre:   2
+  zone_q_salle:
+    centre:  "@centre_quick"
+    nom:     "Salle"
+    couleur: "#22c55e"
+    ordre:   3
+  zone_q_drive:
+    centre:  "@centre_quick"
+    nom:     "Drive"
+    couleur: "#eab308"
+    ordre:   4
+
+App\Entity\User:
+  user_q_sophie:
+    centre:      "@centre_quick"
+    nom:         "Martin"
+    prenom:      "Sophie"
+    email:       "sophie@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "MANAGER"
+    avatarColor: "#f97316"
+    points:      210
+    actif:       true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+
+  user_q_karim:
+    centre:      "@centre_quick"
+    nom:         "Benali"
+    prenom:      "Karim"
+    email:       "karim@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "MANAGER"
+    avatarColor: "#8b5cf6"
+    points:      175
+    actif:       true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+
+  user_q_thomas:
+    centre:      "@centre_quick"
+    nom:         "Leclerc"
+    prenom:      "Thomas"
+    email:       "thomas@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#22c55e"
+    points:      145
+    actif:       true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+
+  user_q_amelie:
+    centre:      "@centre_quick"
+    nom:         "Dupont"
+    prenom:      "Amélie"
+    email:       "amelie@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#ec4899"
+    points:      120
+    actif:       true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+
+  user_q_jordan:
+    centre:      "@centre_quick"
+    nom:         "Rousseau"
+    prenom:      "Jordan"
+    email:       "jordan@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#0ea5e9"
+    points:      100
+    actif:       true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+
+  user_q_nadia:
+    centre:      "@centre_quick"
+    nom:         "Kowalski"
+    prenom:      "Nadia"
+    email:       "nadia@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#14b8a6"
+    points:      95
+    actif:       true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+
+  user_q_sarah:
+    centre:      "@centre_quick"
+    nom:         "Mbaye"
+    prenom:      "Sarah"
+    email:       "sarah@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#6366f1"
+    points:      55
+    actif:       true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+
+  user_q_lucas:
+    centre:      "@centre_quick"
+    nom:         "Bernard"
+    prenom:      "Lucas"
+    email:       "lucas@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#f59e0b"
+    points:      40
+    actif:       true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+
+  user_q_yassine:
+    centre:      "@centre_quick"
+    nom:         "Hamidi"
+    prenom:      "Yassine"
+    email:       "yassine@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#a855f7"
+    points:      35
+    actif:       true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+
+  user_q_ines:
+    centre:      "@centre_quick"
+    nom:         "Laporte"
+    prenom:      "Inès"
+    email:       "ines@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#ef4444"
+    points:      25
+    actif:       true
+    heuresHebdo: 15
+    typeContrat: "CDD"
+
+  user_q_emma:
+    centre:      "@centre_quick"
+    nom:         "Girard"
+    prenom:      "Emma"
+    email:       "emma@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#f472b6"
+    points:      20
+    actif:       true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+  user_q_axel:
+    centre:      "@centre_quick"
+    nom:         "Fontaine"
+    prenom:      "Axel"
+    email:       "axel@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#475569"
+    points:      10
+    actif:       true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+  user_q_theo:
+    centre:      "@centre_quick"
+    nom:         "Moreau"
+    prenom:      "Théo"
+    email:       "theo@quick-tours.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#84cc16"
+    points:      15
+    actif:       true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+App\Entity\Mission:
+  m_q_prod_ouv_1:
+    zone: "@zone_q_production"
+    texte: "Être en tenue et pointer son heure d'arrivée"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_prod_ouv_2:
+    zone: "@zone_q_production"
+    texte: "Allumer et préchauffer les grils et friteuses (montée en température 15 min)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_prod_ouv_3:
+    zone: "@zone_q_production"
+    texte: "Vérifier les températures des enceintes réfrigérées (HACCP)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_q_prod_ouv_4:
+    zone: "@zone_q_production"
+    texte: "Contrôler les DLC des matières premières (viande, pain, crudités)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 4
+  m_q_prod_ouv_5:
+    zone: "@zone_q_production"
+    texte: "Préparer et vérifier les sauces maison (quantités pour le service)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 5
+  m_q_prod_ouv_6:
+    zone: "@zone_q_production"
+    texte: "Mettre en place les emballages, papiers et boîtes selon le plan de rangement"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 6
+  m_q_prod_ouv_7:
+    zone: "@zone_q_production"
+    texte: "Remplir les bacs à pain et vérifier stock de petits pains"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 7
+  m_q_prod_pend_1:
+    zone: "@zone_q_production"
+    texte: "Cuire les steaks au gril selon les commandes (temps de cuisson réglementaire)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_prod_pend_2:
+    zone: "@zone_q_production"
+    texte: "Respecter les temps de vie produits chauds (max 10 min en holding)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_prod_pend_3:
+    zone: "@zone_q_production"
+    texte: "Relever les températures friteuses et grils toutes les 2h (feuille HACCP)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_q_prod_pend_4:
+    zone: "@zone_q_production"
+    texte: "Réapprovisionner la chaîne de production en continu"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 4
+  m_q_prod_pend_5:
+    zone: "@zone_q_production"
+    texte: "Nettoyer les surfaces de travail entre chaque rush"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 5
+  m_q_prod_ferm_1:
+    zone: "@zone_q_production"
+    texte: "Éteindre les grils après le dernier service (protocole dégraissage)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_prod_ferm_2:
+    zone: "@zone_q_production"
+    texte: "Filtrer et changer l'huile des friteuses si nécessaire"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_prod_ferm_3:
+    zone: "@zone_q_production"
+    texte: "Ranger les matières premières restantes en chambre froide (étiquetage date)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_q_prod_ferm_4:
+    zone: "@zone_q_production"
+    texte: "Relever les températures de fin de service (feuille HACCP)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 4
+  m_q_prod_ferm_5:
+    zone: "@zone_q_production"
+    texte: "Nettoyer le gril, les friteuses et toutes les surfaces de production"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 5
+  m_q_prod_ferm_6:
+    zone: "@zone_q_production"
+    texte: "Passer la serpillière en production et dans la zone de préparation"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 6
+  m_q_caisse_ouv_1:
+    zone: "@zone_q_caisse"
+    texte: "Allumer les caisses, les bornes de commande et les TPE"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_caisse_ouv_2:
+    zone: "@zone_q_caisse"
+    texte: "Vérifier le fond de caisse et signer la feuille de prise en charge"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_caisse_ouv_3:
+    zone: "@zone_q_caisse"
+    texte: "Vérifier propreté du comptoir d'accueil et de l'affichage menu"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+  m_q_caisse_ouv_4:
+    zone: "@zone_q_caisse"
+    texte: "Contrôler la disponibilité des produits avec la production avant ouverture"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 4
+  m_q_caisse_pend_1:
+    zone: "@zone_q_caisse"
+    texte: "Accueillir les clients avec le sourire et annoncer les promotions du moment"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_caisse_pend_2:
+    zone: "@zone_q_caisse"
+    texte: "Servir les plateaux avec rapidité et vérifier la conformité des commandes"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_caisse_pend_3:
+    zone: "@zone_q_caisse"
+    texte: "Gérer les files d'attente et orienter les clients vers les bornes si nécessaire"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+  m_q_caisse_pend_4:
+    zone: "@zone_q_caisse"
+    texte: "Traiter les réclamations et anomalies de commande calmement"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 4
+  m_q_caisse_ferm_1:
+    zone: "@zone_q_caisse"
+    texte: "Clôturer les caisses et remettre le fond de caisse au responsable"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_caisse_ferm_2:
+    zone: "@zone_q_caisse"
+    texte: "Imprimer et signer le rapport Z de caisse"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_caisse_ferm_3:
+    zone: "@zone_q_caisse"
+    texte: "Nettoyer et désinfecter le comptoir d'accueil et les bornes de commande"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_q_caisse_ferm_4:
+    zone: "@zone_q_caisse"
+    texte: "Éteindre les caisses et mettre les TPE en charge"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 4
+  m_q_salle_ouv_1:
+    zone: "@zone_q_salle"
+    texte: "Installer et aligner les tables et chaises de la salle"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_salle_ouv_2:
+    zone: "@zone_q_salle"
+    texte: "Vérifier la propreté de la salle et nettoyer les vitres d'entrée"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_salle_ouv_3:
+    zone: "@zone_q_salle"
+    texte: "Vérifier l'état des toilettes et faire le premier passage nettoyage"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_q_salle_pend_1:
+    zone: "@zone_q_salle"
+    texte: "Débarrasser et nettoyer les tables dès que les clients partent"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_salle_pend_2:
+    zone: "@zone_q_salle"
+    texte: "Vérifier les toilettes toutes les 30 minutes (feuille de passage)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_salle_pend_3:
+    zone: "@zone_q_salle"
+    texte: "Vider les poubelles de salle dès qu'elles sont à moitié pleines"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+  m_q_salle_pend_4:
+    zone: "@zone_q_salle"
+    texte: "Réapprovisionner les serviettes, ketchup et moutarde sur les tables"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 4
+  m_q_salle_ferm_1:
+    zone: "@zone_q_salle"
+    texte: "Débarrasser et nettoyer toutes les tables et plateaux de salle"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_salle_ferm_2:
+    zone: "@zone_q_salle"
+    texte: "Balayer et passer la serpillière sur toute la surface de la salle"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_salle_ferm_3:
+    zone: "@zone_q_salle"
+    texte: "Nettoyage final des toilettes et vérifier consommables (savon, papier)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_q_drive_ouv_1:
+    zone: "@zone_q_drive"
+    texte: "Vérifier le fonctionnement de l'interphone et de l'écran d'affichage drive"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_drive_ouv_2:
+    zone: "@zone_q_drive"
+    texte: "Préparer la zone d'emballage drive (sacs, serviettes, sachets de sauce)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_drive_ouv_3:
+    zone: "@zone_q_drive"
+    texte: "Tester la connexion de caisse drive et valider la synchronisation menu"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+  m_q_drive_pend_1:
+    zone: "@zone_q_drive"
+    texte: "Répondre aux commandes drive en moins de 10 secondes (objectif <3 min total)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_drive_pend_2:
+    zone: "@zone_q_drive"
+    texte: "Préparer et vérifier chaque sac drive avant remise au client"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_drive_pend_3:
+    zone: "@zone_q_drive"
+    texte: "Encaisser les clients drive (CB + espèces) sans erreur"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_q_drive_pend_4:
+    zone: "@zone_q_drive"
+    texte: "Signaler immédiatement toute panne interphone ou affichage au manager"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 4
+  m_q_drive_ferm_1:
+    zone: "@zone_q_drive"
+    texte: "Clôturer la caisse drive et remettre le fond de caisse"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_q_drive_ferm_2:
+    zone: "@zone_q_drive"
+    texte: "Éteindre l'interphone, les écrans drive et nettoyer la zone de remise"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_q_drive_ferm_3:
+    zone: "@zone_q_drive"
+    texte: "Nettoyer la voie drive (ramasser les déchets clients)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 3
+
+App\Entity\Competence:
+  comp_q_prod_1:
+    zone:       "@zone_q_production"
+    nom:        "Maîtrise de la chaîne chaud (gril et friteuses)"
+    points:     25
+    difficulte: "avancee"
+  comp_q_prod_2:
+    zone:       "@zone_q_production"
+    nom:        "Normes HACCP et hygiène alimentaire"
+    points:     40
+    difficulte: "experimente"
+  comp_q_caisse_1:
+    zone:       "@zone_q_caisse"
+    nom:        "Prise de commande et encaissement rapide"
+    points:     15
+    difficulte: "simple"
+  comp_q_caisse_2:
+    zone:       "@zone_q_caisse"
+    nom:        "Gestion des réclamations et situations difficiles"
+    points:     30
+    difficulte: "avancee"
+  comp_q_drive_1:
+    zone:       "@zone_q_drive"
+    nom:        "Coordination et service drive"
+    points:     20
+    difficulte: "simple"
+
+App\Entity\StaffCompetence:
+  sc_q_s1:  { user: "@user_q_sophie",  competence: "@comp_q_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2024-06-01'))>" }
+  sc_q_s2:  { user: "@user_q_sophie",  competence: "@comp_q_prod_2",   acquiredAt: "<(new \\DateTimeImmutable('2024-07-01'))>" }
+  sc_q_s3:  { user: "@user_q_sophie",  competence: "@comp_q_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2024-05-01'))>" }
+  sc_q_s4:  { user: "@user_q_sophie",  competence: "@comp_q_caisse_2", acquiredAt: "<(new \\DateTimeImmutable('2024-09-01'))>" }
+  sc_q_k1:  { user: "@user_q_karim",   competence: "@comp_q_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2024-03-01'))>" }
+  sc_q_k2:  { user: "@user_q_karim",   competence: "@comp_q_prod_2",   acquiredAt: "<(new \\DateTimeImmutable('2024-04-01'))>" }
+  sc_q_k3:  { user: "@user_q_karim",   competence: "@comp_q_drive_1",  acquiredAt: "<(new \\DateTimeImmutable('2024-06-01'))>" }
+  sc_q_k4:  { user: "@user_q_karim",   competence: "@comp_q_caisse_2", acquiredAt: "<(new \\DateTimeImmutable('2024-08-01'))>" }
+  sc_q_t1:  { user: "@user_q_thomas",  competence: "@comp_q_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2025-02-01'))>" }
+  sc_q_t2:  { user: "@user_q_thomas",  competence: "@comp_q_prod_2",   acquiredAt: "<(new \\DateTimeImmutable('2025-06-01'))>" }
+  sc_q_a1:  { user: "@user_q_amelie",  competence: "@comp_q_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2025-03-01'))>" }
+  sc_q_a2:  { user: "@user_q_amelie",  competence: "@comp_q_caisse_2", acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>" }
+  sc_q_j1:  { user: "@user_q_jordan",  competence: "@comp_q_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2025-04-01'))>" }
+  sc_q_n1:  { user: "@user_q_nadia",   competence: "@comp_q_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2025-01-15'))>" }
+  sc_q_n2:  { user: "@user_q_nadia",   competence: "@comp_q_drive_1",  acquiredAt: "<(new \\DateTimeImmutable('2025-05-01'))>" }
+  sc_q_sa1: { user: "@user_q_sarah",   competence: "@comp_q_drive_1",  acquiredAt: "<(new \\DateTimeImmutable('2026-01-20'))>" }
+  sc_q_l1:  { user: "@user_q_lucas",   competence: "@comp_q_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2025-11-10'))>" }
+  sc_q_y1:  { user: "@user_q_yassine", competence: "@comp_q_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>" }
+  sc_q_i1:  { user: "@user_q_ines",    competence: "@comp_q_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2026-03-15'))>" }
+  sc_q_e1:  { user: "@user_q_emma",    competence: "@comp_q_drive_1",  acquiredAt: "<(new \\DateTimeImmutable('2026-04-10'))>" }
+  sc_q_ax1: { user: "@user_q_axel",    competence: "@comp_q_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2026-04-01'))>" }
+  sc_q_th1: { user: "@user_q_theo",    competence: "@comp_q_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2026-03-20'))>" }
+
+App\Entity\Service:
+  svc_q_j8:
+    centre:         "@centre_quick"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-8 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 89.0
+  svc_q_j4:
+    centre:         "@centre_quick"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-4 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 92.0
+  svc_q_j3:
+    centre:         "@centre_quick"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 85.0
+    note:           "Rush du midi intense. File drive dépassant 20 min en pointe."
+  svc_q_j2:
+    centre:         "@centre_quick"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 91.0
+    note:           "Friteuse n°2 en panne 30 min en soirée, réparée sur place."
+  svc_q_today:
+    centre:         "@centre_quick"
+    date:           "<(new \\DateTimeImmutable('today'))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "EN_COURS"
+    tauxCompletion: 0.0
+    note:           "Livraison pain prévue à 11h — vérifier conformité à réception."
+  svc_q_j1:
+    centre:         "@centre_quick"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_q_j2p:
+    centre:         "@centre_quick"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_q_j3p:
+    centre:         "@centre_quick"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('+3 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('09:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:         "PLANIFIE"
+    tauxCompletion: 0.0
+
+App\Entity\Poste:
+  poste_q_today_caisse_sophie:
+    service: "@svc_q_today"
+    zone: "@zone_q_caisse"
+    user: "@user_q_sophie"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_q_today_caisse_karim:
+    service: "@svc_q_today"
+    zone: "@zone_q_caisse"
+    user: "@user_q_karim"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_q_today_prod_thomas:
+    service: "@svc_q_today"
+    zone: "@zone_q_production"
+    user: "@user_q_thomas"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_q_today_prod_jordan:
+    service: "@svc_q_today"
+    zone: "@zone_q_production"
+    user: "@user_q_jordan"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_q_today_salle_nadia:
+    service: "@svc_q_today"
+    zone: "@zone_q_salle"
+    user: "@user_q_nadia"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+  poste_q_today_drive_sarah:
+    service: "@svc_q_today"
+    zone: "@zone_q_drive"
+    user: "@user_q_sarah"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('17:00:00'))>"
+    pauseMinutes: 20
+  poste_q_today_caisse_ines:
+    service: "@svc_q_today"
+    zone: "@zone_q_caisse"
+    user: "@user_q_ines"
+    heureDebut: "<(new \\DateTimeImmutable('17:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 0
+  poste_q_j2_prod_thomas:
+    service: "@svc_q_j2"
+    zone: "@zone_q_production"
+    user: "@user_q_thomas"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_q_j2_caisse_amelie:
+    service: "@svc_q_j2"
+    zone: "@zone_q_caisse"
+    user: "@user_q_amelie"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_q_j2_drive_nadia:
+    service: "@svc_q_j2"
+    zone: "@zone_q_drive"
+    user: "@user_q_nadia"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_q_j2_salle_lucas:
+    service: "@svc_q_j2"
+    zone: "@zone_q_salle"
+    user: "@user_q_lucas"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 20
+  poste_q_j2_prod_yassine:
+    service: "@svc_q_j2"
+    zone: "@zone_q_production"
+    user: "@user_q_yassine"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_q_j4_caisse_sophie:
+    service: "@svc_q_j4"
+    zone: "@zone_q_caisse"
+    user: "@user_q_sophie"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_q_j4_prod_thomas:
+    service: "@svc_q_j4"
+    zone: "@zone_q_production"
+    user: "@user_q_thomas"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_q_j4_drive_sarah:
+    service: "@svc_q_j4"
+    zone: "@zone_q_drive"
+    user: "@user_q_sarah"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('16:00:00'))>"
+    pauseMinutes: 20
+  poste_q_j4_salle_nadia:
+    service: "@svc_q_j4"
+    zone: "@zone_q_salle"
+    user: "@user_q_nadia"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+
+App\Entity\Completion:
+  cq1: { poste: "@poste_q_today_prod_thomas",   mission: "@m_q_prod_ouv_1",   user: "@user_q_thomas" }
+  cq2: { poste: "@poste_q_today_prod_thomas",   mission: "@m_q_prod_ouv_2",   user: "@user_q_thomas" }
+  cq3: { poste: "@poste_q_today_prod_thomas",   mission: "@m_q_prod_ouv_3",   user: "@user_q_thomas" }
+  cq4: { poste: "@poste_q_today_prod_thomas",   mission: "@m_q_prod_ouv_4",   user: "@user_q_thomas" }
+  cq5: { poste: "@poste_q_today_caisse_sophie", mission: "@m_q_caisse_ouv_1", user: "@user_q_sophie" }
+  cq6: { poste: "@poste_q_today_caisse_sophie", mission: "@m_q_caisse_ouv_2", user: "@user_q_sophie" }
+  cq7: { poste: "@poste_q_today_salle_nadia",   mission: "@m_q_salle_ouv_1",  user: "@user_q_nadia" }
+  cq8: { poste: "@poste_q_today_salle_nadia",   mission: "@m_q_salle_ouv_2",  user: "@user_q_nadia" }
+  cq9: { poste: "@poste_q_today_drive_sarah",   mission: "@m_q_drive_ouv_1",  user: "@user_q_sarah" }
+
+App\Entity\Incident:
+  inc_q_1:
+    centre:         "@centre_quick"
+    service:        "@svc_q_j3"
+    titre:          "Drive saturé midi — attente client >25 min, 3 commandes annulées"
+    severite:       "moyenne"
+    statut:         "RESOLU"
+    user:           "@user_q_sophie"
+    zone:           "@zone_q_drive"
+    staffImpliques: ["@user_q_sophie", "@user_q_karim"]
+  inc_q_2:
+    centre:         "@centre_quick"
+    service:        "@svc_q_j2"
+    titre:          "Friteuse n°2 en arrêt thermique 30 min — production réduite en soirée"
+    severite:       "haute"
+    statut:         "RESOLU"
+    user:           "@user_q_karim"
+    zone:           "@zone_q_production"
+    staffImpliques: ["@user_q_karim", "@user_q_thomas", "@user_q_jordan"]
+
+App\Entity\Tutoriel:
+  tuto_q_gril:
+    centre:  "@centre_quick"
+    titre:   "Maîtriser la cuisson au gril (Quick Standard)"
+    zone:    "@zone_q_production"
+    niveau:  "intermediaire"
+    dureMin: 20
+    contenu:
+      - { type: "intro", text: "Le gril est au cœur de notre qualité produit. Une cuisson précise garantit la satisfaction client et le respect des normes HACCP." }
+      - { type: "step", number: 1, title: "Préchauffage", text: "Allumer le gril 15 min avant ouverture. Température cible : 220°C surface. Vérifier avec la sonde." }
+      - { type: "step", number: 2, title: "Cuisson steak", text: "Poser le steak décongelé. Refermer le couvercle. Respecter le temps de cuisson affiché sur le minuteur." }
+      - { type: "step", number: 3, title: "Temps de vie", text: "Tout produit cuit doit être utilisé sous 10 min en holding. Au-delà : jeter et retracer sur la feuille de perte." }
+      - { type: "tip", text: "Ne jamais surcharger le gril : 4 steaks max simultanément pour garantir une cuisson homogène." }
+  tuto_q_drive:
+    centre:  "@centre_quick"
+    titre:   "Procédure drive : accueil et service rapide"
+    zone:    "@zone_q_drive"
+    niveau:  "debutant"
+    dureMin: 15
+    contenu:
+      - { type: "intro", text: "Le drive représente 40% du chiffre d'affaires. Rapidité et précision sont essentielles." }
+      - { type: "step", number: 1, title: "Prise de commande", text: "Répondre en moins de 10 secondes. Articuler clairement. Répéter la commande pour validation." }
+      - { type: "step", number: 2, title: "Préparation du sac", text: "Boissons d'abord, puis solides. Vérifier que chaque article est dans le sac avant de fermer." }
+      - { type: "step", number: 3, title: "Remise au client", text: "Sourire, nommer le montant, remettre la monnaie avant le sac. Dire 'Bonne journée !' à chaque client." }
+      - { type: "tip", text: "Objectif : client repart en moins de 3 min depuis la borne de commande." }
+  tuto_q_haccp:
+    centre:  "@centre_quick"
+    titre:   "Normes HACCP — les fondamentaux"
+    zone:    "@zone_q_production"
+    niveau:  "avance"
+    dureMin: 30
+    contenu:
+      - { type: "intro", text: "Le respect des normes HACCP est une obligation légale et un enjeu de santé publique. Tout écart doit être signalé." }
+      - { type: "step", number: 1, title: "Températures réglementaires", text: "Froid positif : 0 à 4°C. Froid négatif : -18°C. Chaud : >63°C. Relevés toutes les 2h." }
+      - { type: "step", number: 2, title: "Traçabilité DLC", text: "Chaque produit doit afficher sa DLC originale et la date d'ouverture. Appliquer systématiquement l'étiquette de date." }
+      - { type: "step", number: 3, title: "En cas d'anomalie", text: "Produit hors température : isoler, noter sur la fiche d'anomalie, prévenir le manager. Ne jamais remettre en service sans validation." }
+      - { type: "tip", text: "En cas de doute sur un produit : la règle est toujours de le jeter. Le coût d'un produit est infime comparé à une intoxication alimentaire." }
+
+App\Entity\TutoRead:
+  trq_thomas_1:  { user: "@user_q_thomas",  tutoriel: "@tuto_q_gril" }
+  trq_thomas_2:  { user: "@user_q_thomas",  tutoriel: "@tuto_q_haccp" }
+  trq_jordan_1:  { user: "@user_q_jordan",  tutoriel: "@tuto_q_gril" }
+  trq_sarah_1:   { user: "@user_q_sarah",   tutoriel: "@tuto_q_drive" }
+  trq_nadia_1:   { user: "@user_q_nadia",   tutoriel: "@tuto_q_drive" }
+  trq_sophie_1:  { user: "@user_q_sophie",  tutoriel: "@tuto_q_haccp" }
+  trq_yassine_1: { user: "@user_q_yassine", tutoriel: "@tuto_q_gril" }
+
+App\Entity\LegalConfig:
+  legal_config_quick:
+    centre:                 "@centre_quick"
+    seuilRetardMinutes:     5
+    dureeLegaleHebdoHeures: 35
+    maxHeuresHebdo:         48
+    maxHeuresMoyennes12sem: 44
+    reposQuotidienHeures:   11
+    reposHebdoHeures:       35
+    majorationSupTaux1:     25
+    majorationSupTaux2:     50
+
+App\Entity\PlanningWeek:
+  pw_q_last:
+    centre:      "@centre_quick"
+    weekStart:   "<(new \\DateTimeImmutable('monday last week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday last week 09:00:00'))>"
+    publishedBy: "@user_q_sophie"
+    note:        "Semaine creuse. Effectif réduit mardi et mercredi midi."
+  pw_q_current:
+    centre:      "@centre_quick"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 08:30:00'))>"
+    publishedBy: "@user_q_karim"
+    note:        "Attention samedi soir — événement en ville, rush prévisible."
