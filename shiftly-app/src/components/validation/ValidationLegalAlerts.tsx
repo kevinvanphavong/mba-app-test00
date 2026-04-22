@@ -6,7 +6,7 @@
  */
 
 import { motion } from 'framer-motion'
-import { fadeUp } from '@/lib/animations'
+import { fadeUpVariants as fadeUp } from '@/lib/animations'
 import type { AlerteLegale } from '@/types/validation'
 
 interface Props {
@@ -33,7 +33,7 @@ export default function ValidationLegalAlerts({ alertes }: Props) {
         style={{ color: 'var(--green)' }}
         variants={fadeUp}
         initial="hidden"
-        animate="visible"
+        animate="show"
       >
         <div className="text-2xl mb-2">✅</div>
         <div className="text-sm font-semibold">Aucune alerte légale cette semaine</div>
@@ -46,7 +46,7 @@ export default function ValidationLegalAlerts({ alertes }: Props) {
       className="flex flex-col"
       variants={fadeUp}
       initial="hidden"
-      animate="visible"
+      animate="show"
     >
       {alertes.map((alerte, i) => (
         <div key={`${alerte.type}-${alerte.employe.id}-${i}`} className="validation-alert-item py-3">

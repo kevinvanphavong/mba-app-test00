@@ -65,6 +65,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
+    codePointage: "0000"
     avatarColor: "#f97316"
     points:      185
     actif:       true
@@ -79,6 +80,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#ec4899"
     points:      130
     actif:       true
@@ -93,6 +95,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#0ea5e9"
     points:      110
     actif:       true
@@ -107,6 +110,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#a855f7"
     points:      90
     actif:       true
@@ -121,6 +125,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#22c55e"
     points:      45
     actif:       true
@@ -135,6 +140,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#f59e0b"
     points:      30
     actif:       true
@@ -149,6 +155,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#6366f1"
     points:      25
     actif:       true
@@ -572,30 +579,3 @@ App\Entity\TutoRead:
   trkx_nathan_1:   { user: "@user_kx_nathan",    tutoriel: "@tuto_kx_drops" }
   trkx_hugo_1:     { user: "@user_kx_hugo",      tutoriel: "@tuto_kx_drops" }
 
-App\Entity\LegalConfig:
-  legal_config_kixlab:
-    centre:                 "@centre_kixlab"
-    seuilRetardMinutes:     5
-    dureeLegaleHebdoHeures: 35
-    maxHeuresHebdo:         48
-    maxHeuresMoyennes12sem: 44
-    reposQuotidienHeures:   11
-    reposHebdoHeures:       35
-    majorationSupTaux1:     25
-    majorationSupTaux2:     50
-
-App\Entity\PlanningWeek:
-  pw_kx_last:
-    centre:      "@centre_kixlab"
-    weekStart:   "<(new \\DateTimeImmutable('monday last week'))>"
-    statut:      "PUBLIE"
-    publishedAt: "<(new \\DateTimeImmutable('monday last week 10:00:00'))>"
-    publishedBy: "@user_kx_hugo"
-    note:        "Semaine standard. Malik absent mercredi (arrêt maladie)."
-  pw_kx_current:
-    centre:      "@centre_kixlab"
-    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
-    statut:      "PUBLIE"
-    publishedAt: "<(new \\DateTimeImmutable('monday this week 09:45:00'))>"
-    publishedBy: "@user_kx_hugo"
-    note:        "Possible drop collab jeudi — rester vigilant sur les réseaux."

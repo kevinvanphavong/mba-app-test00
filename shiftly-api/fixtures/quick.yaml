@@ -69,6 +69,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
+    codePointage: "0000"
     avatarColor: "#f97316"
     points:      210
     actif:       true
@@ -83,6 +84,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
+    codePointage: "0000"
     avatarColor: "#8b5cf6"
     points:      175
     actif:       true
@@ -97,6 +99,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#22c55e"
     points:      145
     actif:       true
@@ -111,6 +114,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#ec4899"
     points:      120
     actif:       true
@@ -125,6 +129,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#0ea5e9"
     points:      100
     actif:       true
@@ -139,6 +144,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#14b8a6"
     points:      95
     actif:       true
@@ -153,6 +159,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#6366f1"
     points:      55
     actif:       true
@@ -167,6 +174,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#f59e0b"
     points:      40
     actif:       true
@@ -181,6 +189,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#a855f7"
     points:      35
     actif:       true
@@ -195,6 +204,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#ef4444"
     points:      25
     actif:       true
@@ -209,6 +219,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#f472b6"
     points:      20
     actif:       true
@@ -223,6 +234,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#475569"
     points:      10
     actif:       true
@@ -237,6 +249,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#84cc16"
     points:      15
     actif:       true
@@ -899,30 +912,3 @@ App\Entity\TutoRead:
   trq_sophie_1:  { user: "@user_q_sophie",  tutoriel: "@tuto_q_haccp" }
   trq_yassine_1: { user: "@user_q_yassine", tutoriel: "@tuto_q_gril" }
 
-App\Entity\LegalConfig:
-  legal_config_quick:
-    centre:                 "@centre_quick"
-    seuilRetardMinutes:     5
-    dureeLegaleHebdoHeures: 35
-    maxHeuresHebdo:         48
-    maxHeuresMoyennes12sem: 44
-    reposQuotidienHeures:   11
-    reposHebdoHeures:       35
-    majorationSupTaux1:     25
-    majorationSupTaux2:     50
-
-App\Entity\PlanningWeek:
-  pw_q_last:
-    centre:      "@centre_quick"
-    weekStart:   "<(new \\DateTimeImmutable('monday last week'))>"
-    statut:      "PUBLIE"
-    publishedAt: "<(new \\DateTimeImmutable('monday last week 09:00:00'))>"
-    publishedBy: "@user_q_sophie"
-    note:        "Semaine creuse. Effectif réduit mardi et mercredi midi."
-  pw_q_current:
-    centre:      "@centre_quick"
-    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
-    statut:      "PUBLIE"
-    publishedAt: "<(new \\DateTimeImmutable('monday this week 08:30:00'))>"
-    publishedBy: "@user_q_karim"
-    note:        "Attention samedi soir — événement en ville, rush prévisible."

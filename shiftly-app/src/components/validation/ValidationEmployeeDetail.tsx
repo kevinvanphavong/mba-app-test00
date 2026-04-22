@@ -7,7 +7,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { fadeUp } from '@/lib/animations'
+import { fadeUpVariants as fadeUp } from '@/lib/animations'
 import ValidationCorrectionForm from './ValidationCorrectionForm'
 import type { ValidationEmploye, CorrectionPayload } from '@/types/validation'
 
@@ -51,7 +51,7 @@ export default function ValidationEmployeeDetail({
       className="flex flex-col h-full"
       variants={fadeUp}
       initial="hidden"
-      animate="visible"
+      animate="show"
     >
       {/* En-tête employé */}
       <div className="pb-3 mb-3" style={{ borderBottom: '1px solid var(--border)' }}>
