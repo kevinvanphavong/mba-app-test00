@@ -2,6 +2,7 @@ export interface SuperAdminUser {
   id:     number
   email:  string
   nom:    string
+  prenom: string | null
   role:   'SUPERADMIN'
 }
 

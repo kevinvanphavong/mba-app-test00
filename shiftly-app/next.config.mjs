@@ -1,3 +1,5 @@
+import { withSentryConfig } from '@sentry/nextjs'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
@@ -5,4 +7,12 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default withSentryConfig(nextConfig, {
+  org:     'shiftly-saas',
+  project: 'shiftly-app',
+  silent:  !process.env.CI,
+  widenClientFileUpload: true,
+  hideSourceMaps:        true,
+  disableLogger:         true,
+  automaticVercelMonitors: false,
+})

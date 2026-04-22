@@ -9,7 +9,7 @@ import CentreDetailStats    from '@/components/superadmin/CentreDetailStats'
 import CentreDetailUsers    from '@/components/superadmin/CentreDetailUsers'
 import CentreDetailErrors   from '@/components/superadmin/CentreDetailErrors'
 import CentreActionsPanel   from '@/components/superadmin/CentreActionsPanel'
-import { fadeUp } from '@/lib/animations'
+import { fadeUpVariants as fadeUp } from '@/lib/animations'
 
 interface Props {
   params: Promise<{ id: string }>

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useSuperAdminLogin } from '@/hooks/useSuperAdminAuth'
-import { fadeUp } from '@/lib/animations'
+import { fadeUpVariants as fadeUp } from '@/lib/animations'
 
 export default function SuperAdminLoginPage() {
   const [email,    setEmail]    = useState('')

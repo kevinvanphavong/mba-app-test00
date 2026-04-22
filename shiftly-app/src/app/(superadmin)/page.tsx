@@ -6,7 +6,7 @@ import DashboardKpiCards    from '@/components/superadmin/DashboardKpiCards'
 import MrrChart             from '@/components/superadmin/MrrChart'
 import RecentActivityWidget from '@/components/superadmin/RecentActivityWidget'
 import SentryHealthWidget   from '@/components/superadmin/SentryHealthWidget'
-import { fadeUp } from '@/lib/animations'
+import { fadeUpVariants as fadeUp } from '@/lib/animations'
 
 export default function SuperAdminDashboardPage() {
   const { data, isLoading, isError } = useSuperAdminDashboard()

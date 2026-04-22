@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import CentresTable from '@/components/superadmin/CentresTable'
-import { fadeUp } from '@/lib/animations'
+import { fadeUpVariants as fadeUp } from '@/lib/animations'
 
 export default function SuperAdminCentresPage() {
   return (
