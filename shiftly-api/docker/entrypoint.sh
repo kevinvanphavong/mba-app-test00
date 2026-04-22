@@ -35,11 +35,29 @@ chmod 600 "$JWT_DIR/private.pem" 2>/dev/null || true
 chmod 644 "$JWT_DIR/public.pem" 2>/dev/null || true
 
 # Init BDD — fail-loud : si une migration casse, on bloque le déploiement.
-# Ne JAMAIS rajouter de `|| true` ici : un schéma cassé silencieux (ex. table user droppée
-# par une migration auto-generated SQLite appliquée sur MySQL) provoque des 500 sur le
-# endpoint de login alors que le container démarre comme si tout allait bien.
+# Cas particulier : si le schéma existe déjà (tables présentes) mais que
+# doctrine_migration_versions est vide, Doctrine tente de re-créer les tables
+# → "Table already exists". On détecte ce cas, on synchronise l'historique
+# via `migrations:version --add --all`, puis on relance (sera un no-op).
 echo "Migration du schéma BDD..."
-php /var/www/html/bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration --env=prod
+MIGRATE_RC=0
+MIGRATE_OUT=$(php /var/www/html/bin/console doctrine:migrations:migrate \
+    --no-interaction --allow-no-migration --env=prod 2>&1) || MIGRATE_RC=$?
+echo "$MIGRATE_OUT"
+
+if [ $MIGRATE_RC -ne 0 ]; then
+    if echo "$MIGRATE_OUT" | grep -q "already exists"; then
+        echo "Schéma existant sans historique Doctrine détecté — synchronisation..."
+        php /var/www/html/bin/console doctrine:migrations:version \
+            --add --all --no-interaction --env=prod
+        echo "Relance des migrations (no-op attendu)..."
+        php /var/www/html/bin/console doctrine:migrations:migrate \
+            --no-interaction --allow-no-migration --env=prod
+    else
+        echo "Erreur de migration inconnue — arrêt du déploiement."
+        exit 1
+    fi
+fi
 
 # Réensemencement opt-in — à activer avec LOAD_FIXTURES=1 dans les variables Railway
 # pour une exécution unique, puis à remettre sur 0 sinon les données sont rechargées
