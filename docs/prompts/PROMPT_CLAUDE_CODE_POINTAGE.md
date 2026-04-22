@@ -16,10 +16,10 @@ Tu dois maintenant implémenter le **module Pointage** — un système de pointa
 
 - Tu es un **développeur senior fullstack** qui livre du code production-ready.
 - Tu respectes **strictement** les conventions du fichier `CLAUDE.md` à la racine du projet (lis-le en premier).
-- Tu suis la spec technique du fichier `POINTAGE_MODULE.md` (lis-le en entier avant de coder quoi que ce soit).
+- Tu suis la spec technique du fichier `docs/modules/POINTAGE_MODULE.md` (lis-le en entier avant de coder quoi que ce soit).
 - Tu fais des **commits atomiques** : un commit = une seule responsabilité. Pas de commit fourre-tout.
 - Tu **testes après chaque commit** (au minimum : le build passe, pas d'erreur TypeScript, pas d'erreur Symfony).
-- Si tu rencontres un problème, tu le résous, puis tu **mets à jour `POINTAGE_MODULE.md`** avec la solution retenue (dans une section "Notes d'implémentation" à la fin) pour garder la spec synchronisée avec la réalité du code.
+- Si tu rencontres un problème, tu le résous, puis tu **mets à jour `docs/modules/POINTAGE_MODULE.md`** avec la solution retenue (dans une section "Notes d'implémentation" à la fin) pour garder la spec synchronisée avec la réalité du code.
 
 ---
 
@@ -153,7 +153,7 @@ Cette architecture permet de **modifier le design system** (couleurs, arrondis, 
 ### Étape 0 — Lecture et compréhension
 
 1. Lis `CLAUDE.md` (conventions du projet, design system, règles absolues).
-2. Lis `POINTAGE_MODULE.md` en entier (spec du module, entités, routes, composants, séquence de commits).
+2. Lis `docs/modules/POINTAGE_MODULE.md` en entier (spec du module, entités, routes, composants, séquence de commits).
 3. Lis les fichiers existants pour comprendre les patterns en place :
    - `shiftly-api/src/Entity/Poste.php` (entité de référence)
    - `shiftly-api/src/Entity/Service.php` (statuts, relations)
@@ -241,7 +241,7 @@ Cette architecture permet de **modifier le design system** (couleurs, arrondis, 
 Si tu rencontres un problème pendant l'implémentation :
 
 1. **Résous-le** — ne le contourne pas, ne le commente pas.
-2. **Ajoute une section "13. Notes d'implémentation"** à la fin de `POINTAGE_MODULE.md` avec :
+2. **Ajoute une section "13. Notes d'implémentation"** à la fin de `docs/modules/POINTAGE_MODULE.md` avec :
    - Le problème rencontré
    - La solution choisie
    - Le fichier/ligne concerné(e)
