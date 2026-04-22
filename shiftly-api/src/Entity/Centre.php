@@ -73,6 +73,10 @@ class Centre
     #[Groups(['centre:read', 'centre:write'])]
     private ?array $openingHours = null;
 
+    #[ORM\Column(options: ['default' => true])]
+    #[Groups(['centre:read'])]
+    private bool $actif = true;
+
     #[ORM\Column]
     #[Groups(['centre:read'])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -115,6 +119,8 @@ class Centre
     public function setNom(string $nom): static { $this->nom = $nom; return $this; }
     public function getSlug(): ?string { return $this->slug; }
     public function setSlug(string $slug): static { $this->slug = $slug; return $this; }
+    public function isActif(): bool { return $this->actif; }
+    public function setActif(bool $actif): static { $this->actif = $actif; return $this; }
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
     public function getUsers(): Collection { return $this->users; }
     public function getZones(): Collection { return $this->zones; }

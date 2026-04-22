@@ -48,6 +48,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
+    codePointage: "0000"
     avatarColor: "#f97316"
     points:      165
     actif:       true
@@ -63,6 +64,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
+    codePointage: "0000"
     avatarColor: "#ec4899"
     points:      90
     actif:       true
@@ -77,6 +79,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "MANAGER"
+    codePointage: "0000"
     avatarColor: "#8b5cf6"
     points:      140
     actif:       true
@@ -91,6 +94,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#22c55e"
     points:      105
     actif:       true
@@ -106,6 +110,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#f59e0b"
     points:      80
     actif:       true
@@ -121,6 +126,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#0ea5e9"
     points:      70
     actif:       true
@@ -136,6 +142,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#14b8a6"
     points:      95
     actif:       true
@@ -151,6 +158,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#a855f7"
     points:      75
     actif:       true
@@ -166,6 +174,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#6366f1"
     points:      45
     actif:       true
@@ -180,6 +189,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#475569"
     points:      0
     actif:       true
@@ -195,6 +205,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#ef4444"
     points:      45
     actif:       true
@@ -209,6 +220,7 @@ App\Entity\User:
     password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles:       []
     role:        "EMPLOYE"
+    codePointage: "0000"
     avatarColor: "#f472b6"
     points:      60
     actif:       true
@@ -1517,3 +1529,51 @@ App\Entity\PlanningWeek:
     statut:      "PUBLIE"
     publishedAt: "<(new \\DateTimeImmutable('monday this week 08:45:00'))>"
     publishedBy: "@user_megane"
+
+# ─── SuperAdmin ───────────────────────────────────────────────────────────────
+  user_superadmin:
+    centre:      "@centre_fgc"
+    nom:         "Vanphavong"
+    prenom:      "Kévin"
+    email:       "kevin@shiftly.app"
+    password:    "<(password_hash('superadmin2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "SUPERADMIN"
+    codePointage: "9999"
+    avatarColor: "#f97316"
+    points:      0
+    actif:       true
+    heuresHebdo: null
+    typeContrat: null
+
+# ─── CentreNote (démo) ────────────────────────────────────────────────────────
+App\Entity\CentreNote:
+  cnote_1:
+    centre:         "@centre_fgc"
+    superAdminUser: "@user_superadmin"
+    contenu:        "Centre pilote — suivi hebdomadaire en place. RAS sur le module pointage."
+
+  cnote_2:
+    centre:         "@centre_fgc"
+    superAdminUser: "@user_superadmin"
+    contenu:        "Demande d'ajout de la zone VR pour Q3 2026. À prévoir dans le roadmap."
+
+# ─── AuditLog (démo) ─────────────────────────────────────────────────────────
+App\Entity\AuditLog:
+  audit_1:
+    superAdminUser: "@user_superadmin"
+    action:         "IMPERSONATE_START"
+    targetType:     "centre"
+    targetId:       1
+    metadata:       { managerId: 1, centreNom: "Family Games Center" }
+    ip:             "127.0.0.1"
+    userAgent:      "Mozilla/5.0"
+
+  audit_2:
+    superAdminUser: "@user_superadmin"
+    action:         "ADD_NOTE"
+    targetType:     "centre"
+    targetId:       1
+    metadata:       { contenu: "Centre pilote — suivi hebdomadaire en place." }
+    ip:             "127.0.0.1"
+    userAgent:      "Mozilla/5.0"
