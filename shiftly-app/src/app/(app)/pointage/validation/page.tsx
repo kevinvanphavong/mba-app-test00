@@ -5,9 +5,8 @@
  * Vue manager pour relire, contrôler et valider les heures semaine par semaine.
  */
 
-import { useState, useMemo } from 'react'
-import { motion }            from 'framer-motion'
-import { startOfWeek, format, addWeeks } from 'date-fns'
+import { useState } from 'react'
+import { startOfWeek, format } from 'date-fns'
 import { useManagerGuard }  from '@/hooks/useManagerGuard'
 import {
   useValidationSemaine,
@@ -17,6 +16,7 @@ import {
   useValiderSemaine,
   useCorrigerPointage,
 } from '@/hooks/useValidation'
+import { AnimatePresence, motion }  from 'framer-motion'
 import Topbar                       from '@/components/layout/Topbar'
 import ValidationWeekControl        from '@/components/validation/ValidationWeekControl'
 import ValidationKPIs               from '@/components/validation/ValidationKPIs'
@@ -76,7 +76,7 @@ export default function ValidationPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
-        <Topbar title="Validation hebdomadaire" />
+        <Topbar />
         <div className="flex items-center justify-center flex-1">
           <div className="text-sm" style={{ color: 'var(--muted)' }}>Chargement des données...</div>
         </div>
@@ -87,7 +87,7 @@ export default function ValidationPage() {
   if (isError) {
     return (
       <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
-        <Topbar title="Validation hebdomadaire" />
+        <Topbar />
         <div className="flex items-center justify-center flex-1">
           <div className="text-sm" style={{ color: 'var(--red)' }}>Erreur lors du chargement des données.</div>
         </div>
@@ -97,7 +97,7 @@ export default function ValidationPage() {
 
   return (
     <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
-      <Topbar title="Validation hebdomadaire" />
+      <Topbar />
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto w-full">
 
@@ -164,12 +164,61 @@ export default function ValidationPage() {
           )}
         </div>
 
+        {/* Modal mobile — détail employé */}
+        <AnimatePresence>
+          {selectedUserId && detailEmploye && (
+            <motion.div
+              className="validation-mobile-modal lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div
+                className="validation-mobile-modal-backdrop"
+                onClick={() => setSelectedUserId(null)}
+              />
+              <motion.div
+                className="validation-mobile-modal-sheet"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              >
+                <div className="validation-mobile-modal-handle" />
+                <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+                  <div className="text-[15px] font-bold flex items-center gap-2">
+                    👤 {detailEmploye.prenom} {detailEmploye.nom}
+                  </div>
+                  <button
+                    onClick={() => setSelectedUserId(null)}
+                    className="text-xl w-8 h-8 flex items-center justify-center rounded-lg"
+                    style={{ color: 'var(--muted)', background: 'var(--surface2)' }}
+                    aria-label="Fermer"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="p-5 overflow-y-auto flex-1">
+                  <ValidationEmployeeDetail
+                    employe={detailEmploye}
+                    onValider={handleValiderEmploye}
+                    onCorriger={handleCorriger}
+                    isValidating={validerEmployeMut.isPending}
+                    isCorrecting={corrigerMut.isPending}
+                  />
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Section basse : Détail + Résumé + Alertes */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-          {/* Panneau détail employé */}
+          {/* Panneau détail employé — desktop uniquement */}
           <div
-            className="rounded-[14px] overflow-hidden"
+            className="hidden lg:block rounded-[14px] overflow-hidden"
             style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
           >
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
@@ -196,8 +245,8 @@ export default function ValidationPage() {
             </div>
           </div>
 
-          {/* Résumé + Alertes */}
-          <div className="flex flex-col gap-5">
+          {/* Résumé + Alertes — pleine largeur mobile, colonne droite desktop */}
+          <div className="lg:col-start-2 flex flex-col gap-5">
 
             {/* Résumé semaine */}
             <div
