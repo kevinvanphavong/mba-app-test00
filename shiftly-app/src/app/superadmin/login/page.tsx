@@ -1,9 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { useSuperAdminLogin } from '@/hooks/useSuperAdminAuth'
-import { fadeUpVariants as fadeUp } from '@/lib/animations'
 
 export default function SuperAdminLoginPage() {
   const [email,    setEmail]    = useState('')
@@ -16,82 +14,72 @@ export default function SuperAdminLoginPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--bg)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}>
-      <motion.div
-        variants={fadeUp}
-        initial="hidden"
-        animate="show"
-        style={{
-          background: 'var(--surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 16,
-          padding: 40,
-          width: '100%',
-          maxWidth: 380,
-        }}
-      >
-        <div style={{ marginBottom: 32, textAlign: 'center' }}>
-          <p style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--accent)' }}>
-            Shiftly
-          </p>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>Accès SuperAdmin</p>
+    <div className="min-h-screen bg-bg flex items-center justify-center p-5">
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="font-syne font-extrabold text-[28px]">
+            <span className="text-accent">Shiftly</span>
+            <span className="text-text">.</span>
+          </div>
+          <div className="text-[12px] text-muted mt-1">Accès SuperAdmin</div>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div>
-            <label style={{ fontSize: 12, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              style={{
-                width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)',
-                borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 14, boxSizing: 'border-box',
-              }}
-            />
-          </div>
+        {/* Form card */}
+        <div className="bg-surface border border-border rounded-[20px] p-6">
+          <h2 className="font-syne font-extrabold text-[18px] text-text mb-6">Connexion</h2>
 
-          <div>
-            <label style={{ fontSize: 12, color: 'var(--muted)', display: 'block', marginBottom: 6 }}>Mot de passe</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              style={{
-                width: '100%', background: 'var(--surface2)', border: '1px solid var(--border)',
-                borderRadius: 8, padding: '10px 12px', color: 'var(--text)', fontSize: 14, boxSizing: 'border-box',
-              }}
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div>
+              <label className="text-[11px] font-bold text-muted uppercase tracking-wide block mb-1.5">
+                Email
+              </label>
+              <input
+                type="email"
+                placeholder="kevin@shiftly.app"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full bg-surface2 border border-border rounded-xl px-3.5 py-2.5 text-[13px] text-text placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
+              />
+            </div>
 
-          {login.isError && (
-            <p style={{ fontSize: 13, color: 'var(--red)', textAlign: 'center' }}>
-              Identifiants incorrects
-            </p>
-          )}
+            <div>
+              <label className="text-[11px] font-bold text-muted uppercase tracking-wide block mb-1.5">
+                Mot de passe
+              </label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full bg-surface2 border border-border rounded-xl px-3.5 py-2.5 text-[13px] text-text placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={login.isPending}
-            style={{
-              background: 'var(--accent)', color: '#fff', border: 'none',
-              borderRadius: 8, padding: '12px', cursor: 'pointer',
-              fontSize: 14, fontWeight: 600, marginTop: 8,
-              opacity: login.isPending ? 0.7 : 1,
-            }}
-          >
-            {login.isPending ? 'Connexion…' : 'Se connecter'}
-          </button>
-        </form>
-      </motion.div>
+            {login.isError && (
+              <div className="text-[12px] text-red font-medium">
+                Email ou mot de passe incorrect.
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={login.isPending}
+              className="w-full bg-gradient-to-r from-accent to-accent-light text-white font-bold text-[14px] py-3 rounded-xl mt-2 hover:opacity-90 transition-opacity disabled:opacity-60"
+            >
+              {login.isPending ? 'Connexion…' : 'Se connecter'}
+            </button>
+          </form>
+        </div>
+
+        <div className="text-center mt-4">
+          <span className="text-[11px] text-muted">
+            Back-office réservé au fondateur
+          </span>
+        </div>
+      </div>
     </div>
   )
 }
