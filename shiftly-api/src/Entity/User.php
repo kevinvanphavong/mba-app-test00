@@ -59,8 +59,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(OrderFilter::class, properties: ['nom', 'points', 'createdAt'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    const ROLE_MANAGER = 'MANAGER';
-    const ROLE_EMPLOYE = 'EMPLOYE';
+    const ROLE_MANAGER    = 'MANAGER';
+    const ROLE_EMPLOYE    = 'EMPLOYE';
+    const ROLE_SUPERADMIN = 'SUPERADMIN';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['user:read', 'poste:read', 'completion:read', 'incident:read',
@@ -203,6 +204,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $roles[] = 'ROLE_USER';
         if ($this->role === self::ROLE_MANAGER) {
             $roles[] = 'ROLE_MANAGER';
+        }
+        if ($this->role === self::ROLE_SUPERADMIN) {
+            $roles[] = 'ROLE_SUPERADMIN';
         }
         return array_unique($roles);
     }
