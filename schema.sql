@@ -335,6 +335,61 @@ CREATE TABLE absence (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- TABLE : validation_hebdo
+-- Validation hebdomadaire par employé par semaine (lundi ISO).
+-- statut : 'EN_ATTENTE' | 'VALIDEE' | 'CORRIGEE'
+-- Heures stockées en minutes (INT) pour éviter les flottants.
+-- ============================================================
+
+CREATE TABLE validation_hebdo (
+    id                  INT AUTO_INCREMENT NOT NULL,
+    centre_id           INT          NOT NULL,
+    user_id             INT          NOT NULL,
+    semaine             DATE         NOT NULL COMMENT '(DC2Type:date_immutable)',   -- lundi de la semaine ISO
+    statut              VARCHAR(20)  NOT NULL DEFAULT 'EN_ATTENTE',
+    heures_travaillees  INT          NOT NULL DEFAULT 0,   -- minutes réelles
+    heures_prevues      INT          NOT NULL DEFAULT 0,   -- minutes planning
+    ecart               INT          NOT NULL DEFAULT 0,   -- réel - prévu (minutes)
+    heures_sup          INT          NOT NULL DEFAULT 0,   -- minutes >heures_prevues
+    note                VARCHAR(500) DEFAULT NULL,
+    validated_by        INT          DEFAULT NULL,
+    validated_at        DATETIME     DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
+    created_at          DATETIME     NOT NULL              COMMENT '(DC2Type:datetime_immutable)',
+    updated_at          DATETIME     DEFAULT NULL          COMMENT '(DC2Type:datetime_immutable)',
+    UNIQUE KEY uniq_validation_user_semaine (centre_id, user_id, semaine),
+    INDEX idx_validation_centre  (centre_id),
+    INDEX idx_validation_user    (user_id),
+    INDEX idx_validation_semaine (semaine),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_vh_centre       FOREIGN KEY (centre_id)   REFERENCES centre (id),
+    CONSTRAINT FK_vh_user         FOREIGN KEY (user_id)     REFERENCES `user` (id),
+    CONSTRAINT FK_vh_validated_by FOREIGN KEY (validated_by) REFERENCES `user` (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLE : correction_pointage
+-- Trace des corrections manuelles de pointage par les managers.
+-- champ_modifie : 'heureArrivee' | 'heureDepart' | 'pauseDebut' | 'pauseFin'
+-- ============================================================
+
+CREATE TABLE correction_pointage (
+    id               INT AUTO_INCREMENT NOT NULL,
+    centre_id        INT          NOT NULL,
+    pointage_id      INT          NOT NULL,
+    champ_modifie    VARCHAR(50)  NOT NULL,
+    ancienne_valeur  DATETIME     DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
+    nouvelle_valeur  DATETIME     DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
+    motif            VARCHAR(255) DEFAULT NULL,
+    corrige_par_id   INT          NOT NULL,
+    corrige_at       DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    INDEX idx_cp_centre   (centre_id),
+    INDEX idx_cp_pointage (pointage_id),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_cp_centre       FOREIGN KEY (centre_id)      REFERENCES centre (id),
+    CONSTRAINT FK_cp_corrige_par  FOREIGN KEY (corrige_par_id) REFERENCES `user` (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- NOTES MÉTIER
 -- ============================================================
 
