@@ -55,15 +55,41 @@ class SuperAdminCentresController extends AbstractController
 
         $centres = $qb->orderBy('c.nom', 'ASC')->getQuery()->getResult();
 
-        $data = array_map(fn(Centre $c) => [
-            'id'        => $c->getId(),
-            'nom'       => $c->getNom(),
-            'slug'      => $c->getSlug(),
-            'adresse'   => $c->getAdresse(),
-            'actif'     => $c->isActif(),
-            'createdAt' => $c->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-            'totalUsers' => $c->getUsers()->count(),
-        ], $centres);
+        $data = array_map(function (Centre $c): array {
+            // Pointages sur 30 derniers jours
+            $since = new \DateTimeImmutable('-30 days');
+            $pointages30j = $this->serviceRepo->createQueryBuilder('s')
+                ->select('COUNT(p.id)')
+                ->innerJoin('App\\Entity\\Pointage', 'p', 'WITH', 'p.service = s.id')
+                ->where('s.centre = :centre')
+                ->andWhere('s.date >= :since')
+                ->setParameter('centre', $c)
+                ->setParameter('since', $since)
+                ->getQuery()->getSingleScalarResult();
+
+            // Dernière activité : dernier pointage ou createdAt
+            $lastPointage = $this->serviceRepo->createQueryBuilder('s')
+                ->select('MAX(p.createdAt) as last')
+                ->innerJoin('App\\Entity\\Pointage', 'p', 'WITH', 'p.service = s.id')
+                ->where('s.centre = :centre')
+                ->setParameter('centre', $c)
+                ->getQuery()->getSingleScalarResult();
+
+            return [
+                'id'           => $c->getId(),
+                'nom'          => $c->getNom(),
+                'slug'         => $c->getSlug(),
+                'adresse'      => $c->getAdresse(),
+                'actif'        => $c->isActif(),
+                'createdAt'    => $c->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+                'totalUsers'   => $c->getUsers()->count(),
+                // Mock Phase 1 — vrai plan/MRR viendront en Phase 2 (Stripe)
+                'plan'         => 'starter',
+                'mrr'          => 0,
+                'pointages30j' => (int) $pointages30j,
+                'lastActivity' => $lastPointage ?: $c->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            ];
+        }, $centres);
 
         return $this->json($data);
     }

@@ -4,7 +4,6 @@ import { useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useSuperAdminStore } from '@/store/superAdminStore'
 import SuperAdminSidebar from '@/components/superadmin/SuperAdminSidebar'
-import SuperAdminHeader from '@/components/superadmin/SuperAdminHeader'
 import ImpersonationBanner from '@/components/superadmin/ImpersonationBanner'
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
@@ -18,22 +17,17 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     if (!token && !isLoginPage) router.replace('/superadmin/login')
   }, [token, isLoginPage, router])
 
-  // Page login : pas de sidebar/header (plein écran)
   if (isLoginPage) return <>{children}</>
-
   if (!token) return null
 
   return (
     <>
       <ImpersonationBanner />
-      <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)' }}>
+      <div className="min-h-screen bg-bg text-text font-sans flex">
         <SuperAdminSidebar />
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <SuperAdminHeader />
-          <main style={{ flex: 1, overflow: 'auto', padding: 32 }}>
-            {children}
-          </main>
-        </div>
+        <main className="ml-60 flex-1 py-6 px-7 min-h-screen">
+          {children}
+        </main>
       </div>
     </>
   )

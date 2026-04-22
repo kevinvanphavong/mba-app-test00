@@ -6,14 +6,20 @@ export interface SuperAdminUser {
   role:   'SUPERADMIN'
 }
 
+export type CentrePlan = 'starter' | 'pro' | 'enterprise'
+
 export interface CentreSummary {
-  id:          number
-  nom:         string
-  slug:        string
-  adresse:     string | null
-  actif:       boolean
-  createdAt:   string
-  totalUsers:  number
+  id:            number
+  nom:           string
+  slug:          string
+  adresse:       string | null
+  actif:         boolean
+  createdAt:     string
+  totalUsers:    number
+  plan:          CentrePlan
+  mrr:           number
+  pointages30j:  number
+  lastActivity:  string | null
 }
 
 export interface CentreUserSummary {

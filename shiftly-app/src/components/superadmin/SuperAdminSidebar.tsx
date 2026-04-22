@@ -2,62 +2,130 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSuperAdminLogout } from '@/hooks/useSuperAdminAuth'
+import { useSuperAdminStore } from '@/store/superAdminStore'
 
-const nav = [
-  { label: 'Dashboard',     href: '/superadmin' },
-  { label: 'Centres',       href: '/superadmin/centres' },
-  { label: 'Abonnements',   href: '/superadmin/subscriptions', disabled: true },
-  { label: 'Utilisateurs',  href: '/superadmin/users',         disabled: true },
-  { label: 'Support',       href: '/superadmin/support',       disabled: true },
-  { label: 'Activité',      href: '/superadmin/activity',      disabled: true },
-  { label: 'Réglages',      href: '/superadmin/settings',      disabled: true },
+interface NavItem {
+  label:    string
+  href:     string
+  icon:     string
+  badge?:   string | number
+  badgeMuted?: boolean
+  disabled?: boolean
+}
+
+interface NavSection {
+  label: string
+  items: NavItem[]
+}
+
+const sections: NavSection[] = [
+  {
+    label: 'Phase 1 — Monitoring',
+    items: [
+      { label: 'Dashboard', href: '/superadmin',         icon: '📊' },
+      { label: 'Centres',   href: '/superadmin/centres', icon: '🏢', badgeMuted: true },
+    ],
+  },
+  {
+    label: 'Phase 2 — Billing',
+    items: [
+      { label: 'Abonnements',      href: '/superadmin/subscriptions', icon: '💳', disabled: true },
+      { label: 'Facturation',      href: '/superadmin/billing',       icon: '📄', disabled: true },
+      { label: 'Plans tarifaires', href: '/superadmin/pricing',       icon: '🏷️', disabled: true },
+    ],
+  },
+  {
+    label: 'Phase 3 — Users & Support',
+    items: [
+      { label: 'Utilisateurs', href: '/superadmin/users',   icon: '👤', disabled: true },
+      { label: 'Support',      href: '/superadmin/support', icon: '🎧', disabled: true },
+    ],
+  },
+  {
+    label: 'Phase 4 — Système',
+    items: [
+      { label: 'Activity', href: '/superadmin/activity', icon: '⚡', disabled: true },
+      { label: 'Réglages', href: '/superadmin/settings', icon: '⚙️', disabled: true },
+    ],
+  },
 ]
 
 export default function SuperAdminSidebar() {
   const pathname = usePathname()
-  const logout   = useSuperAdminLogout()
+  const user     = useSuperAdminStore(s => s.user)
+
+  const initials = user
+    ? `${(user.prenom ?? '').charAt(0)}${user.nom.charAt(0)}`.toUpperCase()
+    : 'SA'
 
   return (
-    <aside style={{ width: 220, background: 'var(--surface)', borderRight: '1px solid var(--border)', height: '100vh', display: 'flex', flexDirection: 'column', padding: '24px 0' }}>
-      <div style={{ padding: '0 20px 24px', borderBottom: '1px solid var(--border)' }}>
-        <span style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--accent)' }}>Shiftly</span>
-        <span style={{ display: 'block', fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>SuperAdmin</span>
+    <nav className="w-60 h-screen fixed top-0 left-0 bg-surface3 border-r border-border flex flex-col z-50 overflow-y-auto">
+      {/* Header */}
+      <div className="px-5 pt-[22px] pb-[18px] border-b border-border">
+        <div className="font-syne font-extrabold text-[22px]">
+          <span className="bg-gradient-to-br from-accent to-accent-light bg-clip-text text-transparent">
+            Shiftly
+          </span>
+          <span className="text-text">.</span>
+        </div>
+        <span className="inline-block mt-1.5 text-[9px] font-extrabold uppercase tracking-[1.3px] bg-gradient-to-br from-accent to-accent-light text-bg px-[9px] py-[3px] rounded-full">
+          SuperAdmin
+        </span>
       </div>
 
-      <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {nav.map(({ label, href, disabled }) => {
-          const active = !disabled && pathname === href
-          return (
-            <Link
-              key={href}
-              href={disabled ? '#' : href}
-              style={{
-                display: 'block',
-                padding: '8px 12px',
-                borderRadius: 8,
-                fontSize: 14,
-                color: disabled ? 'var(--muted)' : active ? 'var(--accent)' : 'var(--text)',
-                background: active ? 'rgba(249,115,22,0.1)' : 'transparent',
-                pointerEvents: disabled ? 'none' : 'auto',
-                textDecoration: 'none',
-              }}
-            >
-              {label}
-              {disabled && <span style={{ fontSize: 10, marginLeft: 6, color: 'var(--muted)' }}>bientôt</span>}
-            </Link>
-          )
-        })}
-      </nav>
+      {/* Nav */}
+      <div className="flex-1 px-3 py-3.5 flex flex-col gap-0.5">
+        {sections.map(section => (
+          <div key={section.label}>
+            <div className="text-[10px] font-bold uppercase tracking-[1.2px] text-muted px-3 pt-3.5 pb-1.5">
+              {section.label}
+            </div>
+            {section.items.map(item => {
+              const active = pathname === item.href
+              const linkClass = [
+                'flex items-center gap-2.5 px-3 py-2.5 text-[13px] rounded-lg transition-all border-l-[3px] -ml-[3px]',
+                active
+                  ? 'bg-accent/10 text-accent border-accent font-semibold'
+                  : 'text-muted border-transparent hover:bg-surface hover:text-text',
+                item.disabled ? 'opacity-50 pointer-events-none' : '',
+              ].join(' ')
 
-      <div style={{ padding: '16px 20px', borderTop: '1px solid var(--border)' }}>
-        <button
-          onClick={logout}
-          style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 13 }}
-        >
-          Déconnexion
-        </button>
+              return (
+                <Link
+                  key={item.href}
+                  href={item.disabled ? '#' : item.href}
+                  className={linkClass}
+                >
+                  <span className="text-[15px] w-[18px] text-center">{item.icon}</span>
+                  <span>{item.label}</span>
+                  {item.badge !== undefined && (
+                    <span className={`ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-[10px] ${
+                      item.badgeMuted ? 'bg-surface2 text-muted' : 'bg-red text-white'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              )
+            })}
+          </div>
+        ))}
       </div>
-    </aside>
+
+      {/* User card */}
+      <div className="p-3.5 border-t border-border">
+        <div className="bg-surface border border-border p-2.5 px-3 rounded-[10px] flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-accent-light text-white font-bold flex items-center justify-center text-[13px]">
+            {initials}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[12px] font-semibold leading-tight truncate">
+              {user ? `${user.prenom ?? ''} ${user.nom}`.trim() : 'SuperAdmin'}
+            </div>
+            <div className="text-[10px] text-accent uppercase tracking-[0.8px]">Fondateur</div>
+          </div>
+        </div>
+      </div>
+    </nav>
   )
 }
