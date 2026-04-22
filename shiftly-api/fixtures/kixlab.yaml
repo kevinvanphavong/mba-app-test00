@@ -1,0 +1,601 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 3 : KixLab — Blois (concept store indépendant)
+#  Sneakers · Vêtements · Bubble Tea · Bar centre-ville
+#  Staff  : 7 membres (1 manager, 6 employés)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_kixlab:
+    nom:     "KixLab — Blois"
+    adresse: "12 rue du Commerce, 41000 Blois"
+    openingHours:
+      lundi:
+        ouvert:    false
+        ouverture: "11:00"
+        fermeture: "19:30"
+      mardi:
+        ouvert:    true
+        ouverture: "11:00"
+        fermeture: "19:30"
+      mercredi:
+        ouvert:    true
+        ouverture: "11:00"
+        fermeture: "19:30"
+      jeudi:
+        ouvert:    true
+        ouverture: "11:00"
+        fermeture: "19:30"
+      vendredi:
+        ouvert:    true
+        ouverture: "11:00"
+        fermeture: "20:00"
+      samedi:
+        ouvert:    true
+        ouverture: "10:30"
+        fermeture: "20:00"
+      dimanche:
+        ouvert:    false
+        ouverture: "11:00"
+        fermeture: "19:00"
+
+App\Entity\Zone:
+  zone_kx_boutique:
+    centre:  "@centre_kixlab"
+    nom:     "Boutique"
+    couleur: "#3b82f6"
+    ordre:   1
+  zone_kx_bubbletea:
+    centre:  "@centre_kixlab"
+    nom:     "Bubble Tea"
+    couleur: "#a855f7"
+    ordre:   2
+  zone_kx_bar:
+    centre:  "@centre_kixlab"
+    nom:     "Bar & Caisse"
+    couleur: "#f97316"
+    ordre:   3
+
+App\Entity\User:
+  user_kx_hugo:
+    centre:      "@centre_kixlab"
+    nom:         "Delacroix"
+    prenom:      "Hugo"
+    email:       "hugo@kixlab-blois.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "MANAGER"
+    avatarColor: "#f97316"
+    points:      185
+    actif:       true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+
+  user_kx_lea:
+    centre:      "@centre_kixlab"
+    nom:         "Tremblay"
+    prenom:      "Léa"
+    email:       "lea@kixlab-blois.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#ec4899"
+    points:      130
+    actif:       true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+
+  user_kx_nathan:
+    centre:      "@centre_kixlab"
+    nom:         "Giroux"
+    prenom:      "Nathan"
+    email:       "nathan@kixlab-blois.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#0ea5e9"
+    points:      110
+    actif:       true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+
+  user_kx_zoe:
+    centre:      "@centre_kixlab"
+    nom:         "Perrin"
+    prenom:      "Zoé"
+    email:       "zoe@kixlab-blois.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#a855f7"
+    points:      90
+    actif:       true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+
+  user_kx_baptiste:
+    centre:      "@centre_kixlab"
+    nom:         "Morel"
+    prenom:      "Baptiste"
+    email:       "baptiste@kixlab-blois.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#22c55e"
+    points:      45
+    actif:       true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+
+  user_kx_chloe:
+    centre:      "@centre_kixlab"
+    nom:         "Aubert"
+    prenom:      "Chloé"
+    email:       "chloe@kixlab-blois.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#f59e0b"
+    points:      30
+    actif:       true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+  user_kx_malik:
+    centre:      "@centre_kixlab"
+    nom:         "Diallo"
+    prenom:      "Malik"
+    email:       "malik@kixlab-blois.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    avatarColor: "#6366f1"
+    points:      25
+    actif:       true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+
+App\Entity\Mission:
+  m_kx_bout_ouv_1:
+    zone: "@zone_kx_boutique"
+    texte: "Allumer la devanture, vitrine lumineuse et éclairage boutique"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_kx_bout_ouv_2:
+    zone: "@zone_kx_boutique"
+    texte: "Mettre à jour l'affichage 'Drop du moment' (panneau vitrine + stories Insta)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_kx_bout_ouv_3:
+    zone: "@zone_kx_boutique"
+    texte: "Vérifier la présentation des modèles (propres, bien disposés par taille)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+  m_kx_bout_ouv_4:
+    zone: "@zone_kx_boutique"
+    texte: "Contrôler le stock des modèles phares en vitrine (tailles et coloris disponibles)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 4
+  m_kx_bout_pend_1:
+    zone: "@zone_kx_boutique"
+    texte: "Conseiller les clients et présenter les nouveautés et collaborations"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_kx_bout_pend_2:
+    zone: "@zone_kx_boutique"
+    texte: "Gérer les réservations de paires (carnet + téléphone)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 2
+  m_kx_bout_pend_3:
+    zone: "@zone_kx_boutique"
+    texte: "Ranger les modèles d'essayage et nettoyer les cabines après passage client"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+  m_kx_bout_pend_4:
+    zone: "@zone_kx_boutique"
+    texte: "Réassortir les rayons et vérifier les étiquettes prix"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "ne_pas_oublier"
+    ordre: 4
+  m_kx_bout_ferm_1:
+    zone: "@zone_kx_boutique"
+    texte: "Ranger les modèles d'expo et sécuriser les paires en vitrine"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_kx_bout_ferm_2:
+    zone: "@zone_kx_boutique"
+    texte: "Faire l'inventaire rapide des modèles vendus dans la journée"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_kx_bout_ferm_3:
+    zone: "@zone_kx_boutique"
+    texte: "Éteindre la devanture et fermer la vitrine à clé"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 3
+  m_kx_bout_ferm_4:
+    zone: "@zone_kx_boutique"
+    texte: "Mettre à jour le stock sur l'outil en ligne (ventes du jour)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 4
+  m_kx_bt_ouv_1:
+    zone: "@zone_kx_bubbletea"
+    texte: "Lancer la cuisson des perles de tapioca (boba noires, 45 min de cuisson)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_kx_bt_ouv_2:
+    zone: "@zone_kx_bubbletea"
+    texte: "Mettre en place les sirops, laits végétaux et bases de thé"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_kx_bt_ouv_3:
+    zone: "@zone_kx_bubbletea"
+    texte: "Vérifier les DLC des ingrédients et températures du réfrigérateur"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+  m_kx_bt_pend_1:
+    zone: "@zone_kx_bubbletea"
+    texte: "Préparer chaque commande bubble tea selon la fiche recette (shaker 30 sec)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_kx_bt_pend_2:
+    zone: "@zone_kx_bubbletea"
+    texte: "Maintenir les boba à température (eau sucrée chaude, changer toutes les 2h)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_kx_bt_pend_3:
+    zone: "@zone_kx_bubbletea"
+    texte: "Nettoyer les shakers entre chaque commande et entretenir la zone"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+  m_kx_bt_ferm_1:
+    zone: "@zone_kx_bubbletea"
+    texte: "Jeter les boba restantes (ne jamais les conserver au-delà de la fermeture)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_kx_bt_ferm_2:
+    zone: "@zone_kx_bubbletea"
+    texte: "Nettoyer les shakers, pompes à sirop et machine à thé"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_kx_bt_ferm_3:
+    zone: "@zone_kx_bubbletea"
+    texte: "Ranger les sirops et laits au réfrigérateur (bien refermer)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+  m_kx_bar_ouv_1:
+    zone: "@zone_kx_bar"
+    texte: "Allumer la caisse, vérifier le fond de caisse (50€) et les TPE"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_kx_bar_ouv_2:
+    zone: "@zone_kx_bar"
+    texte: "Préparer les boissons chaudes du bar (cafés, thés) et vérifier le stock"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 2
+  m_kx_bar_pend_1:
+    zone: "@zone_kx_bar"
+    texte: "Encaisser toutes les ventes boutique et bubble tea (CB + espèces)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_kx_bar_pend_2:
+    zone: "@zone_kx_bar"
+    texte: "Préparer les commandes bar (café, thé, softs) et maintenir le comptoir propre"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 2
+  m_kx_bar_ferm_1:
+    zone: "@zone_kx_bar"
+    texte: "Clôturer la caisse et remettre le fond + recette au manager"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 1
+  m_kx_bar_ferm_2:
+    zone: "@zone_kx_bar"
+    texte: "Nettoyer et désinfecter le comptoir bar"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "vitale"
+    ordre: 2
+  m_kx_bar_ferm_3:
+    zone: "@zone_kx_bar"
+    texte: "Vider les poubelles et passer la serpillière derrière le comptoir"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite: "important"
+    ordre: 3
+
+App\Entity\Competence:
+  comp_kx_bout_1:
+    zone:       "@zone_kx_boutique"
+    nom:        "Maîtrise des collections sneakers et streetwear"
+    points:     20
+    difficulte: "avancee"
+  comp_kx_bout_2:
+    zone:       "@zone_kx_boutique"
+    nom:        "Techniques de vente et fidélisation client"
+    points:     25
+    difficulte: "avancee"
+  comp_kx_bt_1:
+    zone:       "@zone_kx_bubbletea"
+    nom:        "Préparation des bubble tea (recettes et cuisson boba)"
+    points:     15
+    difficulte: "simple"
+  comp_kx_caisse_1:
+    zone:       "@zone_kx_bar"
+    nom:        "Encaissement et gestion de caisse boutique"
+    points:     15
+    difficulte: "simple"
+
+App\Entity\StaffCompetence:
+  sc_kx_h1:  { user: "@user_kx_hugo",     competence: "@comp_kx_bout_1",  acquiredAt: "<(new \\DateTimeImmutable('2023-03-01'))>" }
+  sc_kx_h2:  { user: "@user_kx_hugo",     competence: "@comp_kx_bout_2",  acquiredAt: "<(new \\DateTimeImmutable('2023-06-01'))>" }
+  sc_kx_h3:  { user: "@user_kx_hugo",     competence: "@comp_kx_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2023-01-01'))>" }
+  sc_kx_l1:  { user: "@user_kx_lea",      competence: "@comp_kx_bout_1",  acquiredAt: "<(new \\DateTimeImmutable('2024-02-01'))>" }
+  sc_kx_l2:  { user: "@user_kx_lea",      competence: "@comp_kx_bout_2",  acquiredAt: "<(new \\DateTimeImmutable('2024-09-01'))>" }
+  sc_kx_l3:  { user: "@user_kx_lea",      competence: "@comp_kx_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2024-03-01'))>" }
+  sc_kx_n1:  { user: "@user_kx_nathan",   competence: "@comp_kx_bout_1",  acquiredAt: "<(new \\DateTimeImmutable('2025-01-15'))>" }
+  sc_kx_n2:  { user: "@user_kx_nathan",   competence: "@comp_kx_bout_2",  acquiredAt: "<(new \\DateTimeImmutable('2025-06-01'))>" }
+  sc_kx_z1:  { user: "@user_kx_zoe",      competence: "@comp_kx_bt_1",    acquiredAt: "<(new \\DateTimeImmutable('2024-07-01'))>" }
+  sc_kx_b1:  { user: "@user_kx_baptiste", competence: "@comp_kx_bt_1",    acquiredAt: "<(new \\DateTimeImmutable('2026-02-15'))>" }
+
+App\Entity\Service:
+  svc_kx_j8:
+    centre:         "@centre_kixlab"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-8 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('19:30:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 95.0
+  svc_kx_j4:
+    centre:         "@centre_kixlab"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-4 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('19:30:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 100.0
+  svc_kx_j3:
+    centre:         "@centre_kixlab"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('19:30:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 88.0
+    note:           "Drop Air Max 95 — forte affluence dès l'ouverture, file d'attente en boutique."
+  svc_kx_j2:
+    centre:         "@centre_kixlab"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('19:30:00'))>"
+    statut:         "TERMINE"
+    tauxCompletion: 96.0
+    note:           "Journée calme. Réassort de stock effectué l'après-midi."
+  svc_kx_today:
+    centre:         "@centre_kixlab"
+    date:           "<(new \\DateTimeImmutable('today'))>"
+    heureDebut:     "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('19:30:00'))>"
+    statut:         "EN_COURS"
+    tauxCompletion: 0.0
+    note:           "Début de cuisson boba dès 10h30 — Zoé responsable ouverture bubble tea."
+  svc_kx_j1:
+    centre:         "@centre_kixlab"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('20:00:00'))>"
+    statut:         "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_kx_j2p:
+    centre:         "@centre_kixlab"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('19:30:00'))>"
+    statut:         "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_kx_j3p:
+    centre:         "@centre_kixlab"
+    date:           "<(new \\DateTimeImmutable((new \\DateTime('+3 days'))->format('Y-m-d')))>"
+    heureDebut:     "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin:       "<(new \\DateTimeImmutable('19:30:00'))>"
+    statut:         "PLANIFIE"
+    tauxCompletion: 0.0
+
+App\Entity\Poste:
+  poste_kx_today_bar_hugo:
+    service: "@svc_kx_today"
+    zone: "@zone_kx_bar"
+    user: "@user_kx_hugo"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_kx_today_bout_lea:
+    service: "@svc_kx_today"
+    zone: "@zone_kx_boutique"
+    user: "@user_kx_lea"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_kx_today_bt_zoe:
+    service: "@svc_kx_today"
+    zone: "@zone_kx_bubbletea"
+    user: "@user_kx_zoe"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_kx_today_bout_nathan:
+    service: "@svc_kx_today"
+    zone: "@zone_kx_boutique"
+    user: "@user_kx_nathan"
+    heureDebut: "<(new \\DateTimeImmutable('13:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 0
+  poste_kx_j2_bar_hugo:
+    service: "@svc_kx_j2"
+    zone: "@zone_kx_bar"
+    user: "@user_kx_hugo"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_kx_j2_bt_zoe:
+    service: "@svc_kx_j2"
+    zone: "@zone_kx_bubbletea"
+    user: "@user_kx_zoe"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_kx_j2_bout_nathan:
+    service: "@svc_kx_j2"
+    zone: "@zone_kx_boutique"
+    user: "@user_kx_nathan"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_kx_j4_bar_hugo:
+    service: "@svc_kx_j4"
+    zone: "@zone_kx_bar"
+    user: "@user_kx_hugo"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_kx_j4_bt_baptiste:
+    service: "@svc_kx_j4"
+    zone: "@zone_kx_bubbletea"
+    user: "@user_kx_baptiste"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('17:00:00'))>"
+    pauseMinutes: 20
+  poste_kx_j4_bout_lea:
+    service: "@svc_kx_j4"
+    zone: "@zone_kx_boutique"
+    user: "@user_kx_lea"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+
+App\Entity\Completion:
+  ckx1: { poste: "@poste_kx_today_bar_hugo",     mission: "@m_kx_bar_ouv_1",  user: "@user_kx_hugo" }
+  ckx2: { poste: "@poste_kx_today_bt_zoe",       mission: "@m_kx_bt_ouv_1",   user: "@user_kx_zoe" }
+  ckx3: { poste: "@poste_kx_today_bt_zoe",       mission: "@m_kx_bt_ouv_2",   user: "@user_kx_zoe" }
+  ckx4: { poste: "@poste_kx_today_bout_lea",     mission: "@m_kx_bout_ouv_1", user: "@user_kx_lea" }
+  ckx5: { poste: "@poste_kx_today_bout_lea",     mission: "@m_kx_bout_ouv_2", user: "@user_kx_lea" }
+  ckx6: { poste: "@poste_kx_today_bout_nathan",  mission: "@m_kx_bout_ouv_3", user: "@user_kx_nathan" }
+
+App\Entity\Incident:
+  inc_kx_1:
+    centre:         "@centre_kixlab"
+    service:        "@svc_kx_j3"
+    titre:          "Drop Air Max 95 — client agressif refusé, police contactée"
+    severite:       "haute"
+    statut:         "RESOLU"
+    user:           "@user_kx_hugo"
+    zone:           "@zone_kx_boutique"
+    staffImpliques: ["@user_kx_hugo", "@user_kx_lea", "@user_kx_nathan"]
+
+App\Entity\Tutoriel:
+  tuto_kx_boba:
+    centre:  "@centre_kixlab"
+    titre:   "Préparer les boba — cuisson et conservation"
+    zone:    "@zone_kx_bubbletea"
+    niveau:  "debutant"
+    dureMin: 15
+    contenu:
+      - { type: "intro", text: "Les perles de tapioca (boba) sont la base du bubble tea. Une mauvaise cuisson ou conservation ruine l'expérience client." }
+      - { type: "step", number: 1, title: "Cuisson", text: "Eau bouillante, verser les boba sèches. Cuire 45 min à feu moyen. Remuer toutes les 10 min." }
+      - { type: "step", number: 2, title: "Conservation", text: "Égoutter, passer sous eau froide 30 sec. Mettre dans l'eau sucrée chaude (sirop de canne). Durée max : 4h." }
+      - { type: "step", number: 3, title: "En service", text: "Utiliser une cuillère trouée pour déposer les boba dans le gobelet avant de verser la boisson." }
+      - { type: "tip", text: "Ne jamais réfrigérer les boba cuites — elles durcissent. Toujours jeter le restant à la fermeture." }
+  tuto_kx_drops:
+    centre:  "@centre_kixlab"
+    titre:   "Gérer un drop sneakers — file et procédure"
+    zone:    "@zone_kx_boutique"
+    niveau:  "intermediaire"
+    dureMin: 20
+    contenu:
+      - { type: "intro", text: "Les jours de drop sont les plus intenses. Une bonne organisation évite les incidents et garantit l'équité entre les clients." }
+      - { type: "step", number: 1, title: "Avant l'ouverture", text: "Afficher le nombre de paires disponibles par taille sur le tableau de la vitrine. Préparer les tickets de passage." }
+      - { type: "step", number: 2, title: "Gestion de la file", text: "Un seul client en boutique à la fois pour essayage. Les autres attendent dehors en ligne ordonnée." }
+      - { type: "step", number: 3, title: "Vente", text: "Maximum 1 paire par personne, 1 coloris par visite. Vérifier la pièce d'identité si besoin." }
+      - { type: "tip", text: "En cas de tension : prévenir le manager immédiatement. Ne jamais gérer seul une situation conflictuelle." }
+
+App\Entity\TutoRead:
+  trkx_zoe_1:      { user: "@user_kx_zoe",      tutoriel: "@tuto_kx_boba" }
+  trkx_baptiste_1: { user: "@user_kx_baptiste",  tutoriel: "@tuto_kx_boba" }
+  trkx_lea_1:      { user: "@user_kx_lea",       tutoriel: "@tuto_kx_drops" }
+  trkx_nathan_1:   { user: "@user_kx_nathan",    tutoriel: "@tuto_kx_drops" }
+  trkx_hugo_1:     { user: "@user_kx_hugo",      tutoriel: "@tuto_kx_drops" }
+
+App\Entity\LegalConfig:
+  legal_config_kixlab:
+    centre:                 "@centre_kixlab"
+    seuilRetardMinutes:     5
+    dureeLegaleHebdoHeures: 35
+    maxHeuresHebdo:         48
+    maxHeuresMoyennes12sem: 44
+    reposQuotidienHeures:   11
+    reposHebdoHeures:       35
+    majorationSupTaux1:     25
+    majorationSupTaux2:     50
+
+App\Entity\PlanningWeek:
+  pw_kx_last:
+    centre:      "@centre_kixlab"
+    weekStart:   "<(new \\DateTimeImmutable('monday last week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday last week 10:00:00'))>"
+    publishedBy: "@user_kx_hugo"
+    note:        "Semaine standard. Malik absent mercredi (arrêt maladie)."
+  pw_kx_current:
+    centre:      "@centre_kixlab"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 09:45:00'))>"
+    publishedBy: "@user_kx_hugo"
+    note:        "Possible drop collab jeudi — rester vigilant sur les réseaux."
