@@ -69,12 +69,22 @@ export interface SentryIssue {
   firstSeen:   string
 }
 
+export interface TopCentre {
+  id:           number
+  nom:          string
+  adresse:      string | null
+  totalUsers:   number
+  pointages30j: number
+  engagement:   number
+}
+
 export interface DashboardKPIs {
   totalCentres:   number
   totalUsers:     number
   mrr:            number
   recentActivity: AuditLogEntry[]
   sentryStats:    SentryStats
+  topCentres:     TopCentre[]
 }
 
 export interface ImpersonationData {
