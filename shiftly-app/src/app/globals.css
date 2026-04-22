@@ -148,6 +148,109 @@ html, body {
   50%       { opacity: 0.35; }
 }
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   MODULE VALIDATION HEBDOMADAIRE — Classes sémantiques
+   Style visuel uniquement. Le layout (flex, grid, padding) reste dans le JSX.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Validation : WeekControl ── */
+.validation-week-control          { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+.validation-week-arrow            { color: var(--accent); cursor: pointer; font-size: 18px; transition: transform 0.15s; }
+.validation-week-arrow:hover      { transform: scale(1.2); }
+.validation-week-label            { font-family: var(--font-syne), sans-serif; font-weight: 700; font-size: 15px; color: var(--text); }
+.validation-week-dates            { font-size: 12px; color: var(--muted); }
+.validation-status-badge          { font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px; }
+.validation-status-badge[data-status="en_attente"] { background: rgba(249,115,22,0.15); color: var(--accent); }
+.validation-status-badge[data-status="validee"]    { background: rgba(34,197,94,0.15);  color: var(--green);  }
+.validation-status-badge[data-status="en_cours"]   { background: rgba(59,130,246,0.15); color: var(--blue);   }
+
+/* ── Validation : KPI ── */
+.validation-kpi-card              { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.validation-kpi-trend.up          { color: var(--green); }
+.validation-kpi-trend.down        { color: var(--red); }
+.validation-kpi-trend.accent      { color: var(--accent); }
+
+/* ── Validation : Table ── */
+.validation-table                 { width: 100%; border-collapse: collapse; font-size: 13px; }
+.validation-table th              { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+.validation-table td              { padding: 14px 16px; border-bottom: 1px solid rgba(37,42,58,0.5); }
+.validation-table tbody tr:hover  { background: rgba(249,115,22,0.03); cursor: pointer; }
+.validation-table tbody tr:last-child td { border-bottom: none; }
+.validation-row[data-status="validated"] { border-left: 4px solid var(--green); }
+.validation-row[data-status="pending"]   { border-left: 4px solid var(--yellow); }
+.validation-row[data-status="issue"]     { border-left: 4px solid var(--red); }
+
+/* ── Validation : DayCell ── */
+.validation-day-cell              { text-align: center; position: relative; }
+.validation-day-time              { font-weight: 500; color: var(--text); font-size: 12px; }
+.validation-day-hours             { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.validation-day-rest              { color: var(--muted); font-size: 13px; font-weight: 600; }
+.validation-day-absent            { color: var(--red); font-weight: 700; font-size: 12px; }
+.validation-day-absent-justifie   { color: var(--yellow); font-weight: 700; font-size: 12px; }
+.validation-day-inprogress        { color: var(--blue); font-weight: 600; font-size: 12px; }
+.validation-retard-dot            { display: inline-block; width: 6px; height: 6px; background: var(--red); border-radius: 50%; margin-left: 4px; vertical-align: middle; }
+
+/* ── Validation : Totaux et badges statut ligne ── */
+.validation-total-cell            { font-weight: 700; font-family: var(--font-syne), sans-serif; font-size: 14px; color: var(--text); }
+.validation-total-cell.green      { color: var(--green); }
+.validation-total-cell.orange     { color: var(--accent); }
+.validation-total-cell.red        { color: var(--red); }
+.validation-status-badge-small    { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.validation-status-badge-small[data-status="validated"] { background: rgba(34,197,94,0.15); color: var(--green); }
+.validation-status-badge-small[data-status="pending"]   { background: rgba(234,179,8,0.15); color: var(--yellow); }
+.validation-status-badge-small[data-status="issue"]     { background: rgba(239,68,68,0.15); color: var(--red); }
+.validation-row-note              { font-size: 10px; color: var(--yellow); margin-top: 4px; font-weight: 600; }
+.validation-employee-name         { font-weight: 600; color: var(--text); }
+.validation-employee-role         { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── Validation : Panneau Détail Employé ── */
+.validation-detail-row            { border-bottom: 1px solid var(--border); font-size: 13px; }
+.validation-detail-row:last-child { border-bottom: none; }
+.validation-detail-day            { font-weight: 600; color: var(--accent); min-width: 80px; }
+.validation-detail-times          { flex: 1; }
+.validation-detail-time-item      { font-size: 12px; color: var(--text); }
+.validation-detail-time-item span { color: var(--muted); font-size: 11px; }
+.validation-detail-net            { font-weight: 700; font-family: var(--font-syne), sans-serif; color: var(--green); min-width: 60px; text-align: right; }
+.validation-correction-history    { font-size: 12px; color: var(--muted); }
+
+/* ── Validation : Résumé semaine ── */
+.validation-summary-stat           { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); font-size: 13px; }
+.validation-summary-stat:last-child { border-bottom: none; }
+.validation-summary-stat-label     { color: var(--muted); }
+.validation-summary-stat-value     { font-weight: 700; font-family: var(--font-syne), sans-serif; font-size: 14px; color: var(--text); }
+.validation-summary-stat-value.accent { color: var(--accent); }
+.validation-summary-stat-value.green  { color: var(--green); }
+.validation-summary-stat-value.red    { color: var(--red); }
+.validation-summary-stat-value.blue   { color: var(--blue); }
+.validation-summary-sub            { font-size: 11px; color: var(--muted); }
+
+/* ── Validation : Alertes légales ── */
+.validation-alert-item             { display: flex; align-items: flex-start; gap: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.validation-alert-item:last-child  { border-bottom: none; }
+.validation-alert-icon             { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+.validation-alert-icon[data-severity="warn"]   { background: rgba(234,179,8,0.15); }
+.validation-alert-icon[data-severity="danger"] { background: rgba(239,68,68,0.15); }
+.validation-alert-icon[data-severity="ok"]     { background: rgba(34,197,94,0.15); }
+.validation-alert-title            { font-weight: 600; color: var(--text); }
+.validation-alert-detail           { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── Validation : Formulaire de correction ── */
+.validation-correction-form        { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; }
+.validation-correction-input       { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; width: 100%; }
+.validation-correction-input:focus { outline: none; border-color: var(--accent); }
+
+/* ── Validation : Animations ── */
+@keyframes validation-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+.validation-inprogress-dot::before {
+  content: '●';
+  animation: validation-pulse 2s infinite;
+  margin-right: 4px;
+  color: var(--blue);
+}
+
 @layer components {
 
   /* Corps de texte ─────────────────────────────────────────────────────────── */
