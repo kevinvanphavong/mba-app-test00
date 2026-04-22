@@ -111,6 +111,16 @@ mba-app-test00/
 │   │   │   │   ├── TutorielCard.tsx
 │   │   │   │   └── TutorielModal.tsx  # Lecture étape par étape
 │   │   │   │
+│   │   │   ├── validation/
+│   │   │   │   ├── ValidationWeekControl.tsx     # Navigation semaine + badge statut
+│   │   │   │   ├── ValidationKPIs.tsx            # 5 cartes KPI dynamiques
+│   │   │   │   ├── ValidationDayCell.tsx         # Cellule jour (4 états)
+│   │   │   │   ├── ValidationTable.tsx           # Tableau employés × 7 jours
+│   │   │   │   ├── ValidationEmployeeDetail.tsx  # Détail jour par jour + corrections
+│   │   │   │   ├── ValidationCorrectionForm.tsx  # Formulaire correction pointage
+│   │   │   │   ├── ValidationWeekSummary.tsx     # Résumé totaux équipe
+│   │   │   │   └── ValidationLegalAlerts.tsx     # Alertes légales IDCC 1790
+│   │   │   │
 │   │   │   └── editeur/
 │   │   │       ├── ZonesManager.tsx
 │   │   │       ├── MissionsManager.tsx
@@ -123,7 +133,8 @@ mba-app-test00/
 │   │   │   ├── usePostes.ts
 │   │   │   ├── useStaff.ts
 │   │   │   ├── useTutoriels.ts
-│   │   │   └── useDashboard.ts
+│   │   │   ├── useDashboard.ts
+│   │   │   └── useValidation.ts       # Validation hebdomadaire (queries + mutations)
 │   │   │
 │   │   ├── lib/
 │   │   │   ├── api.ts                 # Client Axios (baseURL, JWT, gestion 401)
@@ -133,7 +144,8 @@ mba-app-test00/
 │   │   │   └── mock/                  # Données mock pour développement offline
 │   │   │
 │   │   └── types/                     # Types TypeScript (entités + DTOs)
-│   │       └── index.ts
+│   │       ├── index.ts
+│   │       └── validation.ts          # Types du module Validation hebdomadaire
 │   │
 │   ├── tailwind.config.ts
 │   ├── next.config.mjs
@@ -144,7 +156,7 @@ mba-app-test00/
 │
 └── shiftly-api/                       # Symfony 8.0 — Backend
     ├── src/
-    │   ├── Entity/                    # Les 12 entités Doctrine
+    │   ├── Entity/                    # 14 entités Doctrine
     │   │   ├── Centre.php
     │   │   ├── User.php
     │   │   ├── Zone.php
@@ -156,10 +168,16 @@ mba-app-test00/
     │   │   ├── Completion.php
     │   │   ├── Incident.php
     │   │   ├── Tutoriel.php
-    │   │   └── TutoRead.php
+    │   │   ├── TutoRead.php
+    │   │   ├── ValidationHebdo.php    # Statut/heures validation hebdo par employé
+    │   │   └── CorrectionPointage.php # Trace des corrections manuelles
     │   │
     │   ├── Controller/
-    │   │   └── DashboardController.php  # GET /api/dashboard/{centreId}
+    │   │   ├── DashboardController.php   # GET /api/dashboard/{centreId}
+    │   │   └── ValidationController.php  # 7 routes /api/pointages/validation/*
+    │   │
+    │   ├── Service/
+    │   │   └── ValidationHebdoService.php  # Agrégation pointages + alertes IDCC 1790
     │   │
     │   ├── Repository/                # Un repository par entité
     │   │   └── ...Repository.php
@@ -180,7 +198,8 @@ mba-app-test00/
     │   └── routes/
     │
     ├── migrations/
-    │   └── Version20260319000001.php  # Migration initiale (12 tables)
+    │   ├── Version20260319000001.php  # Migration initiale (12 tables)
+    │   └── Version20260422183255.php  # validation_hebdo + correction_pointage
     │
     ├── fixtures/                      # Données Alice (staff réel, zones, missions)
     │
@@ -289,14 +308,16 @@ const x = user.role === 'MANAGER'
 type Role = 'MANAGER' | 'EMPLOYE'
 
 // Règles d'accès par page
-Dashboard        → MANAGER uniquement
-Service du Jour  → MANAGER + EMPLOYE (vue différente)
-Services Planning→ MANAGER uniquement
-Postes           → MANAGER (écriture) | EMPLOYE (lecture)
-Staff            → MANAGER (écriture + valide compétences) | EMPLOYE (lecture)
-Tutoriels        → MANAGER + EMPLOYE
-Réglages         → MANAGER (tout) | EMPLOYE (profil + notifs)
-Éditeur contenu  → MANAGER uniquement
+Dashboard            → MANAGER uniquement
+Service du Jour      → MANAGER + EMPLOYE (vue différente)
+Services Planning    → MANAGER uniquement
+Postes               → MANAGER (écriture) | EMPLOYE (lecture)
+Staff                → MANAGER (écriture + valide compétences) | EMPLOYE (lecture)
+Tutoriels            → MANAGER + EMPLOYE
+Réglages             → MANAGER (tout) | EMPLOYE (profil + notifs)
+Éditeur contenu      → MANAGER uniquement
+Pointage             → MANAGER uniquement
+Validation hebdo     → MANAGER uniquement (/pointage/validation)
 ```
 
 ---
