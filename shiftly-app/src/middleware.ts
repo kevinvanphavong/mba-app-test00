@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Routes accessibles sans authentification
+// Routes accessibles sans authentification (app classique)
 const PUBLIC_PATHS = ['/login']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Les routes SuperAdmin gèrent leur propre auth — le middleware n'y touche pas
+  if (pathname.startsWith('/superadmin')) {
+    return NextResponse.next()
+  }
+
   const token = request.cookies.get('token')?.value
 
   // Déjà connecté et accède à /login → rediriger vers /service
