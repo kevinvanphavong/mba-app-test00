@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { format, formatDistanceToNow } from 'date-fns'
@@ -32,12 +32,11 @@ const initialsOf = (prenom: string | null, nom: string) =>
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 interface Props {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }
 
 export default function SuperAdminCentreDetailPage({ params }: Props) {
-  const { id } = use(params)
-  const centreId = Number(id)
+  const centreId = Number(params.id)
   const { data, isLoading, isError } = useSuperAdminCentreDetail(centreId)
 
   if (isLoading) return <p className="text-muted text-sm">Chargement…</p>
