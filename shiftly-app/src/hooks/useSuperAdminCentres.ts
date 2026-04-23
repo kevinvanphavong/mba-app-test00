@@ -2,15 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSuperAdminStore } from '@/store/superAdminStore'
+import { superAdminApi } from '@/lib/superAdminApi'
 import type { CentreSummary, ImpersonationData } from '@/types/superadmin'
-import axios from 'axios'
-
-function superAdminApi(token: string | null) {
-  return axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  })
-}
 
 export function useSuperAdminCentres(search = '', statut = '') {
   const token = useSuperAdminStore(s => s.token)
@@ -22,6 +15,7 @@ export function useSuperAdminCentres(search = '', statut = '') {
         .get<CentreSummary[]>('/superadmin/centres', { params: { search, statut } })
         .then(r => r.data),
     enabled: !!token,
+    retry:   false,
   })
 }
 
