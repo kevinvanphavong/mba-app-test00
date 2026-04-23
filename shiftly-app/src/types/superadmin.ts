@@ -41,6 +41,7 @@ export interface CentreNote {
 export interface CentreDetail extends CentreSummary {
   telephone:    string | null
   siteWeb:      string | null
+  engagement:   number
   users:        CentreUserSummary[]
   notes:        CentreNote[]
   sentryIssues: SentryIssue[]

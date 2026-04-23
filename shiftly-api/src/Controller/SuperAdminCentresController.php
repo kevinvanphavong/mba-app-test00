@@ -120,17 +120,36 @@ class SuperAdminCentresController extends AbstractController
 
         $sentryIssues = $this->sentryApi->getIssuesByCentreId((string) $id);
 
+        // Pointages sur 30 derniers jours
+        $since = new \DateTimeImmutable('-30 days');
+        $pointages30j = (int) $this->serviceRepo->createQueryBuilder('s')
+            ->select('COUNT(p.id)')
+            ->innerJoin('App\\Entity\\Pointage', 'p', 'WITH', 'p.service = s.id')
+            ->where('s.centre = :centre')
+            ->andWhere('s.date >= :since')
+            ->setParameter('centre', $centre)
+            ->setParameter('since', $since)
+            ->getQuery()->getSingleScalarResult();
+
+        $totalUsers = $centre->getUsers()->count();
+        $engagement = $totalUsers > 0 ? min(100, (int) round(($pointages30j / $totalUsers) / 40 * 100)) : 0;
+
         return $this->json([
-            'id'          => $centre->getId(),
-            'nom'         => $centre->getNom(),
-            'slug'        => $centre->getSlug(),
-            'adresse'     => $centre->getAdresse(),
+            'id'           => $centre->getId(),
+            'nom'          => $centre->getNom(),
+            'slug'         => $centre->getSlug(),
+            'adresse'      => $centre->getAdresse(),
             'telephone'   => $centre->getTelephone(),
-            'siteWeb'     => $centre->getSiteWeb(),
-            'actif'       => $centre->isActif(),
-            'createdAt'   => $centre->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-            'users'       => $users,
-            'notes'       => $notes,
+            'siteWeb'      => $centre->getSiteWeb(),
+            'actif'        => $centre->isActif(),
+            'createdAt'    => $centre->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'totalUsers'   => $totalUsers,
+            'pointages30j' => $pointages30j,
+            'engagement'   => $engagement,
+            'mrr'          => 0,
+            'plan'         => 'starter',
+            'users'        => $users,
+            'notes'        => $notes,
             'sentryIssues' => $sentryIssues,
         ]);
     }
