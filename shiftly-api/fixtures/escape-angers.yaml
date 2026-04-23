@@ -1,0 +1,296 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 7 : Escape Mystery — Angers (escape game premium)
+#  Staff  : 5 membres (1 manager, 4 employés)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_escape:
+    nom:     "Escape Mystery — Angers"
+    adresse: "5 rue Saint-Laud, 49000 Angers"
+    openingHours:
+      lundi:    { ouvert: false, ouverture: "14:00", fermeture: "22:00" }
+      mardi:    { ouvert: true,  ouverture: "14:00", fermeture: "22:00" }
+      mercredi: { ouvert: true,  ouverture: "14:00", fermeture: "22:00" }
+      jeudi:    { ouvert: true,  ouverture: "14:00", fermeture: "22:00" }
+      vendredi: { ouvert: true,  ouverture: "14:00", fermeture: "23:30" }
+      samedi:   { ouvert: true,  ouverture: "10:00", fermeture: "23:30" }
+      dimanche: { ouvert: true,  ouverture: "10:00", fermeture: "20:00" }
+
+App\Entity\Zone:
+  zone_es_accueil:
+    centre:  "@centre_escape"
+    nom:     "Accueil"
+    couleur: "#3b82f6"
+    ordre:   1
+  zone_es_salles:
+    centre:  "@centre_escape"
+    nom:     "Salles Escape"
+    couleur: "#a855f7"
+    ordre:   2
+  zone_es_bar:
+    centre:  "@centre_escape"
+    nom:     "Bar"
+    couleur: "#22c55e"
+    ordre:   3
+
+App\Entity\User:
+  user_es_pauline:
+    centre: "@centre_escape"
+    nom: "Thibault"
+    prenom: "Pauline"
+    email: "pauline@escape-angers.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "0000"
+    avatarColor: "#f97316"
+    points: 185
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_es_noah:
+    centre: "@centre_escape"
+    nom: "Charpentier"
+    prenom: "Noah"
+    email: "noah@escape-angers.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "1111"
+    avatarColor: "#a855f7"
+    points: 145
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_es_margaux:
+    centre: "@centre_escape"
+    nom: "Sanchez"
+    prenom: "Margaux"
+    email: "margaux@escape-angers.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "2222"
+    avatarColor: "#ec4899"
+    points: 110
+    actif: true
+    heuresHebdo: 30
+    typeContrat: "CDI"
+  user_es_gabriel:
+    centre: "@centre_escape"
+    nom: "Masson"
+    prenom: "Gabriel"
+    email: "gabriel@escape-angers.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "3333"
+    avatarColor: "#0ea5e9"
+    points: 75
+    actif: true
+    heuresHebdo: 25
+    typeContrat: "CDD"
+  user_es_iris:
+    centre: "@centre_escape"
+    nom: "Blanchard"
+    prenom: "Iris"
+    email: "iris@escape-angers.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "4444"
+    avatarColor: "#f59e0b"
+    points: 40
+    actif: true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+App\Entity\Mission:
+  m_es_acc_ouv_1: { zone: "@zone_es_accueil", texte: "Caisse, planning des réservations des 4 salles du jour", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_acc_ouv_2: { zone: "@zone_es_accueil", texte: "Préparer les photos polaroid de fin de partie (tampon date)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_es_acc_pend_1: { zone: "@zone_es_accueil", texte: "Accueillir, encaisser, placer en salle d'attente thématisée", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_acc_pend_2: { zone: "@zone_es_accueil", texte: "Prendre photo souvenir à la fin de chaque partie", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_es_acc_ferm_1: { zone: "@zone_es_accueil", texte: "Clôture caisse et mise à jour classements en ligne", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+  m_es_sal_ouv_1: { zone: "@zone_es_salles", texte: "Réinitialiser chaque salle (3 scénarios) selon la checklist", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_sal_ouv_2: { zone: "@zone_es_salles", texte: "Tester chaque énigme interactive et les automatismes (serrures électro, UV, effets)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_es_sal_ouv_3: { zone: "@zone_es_salles", texte: "Vérifier l'ambiance sonore et l'éclairage scénique de chaque salle", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_es_sal_pend_1: { zone: "@zone_es_salles", texte: "Game Master : briefer, piloter la salle via la régie et donner les indices", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_sal_pend_2: { zone: "@zone_es_salles", texte: "Surveiller caméras en direct et anticiper les blocages joueurs", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_es_sal_pend_3: { zone: "@zone_es_salles", texte: "Débriefer les joueurs après la partie (temps, énigmes, anecdotes)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_es_sal_pend_4: { zone: "@zone_es_salles", texte: "Reset complet de la salle (15 min) entre chaque groupe", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 4 }
+  m_es_sal_ferm_1: { zone: "@zone_es_salles", texte: "Vérifier que toutes les salles sont reset pour le lendemain", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_sal_ferm_2: { zone: "@zone_es_salles", texte: "Éteindre la régie, les effets et sécuriser les portes électriques", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+
+  m_es_bar_ouv_1: { zone: "@zone_es_bar", texte: "Mise en route machine café, préparer softs et snacking léger", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_bar_pend_1: { zone: "@zone_es_bar", texte: "Servir les groupes en attente et après partie (ambiance lounge)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_bar_ferm_1: { zone: "@zone_es_bar", texte: "Nettoyer bar, vider machine café, clôturer caisse bar", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+App\Entity\Competence:
+  comp_es_sal_1: { zone: "@zone_es_salles",  nom: "Game Mastering (pilotage scénario et indices)", points: 40, difficulte: "experimente" }
+  comp_es_sal_2: { zone: "@zone_es_salles",  nom: "Reset complet salle (3 scénarios)",             points: 30, difficulte: "avancee" }
+  comp_es_acc_1: { zone: "@zone_es_accueil", nom: "Gestion des réservations et groupes",           points: 20, difficulte: "avancee" }
+  comp_es_bar_1: { zone: "@zone_es_bar",     nom: "Service lounge et prise de commande",           points: 15, difficulte: "simple" }
+
+App\Entity\StaffCompetence:
+  sc_es_p1: { user: "@user_es_pauline",  competence: "@comp_es_sal_1", acquiredAt: "<(new \\DateTimeImmutable('2024-01-15'))>" }
+  sc_es_p2: { user: "@user_es_pauline",  competence: "@comp_es_sal_2", acquiredAt: "<(new \\DateTimeImmutable('2024-02-15'))>" }
+  sc_es_p3: { user: "@user_es_pauline",  competence: "@comp_es_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2024-01-01'))>" }
+  sc_es_n1: { user: "@user_es_noah",     competence: "@comp_es_sal_1", acquiredAt: "<(new \\DateTimeImmutable('2024-06-01'))>" }
+  sc_es_n2: { user: "@user_es_noah",     competence: "@comp_es_sal_2", acquiredAt: "<(new \\DateTimeImmutable('2024-09-01'))>" }
+  sc_es_mg1: { user: "@user_es_margaux",  competence: "@comp_es_sal_1", acquiredAt: "<(new \\DateTimeImmutable('2025-02-01'))>" }
+  sc_es_mg2: { user: "@user_es_margaux",  competence: "@comp_es_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2025-05-01'))>" }
+  sc_es_mg3: { user: "@user_es_margaux",  competence: "@comp_es_bar_1", acquiredAt: "<(new \\DateTimeImmutable('2025-07-01'))>" }
+  sc_es_g1: { user: "@user_es_gabriel",  competence: "@comp_es_sal_2", acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>" }
+  sc_es_g2: { user: "@user_es_gabriel",  competence: "@comp_es_bar_1", acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>" }
+  sc_es_i1: { user: "@user_es_iris",     competence: "@comp_es_bar_1", acquiredAt: "<(new \\DateTimeImmutable('2026-03-10'))>" }
+
+App\Entity\Service:
+  svc_es_j5:
+    centre: "@centre_escape"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-5 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 97.0
+  svc_es_j3:
+    centre: "@centre_escape"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:30:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 90.0
+    note: "Salle 'Le Manoir' bloquée 20 min — énigme du coffre à reset manuel."
+  svc_es_j2:
+    centre: "@centre_escape"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('20:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 100.0
+  svc_es_today:
+    centre: "@centre_escape"
+    date: "<(new \\DateTimeImmutable('today'))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    statut: "EN_COURS"
+    tauxCompletion: 0.0
+    note: "EVJF à 17h — 8 joueuses sur Le Manoir. Préparer la 'surprise mariée' en régie."
+  svc_es_j1:
+    centre: "@centre_escape"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:30:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_es_j2p:
+    centre: "@centre_escape"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:30:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+
+App\Entity\Poste:
+  poste_es_today_acc_pauline:
+    service: "@svc_es_today"
+    zone: "@zone_es_accueil"
+    user: "@user_es_pauline"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 30
+  poste_es_today_sal_noah:
+    service: "@svc_es_today"
+    zone: "@zone_es_salles"
+    user: "@user_es_noah"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 30
+  poste_es_today_sal_margaux:
+    service: "@svc_es_today"
+    zone: "@zone_es_salles"
+    user: "@user_es_margaux"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 30
+  poste_es_today_bar_gabriel:
+    service: "@svc_es_today"
+    zone: "@zone_es_bar"
+    user: "@user_es_gabriel"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 20
+  poste_es_j2_sal_pauline:
+    service: "@svc_es_j2"
+    zone: "@zone_es_salles"
+    user: "@user_es_pauline"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_es_j2_sal_noah:
+    service: "@svc_es_j2"
+    zone: "@zone_es_salles"
+    user: "@user_es_noah"
+    heureDebut: "<(new \\DateTimeImmutable('12:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('20:00:00'))>"
+    pauseMinutes: 30
+
+App\Entity\Completion:
+  c_es_1: { poste: "@poste_es_today_acc_pauline", mission: "@m_es_acc_ouv_1",  user: "@user_es_pauline" }
+  c_es_2: { poste: "@poste_es_today_acc_pauline", mission: "@m_es_acc_ouv_2",  user: "@user_es_pauline" }
+  c_es_3: { poste: "@poste_es_today_sal_noah",    mission: "@m_es_sal_ouv_1",  user: "@user_es_noah" }
+  c_es_4: { poste: "@poste_es_today_sal_noah",    mission: "@m_es_sal_ouv_2",  user: "@user_es_noah" }
+  c_es_5: { poste: "@poste_es_today_sal_noah",    mission: "@m_es_sal_ouv_3",  user: "@user_es_noah" }
+  c_es_6: { poste: "@poste_es_today_bar_gabriel", mission: "@m_es_bar_ouv_1",  user: "@user_es_gabriel" }
+
+App\Entity\Incident:
+  inc_es_1:
+    centre:         "@centre_escape"
+    service:        "@svc_es_j3"
+    titre:          "Coffre électro de 'Le Manoir' HS — reset manuel pendant 20 min"
+    severite:       "moyenne"
+    statut:         "RESOLU"
+    user:           "@user_es_noah"
+    zone:           "@zone_es_salles"
+    staffImpliques: ["@user_es_noah", "@user_es_pauline"]
+
+App\Entity\Tutoriel:
+  tuto_es_gm:
+    centre:  "@centre_escape"
+    titre:   "Pilotage Game Master — donner les bons indices"
+    zone:    "@zone_es_salles"
+    niveau:  "avance"
+    dureMin: 30
+    contenu:
+      - { type: "intro", text: "Un Game Master, c'est 50% de l'expérience client. Savoir doser les indices fait la différence entre une bonne et une mauvaise partie." }
+      - { type: "step", number: 1, title: "Observation", text: "Regarder les joueurs via caméra + micro pendant 2 min avant d'intervenir. Ne jamais couper leur énergie." }
+      - { type: "step", number: 2, title: "Indice progressif", text: "1er indice : orienter vers l'objet. 2e : donner le type d'action. 3e : donner la solution partielle. Dernier recours : solution." }
+      - { type: "step", number: 3, title: "Règle des 3 minutes", text: "Si un groupe bloque > 3 min sans progrès : intervention. Mieux vaut un indice que 10 min de frustration." }
+      - { type: "tip", text: "Adapter le ton : dramatique pour Le Manoir, complice pour Braquage, ironique pour La Sorcière." }
+  tuto_es_reset:
+    centre:  "@centre_escape"
+    titre:   "Reset complet d'une salle en 15 min"
+    zone:    "@zone_es_salles"
+    niveau:  "intermediaire"
+    dureMin: 20
+    contenu:
+      - { type: "intro", text: "Entre deux groupes : 15 min pour reset. Une salle mal resetée = expérience ratée pour le groupe suivant." }
+      - { type: "step", number: 1, title: "Checklist scannée", text: "Utiliser la checklist papier plastifiée dans chaque salle. La cocher au stylo effaçable." }
+      - { type: "step", number: 2, title: "Énigmes physiques", text: "Remettre chaque objet à sa position exacte. Vérifier les serrures fermées et les indices en place." }
+      - { type: "step", number: 3, title: "Régie + automatismes", text: "Rebooter le scénario via la régie. Tester les 3 déclencheurs critiques avant d'annoncer la salle prête." }
+
+App\Entity\TutoRead:
+  tr_es_n1: { user: "@user_es_noah",    tutoriel: "@tuto_es_gm" }
+  tr_es_n2: { user: "@user_es_noah",    tutoriel: "@tuto_es_reset" }
+  tr_es_m1: { user: "@user_es_margaux", tutoriel: "@tuto_es_gm" }
+  tr_es_m2: { user: "@user_es_margaux", tutoriel: "@tuto_es_reset" }
+  tr_es_g1: { user: "@user_es_gabriel", tutoriel: "@tuto_es_reset" }
+
+App\Entity\PlanningWeek:
+  pw_es_current:
+    centre:      "@centre_escape"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 09:15:00'))>"
+    publishedBy: "@user_es_pauline"

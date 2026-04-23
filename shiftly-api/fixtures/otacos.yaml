@@ -1,0 +1,320 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 9 : O'Tacos — Vierzon (franchise tacos français)
+#  Staff  : 6 membres (1 manager, 5 équipiers)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_otacos:
+    nom:     "O'Tacos — Vierzon"
+    adresse: "62 avenue de la République, 18100 Vierzon"
+    openingHours:
+      lundi:    { ouvert: true, ouverture: "11:00", fermeture: "23:00" }
+      mardi:    { ouvert: true, ouverture: "11:00", fermeture: "23:00" }
+      mercredi: { ouvert: true, ouverture: "11:00", fermeture: "23:00" }
+      jeudi:    { ouvert: true, ouverture: "11:00", fermeture: "23:00" }
+      vendredi: { ouvert: true, ouverture: "11:00", fermeture: "00:00" }
+      samedi:   { ouvert: true, ouverture: "11:00", fermeture: "00:00" }
+      dimanche: { ouvert: true, ouverture: "12:00", fermeture: "23:00" }
+
+App\Entity\Zone:
+  zone_ot_production:
+    centre: "@centre_otacos"
+    nom: "Production"
+    couleur: "#f97316"
+    ordre: 1
+  zone_ot_caisse:
+    centre: "@centre_otacos"
+    nom: "Caisse"
+    couleur: "#3b82f6"
+    ordre: 2
+  zone_ot_salle:
+    centre: "@centre_otacos"
+    nom: "Salle"
+    couleur: "#22c55e"
+    ordre: 3
+
+App\Entity\User:
+  user_ot_karim2:
+    centre: "@centre_otacos"
+    nom: "Lahlali"
+    prenom: "Karim"
+    email: "karim@otacos-vierzon.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "0000"
+    avatarColor: "#f97316"
+    points: 190
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_ot_malik:
+    centre: "@centre_otacos"
+    nom: "Traoré"
+    prenom: "Malik"
+    email: "malik@otacos-vierzon.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "1111"
+    avatarColor: "#8b5cf6"
+    points: 130
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_ot_sofiane:
+    centre: "@centre_otacos"
+    nom: "Benkirane"
+    prenom: "Sofiane"
+    email: "sofiane@otacos-vierzon.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "2222"
+    avatarColor: "#22c55e"
+    points: 95
+    actif: true
+    heuresHebdo: 30
+    typeContrat: "CDI"
+  user_ot_lina:
+    centre: "@centre_otacos"
+    nom: "Sidhoum"
+    prenom: "Lina"
+    email: "lina@otacos-vierzon.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "3333"
+    avatarColor: "#ec4899"
+    points: 70
+    actif: true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+  user_ot_bilal:
+    centre: "@centre_otacos"
+    nom: "Nadif"
+    prenom: "Bilal"
+    email: "bilal@otacos-vierzon.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "4444"
+    avatarColor: "#0ea5e9"
+    points: 45
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_ot_maeva:
+    centre: "@centre_otacos"
+    nom: "Lambert"
+    prenom: "Maéva"
+    email: "maeva@otacos-vierzon.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "5555"
+    avatarColor: "#f59e0b"
+    points: 25
+    actif: true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+App\Entity\Mission:
+  m_ot_prod_ouv_1: { zone: "@zone_ot_production", texte: "Allumer planchas, friteuses et machine à paninis", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_prod_ouv_2: { zone: "@zone_ot_production", texte: "Relever températures frigos et chambres froides (HACCP)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_prod_ouv_3: { zone: "@zone_ot_production", texte: "Contrôler DLC viandes, sauces et frites fraîches", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_ot_prod_ouv_4: { zone: "@zone_ot_production", texte: "Mise en place postes : viandes, sauces, fromages, garnitures", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_ot_prod_pend_1: { zone: "@zone_ot_production", texte: "Assembler tacos selon commande (M/L/XL/Géant + choix viandes)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_prod_pend_2: { zone: "@zone_ot_production", texte: "Surveiller cuisson viandes et frites (temps réglementaire)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_prod_pend_3: { zone: "@zone_ot_production", texte: "Presser chaque tacos à la machine panini avant service", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_ot_prod_pend_4: { zone: "@zone_ot_production", texte: "Nettoyer plans entre chaque rush et réapprovisionner", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_ot_prod_ferm_1: { zone: "@zone_ot_production", texte: "Filtrer huile friteuse et nettoyer planchas", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_prod_ferm_2: { zone: "@zone_ot_production", texte: "Étiqueter et stocker viandes restantes (DLC ouverture)", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_prod_ferm_3: { zone: "@zone_ot_production", texte: "Nettoyage complet production (surfaces, sol, machine panini)", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+
+  m_ot_caisse_ouv_1: { zone: "@zone_ot_caisse", texte: "Allumer caisse, borne, TPE et vérifier fond de caisse", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_caisse_pend_1: { zone: "@zone_ot_caisse", texte: "Prendre commande, encaisser, transmettre ticket production", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_caisse_pend_2: { zone: "@zone_ot_caisse", texte: "Gérer commandes Uber Eats / Deliveroo (tablette partenaires)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_caisse_ferm_1: { zone: "@zone_ot_caisse", texte: "Clôturer caisse, Z, coffre + stats livraisons", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+  m_ot_salle_ouv_1: { zone: "@zone_ot_salle", texte: "Installer tables, vérifier vitres et sol salle", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_salle_pend_1: { zone: "@zone_ot_salle", texte: "Débarrasser et désinfecter tables après départ client", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_salle_pend_2: { zone: "@zone_ot_salle", texte: "Passage toilettes toutes les 30 min (feuille)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_salle_ferm_1: { zone: "@zone_ot_salle", texte: "Nettoyage complet salle + toilettes", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+App\Entity\Competence:
+  comp_ot_prod_1: { zone: "@zone_ot_production", nom: "Assemblage tacos rapide (rush midi/soir)", points: 25, difficulte: "avancee" }
+  comp_ot_prod_2: { zone: "@zone_ot_production", nom: "Hygiène alimentaire HACCP O'Tacos",        points: 35, difficulte: "experimente" }
+  comp_ot_caisse_1: { zone: "@zone_ot_caisse",   nom: "Gestion plateformes livraison (UE / Deli)", points: 25, difficulte: "avancee" }
+  comp_ot_caisse_2: { zone: "@zone_ot_caisse",   nom: "Prise de commande et upselling taille XL",  points: 15, difficulte: "simple" }
+
+App\Entity\StaffCompetence:
+  sc_ot_k1: { user: "@user_ot_karim2",   competence: "@comp_ot_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2023-08-01'))>" }
+  sc_ot_k2: { user: "@user_ot_karim2",   competence: "@comp_ot_prod_2",   acquiredAt: "<(new \\DateTimeImmutable('2023-09-15'))>" }
+  sc_ot_k3: { user: "@user_ot_karim2",   competence: "@comp_ot_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2024-01-01'))>" }
+  sc_ot_m1: { user: "@user_ot_malik",    competence: "@comp_ot_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2024-05-01'))>" }
+  sc_ot_m2: { user: "@user_ot_malik",    competence: "@comp_ot_prod_2",   acquiredAt: "<(new \\DateTimeImmutable('2024-09-01'))>" }
+  sc_ot_s1: { user: "@user_ot_sofiane",  competence: "@comp_ot_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2024-11-01'))>" }
+  sc_ot_s2: { user: "@user_ot_sofiane",  competence: "@comp_ot_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2025-04-01'))>" }
+  sc_ot_li1: { user: "@user_ot_lina",     competence: "@comp_ot_caisse_2", acquiredAt: "<(new \\DateTimeImmutable('2025-02-15'))>" }
+  sc_ot_li2: { user: "@user_ot_lina",     competence: "@comp_ot_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>" }
+  sc_ot_b1: { user: "@user_ot_bilal",    competence: "@comp_ot_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2026-01-15'))>" }
+  sc_ot_mv1: { user: "@user_ot_maeva",    competence: "@comp_ot_caisse_2", acquiredAt: "<(new \\DateTimeImmutable('2026-03-25'))>" }
+
+App\Entity\Service:
+  svc_ot_j5:
+    centre: "@centre_otacos"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-5 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 86.0
+  svc_ot_j3:
+    centre: "@centre_otacos"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 80.0
+    note: "Rush Uber Eats samedi soir — plateforme saturée, 15 commandes annulées."
+  svc_ot_j2:
+    centre: "@centre_otacos"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 93.0
+  svc_ot_today:
+    centre: "@centre_otacos"
+    date: "<(new \\DateTimeImmutable('today'))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut: "EN_COURS"
+    tauxCompletion: 0.0
+    note: "Nouvelle sauce 'Algérienne premium' lancée aujourd'hui — brief équipe ok."
+  svc_ot_j1:
+    centre: "@centre_otacos"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_ot_j2p:
+    centre: "@centre_otacos"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+
+App\Entity\Poste:
+  poste_ot_today_prod_karim:
+    service: "@svc_ot_today"
+    zone: "@zone_ot_production"
+    user: "@user_ot_karim2"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+  poste_ot_today_prod_malik:
+    service: "@svc_ot_today"
+    zone: "@zone_ot_production"
+    user: "@user_ot_malik"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_ot_today_caisse_lina:
+    service: "@svc_ot_today"
+    zone: "@zone_ot_caisse"
+    user: "@user_ot_lina"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+  poste_ot_today_caisse_sofiane:
+    service: "@svc_ot_today"
+    zone: "@zone_ot_caisse"
+    user: "@user_ot_sofiane"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_ot_today_salle_bilal:
+    service: "@svc_ot_today"
+    zone: "@zone_ot_salle"
+    user: "@user_ot_bilal"
+    heureDebut: "<(new \\DateTimeImmutable('12:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('20:00:00'))>"
+    pauseMinutes: 20
+  poste_ot_j2_prod_malik:
+    service: "@svc_ot_j2"
+    zone: "@zone_ot_production"
+    user: "@user_ot_malik"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+  poste_ot_j2_caisse_sofiane:
+    service: "@svc_ot_j2"
+    zone: "@zone_ot_caisse"
+    user: "@user_ot_sofiane"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+
+App\Entity\Completion:
+  c_ot_1: { poste: "@poste_ot_today_prod_karim",   mission: "@m_ot_prod_ouv_1",   user: "@user_ot_karim2" }
+  c_ot_2: { poste: "@poste_ot_today_prod_karim",   mission: "@m_ot_prod_ouv_2",   user: "@user_ot_karim2" }
+  c_ot_3: { poste: "@poste_ot_today_prod_karim",   mission: "@m_ot_prod_ouv_3",   user: "@user_ot_karim2" }
+  c_ot_4: { poste: "@poste_ot_today_caisse_lina",  mission: "@m_ot_caisse_ouv_1", user: "@user_ot_lina" }
+  c_ot_5: { poste: "@poste_ot_today_salle_bilal",  mission: "@m_ot_salle_ouv_1",  user: "@user_ot_bilal" }
+
+App\Entity\Incident:
+  inc_ot_1:
+    centre:         "@centre_otacos"
+    service:        "@svc_ot_j3"
+    titre:          "Uber Eats saturé 45 min — 15 commandes annulées automatiquement"
+    severite:       "haute"
+    statut:         "RESOLU"
+    user:           "@user_ot_karim2"
+    zone:           "@zone_ot_caisse"
+    staffImpliques: ["@user_ot_karim2", "@user_ot_lina"]
+
+App\Entity\Tutoriel:
+  tuto_ot_tacos:
+    centre:  "@centre_otacos"
+    titre:   "Assemblage tacos O'Tacos — la bonne séquence"
+    zone:    "@zone_ot_production"
+    niveau:  "debutant"
+    dureMin: 15
+    contenu:
+      - { type: "intro", text: "Un tacos bien assemblé, c'est la signature d'O'Tacos. La séquence est standardisée : toujours la respecter." }
+      - { type: "step", number: 1, title: "Tortilla", text: "Placer la tortilla sur le plan de travail, taille selon commande (M/L/XL/Géant)." }
+      - { type: "step", number: 2, title: "Viandes + sauces", text: "Viandes choisies + sauces au centre (max 3 sauces). Ne pas déborder sur les bords." }
+      - { type: "step", number: 3, title: "Frites + fromage", text: "Ajouter frites maison + sauce fromage chaude. Plier en 3 sans briser la tortilla." }
+      - { type: "step", number: 4, title: "Presse panini", text: "Presser 2 min chrono. Sortir, emballer, remettre au client chaud." }
+      - { type: "tip", text: "La sauce fromage chaude est critique : si elle est froide, le client reviendra l'échanger. Toujours la maintenir au bain-marie." }
+  tuto_ot_livraison:
+    centre:  "@centre_otacos"
+    titre:   "Gérer les plateformes de livraison (Uber Eats / Deliveroo)"
+    zone:    "@zone_ot_caisse"
+    niveau:  "intermediaire"
+    dureMin: 20
+    contenu:
+      - { type: "intro", text: "40% de notre CA vient des plateformes. Une commande mal gérée = 1 étoile + client perdu." }
+      - { type: "step", number: 1, title: "Réception commande", text: "Tablette dédiée par plateforme. Valider en 30 sec max ou la commande est redirigée." }
+      - { type: "step", number: 2, title: "Préparation", text: "Imprimer le ticket, transmettre en production. Noter l'heure de retrait livreur." }
+      - { type: "step", number: 3, title: "Remise livreur", text: "Vérifier nom commande + pochette scellée. Ne jamais rouvrir une commande préparée." }
+      - { type: "tip", text: "En cas de panne plateforme : passer en mode 'fermé' immédiatement pour éviter les commandes perdues." }
+
+App\Entity\TutoRead:
+  tr_ot_m1: { user: "@user_ot_malik",    tutoriel: "@tuto_ot_tacos" }
+  tr_ot_s1: { user: "@user_ot_sofiane",  tutoriel: "@tuto_ot_tacos" }
+  tr_ot_s2: { user: "@user_ot_sofiane",  tutoriel: "@tuto_ot_livraison" }
+  tr_ot_li1: { user: "@user_ot_lina",     tutoriel: "@tuto_ot_livraison" }
+  tr_ot_b1: { user: "@user_ot_bilal",    tutoriel: "@tuto_ot_tacos" }
+
+App\Entity\PlanningWeek:
+  pw_ot_current:
+    centre:      "@centre_otacos"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 10:00:00'))>"
+    publishedBy: "@user_ot_karim2"
