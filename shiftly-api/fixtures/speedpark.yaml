@@ -1,0 +1,413 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 6 : Speed Park — Bourges (karting indoor + bar-resto)
+#  Staff  : 9 membres (2 managers, 7 employés)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_speedpark:
+    nom:     "Speed Park — Bourges"
+    adresse: "23 route de la Charité, 18000 Bourges"
+    openingHours:
+      lundi:    { ouvert: false, ouverture: "14:00", fermeture: "23:00" }
+      mardi:    { ouvert: true,  ouverture: "14:00", fermeture: "23:00" }
+      mercredi: { ouvert: true,  ouverture: "10:00", fermeture: "23:00" }
+      jeudi:    { ouvert: true,  ouverture: "14:00", fermeture: "23:00" }
+      vendredi: { ouvert: true,  ouverture: "14:00", fermeture: "01:00" }
+      samedi:   { ouvert: true,  ouverture: "10:00", fermeture: "01:00" }
+      dimanche: { ouvert: true,  ouverture: "10:00", fermeture: "22:00" }
+
+App\Entity\Zone:
+  zone_sp_accueil:
+    centre:  "@centre_speedpark"
+    nom:     "Accueil"
+    couleur: "#3b82f6"
+    ordre:   1
+  zone_sp_piste:
+    centre:  "@centre_speedpark"
+    nom:     "Piste Karting"
+    couleur: "#ef4444"
+    ordre:   2
+  zone_sp_atelier:
+    centre:  "@centre_speedpark"
+    nom:     "Atelier"
+    couleur: "#eab308"
+    ordre:   3
+  zone_sp_bar:
+    centre:  "@centre_speedpark"
+    nom:     "Bar-Resto"
+    couleur: "#22c55e"
+    ordre:   4
+
+App\Entity\User:
+  user_sp_fabrice:
+    centre: "@centre_speedpark"
+    nom: "Laborde"
+    prenom: "Fabrice"
+    email: "fabrice@speedpark-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "0000"
+    avatarColor: "#f97316"
+    points: 200
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_sp_vincent:
+    centre: "@centre_speedpark"
+    nom: "Picard"
+    prenom: "Vincent"
+    email: "vincent@speedpark-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "1111"
+    avatarColor: "#ef4444"
+    points: 165
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_sp_tom:
+    centre: "@centre_speedpark"
+    nom: "Lemaire"
+    prenom: "Tom"
+    email: "tom@speedpark-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "2222"
+    avatarColor: "#eab308"
+    points: 140
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_sp_romain:
+    centre: "@centre_speedpark"
+    nom: "Cordier"
+    prenom: "Romain"
+    email: "romain@speedpark-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "3333"
+    avatarColor: "#0ea5e9"
+    points: 115
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_sp_emilie:
+    centre: "@centre_speedpark"
+    nom: "Rousset"
+    prenom: "Émilie"
+    email: "emilie@speedpark-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "4444"
+    avatarColor: "#ec4899"
+    points: 100
+    actif: true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+  user_sp_kenza:
+    centre: "@centre_speedpark"
+    nom: "Bourgeois"
+    prenom: "Kenza"
+    email: "kenza@speedpark-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "5555"
+    avatarColor: "#a855f7"
+    points: 75
+    actif: true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+  user_sp_mehdi:
+    centre: "@centre_speedpark"
+    nom: "Chabane"
+    prenom: "Mehdi"
+    email: "mehdi@speedpark-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "6666"
+    avatarColor: "#22c55e"
+    points: 55
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_sp_lucie:
+    centre: "@centre_speedpark"
+    nom: "Marty"
+    prenom: "Lucie"
+    email: "lucie@speedpark-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "7777"
+    avatarColor: "#f59e0b"
+    points: 35
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_sp_arthur:
+    centre: "@centre_speedpark"
+    nom: "Roy"
+    prenom: "Arthur"
+    email: "arthur@speedpark-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "8888"
+    avatarColor: "#475569"
+    points: 15
+    actif: true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+App\Entity\Mission:
+  m_sp_acc_ouv_1:  { zone: "@zone_sp_accueil", texte: "Caisse, TPE, fond 150€ et impression planning sessions", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_acc_ouv_2:  { zone: "@zone_sp_accueil", texte: "Vérifier stock de combinaisons et casques (tailles enfants / adultes)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_acc_ouv_3:  { zone: "@zone_sp_accueil", texte: "Contrôler vestiaires, cabines et casiers consignes", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_sp_acc_pend_1: { zone: "@zone_sp_accueil", texte: "Accueillir, encaisser, faire signer décharges et briefer les pilotes", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_acc_pend_2: { zone: "@zone_sp_accueil", texte: "Remettre combinaisons / casques / charlottes hygiène à chaque pilote", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_acc_ferm_1: { zone: "@zone_sp_accueil", texte: "Clôture caisse, récupération combinaisons, mise en machine charlottes", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_acc_ferm_2: { zone: "@zone_sp_accueil", texte: "Ranger casques par taille sur les racks ventilés", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  m_sp_pst_ouv_1: { zone: "@zone_sp_piste", texte: "Contrôle visuel des 14 karts (pneus, freins, ceintures)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_pst_ouv_2: { zone: "@zone_sp_piste", texte: "Plein d'essence des karts et vérification jauges", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_pst_ouv_3: { zone: "@zone_sp_piste", texte: "Contrôle des pneus sur piste (obstacles, poussière) et balayage", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_sp_pst_ouv_4: { zone: "@zone_sp_piste", texte: "Tester le chronométrage et l'affichage des temps", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_sp_pst_pend_1: { zone: "@zone_sp_piste", texte: "Briefing piste : drapeaux, règles, dépassements", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_pst_pend_2: { zone: "@zone_sp_piste", texte: "Surveiller session en direct et sanctionner les comportements à risque", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_pst_pend_3: { zone: "@zone_sp_piste", texte: "Relevage kart en cas de sortie de piste ou tête-à-queue", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_sp_pst_pend_4: { zone: "@zone_sp_piste", texte: "Imprimer et distribuer les classements en fin de session", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_sp_pst_ferm_1: { zone: "@zone_sp_piste", texte: "Ramener tous les karts au parc et couper le contact", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_pst_ferm_2: { zone: "@zone_sp_piste", texte: "Balayage complet de la piste et retrait des pneus déplacés", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  m_sp_at_ouv_1:  { zone: "@zone_sp_atelier", texte: "Contrôle niveaux moteur (huile, essence) sur chaque kart", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_at_pend_1: { zone: "@zone_sp_atelier", texte: "Intervenir rapidement en cas de panne kart en course", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_at_pend_2: { zone: "@zone_sp_atelier", texte: "Rotation des karts avec les karts de réserve si besoin", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_sp_at_ferm_1: { zone: "@zone_sp_atelier", texte: "Maintenance préventive soir : serrage roues, contrôle chaîne", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_at_ferm_2: { zone: "@zone_sp_atelier", texte: "Ranger outils et consigner anomalies dans le cahier atelier", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  m_sp_bar_ouv_1:  { zone: "@zone_sp_bar", texte: "Mise en route cuisine (friteuse, plancha) et préparation plats du jour", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_bar_ouv_2:  { zone: "@zone_sp_bar", texte: "Vérifier stocks boissons et relever températures frigos (HACCP)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_bar_pend_1: { zone: "@zone_sp_bar", texte: "Service clients (boissons, burgers, pizzas, anniversaires enfants)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_bar_pend_2: { zone: "@zone_sp_bar", texte: "Gérer formules anniversaires (gâteaux, bougies, mise en place table)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_sp_bar_ferm_1: { zone: "@zone_sp_bar", texte: "Nettoyer cuisine, ranger chambre froide, clôture caisse bar", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+App\Entity\Competence:
+  comp_sp_acc_1: { zone: "@zone_sp_accueil", nom: "Gestion des décharges et briefing pilotes",       points: 20, difficulte: "avancee" }
+  comp_sp_pst_1: { zone: "@zone_sp_piste",   nom: "Commissaire de piste (drapeaux, sanctions)",     points: 35, difficulte: "avancee" }
+  comp_sp_pst_2: { zone: "@zone_sp_piste",   nom: "Relevage kart et intervention sécurité",         points: 30, difficulte: "avancee" }
+  comp_sp_at_1:  { zone: "@zone_sp_atelier", nom: "Mécanique kart (pannes courantes et entretien)", points: 40, difficulte: "experimente" }
+  comp_sp_bar_1: { zone: "@zone_sp_bar",     nom: "Service bar-resto et animation anniversaires",   points: 20, difficulte: "simple" }
+
+App\Entity\StaffCompetence:
+  sc_sp_f1: { user: "@user_sp_fabrice",  competence: "@comp_sp_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2023-09-01'))>" }
+  sc_sp_f2: { user: "@user_sp_fabrice",  competence: "@comp_sp_pst_1", acquiredAt: "<(new \\DateTimeImmutable('2023-10-01'))>" }
+  sc_sp_f3: { user: "@user_sp_fabrice",  competence: "@comp_sp_at_1",  acquiredAt: "<(new \\DateTimeImmutable('2024-03-01'))>" }
+  sc_sp_v1: { user: "@user_sp_vincent",  competence: "@comp_sp_pst_1", acquiredAt: "<(new \\DateTimeImmutable('2024-05-01'))>" }
+  sc_sp_v2: { user: "@user_sp_vincent",  competence: "@comp_sp_pst_2", acquiredAt: "<(new \\DateTimeImmutable('2024-06-01'))>" }
+  sc_sp_v3: { user: "@user_sp_vincent",  competence: "@comp_sp_at_1",  acquiredAt: "<(new \\DateTimeImmutable('2024-11-15'))>" }
+  sc_sp_t1: { user: "@user_sp_tom",      competence: "@comp_sp_pst_1", acquiredAt: "<(new \\DateTimeImmutable('2024-09-01'))>" }
+  sc_sp_t2: { user: "@user_sp_tom",      competence: "@comp_sp_pst_2", acquiredAt: "<(new \\DateTimeImmutable('2025-01-20'))>" }
+  sc_sp_t3: { user: "@user_sp_tom",      competence: "@comp_sp_at_1",  acquiredAt: "<(new \\DateTimeImmutable('2025-06-01'))>" }
+  sc_sp_r1: { user: "@user_sp_romain",   competence: "@comp_sp_pst_1", acquiredAt: "<(new \\DateTimeImmutable('2025-02-15'))>" }
+  sc_sp_r2: { user: "@user_sp_romain",   competence: "@comp_sp_pst_2", acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>" }
+  sc_sp_e1: { user: "@user_sp_emilie",   competence: "@comp_sp_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2025-03-01'))>" }
+  sc_sp_e2: { user: "@user_sp_emilie",   competence: "@comp_sp_bar_1", acquiredAt: "<(new \\DateTimeImmutable('2025-04-01'))>" }
+  sc_sp_k1: { user: "@user_sp_kenza",    competence: "@comp_sp_bar_1", acquiredAt: "<(new \\DateTimeImmutable('2025-07-01'))>" }
+  sc_sp_k2: { user: "@user_sp_kenza",    competence: "@comp_sp_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>" }
+  sc_sp_me1: { user: "@user_sp_mehdi",    competence: "@comp_sp_pst_1", acquiredAt: "<(new \\DateTimeImmutable('2026-02-10'))>" }
+  sc_sp_lu1: { user: "@user_sp_lucie",    competence: "@comp_sp_bar_1", acquiredAt: "<(new \\DateTimeImmutable('2026-03-15'))>" }
+
+App\Entity\Service:
+  svc_sp_j5:
+    centre: "@centre_speedpark"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-5 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 88.0
+  svc_sp_j3:
+    centre: "@centre_speedpark"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('01:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 82.0
+    note: "Samedi très chargé — piste nettoyée deux fois (sortie kart n°7)."
+  svc_sp_j2:
+    centre: "@centre_speedpark"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 94.0
+  svc_sp_today:
+    centre: "@centre_speedpark"
+    date: "<(new \\DateTimeImmutable('today'))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut: "EN_COURS"
+    tauxCompletion: 0.0
+    note: "Anniversaire 10 ados à 18h — prévoir 10 combi taille M et gâteau F1."
+  svc_sp_j1:
+    centre: "@centre_speedpark"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('01:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_sp_j2p:
+    centre: "@centre_speedpark"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('01:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+
+App\Entity\Poste:
+  poste_sp_today_acc_fabrice:
+    service: "@svc_sp_today"
+    zone: "@zone_sp_accueil"
+    user: "@user_sp_fabrice"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_sp_today_pst_tom:
+    service: "@svc_sp_today"
+    zone: "@zone_sp_piste"
+    user: "@user_sp_tom"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_sp_today_pst_romain:
+    service: "@svc_sp_today"
+    zone: "@zone_sp_piste"
+    user: "@user_sp_romain"
+    heureDebut: "<(new \\DateTimeImmutable('16:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 20
+  poste_sp_today_at_vincent:
+    service: "@svc_sp_today"
+    zone: "@zone_sp_atelier"
+    user: "@user_sp_vincent"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_sp_today_bar_emilie:
+    service: "@svc_sp_today"
+    zone: "@zone_sp_bar"
+    user: "@user_sp_emilie"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 30
+  poste_sp_today_bar_kenza:
+    service: "@svc_sp_today"
+    zone: "@zone_sp_bar"
+    user: "@user_sp_kenza"
+    heureDebut: "<(new \\DateTimeImmutable('17:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 20
+  poste_sp_j2_acc_fabrice:
+    service: "@svc_sp_j2"
+    zone: "@zone_sp_accueil"
+    user: "@user_sp_fabrice"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_sp_j2_pst_tom:
+    service: "@svc_sp_j2"
+    zone: "@zone_sp_piste"
+    user: "@user_sp_tom"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_sp_j2_at_vincent:
+    service: "@svc_sp_j2"
+    zone: "@zone_sp_atelier"
+    user: "@user_sp_vincent"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_sp_j2_bar_kenza:
+    service: "@svc_sp_j2"
+    zone: "@zone_sp_bar"
+    user: "@user_sp_kenza"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+
+App\Entity\Completion:
+  c_sp_1: { poste: "@poste_sp_today_acc_fabrice", mission: "@m_sp_acc_ouv_1",  user: "@user_sp_fabrice" }
+  c_sp_2: { poste: "@poste_sp_today_pst_tom",     mission: "@m_sp_pst_ouv_1",  user: "@user_sp_tom" }
+  c_sp_3: { poste: "@poste_sp_today_pst_tom",     mission: "@m_sp_pst_ouv_2",  user: "@user_sp_tom" }
+  c_sp_4: { poste: "@poste_sp_today_at_vincent",  mission: "@m_sp_at_ouv_1",   user: "@user_sp_vincent" }
+  c_sp_5: { poste: "@poste_sp_today_bar_emilie",  mission: "@m_sp_bar_ouv_1",  user: "@user_sp_emilie" }
+  c_sp_6: { poste: "@poste_sp_today_bar_emilie",  mission: "@m_sp_bar_ouv_2",  user: "@user_sp_emilie" }
+
+App\Entity\Incident:
+  inc_sp_1:
+    centre:         "@centre_speedpark"
+    service:        "@svc_sp_j3"
+    titre:          "Kart n°7 sortie de piste — pilote ok, pneu piste à remplacer"
+    severite:       "moyenne"
+    statut:         "RESOLU"
+    user:           "@user_sp_vincent"
+    zone:           "@zone_sp_piste"
+    staffImpliques: ["@user_sp_vincent", "@user_sp_tom", "@user_sp_fabrice"]
+  inc_sp_2:
+    centre:         "@centre_speedpark"
+    service:        "@svc_sp_today"
+    titre:          "Fuite hydraulique kart n°3 — mis hors service pour maintenance"
+    severite:       "haute"
+    statut:         "EN_COURS"
+    user:           "@user_sp_vincent"
+    zone:           "@zone_sp_atelier"
+    staffImpliques: ["@user_sp_vincent"]
+
+App\Entity\Tutoriel:
+  tuto_sp_brief_piste:
+    centre:  "@centre_speedpark"
+    titre:   "Brief pilote et règles de piste"
+    zone:    "@zone_sp_piste"
+    niveau:  "debutant"
+    dureMin: 15
+    contenu:
+      - { type: "intro", text: "Un pilote mal briefé est un danger pour lui et pour les autres. Le brief est obligatoire, même pour les habitués." }
+      - { type: "step", number: 1, title: "Drapeaux", text: "Vert : départ. Jaune : ralentir, pas de dépassement. Rouge : stop immédiat. Noir : pénalité individuelle." }
+      - { type: "step", number: 2, title: "Règles de dépassement", text: "Dépassement à gauche uniquement sur la ligne droite. Pas de contact. Pas de blocage volontaire." }
+      - { type: "step", number: 3, title: "En cas de souci", text: "Lever la main + ralentir + rester dans son kart. Ne JAMAIS descendre sur la piste." }
+      - { type: "tip", text: "Pour les groupes d'anniversaires d'ados : insister 3× sur l'interdiction de contact — c'est le plus risqué." }
+  tuto_sp_meca:
+    centre:  "@centre_speedpark"
+    titre:   "Vérif mécanique quotidienne des karts"
+    zone:    "@zone_sp_atelier"
+    niveau:  "avance"
+    dureMin: 25
+    contenu:
+      - { type: "intro", text: "Un kart mal entretenu = un accident en puissance. Cette vérif est obligatoire chaque matin avant ouverture." }
+      - { type: "step", number: 1, title: "Pneus", text: "Pression (1.4 bar à l'avant, 1.8 à l'arrière), usure (témoin rouge visible = à changer)." }
+      - { type: "step", number: 2, title: "Freins", text: "Tester le frein à l'arrêt moteur coupé. Pédale ferme au 1/3 de la course. Sinon : hors service." }
+      - { type: "step", number: 3, title: "Harnais", text: "Vérifier l'état des sangles et le verrouillage de la boucle. Aucun jeu ni effilochement toléré." }
+      - { type: "tip", text: "Toute anomalie : karg hors service + fiche rouge + info immédiate au manager." }
+
+App\Entity\TutoRead:
+  tr_sp_t1: { user: "@user_sp_tom",     tutoriel: "@tuto_sp_brief_piste" }
+  tr_sp_t2: { user: "@user_sp_tom",     tutoriel: "@tuto_sp_meca" }
+  tr_sp_r1: { user: "@user_sp_romain",  tutoriel: "@tuto_sp_brief_piste" }
+  tr_sp_v1: { user: "@user_sp_vincent", tutoriel: "@tuto_sp_meca" }
+  tr_sp_me1: { user: "@user_sp_mehdi",   tutoriel: "@tuto_sp_brief_piste" }
+
+App\Entity\PlanningWeek:
+  pw_sp_current:
+    centre:      "@centre_speedpark"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 08:30:00'))>"
+    publishedBy: "@user_sp_fabrice"

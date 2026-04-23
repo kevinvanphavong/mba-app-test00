@@ -1,0 +1,296 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 10 : Urban Sneakers — Tours (concept store)
+#  Sneakers · Streetwear · Coffee bar
+#  Staff  : 5 membres (1 manager, 4 employés)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_urban:
+    nom:     "Urban Sneakers — Tours"
+    adresse: "14 place Jean Jaurès, 37000 Tours"
+    openingHours:
+      lundi:    { ouvert: false, ouverture: "11:00", fermeture: "19:00" }
+      mardi:    { ouvert: true,  ouverture: "11:00", fermeture: "19:00" }
+      mercredi: { ouvert: true,  ouverture: "10:30", fermeture: "19:30" }
+      jeudi:    { ouvert: true,  ouverture: "11:00", fermeture: "19:30" }
+      vendredi: { ouvert: true,  ouverture: "11:00", fermeture: "20:00" }
+      samedi:   { ouvert: true,  ouverture: "10:00", fermeture: "20:00" }
+      dimanche: { ouvert: false, ouverture: "11:00", fermeture: "18:00" }
+
+App\Entity\Zone:
+  zone_ur_boutique:
+    centre: "@centre_urban"
+    nom: "Boutique"
+    couleur: "#3b82f6"
+    ordre: 1
+  zone_ur_coffee:
+    centre: "@centre_urban"
+    nom: "Coffee Bar"
+    couleur: "#a855f7"
+    ordre: 2
+  zone_ur_caisse:
+    centre: "@centre_urban"
+    nom: "Caisse"
+    couleur: "#f97316"
+    ordre: 3
+
+App\Entity\User:
+  user_ur_theo:
+    centre: "@centre_urban"
+    nom: "Barbier"
+    prenom: "Théo"
+    email: "theo@urban-tours.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "0000"
+    avatarColor: "#f97316"
+    points: 175
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_ur_inaya:
+    centre: "@centre_urban"
+    nom: "Keita"
+    prenom: "Inaya"
+    email: "inaya@urban-tours.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "1111"
+    avatarColor: "#ec4899"
+    points: 125
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_ur_maxime:
+    centre: "@centre_urban"
+    nom: "Gauthier"
+    prenom: "Maxime"
+    email: "maxime@urban-tours.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "2222"
+    avatarColor: "#0ea5e9"
+    points: 95
+    actif: true
+    heuresHebdo: 30
+    typeContrat: "CDI"
+  user_ur_samia:
+    centre: "@centre_urban"
+    nom: "Amrani"
+    prenom: "Samia"
+    email: "samia@urban-tours.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "3333"
+    avatarColor: "#a855f7"
+    points: 60
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_ur_nolan:
+    centre: "@centre_urban"
+    nom: "Guérin"
+    prenom: "Nolan"
+    email: "nolan@urban-tours.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "4444"
+    avatarColor: "#22c55e"
+    points: 30
+    actif: true
+    heuresHebdo: 15
+    typeContrat: "CDD"
+
+App\Entity\Mission:
+  m_ur_bout_ouv_1: { zone: "@zone_ur_boutique", texte: "Allumer vitrine + éclairage rayons sneakers et streetwear", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_bout_ouv_2: { zone: "@zone_ur_boutique", texte: "Mise en scène du drop du jour (modèles phares en avant)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ur_bout_ouv_3: { zone: "@zone_ur_boutique", texte: "Vérifier stocks tailles et état des paires d'expo", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_ur_bout_pend_1: { zone: "@zone_ur_boutique", texte: "Accueil client, conseils sneakers et streetwear", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_bout_pend_2: { zone: "@zone_ur_boutique", texte: "Nettoyer cabines d'essayage après chaque passage", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_ur_bout_pend_3: { zone: "@zone_ur_boutique", texte: "Réassort continu rayons vêtements et capsules", categorie: "PENDANT", frequence: "FIXE", priorite: "ne_pas_oublier", ordre: 3 }
+  m_ur_bout_ferm_1: { zone: "@zone_ur_boutique", texte: "Ranger modèles d'expo, sécuriser les paires en vitrine", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_bout_ferm_2: { zone: "@zone_ur_boutique", texte: "Inventaire rapide des ventes du jour + maj stock en ligne", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+
+  m_ur_coffee_ouv_1: { zone: "@zone_ur_coffee", texte: "Mise en route machine espresso, préparer laits et sirops", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_coffee_ouv_2: { zone: "@zone_ur_coffee", texte: "Contrôle DLC pâtisseries, viennoiseries et boissons froides", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ur_coffee_pend_1: { zone: "@zone_ur_coffee", texte: "Servir cafés, matchas, boissons spéciales selon recette", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_coffee_pend_2: { zone: "@zone_ur_coffee", texte: "Nettoyer comptoir et ranger tasses entre chaque client", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_ur_coffee_ferm_1: { zone: "@zone_ur_coffee", texte: "Nettoyer machine espresso (cycle complet) et ranger laits", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+  m_ur_caisse_ouv_1: { zone: "@zone_ur_caisse", texte: "Ouvrir caisse, vérifier TPE et fond de caisse (100€)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_caisse_pend_1: { zone: "@zone_ur_caisse", texte: "Encaissement et fidélisation (carte Urban Club)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_caisse_pend_2: { zone: "@zone_ur_caisse", texte: "Gérer les réservations de paires (carnet + téléphone)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_ur_caisse_ferm_1: { zone: "@zone_ur_caisse", texte: "Clôture caisse, impression Z, remise au coffre", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+App\Entity\Competence:
+  comp_ur_bout_1: { zone: "@zone_ur_boutique", nom: "Expertise sneakers (collaborations, raretés, authentification)", points: 30, difficulte: "avancee" }
+  comp_ur_bout_2: { zone: "@zone_ur_boutique", nom: "Conseil client et techniques de vente streetwear",              points: 20, difficulte: "avancee" }
+  comp_ur_coffee_1: { zone: "@zone_ur_coffee", nom: "Barista — latte art, recettes signature",                        points: 25, difficulte: "avancee" }
+  comp_ur_caisse_1: { zone: "@zone_ur_caisse", nom: "Encaissement et programme fidélité Urban Club",                  points: 15, difficulte: "simple" }
+
+App\Entity\StaffCompetence:
+  sc_ur_t1: { user: "@user_ur_theo",   competence: "@comp_ur_bout_1",   acquiredAt: "<(new \\DateTimeImmutable('2023-02-01'))>" }
+  sc_ur_t2: { user: "@user_ur_theo",   competence: "@comp_ur_bout_2",   acquiredAt: "<(new \\DateTimeImmutable('2023-04-01'))>" }
+  sc_ur_t3: { user: "@user_ur_theo",   competence: "@comp_ur_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2023-02-01'))>" }
+  sc_ur_i1: { user: "@user_ur_inaya",  competence: "@comp_ur_bout_1",   acquiredAt: "<(new \\DateTimeImmutable('2024-03-01'))>" }
+  sc_ur_i2: { user: "@user_ur_inaya",  competence: "@comp_ur_bout_2",   acquiredAt: "<(new \\DateTimeImmutable('2024-07-01'))>" }
+  sc_ur_i3: { user: "@user_ur_inaya",  competence: "@comp_ur_coffee_1", acquiredAt: "<(new \\DateTimeImmutable('2025-01-15'))>" }
+  sc_ur_mx1: { user: "@user_ur_maxime", competence: "@comp_ur_bout_1",   acquiredAt: "<(new \\DateTimeImmutable('2024-10-15'))>" }
+  sc_ur_mx2: { user: "@user_ur_maxime", competence: "@comp_ur_bout_2",   acquiredAt: "<(new \\DateTimeImmutable('2025-06-01'))>" }
+  sc_ur_s1: { user: "@user_ur_samia",  competence: "@comp_ur_coffee_1", acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>" }
+  sc_ur_s2: { user: "@user_ur_samia",  competence: "@comp_ur_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2025-11-01'))>" }
+  sc_ur_n1: { user: "@user_ur_nolan",  competence: "@comp_ur_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>" }
+
+App\Entity\Service:
+  svc_ur_j5:
+    centre: "@centre_urban"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-5 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 96.0
+  svc_ur_j3:
+    centre: "@centre_urban"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('20:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 88.0
+    note: "Drop Jordan 1 Chicago samedi matin — queue dès 9h, 45 paires vendues en 90 min."
+  svc_ur_j2:
+    centre: "@centre_urban"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 100.0
+  svc_ur_today:
+    centre: "@centre_urban"
+    date: "<(new \\DateTimeImmutable('today'))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    statut: "EN_COURS"
+    tauxCompletion: 0.0
+    note: "Réassort Nike Dunk Low attendu cet après-midi — prévoir mise en rayon après 16h."
+  svc_ur_j1:
+    centre: "@centre_urban"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('20:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_ur_j2p:
+    centre: "@centre_urban"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('20:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+
+App\Entity\Poste:
+  poste_ur_today_bout_theo:
+    service: "@svc_ur_today"
+    zone: "@zone_ur_boutique"
+    user: "@user_ur_theo"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_ur_today_bout_inaya:
+    service: "@svc_ur_today"
+    zone: "@zone_ur_boutique"
+    user: "@user_ur_inaya"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_ur_today_coffee_samia:
+    service: "@svc_ur_today"
+    zone: "@zone_ur_coffee"
+    user: "@user_ur_samia"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 30
+  poste_ur_today_caisse_maxime:
+    service: "@svc_ur_today"
+    zone: "@zone_ur_caisse"
+    user: "@user_ur_maxime"
+    heureDebut: "<(new \\DateTimeImmutable('13:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:30:00'))>"
+    pauseMinutes: 20
+  poste_ur_j2_bout_theo:
+    service: "@svc_ur_j2"
+    zone: "@zone_ur_boutique"
+    user: "@user_ur_theo"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+  poste_ur_j2_coffee_inaya:
+    service: "@svc_ur_j2"
+    zone: "@zone_ur_coffee"
+    user: "@user_ur_inaya"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+
+App\Entity\Completion:
+  c_ur_1: { poste: "@poste_ur_today_bout_theo",     mission: "@m_ur_bout_ouv_1",   user: "@user_ur_theo" }
+  c_ur_2: { poste: "@poste_ur_today_bout_theo",     mission: "@m_ur_bout_ouv_2",   user: "@user_ur_theo" }
+  c_ur_3: { poste: "@poste_ur_today_bout_inaya",    mission: "@m_ur_bout_ouv_3",   user: "@user_ur_inaya" }
+  c_ur_4: { poste: "@poste_ur_today_coffee_samia",  mission: "@m_ur_coffee_ouv_1", user: "@user_ur_samia" }
+  c_ur_5: { poste: "@poste_ur_today_coffee_samia",  mission: "@m_ur_coffee_ouv_2", user: "@user_ur_samia" }
+
+App\Entity\Incident:
+  inc_ur_1:
+    centre:         "@centre_urban"
+    service:        "@svc_ur_j3"
+    titre:          "Drop Jordan 1 — tentative de vol déjouée, une paire retrouvée cachée"
+    severite:       "haute"
+    statut:         "RESOLU"
+    user:           "@user_ur_theo"
+    zone:           "@zone_ur_boutique"
+    staffImpliques: ["@user_ur_theo", "@user_ur_inaya", "@user_ur_maxime"]
+
+App\Entity\Tutoriel:
+  tuto_ur_drop:
+    centre:  "@centre_urban"
+    titre:   "Gérer un drop sneakers — procédure anti-émeute"
+    zone:    "@zone_ur_boutique"
+    niveau:  "intermediaire"
+    dureMin: 20
+    contenu:
+      - { type: "intro", text: "Les drops attirent du monde. Une bonne orga évite les incidents — et garantit l'équité entre clients." }
+      - { type: "step", number: 1, title: "Avant ouverture", text: "Distribuer tickets de passage à la queue. Afficher stock par taille en vitrine." }
+      - { type: "step", number: 2, title: "Gestion flux", text: "Max 3 clients simultanés en boutique. Pièce d'identité vérifiée pour chaque achat." }
+      - { type: "step", number: 3, title: "Sécurité", text: "Maxi 1 paire par client. Tout comportement suspect : appel manager + signalement." }
+      - { type: "tip", text: "En cas de tension : fermer la porte, laisser s'écouler 10 min, reprendre. Ne jamais gérer seul." }
+  tuto_ur_barista:
+    centre:  "@centre_urban"
+    titre:   "Espresso barista — latte art basique"
+    zone:    "@zone_ur_coffee"
+    niveau:  "debutant"
+    dureMin: 15
+    contenu:
+      - { type: "intro", text: "Un bon café, c'est 30% de l'expérience Urban. Un latte raté = client déçu. Suivre la recette." }
+      - { type: "step", number: 1, title: "Extraction espresso", text: "Dose 18g de café moulu fin. Tassage ferme. Extraction 25-30 sec pour 30 ml." }
+      - { type: "step", number: 2, title: "Émulsion lait", text: "Lait froid en pichet acier. Buse vapeur : créer micro-mousse 60°C max. Pas de grosses bulles." }
+      - { type: "step", number: 3, title: "Latte art", text: "Verser lentement au centre, puis remonter et rapprocher pour dessiner un cœur ou rosetta." }
+
+App\Entity\TutoRead:
+  tr_ur_i1: { user: "@user_ur_inaya",  tutoriel: "@tuto_ur_drop" }
+  tr_ur_i2: { user: "@user_ur_inaya",  tutoriel: "@tuto_ur_barista" }
+  tr_ur_mx1: { user: "@user_ur_maxime", tutoriel: "@tuto_ur_drop" }
+  tr_ur_s1: { user: "@user_ur_samia",  tutoriel: "@tuto_ur_barista" }
+  tr_ur_n1: { user: "@user_ur_nolan",  tutoriel: "@tuto_ur_drop" }
+
+App\Entity\PlanningWeek:
+  pw_ur_current:
+    centre:      "@centre_urban"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 09:30:00'))>"
+    publishedBy: "@user_ur_theo"
