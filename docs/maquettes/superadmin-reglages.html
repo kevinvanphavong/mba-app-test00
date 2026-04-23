@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — SuperAdmin / Réglages</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0d0f14;--surface:#151820;--surface2:#1c2030;--surface3:#111318;--border:#252a3a;--text:#e8eaf0;--muted:#6b7280;--accent:#f97316;--accent2:#fb923c;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--purple:#a855f7;--sidebar-w:240px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+  .sidebar{width:var(--sidebar-w);height:100vh;position:fixed;top:0;left:0;background:var(--surface3);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;overflow-y:auto;}
+  .sidebar-header{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
+  .sidebar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;}
+  .sidebar-logo .name{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .sidebar-logo .dot{color:var(--text);}
+  .sidebar-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0f14;padding:3px 9px;border-radius:20px;}
+  .sidebar-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px;}
+  .nav-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:14px 12px 6px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:8px;text-decoration:none;border-left:3px solid transparent;margin-left:-3px;}
+  .nav-item:hover{background:var(--surface);color:var(--text);}
+  .nav-item.active{background:rgba(249,115,22,0.08);color:var(--accent);border-left-color:var(--accent);font-weight:600;}
+  .nav-item .icon{font-size:15px;width:18px;text-align:center;}
+  .nav-item .badge{margin-left:auto;background:var(--red);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
+  .nav-item .badge.muted{background:var(--surface2);color:var(--muted);}
+  .sidebar-footer{padding:14px;border-top:1px solid var(--border);}
+  .me-card{background:var(--surface);border:1px solid var(--border);padding:10px 12px;border-radius:10px;display:flex;align-items:center;gap:10px;}
+  .me-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .me-info{flex:1;min-width:0;}
+  .me-name{font-size:12px;font-weight:600;}
+  .me-role{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;}
+
+  .main{margin-left:var(--sidebar-w);flex:1;padding:24px 28px;}
+  .page-header{margin-bottom:18px;}
+  .page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;}
+  .page-subtitle{font-size:13px;color:var(--muted);margin-top:2px;}
+
+  /* Layout 2 col : sub-nav + content */
+  .layout{display:grid;grid-template-columns:220px 1fr;gap:18px;}
+  .subnav{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px;height:fit-content;position:sticky;top:24px;}
+  .subnav-item{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:13px;color:var(--muted);border-radius:8px;cursor:pointer;text-decoration:none;}
+  .subnav-item:hover{background:var(--surface2);color:var(--text);}
+  .subnav-item.active{background:rgba(249,115,22,0.08);color:var(--accent);font-weight:600;}
+  .subnav-item .icon{font-size:14px;width:18px;text-align:center;}
+  .subnav-divider{border-top:1px solid var(--border);margin:8px 0;}
+
+  .content{display:flex;flex-direction:column;gap:18px;}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .panel-header{padding:16px 20px;border-bottom:1px solid var(--border);}
+  .panel-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;}
+  .panel-desc{font-size:12px;color:var(--muted);margin-top:3px;}
+  .panel-body{padding:18px 20px;}
+
+  /* Form */
+  .form-row{display:grid;grid-template-columns:200px 1fr;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+  .form-row:last-child{border-bottom:none;}
+  .form-label{font-size:12px;font-weight:600;}
+  .form-label small{display:block;font-size:11px;color:var(--muted);font-weight:400;margin-top:2px;}
+  input[type=text],input[type=email],input[type=number],input[type=password],select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);}
+
+  /* Toggle */
+  .toggle{position:relative;width:42px;height:22px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;cursor:pointer;flex-shrink:0;}
+  .toggle::after{content:'';position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:var(--muted);transition:all 0.2s;}
+  .toggle.on{background:rgba(249,115,22,0.2);border-color:var(--accent);}
+  .toggle.on::after{left:22px;background:var(--accent);}
+
+  /* Feature flags table */
+  .ff-table{width:100%;border-collapse:collapse;font-size:12px;}
+  .ff-table th{text-align:left;padding:10px;background:var(--surface2);font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);}
+  .ff-table th.center{text-align:center;}
+  .ff-table td{padding:10px;border-bottom:1px solid rgba(37,42,58,0.5);}
+  .ff-table td.center{text-align:center;}
+  .centre-mini{display:flex;align-items:center;gap:8px;}
+  .centre-mini-avatar{width:24px;height:24px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:11px;}
+
+  /* Maintenance banner */
+  .maint-card{background:linear-gradient(135deg,rgba(234,179,8,0.08),rgba(249,115,22,0.05));border:1px solid rgba(234,179,8,0.3);}
+  .maint-status{display:flex;align-items:center;gap:10px;font-size:14px;}
+  .maint-dot{width:10px;height:10px;border-radius:50%;background:var(--green);}
+
+  /* Danger zone */
+  .danger-zone{background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.2);}
+  .danger-zone .panel-title{color:var(--red);}
+  .danger-btn{background:transparent;color:var(--red);border:1px solid rgba(239,68,68,0.3);padding:9px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+
+  .btn{padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;}
+  .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+
+  .save-bar{position:sticky;bottom:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 -8px 24px rgba(0,0,0,0.3);}
+  .save-status{font-size:12px;color:var(--muted);}
+  .save-status.modified{color:var(--yellow);}
+
+  @media (max-width:1100px){.layout{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-header"><div class="sidebar-logo"><span class="name">Shiftly</span><span class="dot">.</span></div><div class="sidebar-badge">SuperAdmin</div></div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Phase 1</div>
+      <a class="nav-item"><span class="icon">📊</span> Dashboard</a>
+      <a class="nav-item"><span class="icon">🏢</span> Centres <span class="badge muted">12</span></a>
+      <div class="nav-section-label">Phase 2</div>
+      <a class="nav-item"><span class="icon">💳</span> Abonnements</a>
+      <a class="nav-item"><span class="icon">📄</span> Facturation</a>
+      <a class="nav-item"><span class="icon">🏷️</span> Plans tarifaires</a>
+      <div class="nav-section-label">Phase 3</div>
+      <a class="nav-item"><span class="icon">👤</span> Utilisateurs <span class="badge muted">147</span></a>
+      <a class="nav-item"><span class="icon">🎧</span> Support <span class="badge">3</span></a>
+      <div class="nav-section-label">Phase 4 — Système</div>
+      <a class="nav-item"><span class="icon">⚡</span> Activity</a>
+      <a class="nav-item active"><span class="icon">⚙️</span> Réglages</a>
+    </div>
+    <div class="sidebar-footer"><div class="me-card"><div class="me-avatar">KV</div><div class="me-info"><div class="me-name">Kévin Vanphavong</div><div class="me-role">Fondateur</div></div></div></div>
+  </nav>
+
+  <main class="main">
+
+    <div class="page-header">
+      <div class="page-title">Réglages SuperAdmin</div>
+      <div class="page-subtitle">Configuration globale de la plateforme · Section Feature Flags active</div>
+    </div>
+
+    <div class="layout">
+
+      <!-- Sub navigation -->
+      <div class="subnav">
+        <a class="subnav-item"><span class="icon">👤</span>Mon profil</a>
+        <div class="subnav-divider"></div>
+        <a class="subnav-item active"><span class="icon">🚩</span>Feature flags</a>
+        <a class="subnav-item"><span class="icon">⚖️</span>Config légale globale</a>
+        <a class="subnav-item"><span class="icon">📧</span>Templates email</a>
+        <a class="subnav-item"><span class="icon">🔔</span>Notifications</a>
+        <div class="subnav-divider"></div>
+        <a class="subnav-item"><span class="icon">🛠</span>Mode maintenance</a>
+        <a class="subnav-item"><span class="icon">🔌</span>Intégrations</a>
+        <a class="subnav-item"><span class="icon">📊</span>Sentry &amp; monitoring</a>
+        <a class="subnav-item"><span class="icon">💳</span>Stripe webhooks</a>
+        <div class="subnav-divider"></div>
+        <a class="subnav-item" style="color:var(--red);"><span class="icon">⚠️</span>Zone sensible</a>
+      </div>
+
+      <!-- Content : Feature Flags par centre -->
+      <div class="content">
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🚩 Feature flags par centre</div>
+            <div class="panel-desc">Active ou désactive les modules pour chaque centre indépendamment de leur plan tarifaire. Utile pour beta-tester ou faire des cadeaux commerciaux.</div>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <table class="ff-table">
+              <thead>
+                <tr>
+                  <th>Centre</th>
+                  <th>Plan</th>
+                  <th class="center">Pointage</th>
+                  <th class="center">Planning</th>
+                  <th class="center">Tutoriels</th>
+                  <th class="center">HACCP</th>
+                  <th class="center">Réservations</th>
+                  <th class="center">Entreprises</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="centre-mini"><div class="centre-mini-avatar">🎳</div>Bowling Central</div></td>
+                  <td><span style="color:var(--purple);font-weight:600;font-size:11px;">Enterprise</span></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                </tr>
+                <tr>
+                  <td><div class="centre-mini"><div class="centre-mini-avatar">🎮</div>Family Games Center</div></td>
+                  <td><span style="color:var(--purple);font-weight:600;font-size:11px;">Enterprise</span></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                </tr>
+                <tr>
+                  <td><div class="centre-mini"><div class="centre-mini-avatar">🎳</div>Bowling Stadium Orléans</div></td>
+                  <td><span style="color:var(--blue);font-weight:600;font-size:11px;">Pro</span></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                  <td class="center"><div class="toggle on" title="Beta gracieusement offert"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                </tr>
+                <tr>
+                  <td><div class="centre-mini"><div class="centre-mini-avatar">🥽</div>VR Arena Lyon</div></td>
+                  <td><span style="color:var(--blue);font-weight:600;font-size:11px;">Pro</span></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                </tr>
+                <tr>
+                  <td><div class="centre-mini"><div class="centre-mini-avatar">🎤</div>K-Pad Karaoké</div></td>
+                  <td><span style="color:var(--muted);font-weight:600;font-size:11px;">Starter</span></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                </tr>
+                <tr>
+                  <td><div class="centre-mini"><div class="centre-mini-avatar">🏎</div>Speed Park Rennes</div></td>
+                  <td><span style="color:var(--blue);font-weight:600;font-size:11px;">Pro (essai)</span></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle on"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                  <td class="center"><div class="toggle"></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Mode maintenance -->
+        <div class="panel maint-card">
+          <div class="panel-header">
+            <div class="panel-title">🛠 Mode maintenance</div>
+            <div class="panel-desc">Active le mode maintenance global pour tous les centres. Affiche un message à tous les utilisateurs.</div>
+          </div>
+          <div class="panel-body">
+            <div class="form-row">
+              <div class="form-label">Statut actuel</div>
+              <div class="maint-status"><span class="maint-dot"></span><strong style="color:var(--green);">Service opérationnel</strong> — aucun incident en cours</div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Activer le mode maintenance <small>Bloque les écritures, affiche le message ci-dessous</small></div>
+              <div><div class="toggle"></div></div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Message client <small>Affiché en bandeau dans l'app</small></div>
+              <textarea rows="2" placeholder="Ex : Maintenance programmée — retour à 22h"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Plage horaire <small>Optionnel — auto-désactivation à la fin</small></div>
+              <div style="display:flex;gap:8px;align-items:center;"><input type="text" placeholder="22:00" style="width:120px;"><span style="color:var(--muted);">→</span><input type="text" placeholder="00:30" style="width:120px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Config légale globale -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">⚖️ Config légale globale (IDCC 1790)</div>
+            <div class="panel-desc">Valeurs par défaut héritées par chaque centre lors de leur création. Chaque centre peut surcharger ses propres seuils.</div>
+          </div>
+          <div class="panel-body">
+            <div class="form-row">
+              <div class="form-label">Durée légale hebdo <small>Heures avant déclenchement sup</small></div>
+              <input type="number" value="35" style="max-width:100px;"> <span style="color:var(--muted);font-size:12px;">heures / semaine</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Seuil retard <small>Minutes au-delà desquelles c'est compté retard</small></div>
+              <input type="number" value="5" style="max-width:100px;"> <span style="color:var(--muted);font-size:12px;">minutes</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Majoration sup 25%<small>De la 36e à la 43e heure</small></div>
+              <input type="number" value="25" style="max-width:100px;"> <span style="color:var(--muted);font-size:12px;">%</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Majoration sup 50%<small>Au-delà de la 43e heure</small></div>
+              <input type="number" value="50" style="max-width:100px;"> <span style="color:var(--muted);font-size:12px;">%</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Repos quotidien<small>Heures consécutives entre 2 services</small></div>
+              <input type="number" value="11" style="max-width:100px;"> <span style="color:var(--muted);font-size:12px;">heures</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Repos hebdomadaire<small>Heures consécutives par semaine</small></div>
+              <input type="number" value="35" style="max-width:100px;"> <span style="color:var(--muted);font-size:12px;">heures</span>
+            </div>
+            <div class="form-row">
+              <div class="form-label">Max hebdomadaire<small>Plafond légal absolu</small></div>
+              <input type="number" value="48" style="max-width:100px;"> <span style="color:var(--muted);font-size:12px;">heures</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Intégrations -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🔌 Intégrations</div>
+            <div class="panel-desc">Services tiers connectés à la plateforme.</div>
+          </div>
+          <div class="panel-body">
+            <div class="form-row">
+              <div class="form-label">💳 Stripe<small>Paiements &amp; abonnements</small></div>
+              <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--green);font-weight:600;font-size:12px;">● Connecté</span><a style="color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;">Configurer ↗</a></div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">🐛 Sentry<small>Monitoring d'erreurs</small></div>
+              <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--green);font-weight:600;font-size:12px;">● Connecté</span><span style="color:var(--muted);font-size:11px;">Project : shiftly-prod</span><a style="color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;">Configurer ↗</a></div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">📧 Brevo (ex-Sendinblue)<small>Emails transactionnels</small></div>
+              <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--green);font-weight:600;font-size:12px;">● Connecté</span><a style="color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;">Configurer ↗</a></div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">📊 UptimeRobot<small>Monitoring uptime</small></div>
+              <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--green);font-weight:600;font-size:12px;">● Connecté</span><span style="color:var(--muted);font-size:11px;">Uptime 30j : 99.94%</span></div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">📈 Plausible<small>Analytics privacy-friendly</small></div>
+              <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--muted);font-weight:600;font-size:12px;">○ Non connecté</span><a style="color:var(--accent);font-size:11px;font-weight:600;cursor:pointer;">Connecter ↗</a></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger -->
+        <div class="panel danger-zone" style="opacity:0.45;">
+          <div class="panel-header">
+            <div class="panel-title">⚠️ Zone sensible</div>
+            <div class="panel-desc" style="color:var(--muted);">Actions globales irréversibles — <strong style="color:var(--yellow);">à venir (désactivé pour l'instant)</strong>. On s'y attaquera dans une phase ultérieure.</div>
+          </div>
+          <div class="panel-body" style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="danger-btn" disabled style="cursor:not-allowed;pointer-events:none;">🔁 Vider le cache global</button>
+            <button class="danger-btn" disabled style="cursor:not-allowed;pointer-events:none;">📤 Forcer re-sync Stripe (tous abonnements)</button>
+            <button class="danger-btn" disabled style="cursor:not-allowed;pointer-events:none;">🚫 Suspendre tous les centres (urgence)</button>
+            <button class="danger-btn" disabled style="cursor:not-allowed;pointer-events:none;">🗄 Lancer un backup complet</button>
+          </div>
+        </div>
+
+        <!-- Save bar -->
+        <div class="save-bar">
+          <div class="save-status">Dernière sauvegarde : il y a 3 min</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline">Annuler</button>
+            <button class="btn btn-primary">Enregistrer les modifications</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+</html>
