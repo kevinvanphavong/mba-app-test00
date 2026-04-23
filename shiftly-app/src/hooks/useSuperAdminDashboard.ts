@@ -2,15 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useSuperAdminStore } from '@/store/superAdminStore'
+import { superAdminApi } from '@/lib/superAdminApi'
 import type { DashboardKPIs } from '@/types/superadmin'
-import axios from 'axios'
-
-function superAdminApi(token: string | null) {
-  return axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  })
-}
 
 export function useSuperAdminDashboard() {
   const token = useSuperAdminStore(s => s.token)
@@ -22,5 +15,6 @@ export function useSuperAdminDashboard() {
         .get<DashboardKPIs>('/superadmin/dashboard')
         .then(r => r.data),
     enabled: !!token,
+    retry:   false,
   })
 }
