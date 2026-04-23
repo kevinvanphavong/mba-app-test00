@@ -26,3 +26,7 @@ services:
             $sentryAuthToken: '%env(SENTRY_AUTH_TOKEN)%'
             $sentryOrg:       '%env(SENTRY_ORG)%'
             $sentryProject:   '%env(SENTRY_PROJECT)%'
+
+    App\Service\FileUploadService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

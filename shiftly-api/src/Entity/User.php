@@ -112,6 +112,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(nullable: true)]
+    #[Groups(['user:read'])]
+    private ?\DateTimeImmutable $lastLoginAt = null;
+
     #[ORM\Column(length: 100, nullable: true)]
     #[Groups(['user:read', 'user:write', 'poste:read', 'staffcompetence:read'])]
     private ?string $prenom = null;
@@ -177,6 +181,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPoints(int $points): static { $this->points = $points; return $this; }
     public function addPoints(int $pts): static { $this->points += $pts; return $this; }
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function getLastLoginAt(): ?\DateTimeImmutable { return $this->lastLoginAt; }
+    public function setLastLoginAt(?\DateTimeImmutable $lastLoginAt): static { $this->lastLoginAt = $lastLoginAt; return $this; }
     public function getTailleHaut(): ?string { return $this->tailleHaut; }
     public function setTailleHaut(?string $t): static { $this->tailleHaut = $t; return $this; }
     public function getTailleBas(): ?string { return $this->tailleBas; }

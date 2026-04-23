@@ -3,6 +3,7 @@
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
+import NotificationBell from '@/components/layout/NotificationBell'
 
 /** Barre supérieure mobile + desktop — date, centre, avatar utilisateur */
 export default function Topbar() {
@@ -34,13 +35,16 @@ export default function Topbar() {
         </h1>
       </div>
 
-      {/* Right — user avatar */}
-      <div
-        className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0 shadow-lg"
-        style={{ background: `linear-gradient(135deg, ${avatarColor}, ${avatarColor}cc)` }}
-        title={user ? `${user.prenom} ${user.nom}` : ''}
-      >
-        {initials}
+      {/* Right — bell + avatar */}
+      <div className="flex items-center gap-3">
+        <NotificationBell />
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0 shadow-lg"
+          style={{ background: `linear-gradient(135deg, ${avatarColor}, ${avatarColor}cc)` }}
+          title={user ? `${user.prenom} ${user.nom}` : ''}
+        >
+          {initials}
+        </div>
       </div>
     </header>
   )

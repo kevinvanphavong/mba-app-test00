@@ -93,3 +93,34 @@ export interface ImpersonationData {
   manager: { id: number; nom: string; prenom: string | null }
   centre:  { id: number; nom: string }
 }
+
+// ─── Users globaux (Phase 3) ─────────────────────────────────────────────────
+
+export interface GlobalUser {
+  id:          number
+  nom:         string
+  prenom:      string | null
+  email:       string
+  role:        string
+  actif:       boolean
+  avatarColor: string | null
+  points:      number
+  createdAt:   string
+  lastLoginAt: string | null
+  centre:      { id: number; nom: string } | null
+}
+
+export interface GlobalUserDetail extends GlobalUser {
+  centreDetail: { id: number; nom: string } | null
+  codePointage: string | null
+  heuresHebdo:  number | null
+  typeContrat:  string | null
+}
+
+export interface GlobalUserStats {
+  total:       number
+  managers:    number
+  employes:    number
+  actifs7j:    number
+  inactifs30j: number
+}
