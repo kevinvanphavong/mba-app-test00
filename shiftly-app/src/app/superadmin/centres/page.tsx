@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { useSuperAdminCentres } from '@/hooks/useSuperAdminCentres'
+import { useSuperAdminCentres, useImpersonate } from '@/hooks/useSuperAdminCentres'
 import type { CentreSummary, CentrePlan } from '@/types/superadmin'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -217,6 +218,15 @@ function Th({ children, active }: { children: React.ReactNode; active?: boolean 
 }
 
 function Row({ centre }: { centre: CentreSummary }) {
+  const router      = useRouter()
+  const impersonate = useImpersonate()
+
+  const handleImpersonate = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    impersonate.mutate(centre.id, { onSuccess: () => router.push('/service') })
+  }
+
   const time = timeLabel(centre.lastActivity)
   const timeColorClass = {
     recent:  'text-text',
@@ -264,9 +274,9 @@ function Row({ centre }: { centre: CentreSummary }) {
 
       <td className="py-3.5 px-4 border-b border-border/50">
         <div className="flex gap-1.5">
-          <RowAction title="Voir le détail"            icon="👁" href={`/superadmin/centres/${centre.id}`} />
-          <RowAction title="Se connecter au centre"    icon="🎭" />
-          <RowAction title="Plus d'options"            icon="⋯" />
+          <RowAction title="Voir le détail"         icon="👁" href={`/superadmin/centres/${centre.id}`} />
+          <RowAction title="Se connecter au centre" icon="🎭" onClick={handleImpersonate} disabled={impersonate.isPending} />
+          <RowAction title="Plus d'options"         icon="⋯" />
         </div>
       </td>
     </tr>
@@ -288,10 +298,22 @@ function StatusBadge({ actif }: { actif: boolean }) {
   )
 }
 
-function RowAction({ title, icon, href }: { title: string; icon: string; href?: string }) {
-  const className = 'w-7 h-7 rounded-md bg-surface2 border border-border flex items-center justify-center cursor-pointer text-muted text-[13px] hover:border-accent hover:text-accent hover:bg-surface transition'
+function RowAction({
+  title, icon, href, onClick, disabled,
+}: {
+  title:    string
+  icon:     string
+  href?:    string
+  onClick?: (e: React.MouseEvent) => void
+  disabled?: boolean
+}) {
+  const className = 'w-7 h-7 rounded-md bg-surface2 border border-border flex items-center justify-center cursor-pointer text-muted text-[13px] hover:border-accent hover:text-accent hover:bg-surface transition disabled:opacity-50 disabled:cursor-not-allowed'
   if (href) {
     return <Link href={href} title={title} className={className}>{icon}</Link>
   }
-  return <button type="button" title={title} className={className}>{icon}</button>
+  return (
+    <button type="button" title={title} className={className} onClick={onClick} disabled={disabled}>
+      {icon}
+    </button>
+  )
 }
