@@ -1,0 +1,159 @@
+# ═══════════════════════════════════════════════════════════
+#  Shiftly — Fixtures Support (Phase 3)
+#  8 tickets variés + 15 réponses (mix publiques + internes)
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\SupportTicket:
+  ticket_1:
+    centre:    "@centre_fgc"
+    auteur:    "@user_megane"
+    sujet:     "Impossible d'exporter le PDF du planning"
+    message:   "Bonjour, quand je clique sur Exporter PDF sur la page planning, rien ne se passe. Testé sur Chrome et Firefox. Merci pour votre aide."
+    categorie: "bug"
+    statut:    "OUVERT"
+    priorite:  "HAUTE"
+    createdAt: "<(new \\DateTimeImmutable('-2 hours'))>"
+
+  ticket_2:
+    centre:    "@centre_fgc"
+    auteur:    "@user_micka"
+    sujet:     "Comment gérer les heures sup ?"
+    message:   "Est-ce qu'il y a un moyen de voir toutes les heures sup de l'équipe sur un mois ?"
+    categorie: "question"
+    statut:    "EN_COURS"
+    priorite:  "MOYENNE"
+    createdAt: "<(new \\DateTimeImmutable('-1 day'))>"
+
+  ticket_3:
+    centre:    "@centre_fgc"
+    auteur:    "@user_kevin"
+    sujet:     "Feature : Notifications push sur mobile"
+    message:   "Serait-il possible d'avoir des notifications push quand un pointage est modifié ? Ça nous aiderait beaucoup."
+    categorie: "feature_request"
+    statut:    "OUVERT"
+    priorite:  "BASSE"
+    createdAt: "<(new \\DateTimeImmutable('-3 days'))>"
+
+  ticket_4:
+    centre:    "@centre_fgc"
+    auteur:    "@user_megane"
+    sujet:     "Facture d'avril introuvable"
+    message:   "Je ne retrouve pas ma facture d'avril dans l'espace de facturation."
+    categorie: "facturation"
+    statut:    "RESOLU"
+    priorite:  "MOYENNE"
+    createdAt: "<(new \\DateTimeImmutable('-5 days'))>"
+    closedAt:  "<(new \\DateTimeImmutable('-2 days'))>"
+
+  ticket_5:
+    centre:    "@centre_fgc"
+    auteur:    "@user_kevin"
+    sujet:     "Bug : le compteur de points ne se met pas à jour"
+    message:   "Après avoir validé une compétence, le compteur de points de l'employé ne change pas immédiatement. Il faut recharger la page."
+    categorie: "bug"
+    statut:    "EN_COURS"
+    priorite:  "MOYENNE"
+    createdAt: "<(new \\DateTimeImmutable('-4 days'))>"
+
+  ticket_6:
+    centre:    "@centre_fgc"
+    auteur:    "@user_micka"
+    sujet:     "URGENT — App plantée toute la journée"
+    message:   "L'app a planté ce matin entre 9h et 11h. Impossible pour les employés de pointer. On a dû noter sur papier. Ça doit pas se reproduire !"
+    categorie: "bug"
+    statut:    "FERME"
+    priorite:  "URGENTE"
+    createdAt: "<(new \\DateTimeImmutable('-7 days'))>"
+    closedAt:  "<(new \\DateTimeImmutable('-6 days'))>"
+
+  ticket_7:
+    centre:    "@centre_fgc"
+    auteur:    "@user_megane"
+    sujet:     "Quel est le délai de prévenance ?"
+    message:   "Juste une question rapide : quel est le délai de prévenance pour modifier un planning selon la convention IDCC 1790 ?"
+    categorie: "question"
+    statut:    "RESOLU"
+    priorite:  "BASSE"
+    createdAt: "<(new \\DateTimeImmutable('-10 days'))>"
+    closedAt:  "<(new \\DateTimeImmutable('-9 days'))>"
+
+  ticket_8:
+    centre:    "@centre_fgc"
+    auteur:    "@user_kevin"
+    sujet:     "Demande d'activation du module HACCP"
+    message:   "Nous aimerions activer le module HACCP. Quelle est la procédure ?"
+    categorie: "autre"
+    statut:    "OUVERT"
+    priorite:  "MOYENNE"
+    createdAt: "<(new \\DateTimeImmutable('-6 hours'))>"
+
+App\Entity\SupportReply:
+  reply_1:
+    ticket:    "@ticket_2"
+    auteur:    "@user_superadmin"
+    message:   "Bonjour Mickaël, la page Validation Hebdo donne un résumé des heures sup par employé sur la semaine. On peut aussi filtrer sur un mois complet. Je vous envoie un screenshot."
+    interne:   false
+    createdAt: "<(new \\DateTimeImmutable('-20 hours'))>"
+
+  reply_2:
+    ticket:    "@ticket_2"
+    auteur:    "@user_micka"
+    message:   "Super merci ! Je teste ça."
+    interne:   false
+    createdAt: "<(new \\DateTimeImmutable('-19 hours'))>"
+
+  reply_3:
+    ticket:    "@ticket_4"
+    auteur:    "@user_superadmin"
+    message:   "Bonjour, effectivement c'était un bug d'affichage. Corrigé. La facture est visible maintenant."
+    interne:   false
+    createdAt: "<(new \\DateTimeImmutable('-3 days'))>"
+
+  reply_4:
+    ticket:    "@ticket_4"
+    auteur:    "@user_superadmin"
+    message:   "Note interne : bug causé par un cache non invalidé côté billing. Fix dans commit abc123."
+    interne:   true
+    createdAt: "<(new \\DateTimeImmutable('-3 days'))>"
+
+  reply_5:
+    ticket:    "@ticket_4"
+    auteur:    "@user_megane"
+    message:   "Parfait, merci !"
+    interne:   false
+    createdAt: "<(new \\DateTimeImmutable('-2 days'))>"
+
+  reply_6:
+    ticket:    "@ticket_5"
+    auteur:    "@user_superadmin"
+    message:   "Bonjour Kevin, je confirme le bug. On investigue côté React Query — cache staleTime mal configuré."
+    interne:   false
+    createdAt: "<(new \\DateTimeImmutable('-3 days'))>"
+
+  reply_7:
+    ticket:    "@ticket_5"
+    auteur:    "@user_superadmin"
+    message:   "Note interne : TODO ajouter onSuccess invalidateQueries dans useStaffCompetence"
+    interne:   true
+    createdAt: "<(new \\DateTimeImmutable('-3 days'))>"
+
+  reply_8:
+    ticket:    "@ticket_6"
+    auteur:    "@user_superadmin"
+    message:   "Bonjour Mickaël, désolé pour cet incident. L'API a eu un problème de base de données. Correction déployée et post-mortem fait. Ça ne devrait plus arriver."
+    interne:   false
+    createdAt: "<(new \\DateTimeImmutable('-7 days'))>"
+
+  reply_9:
+    ticket:    "@ticket_6"
+    auteur:    "@user_superadmin"
+    message:   "Note interne : downtime de 2h14, cause = timeout connexion DB suite au déploiement migration. Setup monitoring améliore pour alerter plus tôt."
+    interne:   true
+    createdAt: "<(new \\DateTimeImmutable('-6 days'))>"
+
+  reply_10:
+    ticket:    "@ticket_7"
+    auteur:    "@user_superadmin"
+    message:   "Selon l'article 3.3 de la convention IDCC 1790, le délai de prévenance est de 7 jours ouvrés, réductible à 3 jours en cas de surcroît d'activité. Je joins le PDF de référence."
+    interne:   false
+    createdAt: "<(new \\DateTimeImmutable('-9 days'))>"

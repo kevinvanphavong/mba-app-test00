@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSuperAdminStore } from '@/store/superAdminStore'
+import { useSupportStats } from '@/hooks/useSuperAdminSupport'
 
 interface NavItem {
   label:    string
@@ -37,8 +38,8 @@ const sections: NavSection[] = [
   {
     label: 'Phase 3 — Users & Support',
     items: [
-      { label: 'Utilisateurs', href: '/superadmin/users',   icon: '👤', disabled: true },
-      { label: 'Support',      href: '/superadmin/support', icon: '🎧', disabled: true },
+      { label: 'Utilisateurs', href: '/superadmin/users',   icon: '👤' },
+      { label: 'Support',      href: '/superadmin/support', icon: '🎧' },
     ],
   },
   {
@@ -51,12 +52,15 @@ const sections: NavSection[] = [
 ]
 
 export default function SuperAdminSidebar() {
-  const pathname = usePathname()
-  const user     = useSuperAdminStore(s => s.user)
+  const pathname  = usePathname()
+  const user      = useSuperAdminStore(s => s.user)
+  const stats     = useSupportStats()
 
   const initials = user
     ? `${(user.prenom ?? '').charAt(0)}${user.nom.charAt(0)}`.toUpperCase()
     : 'SA'
+
+  const supportBadge = stats.data?.ouverts ?? 0
 
   return (
     <nav className="w-60 h-screen fixed top-0 left-0 bg-surface3 border-r border-border flex flex-col z-50 overflow-y-auto">
@@ -81,7 +85,7 @@ export default function SuperAdminSidebar() {
               {section.label}
             </div>
             {section.items.map(item => {
-              const active = pathname === item.href
+              const active = pathname === item.href || (item.href !== '/superadmin' && pathname.startsWith(item.href + '/'))
               const linkClass = [
                 'flex items-center gap-2.5 px-3 py-2.5 text-[13px] rounded-lg transition-all border-l-[3px] -ml-[3px]',
                 active
@@ -89,6 +93,13 @@ export default function SuperAdminSidebar() {
                   : 'text-muted border-transparent hover:bg-surface hover:text-text',
                 item.disabled ? 'opacity-50 pointer-events-none' : '',
               ].join(' ')
+
+              // Badge dynamique pour Support
+              const liveBadge = item.href === '/superadmin/support' && supportBadge > 0
+                ? { value: supportBadge, muted: false }
+                : item.badge !== undefined
+                  ? { value: item.badge, muted: item.badgeMuted ?? false }
+                  : null
 
               return (
                 <Link
@@ -98,11 +109,11 @@ export default function SuperAdminSidebar() {
                 >
                   <span className="text-[15px] w-[18px] text-center">{item.icon}</span>
                   <span>{item.label}</span>
-                  {item.badge !== undefined && (
+                  {liveBadge && (
                     <span className={`ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded-[10px] ${
-                      item.badgeMuted ? 'bg-surface2 text-muted' : 'bg-red text-white'
+                      liveBadge.muted ? 'bg-surface2 text-muted' : 'bg-red text-white'
                     }`}>
-                      {item.badge}
+                      {liveBadge.value}
                     </span>
                   )}
                 </Link>
