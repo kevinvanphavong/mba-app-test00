@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link                 from 'next/link'
 import dynamic              from 'next/dynamic'
 import { ty }               from '@/lib/typography'
 import LogoutButton         from '@/components/auth/LogoutButton'
@@ -19,6 +20,26 @@ export default function ReglagesPage() {
 
       {/* Profile card */}
       <ProfileCard />
+
+      {/* Support */}
+      <div className="mb-4">
+        <div className={`${ty.sectionLabel} px-1 mb-2`}>
+          <p>Support</p>
+        </div>
+        <Link
+          href="/reglages/support"
+          className="block bg-surface border border-border rounded-[18px] overflow-hidden px-4 py-3.5 hover:border-accent transition"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center text-[20px] flex-shrink-0">🎧</div>
+            <div className="flex-1">
+              <div className="font-semibold text-[14px]">Besoin d'aide ?</div>
+              <div className="text-[12px] text-muted">Ouvrir une demande auprès de l'équipe Shiftly</div>
+            </div>
+            <div className="text-muted">→</div>
+          </div>
+        </Link>
+      </div>
 
       {/* Notifications — à venir */}
       <div className="mb-4">

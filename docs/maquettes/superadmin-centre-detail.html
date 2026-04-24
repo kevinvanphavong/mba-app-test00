@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — SuperAdmin / Bowling Stadium Orléans</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0f14; --surface:#151820; --surface2:#1c2030; --surface3:#111318;
+    --border:#252a3a; --text:#e8eaf0; --muted:#6b7280;
+    --accent:#f97316; --accent2:#fb923c;
+    --blue:#3b82f6; --green:#22c55e; --red:#ef4444; --yellow:#eab308; --purple:#a855f7;
+    --sidebar-w:240px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+  /* Sidebar (identique) */
+  .sidebar{width:var(--sidebar-w);height:100vh;position:fixed;top:0;left:0;background:var(--surface3);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;overflow-y:auto;}
+  .sidebar-header{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
+  .sidebar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;}
+  .sidebar-logo .name{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .sidebar-logo .dot{color:var(--text);}
+  .sidebar-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0f14;padding:3px 9px;border-radius:20px;}
+  .sidebar-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px;}
+  .nav-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:14px 12px 6px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:8px;transition:all 0.12s;text-decoration:none;border-left:3px solid transparent;margin-left:-3px;}
+  .nav-item:hover{background:var(--surface);color:var(--text);}
+  .nav-item.active{background:rgba(249,115,22,0.08);color:var(--accent);border-left-color:var(--accent);font-weight:600;}
+  .nav-item .icon{font-size:15px;width:18px;text-align:center;}
+  .nav-item .badge{margin-left:auto;background:var(--red);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
+  .nav-item .badge.muted{background:var(--surface2);color:var(--muted);}
+  .sidebar-footer{padding:14px;border-top:1px solid var(--border);}
+  .me-card{background:var(--surface);border:1px solid var(--border);padding:10px 12px;border-radius:10px;display:flex;align-items:center;gap:10px;}
+  .me-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .me-info{flex:1;min-width:0;}
+  .me-name{font-size:12px;font-weight:600;line-height:1.2;}
+  .me-role{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;}
+
+  /* Main */
+  .main{margin-left:var(--sidebar-w);flex:1;padding:24px 28px;min-height:100vh;}
+
+  .breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:16px;}
+  .breadcrumb a{color:var(--muted);text-decoration:none;}
+  .breadcrumb a:hover{color:var(--accent);}
+  .breadcrumb .sep{opacity:0.4;}
+  .breadcrumb .current{color:var(--text);font-weight:600;}
+
+  /* Centre Header */
+  .centre-header{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px 22px;
+    margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .centre-header-left{display:flex;gap:16px;align-items:center;flex:1;min-width:300px;}
+  .centre-logo{
+    width:64px;height:64px;
+    background:linear-gradient(135deg,var(--surface2),var(--surface3));
+    border:1px solid var(--border);
+    border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:30px;
+    flex-shrink:0;
+  }
+  .centre-info h1{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:24px;
+    margin-bottom:4px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .centre-info .status-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    padding:3px 10px;
+    border-radius:12px;
+    font-size:10px;
+    font-weight:700;
+    background:rgba(34,197,94,0.15);
+    color:var(--green);
+  }
+  .centre-info .status-badge::before{content:'●';font-size:8px;}
+  .centre-info .meta{
+    color:var(--muted);
+    font-size:13px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .centre-info .meta span{display:inline-flex;align-items:center;gap:5px;}
+  .centre-info .meta .sep{opacity:0.4;}
+
+  .centre-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:all 0.12s;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(249,115,22,0.3);}
+  .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-danger{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+  .btn-danger:hover{background:rgba(239,68,68,0.2);}
+
+  /* KPI mini-row */
+  .kpi-mini-row{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .kpi-mini{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+  .kpi-mini-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:5px;}
+  .kpi-mini-value{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;line-height:1;}
+  .kpi-mini-trend{font-size:10px;margin-top:5px;}
+  .kpi-mini-trend.up{color:var(--green);}
+  .kpi-mini-trend.down{color:var(--red);}
+  .kpi-mini-trend.muted{color:var(--muted);}
+
+  /* Content grid 2 colonnes */
+  .content-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:18px;
+  }
+
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow:hidden;
+    margin-bottom:18px;
+  }
+  .panel-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:14px 18px;
+    border-bottom:1px solid var(--border);
+  }
+  .panel-title{
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .panel-action{font-size:11px;color:var(--accent);font-weight:600;cursor:pointer;text-decoration:none;}
+  .panel-body{padding:14px 18px;}
+
+  /* Infos table */
+  .info-row{
+    display:flex;
+    justify-content:space-between;
+    padding:9px 0;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+  }
+  .info-row:last-child{border-bottom:none;}
+  .info-label{color:var(--muted);}
+  .info-value{font-weight:600;text-align:right;}
+  .info-value code{
+    background:var(--surface2);
+    color:var(--accent);
+    padding:2px 7px;
+    border-radius:4px;
+    font-size:11px;
+    font-family:monospace;
+  }
+
+  /* Users table */
+  .users-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .users-table td{padding:10px 0;border-bottom:1px solid var(--border);}
+  .users-table tr:last-child td{border-bottom:none;}
+  .user-cell{display:flex;align-items:center;gap:10px;}
+  .user-avatar{
+    width:30px;height:30px;
+    border-radius:50%;
+    background:var(--surface2);
+    color:var(--muted);
+    font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;
+  }
+  .role-badge{
+    display:inline-block;
+    padding:2px 8px;
+    border-radius:6px;
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+  }
+  .role-badge.manager{background:rgba(249,115,22,0.15);color:var(--accent);}
+  .role-badge.employe{background:rgba(107,114,128,0.15);color:var(--muted);}
+  .user-active-dot{
+    display:inline-block;
+    width:7px;height:7px;
+    border-radius:50%;
+    background:var(--green);
+    margin-right:5px;
+  }
+  .user-active-dot.offline{background:var(--surface2);border:1px solid var(--border);}
+
+  /* Sentry errors */
+  .error-item{
+    padding:10px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .error-item:last-child{border-bottom:none;}
+  .error-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:5px;}
+  .error-title{font-size:12px;font-weight:600;color:var(--text);font-family:monospace;flex:1;}
+  .error-count{
+    background:var(--red);
+    color:white;
+    padding:2px 8px;
+    border-radius:10px;
+    font-size:10px;
+    font-weight:700;
+    flex-shrink:0;
+  }
+  .error-meta{font-size:10px;color:var(--muted);}
+
+  /* Notes internes */
+  .note-item{
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 12px;
+    margin-bottom:8px;
+    font-size:12px;
+  }
+  .note-meta{font-size:10px;color:var(--muted);margin-bottom:4px;}
+  .note-add{
+    width:100%;
+    background:var(--surface2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:9px 12px;
+    border-radius:8px;
+    font-family:'DM Sans',sans-serif;
+    font-size:12px;
+    margin-top:8px;
+    resize:vertical;
+    min-height:60px;
+  }
+  .note-add:focus{outline:none;border-color:var(--accent);}
+
+  /* Action Panel danger */
+  .danger-zone{
+    background:rgba(239,68,68,0.05);
+    border:1px solid rgba(239,68,68,0.2);
+    border-radius:14px;
+    padding:18px;
+  }
+  .danger-zone h3{
+    font-family:'Syne',sans-serif;
+    font-size:13px;
+    color:var(--red);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:6px;
+  }
+  .danger-zone p{font-size:12px;color:var(--muted);margin-bottom:12px;}
+  .danger-actions{display:flex;flex-direction:column;gap:8px;}
+  .danger-btn{
+    background:transparent;
+    color:var(--red);
+    border:1px solid rgba(239,68,68,0.3);
+    padding:9px 14px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    text-align:left;
+    font-family:'DM Sans',sans-serif;
+    transition:all 0.1s;
+  }
+  .danger-btn:hover{background:rgba(239,68,68,0.1);}
+
+  /* Activity timeline mini */
+  .timeline-item{
+    display:flex;
+    gap:10px;
+    padding:9px 0;
+    border-bottom:1px solid var(--border);
+    font-size:12px;
+  }
+  .timeline-item:last-child{border-bottom:none;}
+  .timeline-time{color:var(--muted);font-size:11px;min-width:60px;}
+  .timeline-text{flex:1;}
+  .timeline-text strong{color:var(--accent);}
+
+  @media (max-width:1100px){
+    .content-grid{grid-template-columns:1fr;}
+    .kpi-mini-row{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><span class="name">Shiftly</span><span class="dot">.</span></div>
+      <div class="sidebar-badge">SuperAdmin</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Phase 1 — Monitoring</div>
+      <a class="nav-item"><span class="icon">📊</span> Dashboard</a>
+      <a class="nav-item active"><span class="icon">🏢</span> Centres <span class="badge muted">12</span></a>
+      <div class="nav-section-label">Phase 2 — Billing</div>
+      <a class="nav-item"><span class="icon">💳</span> Abonnements</a>
+      <a class="nav-item"><span class="icon">📄</span> Facturation</a>
+      <a class="nav-item"><span class="icon">🏷️</span> Plans tarifaires</a>
+      <div class="nav-section-label">Phase 3 — Users & Support</div>
+      <a class="nav-item"><span class="icon">👤</span> Utilisateurs</a>
+      <a class="nav-item"><span class="icon">🎧</span> Support <span class="badge">3</span></a>
+      <div class="nav-section-label">Phase 4 — Système</div>
+      <a class="nav-item"><span class="icon">⚡</span> Activity</a>
+      <a class="nav-item"><span class="icon">⚙️</span> Réglages</a>
+    </div>
+    <div class="sidebar-footer">
+      <div class="me-card">
+        <div class="me-avatar">KV</div>
+        <div class="me-info">
+          <div class="me-name">Kévin Vanphavong</div>
+          <div class="me-role">Fondateur</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="breadcrumb">
+      <a>SuperAdmin</a>
+      <span class="sep">/</span>
+      <a>Centres</a>
+      <span class="sep">/</span>
+      <span class="current">Bowling Stadium Orléans</span>
+    </div>
+
+    <!-- Centre Header -->
+    <div class="centre-header">
+      <div class="centre-header-left">
+        <div class="centre-logo">🎳</div>
+        <div class="centre-info">
+          <h1>
+            Bowling Stadium Orléans
+            <span class="status-badge">Actif</span>
+          </h1>
+          <div class="meta">
+            <span>📍 Orléans (45)</span>
+            <span class="sep">·</span>
+            <span>🆔 #C-004</span>
+            <span class="sep">·</span>
+            <span>📅 Inscrit le 12 janvier 2026</span>
+            <span class="sep">·</span>
+            <span>🏷️ Plan Pro 129€/mois</span>
+          </div>
+        </div>
+      </div>
+      <div class="centre-actions">
+        <button class="btn btn-outline">📞 Contacter</button>
+        <button class="btn btn-outline">📝 Ajouter note</button>
+        <button class="btn btn-primary">🎭 Impersonate manager</button>
+      </div>
+    </div>
+
+    <!-- KPIs mini -->
+    <div class="kpi-mini-row">
+      <div class="kpi-mini">
+        <div class="kpi-mini-label">Users actifs</div>
+        <div class="kpi-mini-value" style="color:var(--blue);">16</div>
+        <div class="kpi-mini-trend up">↑ +2 ce mois</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="kpi-mini-label">Pointages 30j</div>
+        <div class="kpi-mini-value" style="color:var(--text);">891</div>
+        <div class="kpi-mini-trend up">↑ +14% vs précédent</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="kpi-mini-label">MRR</div>
+        <div class="kpi-mini-value" style="color:var(--green);">129€</div>
+        <div class="kpi-mini-trend muted">Stable depuis 3 mois</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="kpi-mini-label">Taux engagement</div>
+        <div class="kpi-mini-value" style="color:var(--accent);">87%</div>
+        <div class="kpi-mini-trend up">↑ +4% ce mois</div>
+      </div>
+      <div class="kpi-mini">
+        <div class="kpi-mini-label">Erreurs Sentry 7j</div>
+        <div class="kpi-mini-value" style="color:var(--red);">9</div>
+        <div class="kpi-mini-trend down">↑ +3 vs sem. dernière</div>
+      </div>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+
+      <!-- Colonne gauche -->
+      <div>
+
+        <!-- Infos générales -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📋 Informations générales</div>
+            <a class="panel-action">Modifier →</a>
+          </div>
+          <div class="panel-body">
+            <div class="info-row">
+              <span class="info-label">Nom légal</span>
+              <span class="info-value">SARL Bowling Stadium Orléans</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">SIRET</span>
+              <span class="info-value"><code>478 521 369 00012</code></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Adresse</span>
+              <span class="info-value">14 boulevard de Verdun, 45000 Orléans</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Manager principal</span>
+              <span class="info-value">Sophie Martin · sophie@stadium-orleans.fr</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Téléphone</span>
+              <span class="info-value">+33 2 38 54 12 76</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Modules activés</span>
+              <span class="info-value">Pointage · Service · Planning · Tutoriels</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Convention collective</span>
+              <span class="info-value">IDCC 1790 (Espaces de loisirs)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Users du centre -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">👥 Utilisateurs (16)</div>
+            <a class="panel-action">Voir tous →</a>
+          </div>
+          <div class="panel-body">
+            <table class="users-table">
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar" style="background:rgba(249,115,22,0.15);color:var(--accent);">SM</div>
+                      <div>
+                        <div style="font-weight:600;font-size:13px;">Sophie Martin</div>
+                        <div style="font-size:10px;color:var(--muted);">sophie@stadium-orleans.fr</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge manager">Manager</span></td>
+                  <td><span class="user-active-dot"></span><span style="font-size:11px;color:var(--muted);">En ligne</span></td>
+                  <td style="text-align:right;font-size:11px;color:var(--muted);">il y a 8 min</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">JD</div>
+                      <div>
+                        <div style="font-weight:600;font-size:13px;">Julien Dupont</div>
+                        <div style="font-size:10px;color:var(--muted);">julien.d@stadium-orleans.fr</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge manager">Manager</span></td>
+                  <td><span class="user-active-dot offline"></span><span style="font-size:11px;color:var(--muted);">Hors ligne</span></td>
+                  <td style="text-align:right;font-size:11px;color:var(--muted);">il y a 2h</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">CL</div>
+                      <div>
+                        <div style="font-weight:600;font-size:13px;">Camille Lemoine</div>
+                        <div style="font-size:10px;color:var(--muted);">Bar</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge employe">Employé</span></td>
+                  <td><span class="user-active-dot"></span><span style="font-size:11px;color:var(--muted);">En ligne</span></td>
+                  <td style="text-align:right;font-size:11px;color:var(--muted);">il y a 12 min</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">TR</div>
+                      <div>
+                        <div style="font-weight:600;font-size:13px;">Thomas Renard</div>
+                        <div style="font-size:10px;color:var(--muted);">Salle</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge employe">Employé</span></td>
+                  <td><span class="user-active-dot"></span><span style="font-size:11px;color:var(--muted);">En ligne</span></td>
+                  <td style="text-align:right;font-size:11px;color:var(--muted);">il y a 15 min</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <div class="user-avatar">EB</div>
+                      <div>
+                        <div style="font-weight:600;font-size:13px;">Emma Bernard</div>
+                        <div style="font-size:10px;color:var(--muted);">Accueil</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="role-badge employe">Employé</span></td>
+                  <td><span class="user-active-dot offline"></span><span style="font-size:11px;color:var(--muted);">Hors ligne</span></td>
+                  <td style="text-align:right;font-size:11px;color:var(--muted);">hier 22:45</td>
+                </tr>
+                <tr>
+                  <td colspan="4" style="text-align:center;padding-top:14px;">
+                    <a style="color:var(--accent);font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;">+ 11 autres utilisateurs →</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Erreurs Sentry -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">🐛 Erreurs Sentry (7 derniers jours)</div>
+            <a class="panel-action">Voir dans Sentry ↗</a>
+          </div>
+          <div class="panel-body">
+            <div class="error-item">
+              <div class="error-header">
+                <div class="error-title">TypeError: Cannot read 'heureArrivee' of undefined</div>
+                <div class="error-count">×4</div>
+              </div>
+              <div class="error-meta">PointageStaffCard.tsx:84 · Sophie Martin · Première occurrence : 19/04 14:32 · Dernière : il y a 2h</div>
+            </div>
+            <div class="error-item">
+              <div class="error-header">
+                <div class="error-title">Doctrine\DBAL\Exception\ConnectionLost</div>
+                <div class="error-count">×3</div>
+              </div>
+              <div class="error-meta">ValidationController.php:124 · Backend · Première : 20/04 18:54 · Dernière : il y a 5h</div>
+            </div>
+            <div class="error-item">
+              <div class="error-header">
+                <div class="error-title">Network Error: Request failed with status 500</div>
+                <div class="error-count">×2</div>
+              </div>
+              <div class="error-meta">api.ts:42 · POST /api/pointage/cloturer · Camille Lemoine · il y a 1 jour</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Colonne droite -->
+      <div>
+
+        <!-- Notes internes -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📝 Notes internes</div>
+          </div>
+          <div class="panel-body">
+            <div class="note-item">
+              <div class="note-meta">Kévin V. · 18 avril 2026 · 14:22</div>
+              <div>Sophie a demandé un appel pour l'ajout du module Réservations. RDV planifié 28/04.</div>
+            </div>
+            <div class="note-item">
+              <div class="note-meta">Kévin V. · 5 avril 2026 · 10:15</div>
+              <div>Premier mois de facturation OK. Très bon engagement (87%). Manager hyper proactif.</div>
+            </div>
+            <div class="note-item">
+              <div class="note-meta">Kévin V. · 12 janvier 2026 · 17:42</div>
+              <div>Onboarding réalisé en visio. 2h. Tout s'est bien passé. Données importées depuis leur ancien Excel.</div>
+            </div>
+            <textarea class="note-add" placeholder="Ajouter une note interne..."></textarea>
+            <button class="btn btn-outline" style="width:100%;margin-top:8px;justify-content:center;">+ Ajouter</button>
+          </div>
+        </div>
+
+        <!-- Activité récente -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">⚡ Activité récente</div>
+          </div>
+          <div class="panel-body">
+            <div class="timeline-item">
+              <div class="timeline-time">14:32</div>
+              <div class="timeline-text"><strong>Sophie M.</strong> a validé 14 pointages</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">14:18</div>
+              <div class="timeline-text"><strong>Camille L.</strong> a pointé son arrivée</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">13:45</div>
+              <div class="timeline-text">Erreur Sentry capturée</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">12:30</div>
+              <div class="timeline-text"><strong>Thomas R.</strong> a coché 8 missions</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">11:02</div>
+              <div class="timeline-text"><strong>Sophie M.</strong> a créé un service</div>
+            </div>
+            <div class="timeline-item">
+              <div class="timeline-time">hier</div>
+              <div class="timeline-text">Paiement Stripe 129€ reçu</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="danger-zone">
+          <h3>⚠️ Zone sensible</h3>
+          <p>Actions irréversibles ou impactant fortement le centre. Toutes ces actions sont loggées dans l'audit trail.</p>
+          <div class="danger-actions">
+            <button class="danger-btn">⏸ Suspendre le centre (lecture seule)</button>
+            <button class="danger-btn">🔒 Forcer reset mot de passe manager</button>
+            <button class="danger-btn">📤 Exporter toutes les données du centre</button>
+            <button class="danger-btn">❌ Résilier l'abonnement</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+</html>

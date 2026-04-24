@@ -14,6 +14,21 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        superadmin_login:
+            pattern: ^/api/superadmin/auth/login
+            stateless: true
+            json_login:
+                check_path: /api/superadmin/auth/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        superadmin_api:
+            pattern: ^/api/superadmin
+            stateless: true
+            jwt: ~
+
         login:
             pattern: ^/api/auth/login
             stateless: true
@@ -30,6 +45,8 @@ security:
             jwt: ~
 
     access_control:
+        - { path: ^/api/superadmin/auth/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/superadmin, roles: ROLE_SUPERADMIN }
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/docs, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

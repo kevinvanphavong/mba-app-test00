@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — Impersonation Banner (snippet)</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0f14; --surface:#151820; --surface2:#1c2030;
+    --border:#252a3a; --text:#e8eaf0; --muted:#6b7280;
+    --accent:#f97316; --accent2:#fb923c;
+    --green:#22c55e; --red:#ef4444; --yellow:#eab308;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'DM Sans',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+
+  /* ═══ Le bandeau lui-même ═══ */
+  .impersonation-banner{
+    position:sticky;
+    top:0;
+    z-index:9999;
+    background:linear-gradient(90deg, #b91c1c, #dc2626 50%, #b91c1c);
+    border-bottom:2px solid rgba(0,0,0,0.3);
+    padding:10px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    box-shadow:0 4px 16px rgba(220,38,38,0.4);
+    animation:bannerPulse 3s ease-in-out infinite;
+  }
+  @keyframes bannerPulse{
+    0%,100%{box-shadow:0 4px 16px rgba(220,38,38,0.4);}
+    50%{box-shadow:0 4px 24px rgba(220,38,38,0.7);}
+  }
+  .banner-left{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    flex:1;
+    min-width:0;
+  }
+  .banner-icon{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:16px;
+    flex-shrink:0;
+    animation:iconPulse 2s ease-in-out infinite;
+  }
+  @keyframes iconPulse{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.1);}
+  }
+  .banner-content{flex:1;min-width:0;}
+  .banner-label{
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color:rgba(255,255,255,0.85);
+    line-height:1;
+    margin-bottom:3px;
+  }
+  .banner-text{
+    font-size:14px;
+    font-weight:600;
+    color:white;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .banner-text strong{font-weight:800;}
+  .banner-text .separator{
+    margin:0 10px;
+    color:rgba(255,255,255,0.5);
+  }
+  .banner-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-shrink:0;
+  }
+  .banner-timer{
+    background:rgba(0,0,0,0.3);
+    color:white;
+    padding:5px 12px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:700;
+    font-family:'Syne',sans-serif;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .banner-timer::before{
+    content:'⏱';
+    font-size:13px;
+  }
+  .btn-quitter{
+    background:white;
+    color:#b91c1c;
+    border:none;
+    padding:7px 16px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    transition:all 0.15s;
+    font-family:'DM Sans',sans-serif;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .btn-quitter:hover{
+    background:rgba(255,255,255,0.9);
+    transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  /* ═══ Démo : aperçu de la page sous le bandeau ═══ */
+  .demo-app{
+    padding:24px 32px;
+  }
+  .demo-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:24px;
+  }
+  .demo-title{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:24px;
+  }
+  .demo-title span{color:var(--accent);}
+  .demo-cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px;
+    margin-bottom:24px;
+  }
+  .demo-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px;
+  }
+  .demo-card-label{
+    font-size:11px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:6px;
+  }
+  .demo-card-value{
+    font-family:'Syne',sans-serif;
+    font-weight:800;
+    font-size:24px;
+  }
+
+  .demo-warning{
+    background:rgba(239,68,68,0.08);
+    border:1px solid rgba(239,68,68,0.2);
+    border-radius:12px;
+    padding:14px 18px;
+    margin-bottom:24px;
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    font-size:13px;
+  }
+  .demo-warning strong{color:var(--red);}
+
+  .demo-section-title{
+    font-family:'Syne',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:10px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+
+  .demo-card-block{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:18px 20px;
+  }
+
+  .demo-row{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+  }
+  .demo-row:last-child{border-bottom:none;}
+  .demo-row-label{color:var(--muted);}
+  .demo-row-value{font-weight:600;}
+
+  /* Anti-action : actions destructrices désactivées */
+  .demo-action-disabled{
+    opacity:0.4;
+    pointer-events:none;
+    background:var(--surface2);
+    color:var(--muted);
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:12px;
+    border:1px dashed var(--border);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  .demo-action-disabled::before{content:'🚫';}
+</style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- LE BANDEAU — à intégrer en haut de l'app pendant l'impersonation -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="impersonation-banner">
+    <div class="banner-left">
+      <div class="banner-icon">🔴</div>
+      <div class="banner-content">
+        <div class="banner-label">Mode impersonation actif</div>
+        <div class="banner-text">
+          Connecté en tant que <strong>Sophie Martin</strong> (Manager)
+          <span class="separator">·</span>
+          Centre <strong>Bowling Stadium Orléans</strong>
+          <span class="separator">·</span>
+          Initiée par <strong>Kévin V.</strong>
+        </div>
+      </div>
+    </div>
+    <div class="banner-right">
+      <div class="banner-timer">23 min restantes</div>
+      <button class="btn-quitter">Quitter l'impersonation ↗</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- APERÇU : page Service du Jour vue depuis l'impersonation -->
+  <!-- (illustre comment l'app classique apparaît avec le bandeau) -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <div class="demo-app">
+    <div class="demo-header">
+      <div class="demo-title">Service du jour <span>— Bowling Stadium Orléans</span></div>
+      <div style="color:var(--muted);font-size:13px;">Mercredi 22 avril · 14h32</div>
+    </div>
+
+    <div class="demo-warning">
+      <span style="font-size:18px;">⚠️</span>
+      <div>
+        <strong>Attention</strong> — Tu es en mode impersonation. Les actions destructrices (suppression, modification de pointage, changement de mot de passe) sont désactivées. Toutes tes actions sont enregistrées dans l'audit trail SuperAdmin.
+      </div>
+    </div>
+
+    <div class="demo-cards">
+      <div class="demo-card">
+        <div class="demo-card-label">Staff présent</div>
+        <div class="demo-card-value" style="color:var(--accent);">7</div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-card-label">Missions en cours</div>
+        <div class="demo-card-value" style="color:var(--green);">14</div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-card-label">Incidents ouverts</div>
+        <div class="demo-card-value" style="color:var(--red);">2</div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-card-label">Réservations soir</div>
+        <div class="demo-card-value" style="color:var(--text);">23</div>
+      </div>
+    </div>
+
+    <div class="demo-section-title">Exemples d'actions</div>
+    <div style="display:flex;gap:10px;margin-bottom:24px;">
+      <button style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;border:none;padding:8px 14px;border-radius:8px;font-weight:600;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">✓ Cocher mission (autorisé)</button>
+      <button style="background:transparent;color:var(--text);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-weight:600;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;">✏️ Modifier note (autorisé)</button>
+      <span class="demo-action-disabled">Supprimer pointage (bloqué en impersonation)</span>
+      <span class="demo-action-disabled">Changer mot de passe staff (bloqué)</span>
+    </div>
+
+    <div class="demo-section-title">Audit trail — actions enregistrées</div>
+    <div class="demo-card-block">
+      <div class="demo-row">
+        <span class="demo-row-label">14:32:18 — Page consultée</span>
+        <span class="demo-row-value" style="color:var(--accent);">/service</span>
+      </div>
+      <div class="demo-row">
+        <span class="demo-row-label">14:31:54 — Mission cochée</span>
+        <span class="demo-row-value">"Nettoyage piste 4"</span>
+      </div>
+      <div class="demo-row">
+        <span class="demo-row-label">14:31:40 — Détail employé consulté</span>
+        <span class="demo-row-value">Léa P. (Bar)</span>
+      </div>
+      <div class="demo-row">
+        <span class="demo-row-label">14:30:02 — Impersonation démarrée</span>
+        <span class="demo-row-value" style="color:var(--green);">Session #IMP-4892 · 30 min</span>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;padding:14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--muted);">
+      <strong style="color:var(--text);">Spec technique du bandeau :</strong> sticky top, z-index 9999, hauteur ~60px, JWT spécial avec claim <code style="background:var(--bg);padding:2px 6px;border-radius:4px;color:var(--accent);">impersonatedBy</code>, durée 30 min max. Le clic "Quitter" supprime le JWT impersonation et restaure la session SuperAdmin via <code style="background:var(--bg);padding:2px 6px;border-radius:4px;color:var(--accent);">DELETE /api/superadmin/impersonate</code>.
+    </div>
+  </div>
+
+</body>
+</html>

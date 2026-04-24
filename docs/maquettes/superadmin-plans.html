@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — SuperAdmin / Plans tarifaires</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0d0f14;--surface:#151820;--surface2:#1c2030;--surface3:#111318;--border:#252a3a;--text:#e8eaf0;--muted:#6b7280;--accent:#f97316;--accent2:#fb923c;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--purple:#a855f7;--sidebar-w:240px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+  .sidebar{width:var(--sidebar-w);height:100vh;position:fixed;top:0;left:0;background:var(--surface3);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;overflow-y:auto;}
+  .sidebar-header{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
+  .sidebar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;}
+  .sidebar-logo .name{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .sidebar-logo .dot{color:var(--text);}
+  .sidebar-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0f14;padding:3px 9px;border-radius:20px;}
+  .sidebar-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px;}
+  .nav-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:14px 12px 6px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:8px;text-decoration:none;border-left:3px solid transparent;margin-left:-3px;}
+  .nav-item:hover{background:var(--surface);color:var(--text);}
+  .nav-item.active{background:rgba(249,115,22,0.08);color:var(--accent);border-left-color:var(--accent);font-weight:600;}
+  .nav-item .icon{font-size:15px;width:18px;text-align:center;}
+  .nav-item .badge{margin-left:auto;background:var(--red);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
+  .nav-item .badge.muted{background:var(--surface2);color:var(--muted);}
+  .sidebar-footer{padding:14px;border-top:1px solid var(--border);}
+  .me-card{background:var(--surface);border:1px solid var(--border);padding:10px 12px;border-radius:10px;display:flex;align-items:center;gap:10px;}
+  .me-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .me-info{flex:1;min-width:0;}
+  .me-name{font-size:12px;font-weight:600;}
+  .me-role{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;}
+
+  .main{margin-left:var(--sidebar-w);flex:1;padding:24px 28px;}
+  .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;}
+  .page-subtitle{font-size:13px;color:var(--muted);margin-top:2px;}
+  .btn{padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;}
+
+  /* Plans grid */
+  .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:24px;}
+  .plan-card{background:var(--surface);border:2px solid var(--border);border-radius:16px;padding:24px;position:relative;transition:all 0.2s;}
+  .plan-card:hover{transform:translateY(-2px);}
+  .plan-card.featured{border-color:var(--accent);background:linear-gradient(180deg,rgba(249,115,22,0.05),transparent 30%);}
+  .plan-card.featured::before{content:'PLUS POPULAIRE';position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:1.2px;}
+  .plan-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;}
+  .plan-icon.starter{background:rgba(107,114,128,0.15);}
+  .plan-icon.pro{background:rgba(59,130,246,0.15);}
+  .plan-icon.enterprise{background:rgba(168,85,247,0.15);}
+  .plan-name{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:5px;}
+  .plan-tagline{font-size:13px;color:var(--muted);margin-bottom:18px;}
+  .plan-price{display:flex;align-items:baseline;gap:5px;margin-bottom:6px;}
+  .plan-price-value{font-family:'Syne',sans-serif;font-weight:800;font-size:42px;line-height:1;}
+  .plan-price-period{font-size:14px;color:var(--muted);}
+  .plan-price-yearly{font-size:11px;color:var(--green);margin-bottom:18px;}
+  .plan-features{list-style:none;padding:14px 0 0;border-top:1px solid var(--border);margin-top:14px;}
+  .plan-features li{display:flex;align-items:flex-start;gap:8px;padding:7px 0;font-size:13px;}
+  .plan-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;}
+  .plan-features li.disabled{color:var(--muted);}
+  .plan-features li.disabled::before{content:'×';color:var(--muted);}
+  .plan-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+  .plan-stat{background:var(--surface2);border-radius:8px;padding:10px;text-align:center;}
+  .plan-stat-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;}
+  .plan-stat-value{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;margin-top:3px;}
+  .plan-actions{display:flex;gap:8px;margin-top:14px;}
+  .plan-action{flex:1;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:11px;font-weight:600;cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;}
+  .plan-action:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* Comparison table */
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px;}
+  .panel-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .panel-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;}
+  .panel-body{padding:0;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{padding:13px 18px;background:var(--surface2);font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:var(--muted);border-bottom:1px solid var(--border);text-align:left;}
+  th.center{text-align:center;}
+  td{padding:13px 18px;border-bottom:1px solid rgba(37,42,58,0.5);}
+  td.center{text-align:center;}
+  tbody tr:last-child td{border-bottom:none;}
+
+  .feat-name{font-weight:600;}
+  .feat-cat{font-size:10px;color:var(--muted);margin-top:2px;}
+  .check{color:var(--green);font-size:16px;font-weight:700;}
+  .cross{color:var(--muted);font-size:16px;}
+  .limit{font-size:12px;color:var(--text);font-weight:600;}
+
+  /* Stripe sync */
+  .sync-banner{background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(99,102,241,0.05));border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;font-size:13px;}
+  .sync-banner .left{display:flex;align-items:center;gap:10px;}
+  .sync-banner strong{color:var(--purple);}
+</style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-header"><div class="sidebar-logo"><span class="name">Shiftly</span><span class="dot">.</span></div><div class="sidebar-badge">SuperAdmin</div></div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Phase 1</div>
+      <a class="nav-item"><span class="icon">📊</span> Dashboard</a>
+      <a class="nav-item"><span class="icon">🏢</span> Centres <span class="badge muted">12</span></a>
+      <div class="nav-section-label">Phase 2 — Billing</div>
+      <a class="nav-item"><span class="icon">💳</span> Abonnements</a>
+      <a class="nav-item"><span class="icon">📄</span> Facturation</a>
+      <a class="nav-item active"><span class="icon">🏷️</span> Plans tarifaires</a>
+      <div class="nav-section-label">Phase 3</div>
+      <a class="nav-item"><span class="icon">👤</span> Utilisateurs <span class="badge muted">147</span></a>
+      <a class="nav-item"><span class="icon">🎧</span> Support <span class="badge">3</span></a>
+      <div class="nav-section-label">Phase 4</div>
+      <a class="nav-item"><span class="icon">⚡</span> Activity</a>
+      <a class="nav-item"><span class="icon">⚙️</span> Réglages</a>
+    </div>
+    <div class="sidebar-footer"><div class="me-card"><div class="me-avatar">KV</div><div class="me-info"><div class="me-name">Kévin Vanphavong</div><div class="me-role">Fondateur</div></div></div></div>
+  </nav>
+
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">Plans tarifaires</div>
+        <div class="page-subtitle">3 plans actifs · Synchronisés avec Stripe Products</div>
+      </div>
+      <button class="btn btn-primary">+ Nouveau plan</button>
+    </div>
+
+    <div class="sync-banner">
+      <div class="left">
+        <span style="font-size:18px;">🔄</span>
+        <div><strong>Synchronisé avec Stripe</strong> — Toute modification ici est répercutée automatiquement vers Stripe Products. Dernière sync : il y a 12 min</div>
+      </div>
+      <button class="plan-action" style="flex:none;width:auto;padding:6px 12px;">Forcer sync ↻</button>
+    </div>
+
+    <!-- 3 plans cards -->
+    <div class="plans-grid">
+
+      <div class="plan-card">
+        <div class="plan-icon starter">🎯</div>
+        <div class="plan-name">Starter</div>
+        <div class="plan-tagline">Idéal pour petites structures (1 zone, &lt; 10 employés)</div>
+        <div class="plan-price">
+          <span class="plan-price-value" style="color:var(--text);">79€</span>
+          <span class="plan-price-period">/ mois HT</span>
+        </div>
+        <div class="plan-price-yearly">ou 790€/an (économie 158€)</div>
+        <ul class="plan-features">
+          <li>Pointage temps réel</li>
+          <li>Service du jour</li>
+          <li>Jusqu'à 10 utilisateurs</li>
+          <li>1 zone</li>
+          <li>Support email (48h)</li>
+          <li class="disabled">Module Planning</li>
+          <li class="disabled">Module Tutoriels</li>
+          <li class="disabled">HACCP</li>
+          <li class="disabled">Validation hebdo</li>
+          <li class="disabled">Réservations</li>
+        </ul>
+        <div class="plan-stats">
+          <div class="plan-stat"><div class="plan-stat-label">Centres</div><div class="plan-stat-value" style="color:var(--text);">3</div></div>
+          <div class="plan-stat"><div class="plan-stat-label">MRR généré</div><div class="plan-stat-value" style="color:var(--green);">237€</div></div>
+        </div>
+        <div class="plan-actions">
+          <button class="plan-action">✏️ Modifier</button>
+          <button class="plan-action">📄 Voir détails</button>
+        </div>
+      </div>
+
+      <div class="plan-card featured">
+        <div class="plan-icon pro">💼</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-tagline">Standard pour la majorité des centres</div>
+        <div class="plan-price">
+          <span class="plan-price-value" style="color:var(--blue);">129€</span>
+          <span class="plan-price-period">/ mois HT</span>
+        </div>
+        <div class="plan-price-yearly">ou 1 290€/an (économie 258€)</div>
+        <ul class="plan-features">
+          <li>Tout ce qui est dans Starter</li>
+          <li>Jusqu'à 25 utilisateurs</li>
+          <li>Zones illimitées</li>
+          <li>Module Planning</li>
+          <li>Module Tutoriels</li>
+          <li>Validation hebdomadaire</li>
+          <li>Export PDF/CSV paie</li>
+          <li>Support prioritaire (24h)</li>
+          <li class="disabled">HACCP</li>
+          <li class="disabled">Réservations</li>
+        </ul>
+        <div class="plan-stats">
+          <div class="plan-stat"><div class="plan-stat-label">Centres</div><div class="plan-stat-value" style="color:var(--blue);">6</div></div>
+          <div class="plan-stat"><div class="plan-stat-label">MRR généré</div><div class="plan-stat-value" style="color:var(--green);">774€</div></div>
+        </div>
+        <div class="plan-actions">
+          <button class="plan-action">✏️ Modifier</button>
+          <button class="plan-action">📄 Voir détails</button>
+        </div>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-icon enterprise">🚀</div>
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-tagline">Multi-sites, gros volumes, modules complets</div>
+        <div class="plan-price">
+          <span class="plan-price-value" style="color:var(--purple);">199€</span>
+          <span class="plan-price-period">/ mois HT</span>
+        </div>
+        <div class="plan-price-yearly">ou 1 990€/an (économie 398€)</div>
+        <ul class="plan-features">
+          <li>Tout ce qui est dans Pro</li>
+          <li>Utilisateurs illimités</li>
+          <li>Centres multi-sites (×3 max)</li>
+          <li>Module HACCP complet</li>
+          <li>Module Réservations Pro</li>
+          <li>Module Entreprises (CSE)</li>
+          <li>API publique</li>
+          <li>White label (logo, couleurs)</li>
+          <li>Support dédié (4h)</li>
+          <li>Onboarding 1-to-1</li>
+        </ul>
+        <div class="plan-stats">
+          <div class="plan-stat"><div class="plan-stat-label">Centres</div><div class="plan-stat-value" style="color:var(--purple);">2</div></div>
+          <div class="plan-stat"><div class="plan-stat-label">MRR généré</div><div class="plan-stat-value" style="color:var(--green);">398€</div></div>
+        </div>
+        <div class="plan-actions">
+          <button class="plan-action">✏️ Modifier</button>
+          <button class="plan-action">📄 Voir détails</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tableau comparatif -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📋 Matrice de fonctionnalités</div>
+        <span style="font-size:11px;color:var(--muted);">Configuré ici · Sync Stripe automatique</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Fonctionnalité</th>
+            <th class="center">Starter <span style="display:block;color:var(--muted);font-size:10px;font-weight:500;">79€</span></th>
+            <th class="center">Pro <span style="display:block;color:var(--blue);font-size:10px;font-weight:500;">129€</span></th>
+            <th class="center">Enterprise <span style="display:block;color:var(--purple);font-size:10px;font-weight:500;">199€</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><div class="feat-name">Utilisateurs</div><div class="feat-cat">Limite par centre</div></td><td class="center"><span class="limit">10</span></td><td class="center"><span class="limit">25</span></td><td class="center"><span class="limit">illimité</span></td></tr>
+          <tr><td><div class="feat-name">Zones</div><div class="feat-cat">Accueil / Bar / Salle…</div></td><td class="center"><span class="limit">1</span></td><td class="center"><span class="limit">illimité</span></td><td class="center"><span class="limit">illimité</span></td></tr>
+          <tr><td><div class="feat-name">Pointage temps réel</div><div class="feat-cat">Module cœur</div></td><td class="center"><span class="check">✓</span></td><td class="center"><span class="check">✓</span></td><td class="center"><span class="check">✓</span></td></tr>
+          <tr><td><div class="feat-name">Service du jour</div><div class="feat-cat">Missions par zone</div></td><td class="center"><span class="check">✓</span></td><td class="center"><span class="check">✓</span></td><td class="center"><span class="check">✓</span></td></tr>
+          <tr><td><div class="feat-name">Planning hebdomadaire</div><div class="feat-cat">Module Phase 2</div></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="check">✓</span></td><td class="center"><span class="check">✓</span></td></tr>
+          <tr><td><div class="feat-name">Validation hebdo + paie</div><div class="feat-cat">Export CSV / PDF</div></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="check">✓</span></td><td class="center"><span class="check">✓</span></td></tr>
+          <tr><td><div class="feat-name">Tutoriels intégrés</div><div class="feat-cat">Formation staff</div></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="check">✓</span></td><td class="center"><span class="check">✓</span></td></tr>
+          <tr><td><div class="feat-name">HACCP complet</div><div class="feat-cat">Conformité sanitaire</div></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="check">✓</span></td></tr>
+          <tr><td><div class="feat-name">Réservations Pro</div><div class="feat-cat">Avec formules CSE</div></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="check">✓</span></td></tr>
+          <tr><td><div class="feat-name">API publique</div><div class="feat-cat">Intégrations tierces</div></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="check">✓</span></td></tr>
+          <tr><td><div class="feat-name">White label</div><div class="feat-cat">Logo, couleurs custom</div></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="cross">×</span></td><td class="center"><span class="check">✓</span></td></tr>
+          <tr><td><div class="feat-name">SLA support</div><div class="feat-cat">Réponse garantie</div></td><td class="center"><span class="limit">48h</span></td><td class="center"><span class="limit">24h</span></td><td class="center"><span class="limit">4h</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+</body>
+</html>

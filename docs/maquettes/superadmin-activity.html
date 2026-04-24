@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — SuperAdmin / Activity</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0d0f14;--surface:#151820;--surface2:#1c2030;--surface3:#111318;--border:#252a3a;--text:#e8eaf0;--muted:#6b7280;--accent:#f97316;--accent2:#fb923c;--blue:#3b82f6;--green:#22c55e;--red:#ef4444;--yellow:#eab308;--purple:#a855f7;--cyan:#06b6d4;--sidebar-w:240px;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+  .sidebar{width:var(--sidebar-w);height:100vh;position:fixed;top:0;left:0;background:var(--surface3);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;overflow-y:auto;}
+  .sidebar-header{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
+  .sidebar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;}
+  .sidebar-logo .name{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .sidebar-logo .dot{color:var(--text);}
+  .sidebar-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0f14;padding:3px 9px;border-radius:20px;}
+  .sidebar-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px;}
+  .nav-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:14px 12px 6px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:8px;text-decoration:none;border-left:3px solid transparent;margin-left:-3px;}
+  .nav-item:hover{background:var(--surface);color:var(--text);}
+  .nav-item.active{background:rgba(249,115,22,0.08);color:var(--accent);border-left-color:var(--accent);font-weight:600;}
+  .nav-item .icon{font-size:15px;width:18px;text-align:center;}
+  .nav-item .badge{margin-left:auto;background:var(--red);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
+  .nav-item .badge.muted{background:var(--surface2);color:var(--muted);}
+  .sidebar-footer{padding:14px;border-top:1px solid var(--border);}
+  .me-card{background:var(--surface);border:1px solid var(--border);padding:10px 12px;border-radius:10px;display:flex;align-items:center;gap:10px;}
+  .me-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .me-info{flex:1;min-width:0;}
+  .me-name{font-size:12px;font-weight:600;}
+  .me-role{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;}
+
+  .main{margin-left:var(--sidebar-w);flex:1;padding:24px 28px;}
+  .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;}
+  .page-subtitle{font-size:13px;color:var(--muted);margin-top:2px;}
+  .btn{padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;}
+  .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+  .kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;font-weight:700;}
+  .kpi-value{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-top:4px;}
+
+  /* Layout : filters + timeline */
+  .layout{display:grid;grid-template-columns:240px 1fr;gap:18px;}
+
+  .filters-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;height:fit-content;position:sticky;top:24px;}
+  .filter-group{margin-bottom:18px;}
+  .filter-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px;}
+  .filter-checkbox{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12px;cursor:pointer;}
+  .filter-checkbox input{accent-color:var(--accent);}
+  .filter-checkbox .count{margin-left:auto;color:var(--muted);font-size:11px;}
+  .filter-search{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;margin-bottom:10px;}
+  .filter-clear{font-size:11px;color:var(--accent);font-weight:600;cursor:pointer;text-align:center;padding:8px 0;border-top:1px solid var(--border);margin-top:8px;}
+
+  /* Timeline */
+  .timeline-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .timeline-search{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;}
+  .timeline-search input{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;}
+  .live-indicator{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--green);font-weight:600;}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+  .timeline{padding:0;}
+  .timeline-day{padding:12px 18px;background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1;}
+  .event{display:flex;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;transition:background 0.1s;}
+  .event:hover{background:rgba(249,115,22,0.03);}
+  .event-time{color:var(--muted);font-size:11px;font-family:monospace;min-width:55px;flex-shrink:0;padding-top:2px;}
+  .event-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .event-icon.green{background:rgba(34,197,94,0.12);color:var(--green);}
+  .event-icon.blue{background:rgba(59,130,246,0.12);color:var(--blue);}
+  .event-icon.orange{background:rgba(249,115,22,0.12);color:var(--accent);}
+  .event-icon.red{background:rgba(239,68,68,0.12);color:var(--red);}
+  .event-icon.purple{background:rgba(168,85,247,0.12);color:var(--purple);}
+  .event-icon.yellow{background:rgba(234,179,8,0.12);color:var(--yellow);}
+  .event-content{flex:1;min-width:0;}
+  .event-title{font-weight:600;line-height:1.4;}
+  .event-title strong{color:var(--accent);}
+  .event-title code{background:var(--surface2);padding:1px 6px;border-radius:4px;font-size:11px;color:var(--accent);font-family:monospace;}
+  .event-meta{font-size:11px;color:var(--muted);margin-top:4px;display:flex;gap:10px;flex-wrap:wrap;}
+  .event-meta span{display:inline-flex;align-items:center;gap:4px;}
+  .event-tag{display:inline-block;background:var(--surface2);padding:1px 7px;border-radius:4px;font-size:9px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);}
+  .event-tag.danger{background:rgba(239,68,68,0.1);color:var(--red);}
+  .event-tag.impersonation{background:rgba(168,85,247,0.1);color:var(--purple);}
+  .event-tag.system{background:rgba(59,130,246,0.1);color:var(--blue);}
+
+  @media (max-width:1100px){.layout{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-header"><div class="sidebar-logo"><span class="name">Shiftly</span><span class="dot">.</span></div><div class="sidebar-badge">SuperAdmin</div></div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Phase 1</div>
+      <a class="nav-item"><span class="icon">📊</span> Dashboard</a>
+      <a class="nav-item"><span class="icon">🏢</span> Centres <span class="badge muted">12</span></a>
+      <div class="nav-section-label">Phase 2</div>
+      <a class="nav-item"><span class="icon">💳</span> Abonnements</a>
+      <a class="nav-item"><span class="icon">📄</span> Facturation</a>
+      <a class="nav-item"><span class="icon">🏷️</span> Plans tarifaires</a>
+      <div class="nav-section-label">Phase 3</div>
+      <a class="nav-item"><span class="icon">👤</span> Utilisateurs <span class="badge muted">147</span></a>
+      <a class="nav-item"><span class="icon">🎧</span> Support <span class="badge">3</span></a>
+      <div class="nav-section-label">Phase 4 — Système</div>
+      <a class="nav-item active"><span class="icon">⚡</span> Activity</a>
+      <a class="nav-item"><span class="icon">⚙️</span> Réglages</a>
+    </div>
+    <div class="sidebar-footer"><div class="me-card"><div class="me-avatar">KV</div><div class="me-info"><div class="me-name">Kévin Vanphavong</div><div class="me-role">Fondateur</div></div></div></div>
+  </nav>
+
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">Activity & Audit Log</div>
+        <div class="page-subtitle">Toutes les actions de la plateforme · Conservation 90 jours</div>
+      </div>
+      <button class="btn btn-outline">📥 Exporter</button>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-label">Events 24h</div><div class="kpi-value" style="color:var(--text);">847</div></div>
+      <div class="kpi"><div class="kpi-label">Actions SuperAdmin</div><div class="kpi-value" style="color:var(--accent);">23</div></div>
+      <div class="kpi"><div class="kpi-label">Impersonations</div><div class="kpi-value" style="color:var(--purple);">3</div></div>
+      <div class="kpi"><div class="kpi-label">Erreurs système</div><div class="kpi-value" style="color:var(--red);">12</div></div>
+      <div class="kpi"><div class="kpi-label">Connexions</div><div class="kpi-value" style="color:var(--blue);">128</div></div>
+    </div>
+
+    <div class="layout">
+
+      <!-- Filtres -->
+      <div class="filters-panel">
+
+        <div class="filter-group">
+          <div class="filter-group-title">Période</div>
+          <select style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;">
+            <option>Aujourd'hui</option>
+            <option>7 derniers jours</option>
+            <option>30 derniers jours</option>
+            <option>90 derniers jours</option>
+            <option>Personnalisé</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-title">Type d'action</div>
+          <label class="filter-checkbox"><input type="checkbox" checked> Auth (login/logout) <span class="count">128</span></label>
+          <label class="filter-checkbox"><input type="checkbox" checked> CRUD entités <span class="count">412</span></label>
+          <label class="filter-checkbox"><input type="checkbox" checked> Pointage <span class="count">189</span></label>
+          <label class="filter-checkbox"><input type="checkbox" checked> SuperAdmin <span class="count">23</span></label>
+          <label class="filter-checkbox"><input type="checkbox" checked> Impersonation <span class="count">3</span></label>
+          <label class="filter-checkbox"><input type="checkbox" checked> Système <span class="count">19</span></label>
+          <label class="filter-checkbox"><input type="checkbox"> Webhooks Stripe <span class="count">11</span></label>
+          <label class="filter-checkbox"><input type="checkbox"> Erreurs Sentry <span class="count">12</span></label>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-title">Centre</div>
+          <input type="text" class="filter-search" placeholder="Filtrer centre...">
+          <label class="filter-checkbox"><input type="checkbox" checked> Bowling Central <span class="count">156</span></label>
+          <label class="filter-checkbox"><input type="checkbox" checked> Family Games <span class="count">142</span></label>
+          <label class="filter-checkbox"><input type="checkbox" checked> Bowling Stadium <span class="count">89</span></label>
+          <label class="filter-checkbox"><input type="checkbox"> Quasar Bowl <span class="count">67</span></label>
+          <label class="filter-checkbox"><input type="checkbox"> + 8 autres centres</label>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-title">Utilisateur</div>
+          <input type="text" class="filter-search" placeholder="Email ou nom...">
+        </div>
+
+        <div class="filter-clear">↺ Réinitialiser les filtres</div>
+
+      </div>
+
+      <!-- Timeline -->
+      <div class="timeline-panel">
+
+        <div class="timeline-search">
+          <input type="text" placeholder="🔍 Recherche dans les events (action, entité, IP...)">
+          <div class="live-indicator"><span class="live-dot"></span> Live</div>
+        </div>
+
+        <div class="timeline">
+
+          <div class="timeline-day">📅 Aujourd'hui — 22 avril 2026</div>
+
+          <div class="event">
+            <div class="event-time">14:32</div>
+            <div class="event-icon orange">🎭</div>
+            <div class="event-content">
+              <div class="event-title"><strong>Kévin V.</strong> a démarré une impersonation de <strong>Sophie Martin</strong> (Manager) sur Bowling Stadium Orléans</div>
+              <div class="event-meta">
+                <span>🆔 #IMP-4892</span>
+                <span>⏱ Durée 30 min</span>
+                <span>🌐 IP 82.66.142.18</span>
+                <span class="event-tag impersonation">IMPERSONATION</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">14:28</div>
+            <div class="event-icon blue">💬</div>
+            <div class="event-content">
+              <div class="event-title"><strong>Kévin V.</strong> a répondu au ticket <code>#TIC-0042</code> (Sophie M.)</div>
+              <div class="event-meta">
+                <span>🎧 Support</span>
+                <span>📝 175 caractères</span>
+                <span class="event-tag">SUPPORT</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">14:18</div>
+            <div class="event-icon green">✓</div>
+            <div class="event-content">
+              <div class="event-title"><strong>Sophie Martin</strong> a validé 14 pointages pour la semaine 16</div>
+              <div class="event-meta">
+                <span>🏢 Bowling Stadium Orléans</span>
+                <span>📊 14 pointages · 7 employés</span>
+                <span class="event-tag">POINTAGE</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">13:45</div>
+            <div class="event-icon red">🐛</div>
+            <div class="event-content">
+              <div class="event-title">Erreur Sentry capturée : <code>TypeError: Cannot read 'heureArrivee'</code></div>
+              <div class="event-meta">
+                <span>📍 PointageStaffCard.tsx:84</span>
+                <span>🏢 Bowling Stadium Orléans</span>
+                <span>👤 Sophie Martin</span>
+                <span class="event-tag danger">ERREUR</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">13:02</div>
+            <div class="event-icon green">💳</div>
+            <div class="event-content">
+              <div class="event-title">Webhook Stripe : <strong>invoice.payment_succeeded</strong> — 129€ reçu de Galaxy Park Marseille</div>
+              <div class="event-meta">
+                <span>📄 #INV-2026-0286</span>
+                <span class="event-tag system">STRIPE</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">12:30</div>
+            <div class="event-icon blue">🔐</div>
+            <div class="event-content">
+              <div class="event-title"><strong>Aurélie Rousseau</strong> s'est connectée depuis un nouveau device (Mac · Chrome)</div>
+              <div class="event-meta">
+                <span>🏢 VR Arena Lyon</span>
+                <span>🌐 IP 195.83.12.4</span>
+                <span class="event-tag">AUTH</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">11:54</div>
+            <div class="event-icon orange">✏️</div>
+            <div class="event-content">
+              <div class="event-title"><strong>Kévin V.</strong> a modifié le plan tarifaire <strong>Pro</strong> : prix 119€ → 129€</div>
+              <div class="event-meta">
+                <span>🏷️ Sync Stripe : OK</span>
+                <span class="event-tag impersonation">SUPERADMIN</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">11:02</div>
+            <div class="event-icon purple">➕</div>
+            <div class="event-content">
+              <div class="event-title"><strong>Sophie Martin</strong> a créé un service "Soir 22/04 — 18h-23h"</div>
+              <div class="event-meta">
+                <span>🏢 Bowling Stadium Orléans</span>
+                <span>👥 7 postes assignés</span>
+                <span class="event-tag">CRUD</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">10:45</div>
+            <div class="event-icon green">🏢</div>
+            <div class="event-content">
+              <div class="event-title">Nouveau centre créé : <strong>Speed Park Rennes</strong> (essai 14j)</div>
+              <div class="event-meta">
+                <span>📍 Rennes</span>
+                <span>👤 Manager : Lucas Bernard</span>
+                <span class="event-tag impersonation">SUPERADMIN</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">09:18</div>
+            <div class="event-icon yellow">⚙️</div>
+            <div class="event-content">
+              <div class="event-title">Maintenance programmée terminée : déploiement <code>v0.4.3</code></div>
+              <div class="event-meta">
+                <span>⏱ Durée 4 min</span>
+                <span>📦 Validation hebdo + corrections</span>
+                <span class="event-tag system">SYSTEM</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-day">📅 Hier — 21 avril 2026</div>
+
+          <div class="event">
+            <div class="event-time">22:14</div>
+            <div class="event-icon red">⚠️</div>
+            <div class="event-content">
+              <div class="event-title">Tentative de connexion échouée pour <strong>support@strikeclub-bdx.fr</strong> (3e tentative)</div>
+              <div class="event-meta">
+                <span>🌐 IP 109.225.78.143</span>
+                <span>⚠️ Compte verrouillé 15 min</span>
+                <span class="event-tag danger">SÉCURITÉ</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">19:42</div>
+            <div class="event-icon green">💳</div>
+            <div class="event-content">
+              <div class="event-title">Webhook Stripe : 79€ reçu de Cosmic Bowling Lille</div>
+              <div class="event-meta">
+                <span class="event-tag system">STRIPE</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="event">
+            <div class="event-time">15:28</div>
+            <div class="event-icon orange">🎭</div>
+            <div class="event-content">
+              <div class="event-title"><strong>Kévin V.</strong> a démarré impersonation de <strong>Camille Leblanc</strong> sur Galaxy Park</div>
+              <div class="event-meta">
+                <span>🆔 #IMP-4891</span>
+                <span>⏱ Durée 18 min (terminée à 15:46)</span>
+                <span class="event-tag impersonation">IMPERSONATION</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+</html>

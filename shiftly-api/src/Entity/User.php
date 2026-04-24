@@ -59,8 +59,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(OrderFilter::class, properties: ['nom', 'points', 'createdAt'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    const ROLE_MANAGER = 'MANAGER';
-    const ROLE_EMPLOYE = 'EMPLOYE';
+    const ROLE_MANAGER    = 'MANAGER';
+    const ROLE_EMPLOYE    = 'EMPLOYE';
+    const ROLE_SUPERADMIN = 'SUPERADMIN';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['user:read', 'poste:read', 'completion:read', 'incident:read',
@@ -110,6 +111,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     #[Groups(['user:read'])]
     private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['user:read'])]
+    private ?\DateTimeImmutable $lastLoginAt = null;
 
     #[ORM\Column(length: 100, nullable: true)]
     #[Groups(['user:read', 'user:write', 'poste:read', 'staffcompetence:read'])]
@@ -176,6 +181,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPoints(int $points): static { $this->points = $points; return $this; }
     public function addPoints(int $pts): static { $this->points += $pts; return $this; }
     public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function getLastLoginAt(): ?\DateTimeImmutable { return $this->lastLoginAt; }
+    public function setLastLoginAt(?\DateTimeImmutable $lastLoginAt): static { $this->lastLoginAt = $lastLoginAt; return $this; }
     public function getTailleHaut(): ?string { return $this->tailleHaut; }
     public function setTailleHaut(?string $t): static { $this->tailleHaut = $t; return $this; }
     public function getTailleBas(): ?string { return $this->tailleBas; }
@@ -203,6 +210,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $roles[] = 'ROLE_USER';
         if ($this->role === self::ROLE_MANAGER) {
             $roles[] = 'ROLE_MANAGER';
+        }
+        if ($this->role === self::ROLE_SUPERADMIN) {
+            $roles[] = 'ROLE_SUPERADMIN';
         }
         return array_unique($roles);
     }

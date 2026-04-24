@@ -1,0 +1,355 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 5 : VR Galaxy — Nantes (VR indoor + escape VR + snacking)
+#  Staff  : 8 membres (2 managers, 6 employés)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_vrgalaxy:
+    nom:     "VR Galaxy — Nantes"
+    adresse: "7 quai de la Fosse, 44000 Nantes"
+    openingHours:
+      lundi:    { ouvert: false, ouverture: "14:00", fermeture: "22:00" }
+      mardi:    { ouvert: true,  ouverture: "14:00", fermeture: "22:00" }
+      mercredi: { ouvert: true,  ouverture: "11:00", fermeture: "22:00" }
+      jeudi:    { ouvert: true,  ouverture: "14:00", fermeture: "22:00" }
+      vendredi: { ouvert: true,  ouverture: "14:00", fermeture: "00:00" }
+      samedi:   { ouvert: true,  ouverture: "10:00", fermeture: "00:00" }
+      dimanche: { ouvert: true,  ouverture: "10:00", fermeture: "20:00" }
+
+App\Entity\Zone:
+  zone_vr_accueil:
+    centre:  "@centre_vrgalaxy"
+    nom:     "Accueil"
+    couleur: "#3b82f6"
+    ordre:   1
+  zone_vr_salles:
+    centre:  "@centre_vrgalaxy"
+    nom:     "Salles VR"
+    couleur: "#a855f7"
+    ordre:   2
+  zone_vr_snacking:
+    centre:  "@centre_vrgalaxy"
+    nom:     "Bar Snacking"
+    couleur: "#f97316"
+    ordre:   3
+
+App\Entity\User:
+  user_vr_marion:
+    centre: "@centre_vrgalaxy"
+    nom: "Delmas"
+    prenom: "Marion"
+    email: "marion@vr-galaxy.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "0000"
+    avatarColor: "#f97316"
+    points: 205
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_vr_alexandre:
+    centre: "@centre_vrgalaxy"
+    nom: "Perrin"
+    prenom: "Alexandre"
+    email: "alexandre@vr-galaxy.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "1111"
+    avatarColor: "#8b5cf6"
+    points: 170
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_vr_louis:
+    centre: "@centre_vrgalaxy"
+    nom: "Caron"
+    prenom: "Louis"
+    email: "louis@vr-galaxy.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "2222"
+    avatarColor: "#0ea5e9"
+    points: 135
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_vr_eva:
+    centre: "@centre_vrgalaxy"
+    nom: "Pereira"
+    prenom: "Eva"
+    email: "eva@vr-galaxy.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "3333"
+    avatarColor: "#ec4899"
+    points: 115
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_vr_enzo:
+    centre: "@centre_vrgalaxy"
+    nom: "Faure"
+    prenom: "Enzo"
+    email: "enzo@vr-galaxy.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "4444"
+    avatarColor: "#22c55e"
+    points: 90
+    actif: true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+  user_vr_clara:
+    centre: "@centre_vrgalaxy"
+    nom: "Boucher"
+    prenom: "Clara"
+    email: "clara@vr-galaxy.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "5555"
+    avatarColor: "#f59e0b"
+    points: 60
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_vr_hakim:
+    centre: "@centre_vrgalaxy"
+    nom: "Saidi"
+    prenom: "Hakim"
+    email: "hakim@vr-galaxy.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "6666"
+    avatarColor: "#14b8a6"
+    points: 45
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_vr_jade:
+    centre: "@centre_vrgalaxy"
+    nom: "Lopes"
+    prenom: "Jade"
+    email: "jade@vr-galaxy.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "7777"
+    avatarColor: "#f472b6"
+    points: 25
+    actif: true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+App\Entity\Mission:
+  m_vr_acc_ouv_1:  { zone: "@zone_vr_accueil", texte: "Ouvrir la caisse, vérifier TPE et fond de caisse (100€)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_acc_ouv_2:  { zone: "@zone_vr_accueil", texte: "Imprimer planning des sessions VR réservées du jour", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_acc_ouv_3:  { zone: "@zone_vr_accueil", texte: "Vérifier affichage vidéo promos et propreté du hall", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_vr_acc_pend_1: { zone: "@zone_vr_accueil", texte: "Accueillir, encaisser, faire signer les décharges (mineurs)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_acc_pend_2: { zone: "@zone_vr_accueil", texte: "Gérer le flux de rotation entre sessions (15 min entre groupes)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_vr_acc_ferm_1: { zone: "@zone_vr_accueil", texte: "Clôture caisse, impression Z, coffre-fort", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_acc_ferm_2: { zone: "@zone_vr_accueil", texte: "Nettoyer comptoir et ranger décharges de la journée", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  m_vr_sal_ouv_1:  { zone: "@zone_vr_salles", texte: "Allumer les 4 stations VR et lancer le launcher de jeux", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_sal_ouv_2:  { zone: "@zone_vr_salles", texte: "Vérifier casques, contrôleurs et charge des batteries", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_sal_ouv_3:  { zone: "@zone_vr_salles", texte: "Désinfecter casques et mousses (lingettes spécifiques)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_vr_sal_ouv_4:  { zone: "@zone_vr_salles", texte: "Contrôler câbles de plafond (aucun emmêlement) et marquage au sol", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_vr_sal_pend_1: { zone: "@zone_vr_salles", texte: "Briefer chaque joueur sur l'usage du casque et bouton pause", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_sal_pend_2: { zone: "@zone_vr_salles", texte: "Surveiller les joueurs en direct (nausées, chutes, sorties de zone)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_sal_pend_3: { zone: "@zone_vr_salles", texte: "Désinfecter mousses de casque entre chaque session", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_vr_sal_pend_4: { zone: "@zone_vr_salles", texte: "Relancer le jeu suivant et afficher le score de l'équipe précédente", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_vr_sal_ferm_1: { zone: "@zone_vr_salles", texte: "Ranger casques et manettes sur racks de charge", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_sal_ferm_2: { zone: "@zone_vr_salles", texte: "Éteindre PCs, écrans et lancer mise à jour logicielle", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_sal_ferm_3: { zone: "@zone_vr_salles", texte: "Aspirer les zones de jeu et désinfecter sol de marquage", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+
+  m_vr_snk_ouv_1:  { zone: "@zone_vr_snacking", texte: "Mise en route micro-ondes et four à paninis / croques", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_snk_ouv_2:  { zone: "@zone_vr_snacking", texte: "Contrôler DLC snacking et remplir le frigo softs", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_snk_pend_1: { zone: "@zone_vr_snacking", texte: "Servir les commandes (entre deux sessions, rush court 15 min)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_snk_pend_2: { zone: "@zone_vr_snacking", texte: "Nettoyer plan de travail entre chaque commande", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_vr_snk_ferm_1: { zone: "@zone_vr_snacking", texte: "Éteindre fours, ranger produits frais, nettoyer plan", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+App\Entity\Competence:
+  comp_vr_acc_1:  { zone: "@zone_vr_accueil",  nom: "Gestion des sessions VR et rotations",          points: 20, difficulte: "avancee" }
+  comp_vr_acc_2:  { zone: "@zone_vr_accueil",  nom: "Gestion des décharges et mineurs",              points: 15, difficulte: "simple" }
+  comp_vr_sal_1:  { zone: "@zone_vr_salles",   nom: "Briefing VR et prévention mal des transports",  points: 30, difficulte: "avancee" }
+  comp_vr_sal_2:  { zone: "@zone_vr_salles",   nom: "Dépannage logiciel et matériel VR",             points: 40, difficulte: "experimente" }
+  comp_vr_snk_1:  { zone: "@zone_vr_snacking", nom: "Préparation snacking rapide (paninis, hotdogs)", points: 15, difficulte: "simple" }
+
+App\Entity\StaffCompetence:
+  sc_vr_m1: { user: "@user_vr_marion",     competence: "@comp_vr_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2024-04-01'))>" }
+  sc_vr_m2: { user: "@user_vr_marion",     competence: "@comp_vr_sal_1", acquiredAt: "<(new \\DateTimeImmutable('2024-05-01'))>" }
+  sc_vr_m3: { user: "@user_vr_marion",     competence: "@comp_vr_sal_2", acquiredAt: "<(new \\DateTimeImmutable('2024-09-01'))>" }
+  sc_vr_a1: { user: "@user_vr_alexandre",  competence: "@comp_vr_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2024-06-01'))>" }
+  sc_vr_a2: { user: "@user_vr_alexandre",  competence: "@comp_vr_sal_1", acquiredAt: "<(new \\DateTimeImmutable('2024-07-15'))>" }
+  sc_vr_a3: { user: "@user_vr_alexandre",  competence: "@comp_vr_sal_2", acquiredAt: "<(new \\DateTimeImmutable('2025-02-01'))>" }
+  sc_vr_l1: { user: "@user_vr_louis",      competence: "@comp_vr_sal_1", acquiredAt: "<(new \\DateTimeImmutable('2025-01-15'))>" }
+  sc_vr_l2: { user: "@user_vr_louis",      competence: "@comp_vr_sal_2", acquiredAt: "<(new \\DateTimeImmutable('2025-06-01'))>" }
+  sc_vr_e1: { user: "@user_vr_eva",        competence: "@comp_vr_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2025-03-01'))>" }
+  sc_vr_e2: { user: "@user_vr_eva",        competence: "@comp_vr_snk_1", acquiredAt: "<(new \\DateTimeImmutable('2025-04-01'))>" }
+  sc_vr_en1: { user: "@user_vr_enzo",       competence: "@comp_vr_sal_1", acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>" }
+  sc_vr_c1: { user: "@user_vr_clara",      competence: "@comp_vr_snk_1", acquiredAt: "<(new \\DateTimeImmutable('2026-01-10'))>" }
+  sc_vr_h1: { user: "@user_vr_hakim",      competence: "@comp_vr_sal_1", acquiredAt: "<(new \\DateTimeImmutable('2026-02-15'))>" }
+  sc_vr_j1: { user: "@user_vr_jade",       competence: "@comp_vr_acc_2", acquiredAt: "<(new \\DateTimeImmutable('2026-03-20'))>" }
+
+App\Entity\Service:
+  svc_vr_j5:
+    centre: "@centre_vrgalaxy"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-5 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 94.0
+  svc_vr_j3:
+    centre: "@centre_vrgalaxy"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 87.0
+    note: "Samedi chargé — session Beat Saber booking intense 18h-22h."
+  svc_vr_j2:
+    centre: "@centre_vrgalaxy"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('20:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 96.0
+  svc_vr_today:
+    centre: "@centre_vrgalaxy"
+    date: "<(new \\DateTimeImmutable('today'))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    statut: "EN_COURS"
+    tauxCompletion: 0.0
+    note: "Mise à jour PC station 3 faite ce matin — tester Half-Life Alyx avant les sessions 18h."
+  svc_vr_j1:
+    centre: "@centre_vrgalaxy"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_vr_j2p:
+    centre: "@centre_vrgalaxy"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+
+App\Entity\Poste:
+  poste_vr_today_acc_marion:
+    service: "@svc_vr_today"
+    zone: "@zone_vr_accueil"
+    user: "@user_vr_marion"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 30
+  poste_vr_today_sal_louis:
+    service: "@svc_vr_today"
+    zone: "@zone_vr_salles"
+    user: "@user_vr_louis"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 30
+  poste_vr_today_sal_eva:
+    service: "@svc_vr_today"
+    zone: "@zone_vr_salles"
+    user: "@user_vr_eva"
+    heureDebut: "<(new \\DateTimeImmutable('16:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 20
+  poste_vr_today_snk_clara:
+    service: "@svc_vr_today"
+    zone: "@zone_vr_snacking"
+    user: "@user_vr_clara"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 20
+  poste_vr_j2_acc_alexandre:
+    service: "@svc_vr_j2"
+    zone: "@zone_vr_accueil"
+    user: "@user_vr_alexandre"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_vr_j2_sal_louis:
+    service: "@svc_vr_j2"
+    zone: "@zone_vr_salles"
+    user: "@user_vr_louis"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_vr_j2_sal_enzo:
+    service: "@svc_vr_j2"
+    zone: "@zone_vr_salles"
+    user: "@user_vr_enzo"
+    heureDebut: "<(new \\DateTimeImmutable('12:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('20:00:00'))>"
+    pauseMinutes: 30
+
+App\Entity\Completion:
+  c_vr_1: { poste: "@poste_vr_today_acc_marion",  mission: "@m_vr_acc_ouv_1",  user: "@user_vr_marion" }
+  c_vr_2: { poste: "@poste_vr_today_acc_marion",  mission: "@m_vr_acc_ouv_2",  user: "@user_vr_marion" }
+  c_vr_3: { poste: "@poste_vr_today_sal_louis",   mission: "@m_vr_sal_ouv_1",  user: "@user_vr_louis" }
+  c_vr_4: { poste: "@poste_vr_today_sal_louis",   mission: "@m_vr_sal_ouv_2",  user: "@user_vr_louis" }
+  c_vr_5: { poste: "@poste_vr_today_sal_louis",   mission: "@m_vr_sal_ouv_3",  user: "@user_vr_louis" }
+
+App\Entity\Incident:
+  inc_vr_1:
+    centre:         "@centre_vrgalaxy"
+    service:        "@svc_vr_j3"
+    titre:          "Joueur chute en session Half-Life Alyx — petite contusion genou"
+    severite:       "moyenne"
+    statut:         "RESOLU"
+    user:           "@user_vr_marion"
+    zone:           "@zone_vr_salles"
+    staffImpliques: ["@user_vr_marion", "@user_vr_louis"]
+
+App\Entity\Tutoriel:
+  tuto_vr_brief:
+    centre:  "@centre_vrgalaxy"
+    titre:   "Brief VR et prévention du mal de transport"
+    zone:    "@zone_vr_salles"
+    niveau:  "intermediaire"
+    dureMin: 15
+    contenu:
+      - { type: "intro", text: "Le mal de transport (cybersickness) touche 10% des joueurs. Un bon brief le prévient dans la majorité des cas." }
+      - { type: "step", number: 1, title: "Réglage du casque", text: "Ajuster la sangle arrière, la distance interpupillaire (IPD) et la netteté avant de lancer le jeu." }
+      - { type: "step", number: 2, title: "Consignes clés", text: "Stopper dès que nausée apparaît, bouton pause (menu) sur la manette gauche, respiration calme." }
+      - { type: "step", number: 3, title: "Surveillance", text: "Observer posture et visage du joueur via l'écran de retour. Intervenir au premier signe de pâleur." }
+      - { type: "tip", text: "Pour les débutants : privilégier Beat Saber ou Job Simulator, éviter les jeux à déplacement libre." }
+  tuto_vr_hygiene:
+    centre:  "@centre_vrgalaxy"
+    titre:   "Protocole hygiène casques VR"
+    zone:    "@zone_vr_salles"
+    niveau:  "debutant"
+    dureMin: 10
+    contenu:
+      - { type: "intro", text: "Entre chaque joueur, les mousses du casque doivent être désinfectées. Obligation sanitaire post-COVID." }
+      - { type: "step", number: 1, title: "Démonter la mousse", text: "Retirer la mousse velcro de la zone front. Jamais frotter la lentille directement." }
+      - { type: "step", number: 2, title: "Désinfecter", text: "Lingette virucide dédiée (pas d'alcool sur les lentilles). Attendre 30 sec avant remontage." }
+      - { type: "step", number: 3, title: "Test final", text: "Vérifier buée / trace sur la lentille avec une lampe avant le joueur suivant." }
+
+App\Entity\TutoRead:
+  tr_vr_l1: { user: "@user_vr_louis",   tutoriel: "@tuto_vr_brief" }
+  tr_vr_l2: { user: "@user_vr_louis",   tutoriel: "@tuto_vr_hygiene" }
+  tr_vr_e1: { user: "@user_vr_enzo",    tutoriel: "@tuto_vr_brief" }
+  tr_vr_e2: { user: "@user_vr_enzo",    tutoriel: "@tuto_vr_hygiene" }
+  tr_vr_h1: { user: "@user_vr_hakim",   tutoriel: "@tuto_vr_brief" }
+  tr_vr_ev1: { user: "@user_vr_eva",     tutoriel: "@tuto_vr_hygiene" }
+
+App\Entity\PlanningWeek:
+  pw_vr_current:
+    centre:      "@centre_vrgalaxy"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 10:30:00'))>"
+    publishedBy: "@user_vr_marion"
