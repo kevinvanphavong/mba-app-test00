@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF — Co-branding Shiftly × Centre</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1d26;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      padding: 32px;
+      color: #1a1a2e;
+    }
+
+    /* Contexte SuperAdmin */
+    .context-bar {
+      background: #12151e;
+      border: 1px solid #252a3a;
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      color: #e8eaf0;
+      font-size: 13px;
+    }
+    .context-label { color: #6b7280; font-size: 12px; margin-bottom: 3px; }
+    .context-title { font-weight: 700; font-size: 15px; margin-bottom: 14px; }
+    .variants-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .variant-btn {
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1px solid #252a3a; background: #1c2030; color: #6b7280;
+    }
+    .variant-btn.active { background: rgba(249,115,22,0.15); color: #f97316; border-color: rgba(249,115,22,0.4); }
+
+    .section-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #6b7280; margin: 24px 0 12px;
+    }
+
+    /* PDF page */
+    .pdf-page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      overflow: hidden;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 32px;
+    }
+
+    /* ── Variante 1 : Dark header ── */
+    .pdf-header-dark {
+      background: #0d0f14;
+      padding: 24px 28px;
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .brand-shiftly {
+      font-weight: 800;
+      font-size: 26px;
+      font-family: 'Syne', system-ui, sans-serif;
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .brand-times {
+      font-size: 22px;
+      color: #6b7280;
+      font-weight: 300;
+      margin: 0 14px;
+      line-height: 1;
+    }
+    .brand-centre {
+      font-size: 22px;
+      font-weight: 800;
+      color: #e8eaf0;
+      line-height: 1;
+    }
+    .brand-tagline {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 6px;
+      letter-spacing: 0.3px;
+    }
+    .doc-meta-dark {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #252a3a;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .doc-type-dark {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 1.2px; color: #f97316;
+    }
+    .doc-period-dark { font-size: 13px; color: #e8eaf0; font-weight: 600; margin-top: 2px; }
+    .doc-generated-dark { font-size: 10px; color: #6b7280; }
+
+    .accent-bar-full { height: 3px; background: linear-gradient(90deg, #f97316, #fb923c 40%, transparent); }
+    .accent-bar-split { height: 3px; display: flex; }
+    .accent-bar-left { flex: 1; background: linear-gradient(90deg, #f97316, #fb923c); }
+    .accent-bar-right { flex: 1; background: linear-gradient(90deg, #3b82f6, transparent); }
+
+    /* Fake body */
+    .pdf-body-preview {
+      padding: 22px 28px;
+    }
+    .placeholder-block {
+      height: 12px; background: #f3f4f6; border-radius: 4px; margin-bottom: 8px;
+    }
+    .placeholder-block.short { width: 55%; }
+    .placeholder-block.medium { width: 75%; }
+    .placeholder-block.full { width: 100%; }
+    .placeholder-table {
+      border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; margin-top: 16px;
+    }
+    .placeholder-table-header { background: #f9fafb; padding: 10px 14px; display: flex; gap: 8px; }
+    .placeholder-table-row { padding: 10px 14px; border-top: 1px solid #f3f4f6; display: flex; gap: 8px; }
+    .ph-cell { height: 10px; background: #e5e7eb; border-radius: 3px; flex: 1; }
+    .ph-cell.sm { flex: 0 0 60px; }
+    .ph-cell.xs { flex: 0 0 40px; }
+    .ph-cell-header { height: 10px; background: #d1d5db; border-radius: 3px; flex: 1; }
+
+    /* Footer PDF */
+    .pdf-footer {
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      padding: 12px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+    .pdf-footer strong { color: #6b7280; }
+    .footer-powered {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .footer-shiftly-badge {
+      font-size: 11px; font-weight: 800;
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-family: 'Syne', system-ui, sans-serif;
+    }
+
+    /* ── Variante 2 : Split header blanc/orange ── */
+    .pdf-header-split {
+      display: flex;
+      height: 80px;
+    }
+    .header-split-left {
+      flex: 1;
+      background: white;
+      border-right: 1px solid #e5e7eb;
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-split-right {
+      flex: 1;
+      background: #f97316;
+      padding: 18px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .split-shiftly {
+      font-weight: 800; font-size: 20px;
+      font-family: 'Syne', system-ui, sans-serif;
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .split-sep { color: #9ca3af; font-size: 16px; font-weight: 300; margin: 0 8px; }
+    .split-centre { font-size: 16px; font-weight: 800; color: #111827; }
+    .split-right-type { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.7); }
+    .split-right-period { font-size: 14px; font-weight: 800; color: white; }
+  </style>
+</head>
+<body>
+
+<!-- Contexte SuperAdmin -->
+<div class="context-bar">
+  <div class="context-label">Preview co-branding — SuperAdmin · PDF Pointage</div>
+  <div class="context-title">🎨 "Shiftly × [Nom du centre]" — Variantes de header</div>
+  <div class="variants-row">
+    <div class="variant-btn active">Variante A — Dark (recommandé)</div>
+    <div class="variant-btn">Variante B — Split blanc/orange</div>
+    <div class="variant-btn">Variante C — Minimaliste</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section-label">✅ Variante A — Dark header (recommandé)</div>
+
+<div class="pdf-page">
+  <div class="pdf-header-dark">
+    <div class="brand-row">
+      <div class="brand-shiftly">Shiftly</div>
+      <div class="brand-times">×</div>
+      <div class="brand-centre">Family Games Center</div>
+    </div>
+    <div class="brand-tagline">Management opérationnel · shiftly.app</div>
+    <div class="doc-meta-dark">
+      <div>
+        <div class="doc-type-dark">Fiche de pointage individuelle</div>
+        <div class="doc-period-dark">Semaine 17 — 21 au 27 avril 2026</div>
+      </div>
+      <div class="doc-generated-dark">Généré le 28/04/2026 à 08:00</div>
+    </div>
+  </div>
+  <div class="accent-bar-full"></div>
+
+  <div class="pdf-body-preview">
+    <div class="placeholder-block medium"></div>
+    <div class="placeholder-block short"></div>
+    <div class="placeholder-table">
+      <div class="placeholder-table-header">
+        <div class="ph-cell-header sm"></div>
+        <div class="ph-cell-header xs"></div>
+        <div class="ph-cell-header xs"></div>
+        <div class="ph-cell-header xs"></div>
+        <div class="ph-cell-header xs"></div>
+        <div class="ph-cell-header sm"></div>
+      </div>
+      <div class="placeholder-table-row">
+        <div class="ph-cell sm"></div><div class="ph-cell xs"></div><div class="ph-cell xs"></div>
+        <div class="ph-cell xs"></div><div class="ph-cell xs"></div><div class="ph-cell sm"></div>
+      </div>
+      <div class="placeholder-table-row">
+        <div class="ph-cell sm"></div><div class="ph-cell xs"></div><div class="ph-cell xs"></div>
+        <div class="ph-cell xs"></div><div class="ph-cell xs"></div><div class="ph-cell sm"></div>
+      </div>
+      <div class="placeholder-table-row">
+        <div class="ph-cell sm"></div><div class="ph-cell xs"></div><div class="ph-cell xs"></div>
+        <div class="ph-cell xs"></div><div class="ph-cell xs"></div><div class="ph-cell sm"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pdf-footer">
+    <div class="footer-powered">
+      Généré par <span class="footer-shiftly-badge" style="margin-left:4px;">Shiftly</span>
+      <span style="color:#d1d5db;">·</span>
+      shiftly.app
+    </div>
+    <div>Family Games Center · IDCC 1790 · Document confidentiel</div>
+    <div>Page 1 / 1</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section-label">Variante B — Split blanc / orange</div>
+
+<div class="pdf-page">
+  <div class="pdf-header-split">
+    <div class="header-split-left">
+      <div>
+        <div style="display:flex;align-items:center;">
+          <span class="split-shiftly">Shiftly</span>
+          <span class="split-sep">×</span>
+          <span class="split-centre">Family Games Center</span>
+        </div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:3px;">Management opérationnel</div>
+      </div>
+    </div>
+    <div class="header-split-right">
+      <div class="split-right-type">Fiche de pointage individuelle</div>
+      <div class="split-right-period">Semaine 17 · 21–27 avr. 2026</div>
+    </div>
+  </div>
+  <div class="accent-bar-split">
+    <div class="accent-bar-left"></div>
+    <div class="accent-bar-right"></div>
+  </div>
+
+  <div class="pdf-body-preview">
+    <div class="placeholder-block medium"></div>
+    <div class="placeholder-block short"></div>
+    <div class="placeholder-table">
+      <div class="placeholder-table-header">
+        <div class="ph-cell-header sm"></div>
+        <div class="ph-cell-header xs"></div><div class="ph-cell-header xs"></div>
+        <div class="ph-cell-header xs"></div><div class="ph-cell-header xs"></div>
+        <div class="ph-cell-header sm"></div>
+      </div>
+      <div class="placeholder-table-row">
+        <div class="ph-cell sm"></div><div class="ph-cell xs"></div>
+        <div class="ph-cell xs"></div><div class="ph-cell xs"></div>
+        <div class="ph-cell xs"></div><div class="ph-cell sm"></div>
+      </div>
+      <div class="placeholder-table-row">
+        <div class="ph-cell sm"></div><div class="ph-cell xs"></div>
+        <div class="ph-cell xs"></div><div class="ph-cell xs"></div>
+        <div class="ph-cell xs"></div><div class="ph-cell sm"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pdf-footer">
+    <div class="footer-powered">
+      Généré par <span class="footer-shiftly-badge" style="margin-left:4px;">Shiftly</span>
+      <span style="color:#d1d5db;">·</span> shiftly.app
+    </div>
+    <div>Family Games Center · IDCC 1790</div>
+    <div>Page 1 / 1</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="section-label">Variante C — Minimaliste</div>
+
+<div class="pdf-page">
+  <!-- Header minimaliste -->
+  <div style="padding:20px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #f97316;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-weight:800;font-size:18px;font-family:'Syne',system-ui;background:linear-gradient(135deg,#f97316,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Shiftly</span>
+      <span style="color:#d1d5db;font-size:14px;">×</span>
+      <span style="font-size:14px;font-weight:700;color:#374151;">Family Games Center</span>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f97316;">Fiche de pointage</div>
+      <div style="font-size:12px;color:#6b7280;">S17 · 21–27 avr. 2026</div>
+    </div>
+  </div>
+
+  <div class="pdf-body-preview">
+    <div class="placeholder-block full"></div>
+    <div class="placeholder-block medium"></div>
+    <div class="placeholder-table">
+      <div class="placeholder-table-header">
+        <div class="ph-cell-header sm"></div>
+        <div class="ph-cell-header xs"></div><div class="ph-cell-header xs"></div>
+        <div class="ph-cell-header xs"></div><div class="ph-cell-header xs"></div>
+        <div class="ph-cell-header sm"></div>
+      </div>
+      <div class="placeholder-table-row">
+        <div class="ph-cell sm"></div><div class="ph-cell xs"></div>
+        <div class="ph-cell xs"></div><div class="ph-cell xs"></div>
+        <div class="ph-cell xs"></div><div class="ph-cell sm"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pdf-footer">
+    <div class="footer-powered">
+      Généré par <span class="footer-shiftly-badge" style="margin-left:4px;">Shiftly</span>
+    </div>
+    <div>Family Games Center · IDCC 1790</div>
+    <div>Page 1 / 1</div>
+  </div>
+</div>
+
+</body>
+</html>

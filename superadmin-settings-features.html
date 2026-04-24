@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SuperAdmin — Settings — Feature Flags</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0f14; --surface: #151820; --surface2: #1c2030; --surface3: #12151e;
+      --border: #252a3a; --text: #e8eaf0; --muted: #6b7280;
+      --accent: #f97316; --accent2: #fb923c;
+      --blue: #3b82f6; --green: #22c55e; --red: #ef4444; --yellow: #eab308; --purple: #a855f7;
+    }
+    body { background: var(--bg); color: var(--text); font-family: 'DM Sans', system-ui, sans-serif; display: flex; min-height: 100vh; }
+
+    /* Sidebar (même que activity.html) */
+    .sidebar { width: 240px; min-height: 100vh; background: var(--surface3); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; overflow-y: auto; z-index: 50; }
+    .sidebar-header { padding: 22px 20px 18px; border-bottom: 1px solid var(--border); }
+    .logo { font-family: 'Syne', system-ui, sans-serif; font-weight: 800; font-size: 22px; background: linear-gradient(135deg, #f97316, #fb923c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .badge-superadmin { display: inline-block; margin-top: 6px; font-size: 9px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase; background: linear-gradient(135deg, #f97316, #fb923c); color: var(--bg); padding: 3px 9px; border-radius: 20px; }
+    .nav-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); padding: 14px 12px 6px; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; font-size: 13px; border-radius: 8px; margin: 1px 0; cursor: pointer; color: var(--muted); text-decoration: none; border-left: 3px solid transparent; margin-left: -3px; }
+    .nav-item.active { background: rgba(249,115,22,0.1); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+    .nav-item.disabled { opacity: 0.4; pointer-events: none; }
+    .nav-items { padding: 0 12px; flex: 1; }
+    .sidebar-user { padding: 14px; border-top: 1px solid var(--border); }
+    .sidebar-user-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #f97316, #fb923c); color: white; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .user-name { font-size: 12px; font-weight: 600; }
+    .user-role { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; }
+
+    .main { margin-left: 240px; flex: 1; padding: 28px; min-height: 100vh; }
+    .page-title { font-family: 'Syne', system-ui, sans-serif; font-weight: 800; font-size: 26px; margin-bottom: 4px; }
+    .page-subtitle { font-size: 14px; color: var(--muted); margin-bottom: 24px; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 24px; width: fit-content; }
+    .tab { padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted); }
+    .tab.active { background: var(--accent); color: white; }
+
+    /* Centre selector */
+    .centre-selector { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; }
+    .centre-label { font-size: 13px; color: var(--muted); }
+    .centre-select { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 14px; font-size: 13px; outline: none; font-family: inherit; cursor: pointer; }
+    .centre-select:focus { border-color: var(--accent); }
+
+    /* Feature grid */
+    .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 24px; }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: border-color 0.15s;
+    }
+    .feature-card.core { border-left: 3px solid var(--muted); opacity: 0.8; }
+    .feature-card.enabled { border-left: 3px solid var(--green); }
+    .feature-card.disabled-feature { border-left: 3px solid var(--border); }
+
+    .feature-icon { font-size: 22px; width: 40px; text-align: center; flex-shrink: 0; }
+    .feature-info { flex: 1; min-width: 0; }
+    .feature-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .feature-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+    .core-badge {
+      font-size: 9px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+      background: rgba(107,114,128,0.15); color: var(--muted);
+      padding: 2px 7px; border-radius: 20px; white-space: nowrap;
+    }
+
+    /* Toggle */
+    .toggle-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+    .toggle {
+      width: 42px; height: 24px; border-radius: 12px; position: relative; cursor: pointer; transition: background 0.2s;
+      background: var(--surface2); border: 1px solid var(--border);
+    }
+    .toggle.on { background: var(--green); border-color: var(--green); }
+    .toggle.locked { cursor: not-allowed; opacity: 0.5; }
+    .toggle::after {
+      content: '';
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: white;
+      position: absolute;
+      top: 2px; left: 2px;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .toggle.on::after { transform: translateX(18px); }
+    .toggle-label { font-size: 10px; color: var(--muted); }
+
+    /* Save bar */
+    .save-bar {
+      position: fixed;
+      bottom: 0; left: 240px; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 40;
+    }
+    .save-info { font-size: 13px; color: var(--muted); }
+    .save-info strong { color: var(--text); }
+    .btn { padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">Shiftly.</div>
+    <span class="badge-superadmin">SuperAdmin</span>
+  </div>
+  <div class="nav-items">
+    <div class="nav-section-label">Phase 1 — Monitoring</div>
+    <a class="nav-item" href="#">📊 Dashboard</a>
+    <a class="nav-item" href="#">🏢 Centres</a>
+    <div class="nav-section-label">Phase 2 — Billing</div>
+    <a class="nav-item disabled">💳 Abonnements</a>
+    <a class="nav-item disabled">📄 Facturation</a>
+    <a class="nav-item disabled">🏷️ Plans tarifaires</a>
+    <div class="nav-section-label">Phase 3 — Users & Support</div>
+    <a class="nav-item" href="#">👤 Utilisateurs</a>
+    <a class="nav-item" href="#">🎧 Support</a>
+    <div class="nav-section-label">Phase 4 — Système</div>
+    <a class="nav-item" href="#">⚡ Activity</a>
+    <a class="nav-item active">⚙️ Réglages</a>
+  </div>
+  <div class="sidebar-user">
+    <div class="sidebar-user-card">
+      <div class="avatar">KV</div>
+      <div>
+        <div class="user-name">Kévin Vanphavong</div>
+        <div class="user-role">Fondateur</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main -->
+<main class="main" style="padding-bottom:80px;">
+  <div class="page-title">⚙️ Réglages</div>
+  <div class="page-subtitle">Configuration globale de la plateforme</div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active">🧩 Feature flags</div>
+    <div class="tab">🚧 Maintenance</div>
+    <div class="tab">📋 IDCC 1790</div>
+  </div>
+
+  <!-- Centre selector -->
+  <div class="centre-selector">
+    <span class="centre-label">Configurer pour :</span>
+    <select class="centre-select">
+      <option>Family Games Center — Blois</option>
+      <option>Bowling Central — Paris</option>
+      <option>Laser Arena Paris — Paris</option>
+    </select>
+  </div>
+
+  <!-- Core modules -->
+  <div class="section-title">
+    🔒 Modules core — toujours activés
+  </div>
+  <div class="features-grid">
+    <div class="feature-card core">
+      <div class="feature-icon">👥</div>
+      <div class="feature-info">
+        <div class="feature-name">Gestion Staff</div>
+        <div class="feature-desc">Profils, compétences, points, progression</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle on locked"></div>
+        <span class="core-badge">Core</span>
+      </div>
+    </div>
+    <div class="feature-card core">
+      <div class="feature-icon">📋</div>
+      <div class="feature-info">
+        <div class="feature-name">Services & Postes</div>
+        <div class="feature-desc">Planification, postes, missions, zones</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle on locked"></div>
+        <span class="core-badge">Core</span>
+      </div>
+    </div>
+    <div class="feature-card core">
+      <div class="feature-icon">⚠️</div>
+      <div class="feature-info">
+        <div class="feature-name">Incidents</div>
+        <div class="feature-desc">Signalement et suivi des incidents</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle on locked"></div>
+        <span class="core-badge">Core</span>
+      </div>
+    </div>
+    <div class="feature-card core">
+      <div class="feature-icon">📚</div>
+      <div class="feature-info">
+        <div class="feature-name">Tutoriels</div>
+        <div class="feature-desc">Formation et base de connaissance équipe</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle on locked"></div>
+        <span class="core-badge">Core</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional modules -->
+  <div class="section-title">
+    🔧 Modules optionnels — activables par centre
+  </div>
+  <div class="features-grid">
+    <div class="feature-card enabled">
+      <div class="feature-icon">📅</div>
+      <div class="feature-info">
+        <div class="feature-name">Réservations</div>
+        <div class="feature-desc">Créneaux, formules, demandes entreprises</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle on"></div>
+        <span style="font-size:10px;color:var(--green);">Activé</span>
+      </div>
+    </div>
+    <div class="feature-card enabled">
+      <div class="feature-icon">🏢</div>
+      <div class="feature-info">
+        <div class="feature-name">Entreprises & CRM</div>
+        <div class="feature-desc">Contacts pro, interactions, pipeline</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle on"></div>
+        <span style="font-size:10px;color:var(--green);">Activé</span>
+      </div>
+    </div>
+    <div class="feature-card disabled-feature">
+      <div class="feature-icon">🕐</div>
+      <div class="feature-info">
+        <div class="feature-name">Pointage</div>
+        <div class="feature-desc">Kiosk clock-in/out, exports PDF paie</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle"></div>
+        <span style="font-size:10px;color:var(--muted);">Désactivé</span>
+      </div>
+    </div>
+    <div class="feature-card disabled-feature">
+      <div class="feature-icon">📊</div>
+      <div class="feature-info">
+        <div class="feature-name">Analytics avancés</div>
+        <div class="feature-desc">Rapports, KPIs, exports données</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle"></div>
+        <span style="font-size:10px;color:var(--muted);">Désactivé</span>
+      </div>
+    </div>
+    <div class="feature-card disabled-feature">
+      <div class="feature-icon">🔔</div>
+      <div class="feature-info">
+        <div class="feature-name">Notifications push</div>
+        <div class="feature-desc">Alertes temps réel via PWA / mobile</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle"></div>
+        <span style="font-size:10px;color:var(--muted);">Désactivé</span>
+      </div>
+    </div>
+    <div class="feature-card disabled-feature">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-info">
+        <div class="feature-name">IA & Suggestions</div>
+        <div class="feature-desc">Planning auto, prédictions charge</div>
+        <div style="margin-top:4px;font-size:10px;color:var(--yellow);font-weight:600;">🚧 Bientôt disponible</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle locked"></div>
+        <span style="font-size:10px;color:var(--muted);">Bientôt</span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Save bar -->
+<div class="save-bar">
+  <div class="save-info">Configuration pour <strong>Family Games Center</strong> — 2 modules optionnels activés</div>
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-ghost">Annuler</button>
+    <button class="btn btn-accent">💾 Enregistrer</button>
+  </div>
+</div>
+
+</body>
+</html>

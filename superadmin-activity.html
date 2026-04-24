@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SuperAdmin — Activity (Audit Log)</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0f14;
+      --surface:  #151820;
+      --surface2: #1c2030;
+      --surface3: #12151e;
+      --border:   #252a3a;
+      --text:     #e8eaf0;
+      --muted:    #6b7280;
+      --accent:   #f97316;
+      --accent2:  #fb923c;
+      --blue:     #3b82f6;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --yellow:   #eab308;
+      --purple:   #a855f7;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      min-height: 100vh;
+      background: var(--surface3);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      overflow-y: auto;
+      z-index: 50;
+    }
+    .sidebar-header {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Syne', system-ui, sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .badge-superadmin {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      color: var(--bg);
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      padding: 14px 12px 6px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      border-radius: 8px;
+      margin: 1px 0;
+      cursor: pointer;
+      color: var(--muted);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      margin-left: -3px;
+      transition: all 0.15s;
+    }
+    .nav-item.active {
+      background: rgba(249,115,22,0.1);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+    .nav-item.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .nav-items { padding: 0 12px; flex: 1; }
+    .sidebar-user {
+      padding: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-user-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .user-name { font-size: 12px; font-weight: 600; }
+    .user-role { font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; }
+
+    /* ── Main ── */
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      padding: 28px;
+      min-height: 100vh;
+    }
+
+    /* ── Page header ── */
+    .page-title {
+      font-family: 'Syne', system-ui, sans-serif;
+      font-weight: 800;
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+    .page-subtitle { font-size: 14px; color: var(--muted); }
+
+    /* ── Filters bar ── */
+    .filters-bar {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .filter-input {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      outline: none;
+      font-family: inherit;
+    }
+    .filter-input:focus { border-color: var(--accent); }
+    .filter-input::placeholder { color: var(--muted); }
+    select.filter-input { cursor: pointer; }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+    .stat-value { font-size: 22px; font-weight: 700; }
+    .stat-value.accent { color: var(--accent); }
+    .stat-value.blue { color: var(--blue); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.red { color: var(--red); }
+
+    /* ── Timeline ── */
+    .timeline { position: relative; }
+    .timeline-date-group { margin-bottom: 6px; }
+    .timeline-date-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      padding: 10px 0 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .timeline-date-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .timeline-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      transition: border-color 0.15s;
+    }
+    .timeline-item:hover { border-color: rgba(249,115,22,0.3); }
+
+    .action-icon {
+      width: 36px; height: 36px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .icon-create { background: rgba(34,197,94,0.12); }
+    .icon-update { background: rgba(59,130,246,0.12); }
+    .icon-delete { background: rgba(239,68,68,0.12); }
+    .icon-login  { background: rgba(249,115,22,0.12); }
+    .icon-impersonation { background: rgba(168,85,247,0.12); }
+    .icon-billing { background: rgba(234,179,8,0.12); }
+
+    .timeline-content { flex: 1; min-width: 0; }
+    .timeline-action {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .timeline-meta {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .meta-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .tag-centre  { background: rgba(59,130,246,0.12); color: var(--blue); }
+    .tag-user    { background: rgba(168,85,247,0.12); color: var(--purple); }
+    .tag-billing { background: rgba(234,179,8,0.12); color: var(--yellow); }
+    .tag-system  { background: rgba(107,114,128,0.12); color: var(--muted); }
+
+    .timeline-time {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .pagination-info { font-size: 13px; color: var(--muted); }
+    .pagination-btns { display: flex; gap: 4px; }
+    .page-btn {
+      width: 32px; height: 32px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .page-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .page-btn:hover:not(.active) { color: var(--text); border-color: rgba(249,115,22,0.4); }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">Shiftly.</div>
+    <span class="badge-superadmin">SuperAdmin</span>
+  </div>
+  <div class="nav-items">
+    <div class="nav-section-label">Phase 1 — Monitoring</div>
+    <a class="nav-item" href="#">📊 Dashboard</a>
+    <a class="nav-item" href="#">🏢 Centres</a>
+    <div class="nav-section-label">Phase 2 — Billing</div>
+    <a class="nav-item disabled">💳 Abonnements</a>
+    <a class="nav-item disabled">📄 Facturation</a>
+    <a class="nav-item disabled">🏷️ Plans tarifaires</a>
+    <div class="nav-section-label">Phase 3 — Users & Support</div>
+    <a class="nav-item" href="#">👤 Utilisateurs</a>
+    <a class="nav-item" href="#">🎧 Support <span style="margin-left:auto;background:var(--red);color:white;font-size:9px;font-weight:800;padding:2px 6px;border-radius:10px;">3</span></a>
+    <div class="nav-section-label">Phase 4 — Système</div>
+    <a class="nav-item active">⚡ Activity</a>
+    <a class="nav-item" href="#">⚙️ Réglages</a>
+  </div>
+  <div class="sidebar-user">
+    <div class="sidebar-user-card">
+      <div class="avatar">KV</div>
+      <div>
+        <div class="user-name">Kévin Vanphavong</div>
+        <div class="user-role">Fondateur</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main -->
+<main class="main">
+  <div class="page-title">⚡ Activity</div>
+  <div class="page-subtitle">Journal d'audit — toutes les actions sur la plateforme</div>
+
+  <!-- Stats -->
+  <div class="stats-row" style="margin-top:20px;">
+    <div class="stat-card">
+      <div class="stat-label">Aujourd'hui</div>
+      <div class="stat-value accent">47</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Cette semaine</div>
+      <div class="stat-value blue">312</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Connexions</div>
+      <div class="stat-value green">28</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Suppressions</div>
+      <div class="stat-value red">4</div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-bar">
+    <input class="filter-input" type="text" placeholder="🔍  Rechercher une action, un utilisateur…" style="flex:1;min-width:220px;" />
+    <select class="filter-input">
+      <option>Tous les types</option>
+      <option>Connexion</option>
+      <option>Création</option>
+      <option>Modification</option>
+      <option>Suppression</option>
+      <option>Impersonation</option>
+      <option>Facturation</option>
+    </select>
+    <select class="filter-input">
+      <option>Tous les centres</option>
+      <option>Family Games Center</option>
+      <option>Bowling Central</option>
+      <option>Laser Arena Paris</option>
+    </select>
+    <input class="filter-input" type="date" value="2026-04-24" />
+    <input class="filter-input" type="date" value="2026-04-24" />
+    <button class="btn btn-ghost">Réinitialiser</button>
+    <button class="btn btn-accent">Filtrer</button>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline">
+
+    <!-- Groupe : Aujourd'hui -->
+    <div class="timeline-date-group">
+      <div class="timeline-date-label">Aujourd'hui — 24 avril 2026</div>
+
+      <div class="timeline-item">
+        <div class="action-icon icon-impersonation">🎭</div>
+        <div class="timeline-content">
+          <div class="timeline-action">Impersonation démarrée</div>
+          <div class="timeline-meta">
+            <span>Kévin Vanphavong a pris le contrôle du compte <strong>Lucas Martin</strong></span>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="meta-tag tag-centre">🏢 Family Games Center</span>
+            <span class="meta-tag tag-user">👤 Lucas Martin</span>
+            <span class="meta-tag tag-system">IP 82.64.12.3</span>
+          </div>
+        </div>
+        <div class="timeline-time">14:32</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="action-icon icon-update">✏️</div>
+        <div class="timeline-content">
+          <div class="timeline-action">Centre modifié</div>
+          <div class="timeline-meta">
+            <span>Modification du plan tarifaire : <strong>Starter → Pro</strong></span>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="meta-tag tag-centre">🏢 Bowling Central</span>
+            <span class="meta-tag tag-billing">💳 Billing</span>
+          </div>
+        </div>
+        <div class="timeline-time">12:18</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="action-icon icon-login">🔑</div>
+        <div class="timeline-content">
+          <div class="timeline-action">Connexion SuperAdmin</div>
+          <div class="timeline-meta">
+            <span>Authentification réussie depuis macOS / Chrome</span>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="meta-tag tag-system">IP 82.64.12.3</span>
+            <span class="meta-tag tag-system">macOS · Chrome 124</span>
+          </div>
+        </div>
+        <div class="timeline-time">10:05</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="action-icon icon-create">➕</div>
+        <div class="timeline-content">
+          <div class="timeline-action">Nouveau centre créé</div>
+          <div class="timeline-meta">
+            <span>Création du centre <strong>Laser Arena Paris</strong> — plan Starter</span>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="meta-tag tag-centre">🏢 Laser Arena Paris</span>
+          </div>
+        </div>
+        <div class="timeline-time">09:41</div>
+      </div>
+    </div>
+
+    <!-- Groupe : Hier -->
+    <div class="timeline-date-group">
+      <div class="timeline-date-label">Hier — 23 avril 2026</div>
+
+      <div class="timeline-item">
+        <div class="action-icon icon-delete">🗑️</div>
+        <div class="timeline-content">
+          <div class="timeline-action">Utilisateur supprimé</div>
+          <div class="timeline-meta">
+            <span>Compte <strong>antoine.dupont@fgc.fr</strong> supprimé définitivement</span>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="meta-tag tag-centre">🏢 Family Games Center</span>
+            <span class="meta-tag tag-user" style="color:var(--red);background:rgba(239,68,68,0.12);">⚠️ Irréversible</span>
+          </div>
+        </div>
+        <div class="timeline-time">18:57</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="action-icon icon-billing">💳</div>
+        <div class="timeline-content">
+          <div class="timeline-action">Ticket support fermé</div>
+          <div class="timeline-meta">
+            <span>Ticket #0042 résolu — <strong>Problème d'affichage planning</strong></span>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="meta-tag tag-centre">🏢 Bowling Central</span>
+            <span class="meta-tag" style="background:rgba(34,197,94,0.12);color:var(--green);">✅ Résolu</span>
+          </div>
+        </div>
+        <div class="timeline-time">15:22</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="action-icon icon-update">✏️</div>
+        <div class="timeline-content">
+          <div class="timeline-action">Feature flag modifié</div>
+          <div class="timeline-meta">
+            <span>Module <strong>Réservations</strong> activé pour Family Games Center</span>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="meta-tag tag-centre">🏢 Family Games Center</span>
+            <span class="meta-tag tag-system">⚙️ Feature flags</span>
+          </div>
+        </div>
+        <div class="timeline-time">11:03</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <div class="pagination-info">Affichage 1–20 sur 312 événements</div>
+    <div class="pagination-btns">
+      <div class="page-btn">‹</div>
+      <div class="page-btn active">1</div>
+      <div class="page-btn">2</div>
+      <div class="page-btn">3</div>
+      <div class="page-btn">…</div>
+      <div class="page-btn">16</div>
+      <div class="page-btn">›</div>
+    </div>
+  </div>
+</main>
+
+</body>
+</html>

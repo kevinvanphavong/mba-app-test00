@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF — Pointage Équipe Hebdomadaire</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1d26;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      padding: 32px;
+      color: #1a1a2e;
+    }
+
+    /* Wrapper dark pour montrer le contexte SuperAdmin */
+    .context-bar {
+      background: #12151e;
+      border: 1px solid #252a3a;
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #e8eaf0;
+      font-size: 13px;
+    }
+    .context-label { color: #6b7280; font-size: 12px; margin-bottom: 3px; }
+    .context-title { font-weight: 700; font-size: 15px; }
+    .btn-export {
+      display: flex; gap: 10px;
+    }
+    .btn {
+      padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      border: none; cursor: pointer; font-family: inherit;
+    }
+    .btn-accent { background: #f97316; color: white; }
+    .btn-ghost { background: #1c2030; color: #6b7280; border: 1px solid #252a3a; }
+
+    /* Page PDF simulée */
+    .pdf-page {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      overflow: hidden;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    /* Header PDF */
+    .pdf-header {
+      background: #0d0f14;
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pdf-logo-area { display: flex; align-items: center; gap: 14px; }
+    .pdf-logo-shiftly {
+      font-family: 'Syne', system-ui, sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .pdf-logo-sep { color: #6b7280; font-size: 18px; font-weight: 300; }
+    .pdf-logo-centre { font-size: 16px; font-weight: 700; color: #e8eaf0; }
+    .pdf-header-right { text-align: right; }
+    .pdf-doc-type { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #f97316; }
+    .pdf-doc-period { font-size: 13px; color: #e8eaf0; font-weight: 600; margin-top: 2px; }
+    .pdf-doc-generated { font-size: 10px; color: #6b7280; margin-top: 2px; }
+
+    /* Bande orange sous le header */
+    .pdf-accent-bar {
+      height: 3px;
+      background: linear-gradient(90deg, #f97316, #fb923c, transparent);
+    }
+
+    /* Body PDF */
+    .pdf-body { padding: 24px 28px; }
+
+    /* Meta info */
+    .pdf-meta-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .pdf-meta-item {
+      background: #f8f9fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 8px 14px;
+    }
+    .pdf-meta-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: #6b7280; }
+    .pdf-meta-value { font-size: 13px; font-weight: 700; color: #111827; margin-top: 1px; }
+
+    /* Tableau */
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    thead tr { background: #111827; }
+    thead th {
+      color: white; font-weight: 700; padding: 10px 10px;
+      text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px;
+    }
+    thead th:first-child { text-align: left; padding-left: 14px; }
+    tbody tr:nth-child(even) { background: #f9fafb; }
+    tbody tr:hover { background: #fef3ec; }
+    tbody td { padding: 9px 10px; border-bottom: 1px solid #e5e7eb; text-align: center; color: #374151; }
+    tbody td:first-child { text-align: left; padding-left: 14px; }
+
+    .employee-name { font-weight: 700; font-size: 12px; color: #111827; }
+    .employee-role { font-size: 10px; color: #6b7280; }
+
+    /* Cellules heures */
+    .cell-hours {
+      font-weight: 700; font-size: 11px;
+    }
+    .cell-hours.normal { color: #374151; }
+    .cell-hours.overtime { color: #f97316; }
+    .cell-hours.absent { color: #ef4444; }
+    .cell-hours.off { color: #d1d5db; font-size: 10px; }
+
+    /* Colonne total */
+    .col-total { background: #fff7ed !important; }
+    .col-total-header { background: #f97316 !important; }
+    .total-value { font-weight: 800; color: #f97316; font-size: 12px; }
+
+    /* Ligne totaux bas */
+    tfoot tr { background: #f3f4f6; }
+    tfoot td { padding: 10px 10px; font-weight: 700; color: #111827; border-top: 2px solid #d1d5db; }
+
+    /* Footer PDF */
+    .pdf-footer {
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+    .pdf-footer strong { color: #6b7280; }
+
+    /* Légende */
+    .legend {
+      margin-top: 16px;
+      display: flex; gap: 16px; flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #6b7280; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- Contexte SuperAdmin -->
+<div class="context-bar">
+  <div>
+    <div class="context-label">Export PDF — SuperAdmin · Pointage</div>
+    <div class="context-title">📋 Récapitulatif hebdomadaire équipe</div>
+  </div>
+  <div class="btn-export">
+    <button class="btn btn-ghost">👤 Fiches individuelles</button>
+    <button class="btn btn-accent">⬇️ Télécharger PDF équipe</button>
+  </div>
+</div>
+
+<!-- PDF simulé -->
+<div class="pdf-page">
+
+  <!-- Header -->
+  <div class="pdf-header">
+    <div class="pdf-logo-area">
+      <div class="pdf-logo-shiftly">Shiftly</div>
+      <div class="pdf-logo-sep">×</div>
+      <div class="pdf-logo-centre">Family Games Center</div>
+    </div>
+    <div class="pdf-header-right">
+      <div class="pdf-doc-type">Récapitulatif hebdomadaire</div>
+      <div class="pdf-doc-period">Semaine 17 — 21 au 27 avril 2026</div>
+      <div class="pdf-doc-generated">Généré le 28 avril 2026 à 08:00</div>
+    </div>
+  </div>
+  <div class="pdf-accent-bar"></div>
+
+  <!-- Body -->
+  <div class="pdf-body">
+
+    <!-- Meta -->
+    <div class="pdf-meta-row">
+      <div class="pdf-meta-item">
+        <div class="pdf-meta-label">Centre</div>
+        <div class="pdf-meta-value">Family Games Center</div>
+      </div>
+      <div class="pdf-meta-item">
+        <div class="pdf-meta-label">Semaine</div>
+        <div class="pdf-meta-value">S17 · 21–27 avr. 2026</div>
+      </div>
+      <div class="pdf-meta-item">
+        <div class="pdf-meta-label">Employés</div>
+        <div class="pdf-meta-value">8</div>
+      </div>
+      <div class="pdf-meta-item">
+        <div class="pdf-meta-label">Total heures équipe</div>
+        <div class="pdf-meta-value" style="color:#f97316;">284h 15min</div>
+      </div>
+      <div class="pdf-meta-item">
+        <div class="pdf-meta-label">Convention collective</div>
+        <div class="pdf-meta-value">IDCC 1790</div>
+      </div>
+    </div>
+
+    <!-- Tableau -->
+    <table>
+      <thead>
+        <tr>
+          <th>Employé</th>
+          <th>Lun 21</th>
+          <th>Mar 22</th>
+          <th>Mer 23</th>
+          <th>Jeu 24</th>
+          <th>Ven 25</th>
+          <th>Sam 26</th>
+          <th>Dim 27</th>
+          <th class="col-total-header">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="employee-name">Lucas Martin</div>
+            <div class="employee-role">Manager</div>
+          </td>
+          <td><span class="cell-hours normal">8h00</span></td>
+          <td><span class="cell-hours normal">7h30</span></td>
+          <td><span class="cell-hours normal">8h00</span></td>
+          <td><span class="cell-hours normal">8h15</span></td>
+          <td><span class="cell-hours normal">7h45</span></td>
+          <td><span class="cell-hours overtime">9h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td class="col-total"><span class="total-value">48h30</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="employee-name">Sophie Durand</div>
+            <div class="employee-role">Employée</div>
+          </td>
+          <td><span class="cell-hours normal">6h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours normal">6h00</span></td>
+          <td><span class="cell-hours normal">6h30</span></td>
+          <td><span class="cell-hours normal">6h00</span></td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td><span class="cell-hours normal">6h00</span></td>
+          <td class="col-total"><span class="total-value">37h30</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="employee-name">Antoine Leclerc</div>
+            <div class="employee-role">Employé</div>
+          </td>
+          <td><span class="cell-hours absent">Absent</span></td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td class="col-total"><span class="total-value">35h00</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="employee-name">Camille Bernard</div>
+            <div class="employee-role">Employée</div>
+          </td>
+          <td><span class="cell-hours normal">5h00</span></td>
+          <td><span class="cell-hours normal">5h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours normal">5h00</span></td>
+          <td><span class="cell-hours overtime">8h00</span></td>
+          <td><span class="cell-hours overtime">8h00</span></td>
+          <td class="col-total"><span class="total-value">31h00</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="employee-name">Théo Moreau</div>
+            <div class="employee-role">Employé</div>
+          </td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours normal">7h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td class="col-total"><span class="total-value">28h00</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="employee-name">Emma Petit</div>
+            <div class="employee-role">Employée</div>
+          </td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours normal">6h00</span></td>
+          <td><span class="cell-hours normal">6h00</span></td>
+          <td><span class="cell-hours normal">6h00</span></td>
+          <td><span class="cell-hours normal">6h00</span></td>
+          <td><span class="cell-hours normal">6h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td class="col-total"><span class="total-value">30h00</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="employee-name">Hugo Lambert</div>
+            <div class="employee-role">Employé</div>
+          </td>
+          <td><span class="cell-hours normal">4h00</span></td>
+          <td><span class="cell-hours normal">4h00</span></td>
+          <td><span class="cell-hours normal">4h00</span></td>
+          <td><span class="cell-hours normal">4h00</span></td>
+          <td><span class="cell-hours normal">4h00</span></td>
+          <td><span class="cell-hours normal">4h00</span></td>
+          <td><span class="cell-hours normal">4h00</span></td>
+          <td class="col-total"><span class="total-value">28h00</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div class="employee-name">Léa Rousseau</div>
+            <div class="employee-role">Employée</div>
+          </td>
+          <td><span class="cell-hours normal">8h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours normal">8h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours normal">8h00</span></td>
+          <td><span class="cell-hours off">—</span></td>
+          <td><span class="cell-hours normal">8h00</span></td>
+          <td class="col-total"><span class="total-value">32h00</span></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>Total / jour</td>
+          <td style="text-align:center;">38h00</td>
+          <td style="text-align:center;">36h30</td>
+          <td style="text-align:center;">46h00</td>
+          <td style="text-align:center;">31h45</td>
+          <td style="text-align:center;">43h45</td>
+          <td style="text-align:center;">41h00</td>
+          <td style="text-align:center;">33h00</td>
+          <td style="text-align:center;color:#f97316;">284h15</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <!-- Légende -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#374151;"></div> Heures normales</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f97316;"></div> Heures supplémentaires</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div> Absence</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#d1d5db;"></div> Repos / non travaillé</div>
+    </div>
+
+  </div>
+
+  <!-- Footer PDF -->
+  <div class="pdf-footer">
+    <div>Généré par <strong>Shiftly</strong> · shiftly.app · Document confidentiel</div>
+    <div>Family Games Center · SIRET 000 000 000 00000 · Convention IDCC 1790</div>
+    <div>Page 1 / 1</div>
+  </div>
+</div>
+
+</body>
+</html>
