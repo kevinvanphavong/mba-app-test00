@@ -1,9 +1,8 @@
 nelmio_cors:
     paths:
         '^/api':
-            origin_regex: false
-            allow_origin: ['*']
+            origin_regex: true
+            allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
             allow_headers: ['*']
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'PATCH', 'OPTIONS']
             max_age: 3600
-            forced_allow_origin_value: '*'
