@@ -4,22 +4,47 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Auto-generated Migration: Please modify to your needs!
+ * Module Super Admin — tables audit_log et centre_note, suppression de legal_config
+ * et pointage_correction, ajout de centre.actif.
+ *
+ * Platform-aware :
+ *  - MySQL (prod Railway) : CREATE TABLE en syntaxe MySQL, DROP IF EXISTS, ALTER TABLE.
+ *    Les rebuilds de tables existantes (pointage, service, validation_hebdo) sont des
+ *    no-ops : ces tables ont déjà le bon schéma via les migrations précédentes.
+ *  - SQLite (dev local) : comportement auto-generated d'origine conservé à l'identique.
  */
 final class Version20260422195355 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Super Admin — audit_log, centre_note, drop legal_config/pointage_correction, centre.actif';
     }
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        if (!$this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            // MySQL : créer les nouvelles tables en syntaxe native
+            $this->addSql('CREATE TABLE audit_log (id INT AUTO_INCREMENT NOT NULL, action VARCHAR(100) NOT NULL, target_type VARCHAR(50) NOT NULL, target_id INT DEFAULT NULL, metadata LONGTEXT DEFAULT NULL, ip VARCHAR(45) DEFAULT NULL, user_agent VARCHAR(255) DEFAULT NULL, created_at DATETIME NOT NULL, super_admin_user_id INT NOT NULL, INDEX IDX_F6E1C0F5B8CD8675 (super_admin_user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+            $this->addSql('ALTER TABLE audit_log ADD CONSTRAINT FK_F6E1C0F5B8CD8675 FOREIGN KEY (super_admin_user_id) REFERENCES user (id)');
+            $this->addSql('CREATE TABLE centre_note (id INT AUTO_INCREMENT NOT NULL, contenu LONGTEXT NOT NULL, created_at DATETIME NOT NULL, centre_id INT NOT NULL, super_admin_user_id INT NOT NULL, INDEX IDX_5EB06944463CD7C3 (centre_id), INDEX IDX_5EB06944B8CD8675 (super_admin_user_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+            $this->addSql('ALTER TABLE centre_note ADD CONSTRAINT FK_5EB06944463CD7C3 FOREIGN KEY (centre_id) REFERENCES centre (id)');
+            $this->addSql('ALTER TABLE centre_note ADD CONSTRAINT FK_5EB06944B8CD8675 FOREIGN KEY (super_admin_user_id) REFERENCES user (id)');
+            // Suppression des tables obsolètes (IF EXISTS = sécurisé si déjà absentes)
+            $this->addSql('DROP TABLE IF EXISTS legal_config');
+            $this->addSql('DROP TABLE IF EXISTS pointage_correction');
+            // Ajout de la colonne actif sur centre
+            $this->addSql('ALTER TABLE centre ADD actif TINYINT(1) DEFAULT 1 NOT NULL');
+            // Les rebuilds SQLite de pointage / service / validation_hebdo sont des no-ops
+            // sur MySQL : ces tables ont déjà le bon schéma final.
+            return;
+        }
+
+        // SQLite (dev local) : comportement auto-generated d'origine conservé.
         $this->addSql('CREATE TABLE audit_log (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "action" VARCHAR(100) NOT NULL, target_type VARCHAR(50) NOT NULL, target_id INTEGER DEFAULT NULL, metadata CLOB DEFAULT NULL, ip VARCHAR(45) DEFAULT NULL, user_agent VARCHAR(255) DEFAULT NULL, created_at DATETIME NOT NULL, super_admin_user_id INTEGER NOT NULL, CONSTRAINT FK_F6E1C0F5B8CD8675 FOREIGN KEY (super_admin_user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
         $this->addSql('CREATE INDEX IDX_F6E1C0F5B8CD8675 ON audit_log (super_admin_user_id)');
         $this->addSql('CREATE TABLE centre_note (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, contenu CLOB NOT NULL, created_at DATETIME NOT NULL, centre_id INTEGER NOT NULL, super_admin_user_id INTEGER NOT NULL, CONSTRAINT FK_5EB06944463CD7C3 FOREIGN KEY (centre_id) REFERENCES centre (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_5EB06944B8CD8675 FOREIGN KEY (super_admin_user_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
@@ -58,7 +83,15 @@ final class Version20260422195355 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
+        if (!$this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            // MySQL : rollback minimal (les rebuilds de tables ne sont pas reversés)
+            $this->addSql('ALTER TABLE centre DROP COLUMN actif');
+            $this->addSql('DROP TABLE IF EXISTS audit_log');
+            $this->addSql('DROP TABLE IF EXISTS centre_note');
+            return;
+        }
+
+        // SQLite (dev local) : comportement auto-generated d'origine conservé.
         $this->addSql('CREATE TABLE legal_config (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, seuil_retard_minutes INTEGER DEFAULT 5 NOT NULL, duree_legale_hebdo_heures INTEGER DEFAULT 35 NOT NULL, max_heures_hebdo INTEGER DEFAULT 48 NOT NULL, max_heures_moyennes12sem INTEGER DEFAULT 44 NOT NULL, repos_quotidien_heures INTEGER DEFAULT 11 NOT NULL, repos_hebdo_heures INTEGER DEFAULT 35 NOT NULL, majoration_sup_taux1 INTEGER DEFAULT 25 NOT NULL, majoration_sup_taux2 INTEGER DEFAULT 50 NOT NULL, updated_at DATETIME DEFAULT NULL, centre_id INTEGER NOT NULL, updated_by_id INTEGER DEFAULT NULL, CONSTRAINT FK_38BCF507463CD7C3 FOREIGN KEY (centre_id) REFERENCES centre (id) ON UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_38BCF507896DBBDE FOREIGN KEY (updated_by_id) REFERENCES user (id) ON UPDATE NO ACTION ON DELETE NO ACTION NOT DEFERRABLE INITIALLY IMMEDIATE)');
         $this->addSql('CREATE INDEX IDX_38BCF507896DBBDE ON legal_config (updated_by_id)');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_38BCF507463CD7C3 ON legal_config (centre_id)');

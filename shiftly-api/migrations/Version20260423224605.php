@@ -4,22 +4,47 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Auto-generated Migration: Please modify to your needs!
+ * Module Support — tables support_ticket, support_reply, support_attachment,
+ * ajout de user.last_login_at.
+ *
+ * Platform-aware :
+ *  - MySQL (prod Railway) : CREATE TABLE en syntaxe MySQL, ALTER TABLE.
+ *    Le rebuild SQLite de service est un no-op : la table a déjà le bon schéma.
+ *  - SQLite (dev local) : comportement auto-generated d'origine conservé à l'identique.
  */
 final class Version20260423224605 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Support — support_ticket, support_reply, support_attachment, user.last_login_at';
     }
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        if (!$this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            // MySQL : support_ticket en premier (référencé par reply et attachment)
+            $this->addSql('CREATE TABLE support_ticket (id INT AUTO_INCREMENT NOT NULL, sujet VARCHAR(200) NOT NULL, message LONGTEXT NOT NULL, categorie VARCHAR(30) NOT NULL, statut VARCHAR(20) NOT NULL, priorite VARCHAR(20) NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME DEFAULT NULL, closed_at DATETIME DEFAULT NULL, last_viewed_by_super_admin DATETIME DEFAULT NULL, last_viewed_by_author DATETIME DEFAULT NULL, centre_id INT NOT NULL, auteur_id INT NOT NULL, assigne_a_id INT DEFAULT NULL, INDEX IDX_1F5A4D53463CD7C3 (centre_id), INDEX IDX_1F5A4D5360BB6FE6 (auteur_id), INDEX IDX_1F5A4D53BB1B0F33 (assigne_a_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+            $this->addSql('ALTER TABLE support_ticket ADD CONSTRAINT FK_1F5A4D53463CD7C3 FOREIGN KEY (centre_id) REFERENCES centre (id)');
+            $this->addSql('ALTER TABLE support_ticket ADD CONSTRAINT FK_1F5A4D5360BB6FE6 FOREIGN KEY (auteur_id) REFERENCES user (id)');
+            $this->addSql('ALTER TABLE support_ticket ADD CONSTRAINT FK_1F5A4D53BB1B0F33 FOREIGN KEY (assigne_a_id) REFERENCES user (id)');
+            $this->addSql('CREATE TABLE support_reply (id INT AUTO_INCREMENT NOT NULL, message LONGTEXT NOT NULL, interne TINYINT(1) NOT NULL, created_at DATETIME NOT NULL, ticket_id INT NOT NULL, auteur_id INT NOT NULL, INDEX IDX_F12D038700047D2 (ticket_id), INDEX IDX_F12D03860BB6FE6 (auteur_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+            $this->addSql('ALTER TABLE support_reply ADD CONSTRAINT FK_F12D038700047D2 FOREIGN KEY (ticket_id) REFERENCES support_ticket (id)');
+            $this->addSql('ALTER TABLE support_reply ADD CONSTRAINT FK_F12D03860BB6FE6 FOREIGN KEY (auteur_id) REFERENCES user (id)');
+            $this->addSql('CREATE TABLE support_attachment (id INT AUTO_INCREMENT NOT NULL, filename VARCHAR(255) NOT NULL, stored_path VARCHAR(500) NOT NULL, mime_type VARCHAR(100) NOT NULL, size INT NOT NULL, created_at DATETIME NOT NULL, ticket_id INT DEFAULT NULL, reply_id INT DEFAULT NULL, uploaded_by_id INT NOT NULL, INDEX IDX_5BEB1D99700047D2 (ticket_id), INDEX IDX_5BEB1D998A0E4E7F (reply_id), INDEX IDX_5BEB1D99A2B28FE8 (uploaded_by_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+            $this->addSql('ALTER TABLE support_attachment ADD CONSTRAINT FK_5BEB1D99700047D2 FOREIGN KEY (ticket_id) REFERENCES support_ticket (id)');
+            $this->addSql('ALTER TABLE support_attachment ADD CONSTRAINT FK_5BEB1D998A0E4E7F FOREIGN KEY (reply_id) REFERENCES support_reply (id)');
+            $this->addSql('ALTER TABLE support_attachment ADD CONSTRAINT FK_5BEB1D99A2B28FE8 FOREIGN KEY (uploaded_by_id) REFERENCES user (id)');
+            // Le rebuild SQLite de service est un no-op sur MySQL : schéma déjà correct.
+            $this->addSql('ALTER TABLE user ADD last_login_at DATETIME DEFAULT NULL');
+            return;
+        }
+
+        // SQLite (dev local) : comportement auto-generated d'origine conservé.
         $this->addSql('CREATE TABLE support_attachment (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, filename VARCHAR(255) NOT NULL, stored_path VARCHAR(500) NOT NULL, mime_type VARCHAR(100) NOT NULL, size INTEGER NOT NULL, created_at DATETIME NOT NULL, ticket_id INTEGER DEFAULT NULL, reply_id INTEGER DEFAULT NULL, uploaded_by_id INTEGER NOT NULL, CONSTRAINT FK_5BEB1D99700047D2 FOREIGN KEY (ticket_id) REFERENCES support_ticket (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_5BEB1D998A0E4E7F FOREIGN KEY (reply_id) REFERENCES support_reply (id) NOT DEFERRABLE INITIALLY IMMEDIATE, CONSTRAINT FK_5BEB1D99A2B28FE8 FOREIGN KEY (uploaded_by_id) REFERENCES "user" (id) NOT DEFERRABLE INITIALLY IMMEDIATE)');
         $this->addSql('CREATE INDEX IDX_5BEB1D99700047D2 ON support_attachment (ticket_id)');
         $this->addSql('CREATE INDEX IDX_5BEB1D998A0E4E7F ON support_attachment (reply_id)');
@@ -43,7 +68,21 @@ final class Version20260423224605 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
+        if (!$this->connection->getDatabasePlatform() instanceof SqlitePlatform) {
+            // MySQL : rollback propre
+            $this->addSql('ALTER TABLE support_attachment DROP FOREIGN KEY FK_5BEB1D99700047D2');
+            $this->addSql('ALTER TABLE support_attachment DROP FOREIGN KEY FK_5BEB1D998A0E4E7F');
+            $this->addSql('ALTER TABLE support_attachment DROP FOREIGN KEY FK_5BEB1D99A2B28FE8');
+            $this->addSql('ALTER TABLE support_reply DROP FOREIGN KEY FK_F12D038700047D2');
+            $this->addSql('ALTER TABLE support_reply DROP FOREIGN KEY FK_F12D03860BB6FE6');
+            $this->addSql('DROP TABLE support_attachment');
+            $this->addSql('DROP TABLE support_reply');
+            $this->addSql('DROP TABLE support_ticket');
+            $this->addSql('ALTER TABLE user DROP COLUMN last_login_at');
+            return;
+        }
+
+        // SQLite (dev local) : comportement auto-generated d'origine conservé.
         $this->addSql('DROP TABLE support_attachment');
         $this->addSql('DROP TABLE support_reply');
         $this->addSql('DROP TABLE support_ticket');
