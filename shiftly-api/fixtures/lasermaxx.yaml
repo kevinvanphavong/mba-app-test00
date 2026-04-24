@@ -1,0 +1,335 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 4 : LaserMaxx — Orléans (laser game indoor + bar)
+#  Staff  : 6 membres (1 manager, 5 employés)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_lasermaxx:
+    nom:     "LaserMaxx — Orléans"
+    adresse: "18 rue des Carmes, 45000 Orléans"
+    openingHours:
+      lundi:    { ouvert: false, ouverture: "14:00", fermeture: "23:00" }
+      mardi:    { ouvert: true,  ouverture: "14:00", fermeture: "23:00" }
+      mercredi: { ouvert: true,  ouverture: "10:00", fermeture: "23:00" }
+      jeudi:    { ouvert: true,  ouverture: "14:00", fermeture: "23:00" }
+      vendredi: { ouvert: true,  ouverture: "14:00", fermeture: "01:00" }
+      samedi:   { ouvert: true,  ouverture: "10:00", fermeture: "01:00" }
+      dimanche: { ouvert: true,  ouverture: "10:00", fermeture: "22:00" }
+
+App\Entity\Zone:
+  zone_lm_accueil:
+    centre:  "@centre_lasermaxx"
+    nom:     "Accueil"
+    couleur: "#3b82f6"
+    ordre:   1
+  zone_lm_arene:
+    centre:  "@centre_lasermaxx"
+    nom:     "Arène Laser"
+    couleur: "#22c55e"
+    ordre:   2
+  zone_lm_bar:
+    centre:  "@centre_lasermaxx"
+    nom:     "Bar"
+    couleur: "#a855f7"
+    ordre:   3
+
+App\Entity\User:
+  user_lm_julien:
+    centre:      "@centre_lasermaxx"
+    nom:         "Brunet"
+    prenom:      "Julien"
+    email:       "julien@lasermaxx-orleans.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "MANAGER"
+    codePointage: "0000"
+    avatarColor: "#f97316"
+    points:      195
+    actif:       true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_lm_mathilde:
+    centre:      "@centre_lasermaxx"
+    nom:         "Renault"
+    prenom:      "Mathilde"
+    email:       "mathilde@lasermaxx-orleans.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    codePointage: "1111"
+    avatarColor: "#ec4899"
+    points:      125
+    actif:       true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_lm_antoine:
+    centre:      "@centre_lasermaxx"
+    nom:         "Lefèvre"
+    prenom:      "Antoine"
+    email:       "antoine@lasermaxx-orleans.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    codePointage: "2222"
+    avatarColor: "#0ea5e9"
+    points:      95
+    actif:       true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+  user_lm_camille:
+    centre:      "@centre_lasermaxx"
+    nom:         "Nguyen"
+    prenom:      "Camille"
+    email:       "camille@lasermaxx-orleans.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    codePointage: "3333"
+    avatarColor: "#a855f7"
+    points:      80
+    actif:       true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+  user_lm_samir:
+    centre:      "@centre_lasermaxx"
+    nom:         "Zerrouki"
+    prenom:      "Samir"
+    email:       "samir@lasermaxx-orleans.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    codePointage: "4444"
+    avatarColor: "#22c55e"
+    points:      50
+    actif:       true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_lm_lena:
+    centre:      "@centre_lasermaxx"
+    nom:         "Chauvin"
+    prenom:      "Léna"
+    email:       "lena@lasermaxx-orleans.fr"
+    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:       []
+    role:        "EMPLOYE"
+    codePointage: "5555"
+    avatarColor: "#f59e0b"
+    points:      30
+    actif:       true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+App\Entity\Mission:
+  m_lm_acc_ouv_1:  { zone: "@zone_lm_accueil", texte: "Allumer la borne caisse, vérifier le TPE et le fond de caisse (80€)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_acc_ouv_2:  { zone: "@zone_lm_accueil", texte: "Imprimer le planning des parties réservées du jour", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_acc_ouv_3:  { zone: "@zone_lm_accueil", texte: "Vérifier propreté du hall d'accueil et disposition des flyers tarifs", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_lm_acc_pend_1: { zone: "@zone_lm_accueil", texte: "Accueillir les groupes, encaisser et briefer sur les règles de sécurité", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_acc_pend_2: { zone: "@zone_lm_accueil", texte: "Gérer les réservations téléphone et mail en temps réel", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_lm_acc_pend_3: { zone: "@zone_lm_accueil", texte: "Remettre les résultats de parties (ticket score) aux joueurs", categorie: "PENDANT", frequence: "FIXE", priorite: "ne_pas_oublier", ordre: 3 }
+  m_lm_acc_ferm_1: { zone: "@zone_lm_accueil", texte: "Clôturer la caisse, imprimer Z et remettre la recette au coffre", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_acc_ferm_2: { zone: "@zone_lm_accueil", texte: "Nettoyer le comptoir, ranger les flyers et vider les poubelles hall", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  m_lm_ar_ouv_1:  { zone: "@zone_lm_arene", texte: "Vérifier l'état de chaque gilet (32 gilets) et recharger les batteries", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_ar_ouv_2:  { zone: "@zone_lm_arene", texte: "Contrôler l'éclairage UV et la fumée de l'arène (niveau réservoir)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_ar_ouv_3:  { zone: "@zone_lm_arene", texte: "Vérifier la sonorisation et le lancement du logiciel de jeu", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_lm_ar_pend_1: { zone: "@zone_lm_arene", texte: "Briefer chaque groupe sur les consignes de sécurité avant entrée en arène", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_ar_pend_2: { zone: "@zone_lm_arene", texte: "Distribuer et ajuster les gilets selon la taille des joueurs", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_ar_pend_3: { zone: "@zone_lm_arene", texte: "Surveiller la partie via les caméras et intervenir en cas de comportement dangereux", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_lm_ar_pend_4: { zone: "@zone_lm_arene", texte: "Désinfecter les gilets entre chaque groupe (spray virucide)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_lm_ar_ferm_1: { zone: "@zone_lm_arene", texte: "Ranger tous les gilets sur les racks de charge et vérifier verrouillage", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_ar_ferm_2: { zone: "@zone_lm_arene", texte: "Éteindre machine à fumée, UV et console de jeu", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_ar_ferm_3: { zone: "@zone_lm_arene", texte: "Passer l'aspirateur dans l'arène et contrôler les obstacles fixés", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+
+  m_lm_bar_ouv_1:  { zone: "@zone_lm_bar", texte: "Mise en route machine café, vérifier frigos softs et stocks bouteilles", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_bar_ouv_2:  { zone: "@zone_lm_bar", texte: "Contrôler DLC des snackings (pizzas surgelées, paninis) et préparer le four", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_bar_pend_1: { zone: "@zone_lm_bar", texte: "Servir les commandes boissons et snacks pendant les parties", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_bar_pend_2: { zone: "@zone_lm_bar", texte: "Maintenir le comptoir propre et renouveler verres / couverts", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_lm_bar_ferm_1: { zone: "@zone_lm_bar", texte: "Clôturer la caisse bar, nettoyer machine café et vider les tireuses", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_bar_ferm_2: { zone: "@zone_lm_bar", texte: "Nettoyer plan de travail bar, four snack et passer la serpillère", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+
+App\Entity\Competence:
+  comp_lm_acc_1:  { zone: "@zone_lm_accueil", nom: "Gestion des réservations et planning de parties",   points: 20, difficulte: "avancee" }
+  comp_lm_acc_2:  { zone: "@zone_lm_accueil", nom: "Encaissement et vente de packages groupes",          points: 15, difficulte: "simple" }
+  comp_lm_ar_1:   { zone: "@zone_lm_arene",   nom: "Briefing sécurité et pilotage du logiciel de jeu",   points: 30, difficulte: "avancee" }
+  comp_lm_ar_2:   { zone: "@zone_lm_arene",   nom: "Maintenance légère des gilets et détection de panne", points: 25, difficulte: "avancee" }
+  comp_lm_bar_1:  { zone: "@zone_lm_bar",     nom: "Service bar et snacking (réchauffe fours)",          points: 15, difficulte: "simple" }
+
+App\Entity\StaffCompetence:
+  sc_lm_j1: { user: "@user_lm_julien",    competence: "@comp_lm_acc_1",  acquiredAt: "<(new \\DateTimeImmutable('2024-05-01'))>" }
+  sc_lm_j2: { user: "@user_lm_julien",    competence: "@comp_lm_ar_1",   acquiredAt: "<(new \\DateTimeImmutable('2024-06-01'))>" }
+  sc_lm_j3: { user: "@user_lm_julien",    competence: "@comp_lm_ar_2",   acquiredAt: "<(new \\DateTimeImmutable('2024-09-01'))>" }
+  sc_lm_m1: { user: "@user_lm_mathilde",  competence: "@comp_lm_acc_1",  acquiredAt: "<(new \\DateTimeImmutable('2024-11-01'))>" }
+  sc_lm_m2: { user: "@user_lm_mathilde",  competence: "@comp_lm_acc_2",  acquiredAt: "<(new \\DateTimeImmutable('2025-01-10'))>" }
+  sc_lm_m3: { user: "@user_lm_mathilde",  competence: "@comp_lm_ar_1",   acquiredAt: "<(new \\DateTimeImmutable('2025-05-01'))>" }
+  sc_lm_a1: { user: "@user_lm_antoine",   competence: "@comp_lm_ar_1",   acquiredAt: "<(new \\DateTimeImmutable('2025-03-15'))>" }
+  sc_lm_a2: { user: "@user_lm_antoine",   competence: "@comp_lm_bar_1",  acquiredAt: "<(new \\DateTimeImmutable('2025-04-01'))>" }
+  sc_lm_c1: { user: "@user_lm_camille",   competence: "@comp_lm_bar_1",  acquiredAt: "<(new \\DateTimeImmutable('2025-06-15'))>" }
+  sc_lm_c2: { user: "@user_lm_camille",   competence: "@comp_lm_acc_2",  acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>" }
+  sc_lm_s1: { user: "@user_lm_samir",     competence: "@comp_lm_ar_1",   acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>" }
+  sc_lm_l1: { user: "@user_lm_lena",      competence: "@comp_lm_bar_1",  acquiredAt: "<(new \\DateTimeImmutable('2026-03-20'))>" }
+
+App\Entity\Service:
+  svc_lm_j5:
+    centre: "@centre_lasermaxx"
+    date:   "<(new \\DateTimeImmutable((new \\DateTime('-5 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin:   "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:     "TERMINE"
+    tauxCompletion: 92.0
+  svc_lm_j3:
+    centre: "@centre_lasermaxx"
+    date:   "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:   "<(new \\DateTimeImmutable('01:00:00'))>"
+    statut:     "TERMINE"
+    tauxCompletion: 84.0
+    note:       "Samedi soir chargé — 12 groupes enchaînés de 20h à minuit."
+  svc_lm_j2:
+    centre: "@centre_lasermaxx"
+    date:   "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:   "<(new \\DateTimeImmutable('22:00:00'))>"
+    statut:     "TERMINE"
+    tauxCompletion: 95.0
+  svc_lm_today:
+    centre: "@centre_lasermaxx"
+    date:   "<(new \\DateTimeImmutable('today'))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin:   "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut:     "EN_COURS"
+    tauxCompletion: 0.0
+    note:       "Anniversaire enfants à 15h30 (groupe 12 joueurs) — prévoir gilets XS."
+  svc_lm_j1:
+    centre: "@centre_lasermaxx"
+    date:   "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin:   "<(new \\DateTimeImmutable('01:00:00'))>"
+    statut:     "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_lm_j2p:
+    centre: "@centre_lasermaxx"
+    date:   "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin:   "<(new \\DateTimeImmutable('01:00:00'))>"
+    statut:     "PLANIFIE"
+    tauxCompletion: 0.0
+
+App\Entity\Poste:
+  poste_lm_today_acc_julien:
+    service: "@svc_lm_today"
+    zone: "@zone_lm_accueil"
+    user: "@user_lm_julien"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_lm_today_ar_mathilde:
+    service: "@svc_lm_today"
+    zone: "@zone_lm_arene"
+    user: "@user_lm_mathilde"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_lm_today_ar_antoine:
+    service: "@svc_lm_today"
+    zone: "@zone_lm_arene"
+    user: "@user_lm_antoine"
+    heureDebut: "<(new \\DateTimeImmutable('16:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 20
+  poste_lm_today_bar_camille:
+    service: "@svc_lm_today"
+    zone: "@zone_lm_bar"
+    user: "@user_lm_camille"
+    heureDebut: "<(new \\DateTimeImmutable('14:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('22:00:00'))>"
+    pauseMinutes: 30
+  poste_lm_j2_acc_julien:
+    service: "@svc_lm_j2"
+    zone: "@zone_lm_accueil"
+    user: "@user_lm_julien"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_lm_j2_ar_mathilde:
+    service: "@svc_lm_j2"
+    zone: "@zone_lm_arene"
+    user: "@user_lm_mathilde"
+    heureDebut: "<(new \\DateTimeImmutable('10:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:00:00'))>"
+    pauseMinutes: 30
+  poste_lm_j2_bar_camille:
+    service: "@svc_lm_j2"
+    zone: "@zone_lm_bar"
+    user: "@user_lm_camille"
+    heureDebut: "<(new \\DateTimeImmutable('12:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('20:00:00'))>"
+    pauseMinutes: 30
+
+App\Entity\Completion:
+  c_lm_1: { poste: "@poste_lm_today_acc_julien",   mission: "@m_lm_acc_ouv_1",  user: "@user_lm_julien" }
+  c_lm_2: { poste: "@poste_lm_today_acc_julien",   mission: "@m_lm_acc_ouv_2",  user: "@user_lm_julien" }
+  c_lm_3: { poste: "@poste_lm_today_ar_mathilde",  mission: "@m_lm_ar_ouv_1",   user: "@user_lm_mathilde" }
+  c_lm_4: { poste: "@poste_lm_today_ar_mathilde",  mission: "@m_lm_ar_ouv_2",   user: "@user_lm_mathilde" }
+  c_lm_5: { poste: "@poste_lm_today_bar_camille",  mission: "@m_lm_bar_ouv_1",  user: "@user_lm_camille" }
+
+App\Entity\Incident:
+  inc_lm_1:
+    centre:         "@centre_lasermaxx"
+    service:        "@svc_lm_j3"
+    titre:          "Gilet n°14 HS en pleine partie — joueur relogé, remboursement 8€"
+    severite:       "moyenne"
+    statut:         "RESOLU"
+    user:           "@user_lm_mathilde"
+    zone:           "@zone_lm_arene"
+    staffImpliques: ["@user_lm_mathilde", "@user_lm_julien"]
+  inc_lm_2:
+    centre:         "@centre_lasermaxx"
+    service:        "@svc_lm_j3"
+    titre:          "Machine à fumée en panne — arène sans effet 45 min"
+    severite:       "basse"
+    statut:         "RESOLU"
+    user:           "@user_lm_julien"
+    zone:           "@zone_lm_arene"
+    staffImpliques: ["@user_lm_julien"]
+
+App\Entity\Tutoriel:
+  tuto_lm_brief:
+    centre:  "@centre_lasermaxx"
+    titre:   "Briefing sécurité avant partie"
+    zone:    "@zone_lm_arene"
+    niveau:  "debutant"
+    dureMin: 10
+    contenu:
+      - { type: "intro", text: "Un briefing clair évite 90% des incidents en arène. Toujours le faire avant chaque groupe, sans exception." }
+      - { type: "step", number: 1, title: "Consignes interdits", text: "Pas de course, pas de contact physique, pas de gilet retiré pendant la partie." }
+      - { type: "step", number: 2, title: "Utilisation du gilet", text: "Montrer comment tenir le pistolet, la zone de tir et la recharge au socle." }
+      - { type: "step", number: 3, title: "Sécurité", text: "Indiquer les sorties de secours, la position du bouton d'arrêt d'urgence et le signal lumineux de fin de partie." }
+      - { type: "tip", text: "Adapter le ton selon l'âge : ludique pour les enfants, plus rigoureux pour les anniversaires d'ados." }
+  tuto_lm_gilets:
+    centre:  "@centre_lasermaxx"
+    titre:   "Maintenance quotidienne des gilets"
+    zone:    "@zone_lm_arene"
+    niveau:  "intermediaire"
+    dureMin: 15
+    contenu:
+      - { type: "intro", text: "Un gilet mal entretenu ruine l'expérience client. Vérification quotidienne obligatoire." }
+      - { type: "step", number: 1, title: "Contrôle visuel", text: "Vérifier chaque capteur (épaules, poitrine, dos) — aucune fissure acceptée." }
+      - { type: "step", number: 2, title: "Test logiciel", text: "Lancer le mode diagnostic : allumer chaque gilet, tirer sur chaque capteur, valider LED verte." }
+      - { type: "step", number: 3, title: "Charge", text: "Tous les gilets sur rack de charge en fin de service. Jamais laisser un gilet décharger en dehors du rack." }
+      - { type: "tip", text: "Un gilet qui clignote rouge trois fois : le sortir du service et prévenir le manager." }
+
+App\Entity\TutoRead:
+  tr_lm_m1: { user: "@user_lm_mathilde", tutoriel: "@tuto_lm_brief" }
+  tr_lm_m2: { user: "@user_lm_mathilde", tutoriel: "@tuto_lm_gilets" }
+  tr_lm_a1: { user: "@user_lm_antoine",  tutoriel: "@tuto_lm_brief" }
+  tr_lm_s1: { user: "@user_lm_samir",    tutoriel: "@tuto_lm_brief" }
+  tr_lm_c1: { user: "@user_lm_camille",  tutoriel: "@tuto_lm_brief" }
+
+App\Entity\PlanningWeek:
+  pw_lm_current:
+    centre:      "@centre_lasermaxx"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 09:00:00'))>"
+    publishedBy: "@user_lm_julien"

@@ -17,6 +17,7 @@ const config: Config = {
         bg:       '#0d0f14',
         surface:  '#151820',
         surface2: '#1c2030',
+        surface3: '#111318',
         border:   '#252a3a',
         text:     '#e8eaf0',
         muted:    '#6b7280',

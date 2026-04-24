@@ -6,7 +6,7 @@
  */
 
 import { motion } from 'framer-motion'
-import { fadeUp } from '@/lib/animations'
+import { fadeUpVariants as fadeUp } from '@/lib/animations'
 import type { ValidationEmploye } from '@/types/validation'
 
 interface Props {
@@ -77,7 +77,7 @@ export default function ValidationWeekSummary({ employes }: Props) {
       className="flex flex-col gap-0"
       variants={fadeUp}
       initial="hidden"
-      animate="visible"
+      animate="show"
     >
       {stats.map((stat) => (
         <div key={stat.label}>

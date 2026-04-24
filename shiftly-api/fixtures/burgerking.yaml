@@ -1,0 +1,441 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 8 : Burger King — Avenue de Paris, Orléans (franchise)
+#  Staff  : 11 membres (2 managers, 9 équipiers)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_burgerking:
+    nom:     "Burger King — Avenue de Paris, Orléans"
+    adresse: "120 avenue de Paris, 45000 Orléans"
+    openingHours:
+      lundi:    { ouvert: true, ouverture: "10:30", fermeture: "23:00" }
+      mardi:    { ouvert: true, ouverture: "10:30", fermeture: "23:00" }
+      mercredi: { ouvert: true, ouverture: "10:30", fermeture: "23:00" }
+      jeudi:    { ouvert: true, ouverture: "10:30", fermeture: "23:00" }
+      vendredi: { ouvert: true, ouverture: "10:30", fermeture: "00:00" }
+      samedi:   { ouvert: true, ouverture: "10:30", fermeture: "01:00" }
+      dimanche: { ouvert: true, ouverture: "10:30", fermeture: "23:00" }
+
+App\Entity\Zone:
+  zone_bk_production:
+    centre: "@centre_burgerking"
+    nom: "Production"
+    couleur: "#f97316"
+    ordre: 1
+  zone_bk_caisse:
+    centre: "@centre_burgerking"
+    nom: "Caisse / Accueil"
+    couleur: "#3b82f6"
+    ordre: 2
+  zone_bk_salle:
+    centre: "@centre_burgerking"
+    nom: "Salle"
+    couleur: "#22c55e"
+    ordre: 3
+  zone_bk_drive:
+    centre: "@centre_burgerking"
+    nom: "Drive"
+    couleur: "#eab308"
+    ordre: 4
+
+App\Entity\User:
+  user_bk_olivier:
+    centre: "@centre_burgerking"
+    nom: "Pelletier"
+    prenom: "Olivier"
+    email: "olivier@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "0000"
+    avatarColor: "#f97316"
+    points: 215
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_bk_yasmine:
+    centre: "@centre_burgerking"
+    nom: "Merad"
+    prenom: "Yasmine"
+    email: "yasmine@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "1111"
+    avatarColor: "#8b5cf6"
+    points: 180
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_bk_alex:
+    centre: "@centre_burgerking"
+    nom: "Fernandez"
+    prenom: "Alex"
+    email: "alex@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "2222"
+    avatarColor: "#22c55e"
+    points: 140
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_bk_chloe:
+    centre: "@centre_burgerking"
+    nom: "Leconte"
+    prenom: "Chloé"
+    email: "chloe@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "3333"
+    avatarColor: "#ec4899"
+    points: 120
+    actif: true
+    heuresHebdo: 30
+    typeContrat: "CDI"
+  user_bk_mohamed:
+    centre: "@centre_burgerking"
+    nom: "Bouaziz"
+    prenom: "Mohamed"
+    email: "mohamed@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "4444"
+    avatarColor: "#0ea5e9"
+    points: 105
+    actif: true
+    heuresHebdo: 30
+    typeContrat: "CDI"
+  user_bk_laura:
+    centre: "@centre_burgerking"
+    nom: "Weber"
+    prenom: "Laura"
+    email: "laura@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "5555"
+    avatarColor: "#14b8a6"
+    points: 85
+    actif: true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+  user_bk_kevin2:
+    centre: "@centre_burgerking"
+    nom: "Ramos"
+    prenom: "Kévin"
+    email: "kevin@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "6666"
+    avatarColor: "#6366f1"
+    points: 65
+    actif: true
+    heuresHebdo: 25
+    typeContrat: "CDD"
+  user_bk_fatima:
+    centre: "@centre_burgerking"
+    nom: "Haddad"
+    prenom: "Fatima"
+    email: "fatima@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "7777"
+    avatarColor: "#a855f7"
+    points: 50
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_bk_dimitri:
+    centre: "@centre_burgerking"
+    nom: "Petrov"
+    prenom: "Dimitri"
+    email: "dimitri@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "8888"
+    avatarColor: "#f59e0b"
+    points: 35
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_bk_manon:
+    centre: "@centre_burgerking"
+    nom: "Leroy"
+    prenom: "Manon"
+    email: "manon@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "9999"
+    avatarColor: "#ef4444"
+    points: 20
+    actif: true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+  user_bk_raphael:
+    centre: "@centre_burgerking"
+    nom: "Simon"
+    prenom: "Raphaël"
+    email: "raphael@bk-orleans-paris.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "1234"
+    avatarColor: "#475569"
+    points: 15
+    actif: true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+App\Entity\Mission:
+  m_bk_prod_ouv_1: { zone: "@zone_bk_production", texte: "Pointer et être en tenue complète (casquette, tablier)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_prod_ouv_2: { zone: "@zone_bk_production", texte: "Allumer grils Whopper et friteuses — préchauffage 20 min", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_prod_ouv_3: { zone: "@zone_bk_production", texte: "Relever températures frigos et chambres froides (feuille HACCP)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_bk_prod_ouv_4: { zone: "@zone_bk_production", texte: "Contrôler DLC viandes, pains, crudités et sauces", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 4 }
+  m_bk_prod_ouv_5: { zone: "@zone_bk_production", texte: "Préparer postes burgers avec les quantités flash standards", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 5 }
+  m_bk_prod_pend_1: { zone: "@zone_bk_production", texte: "Assembler les burgers selon fiche recette (pas d'improvisation)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_prod_pend_2: { zone: "@zone_bk_production", texte: "Respecter temps de vie produits chauds (max 10 min holding)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_prod_pend_3: { zone: "@zone_bk_production", texte: "Relever températures toutes les 2h et consigner sur feuille", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_bk_prod_pend_4: { zone: "@zone_bk_production", texte: "Réapprovisionner la chaîne en continu (viandes, pains)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_bk_prod_ferm_1: { zone: "@zone_bk_production", texte: "Filtrer huile friteuses, dégraisser grils Whopper", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_prod_ferm_2: { zone: "@zone_bk_production", texte: "Étiqueter et stocker matières premières restantes (DLC ouverture)", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_prod_ferm_3: { zone: "@zone_bk_production", texte: "Nettoyer complet production (surfaces, sols, hottes)", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+
+  m_bk_caisse_ouv_1: { zone: "@zone_bk_caisse", texte: "Allumer caisses, bornes de commande et TPE", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_caisse_ouv_2: { zone: "@zone_bk_caisse", texte: "Vérifier fonds de caisse et signer feuille de prise", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_caisse_pend_1: { zone: "@zone_bk_caisse", texte: "Accueillir, prendre commande, encaisser et servir plateau", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_caisse_pend_2: { zone: "@zone_bk_caisse", texte: "Gérer les bornes de commande (bouton aide client)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_bk_caisse_ferm_1: { zone: "@zone_bk_caisse", texte: "Clôturer caisses, imprimer Z, coffre-fort", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_caisse_ferm_2: { zone: "@zone_bk_caisse", texte: "Nettoyer bornes et désinfecter comptoir", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  m_bk_salle_ouv_1: { zone: "@zone_bk_salle", texte: "Installer tables, vérifier propreté sol et vitres", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_salle_pend_1: { zone: "@zone_bk_salle", texte: "Débarrasser et désinfecter tables dès départ client", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_salle_pend_2: { zone: "@zone_bk_salle", texte: "Vérifier toilettes toutes les 30 min (feuille de passage)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_salle_ferm_1: { zone: "@zone_bk_salle", texte: "Balayer et passer serpillère sur toute la salle", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+  m_bk_drive_ouv_1: { zone: "@zone_bk_drive", texte: "Tester interphone et écran commande drive", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_drive_pend_1: { zone: "@zone_bk_drive", texte: "Répondre en < 10 sec, remise sac < 3 min total", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_drive_pend_2: { zone: "@zone_bk_drive", texte: "Vérifier chaque sac avant remise (complet + conforme)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_drive_ferm_1: { zone: "@zone_bk_drive", texte: "Clôturer caisse drive, nettoyer zone de remise", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+
+App\Entity\Competence:
+  comp_bk_prod_1: { zone: "@zone_bk_production", nom: "Maîtrise gril Whopper (cuisson à la flamme)",  points: 30, difficulte: "avancee" }
+  comp_bk_prod_2: { zone: "@zone_bk_production", nom: "Normes HACCP Burger King",                     points: 40, difficulte: "experimente" }
+  comp_bk_caisse_1: { zone: "@zone_bk_caisse", nom: "Prise de commande rapide et upselling",         points: 20, difficulte: "simple" }
+  comp_bk_drive_1: { zone: "@zone_bk_drive", nom: "Service drive sous chrono (<3 min)",              points: 25, difficulte: "avancee" }
+
+App\Entity\StaffCompetence:
+  sc_bk_o1: { user: "@user_bk_olivier", competence: "@comp_bk_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2023-06-01'))>" }
+  sc_bk_o2: { user: "@user_bk_olivier", competence: "@comp_bk_prod_2",   acquiredAt: "<(new \\DateTimeImmutable('2023-07-01'))>" }
+  sc_bk_o3: { user: "@user_bk_olivier", competence: "@comp_bk_drive_1",  acquiredAt: "<(new \\DateTimeImmutable('2023-09-01'))>" }
+  sc_bk_y1: { user: "@user_bk_yasmine", competence: "@comp_bk_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2024-02-01'))>" }
+  sc_bk_y2: { user: "@user_bk_yasmine", competence: "@comp_bk_prod_2",   acquiredAt: "<(new \\DateTimeImmutable('2024-03-01'))>" }
+  sc_bk_y3: { user: "@user_bk_yasmine", competence: "@comp_bk_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2024-06-01'))>" }
+  sc_bk_a1: { user: "@user_bk_alex",    competence: "@comp_bk_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2024-10-01'))>" }
+  sc_bk_a2: { user: "@user_bk_alex",    competence: "@comp_bk_prod_2",   acquiredAt: "<(new \\DateTimeImmutable('2025-01-15'))>" }
+  sc_bk_c1: { user: "@user_bk_chloe",   competence: "@comp_bk_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2024-11-01'))>" }
+  sc_bk_c2: { user: "@user_bk_chloe",   competence: "@comp_bk_drive_1",  acquiredAt: "<(new \\DateTimeImmutable('2025-03-01'))>" }
+  sc_bk_mo1: { user: "@user_bk_mohamed", competence: "@comp_bk_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2025-02-15'))>" }
+  sc_bk_mo2: { user: "@user_bk_mohamed", competence: "@comp_bk_drive_1",  acquiredAt: "<(new \\DateTimeImmutable('2025-07-01'))>" }
+  sc_bk_l1: { user: "@user_bk_laura",   competence: "@comp_bk_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2025-04-01'))>" }
+  sc_bk_k1: { user: "@user_bk_kevin2",  competence: "@comp_bk_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>" }
+  sc_bk_f1: { user: "@user_bk_fatima",  competence: "@comp_bk_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2025-11-15'))>" }
+  sc_bk_d1: { user: "@user_bk_dimitri", competence: "@comp_bk_drive_1",  acquiredAt: "<(new \\DateTimeImmutable('2026-01-10'))>" }
+  sc_bk_mn1: { user: "@user_bk_manon",   competence: "@comp_bk_caisse_1", acquiredAt: "<(new \\DateTimeImmutable('2026-03-10'))>" }
+  sc_bk_rp1: { user: "@user_bk_raphael", competence: "@comp_bk_prod_1",   acquiredAt: "<(new \\DateTimeImmutable('2026-04-01'))>" }
+
+App\Entity\Service:
+  svc_bk_j5:
+    centre: "@centre_burgerking"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-5 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 87.0
+  svc_bk_j3:
+    centre: "@centre_burgerking"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('01:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 83.0
+    note: "Samedi — rush soirée étudiante. 3 erreurs commande signalées au drive."
+  svc_bk_j2:
+    centre: "@centre_burgerking"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut: "TERMINE"
+    tauxCompletion: 91.0
+  svc_bk_today:
+    centre: "@centre_burgerking"
+    date: "<(new \\DateTimeImmutable('today'))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut: "EN_COURS"
+    tauxCompletion: 0.0
+    note: "Opération promo Whopper -30% jusqu'à 14h — prévoir réassort viande vers 13h."
+  svc_bk_j1:
+    centre: "@centre_burgerking"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+  svc_bk_j2p:
+    centre: "@centre_burgerking"
+    date: "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    statut: "PLANIFIE"
+    tauxCompletion: 0.0
+
+App\Entity\Poste:
+  poste_bk_today_caisse_olivier:
+    service: "@svc_bk_today"
+    zone: "@zone_bk_caisse"
+    user: "@user_bk_olivier"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:30:00'))>"
+    pauseMinutes: 30
+  poste_bk_today_caisse_yasmine:
+    service: "@svc_bk_today"
+    zone: "@zone_bk_caisse"
+    user: "@user_bk_yasmine"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_bk_today_prod_alex:
+    service: "@svc_bk_today"
+    zone: "@zone_bk_production"
+    user: "@user_bk_alex"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:30:00'))>"
+    pauseMinutes: 30
+  poste_bk_today_prod_mohamed:
+    service: "@svc_bk_today"
+    zone: "@zone_bk_production"
+    user: "@user_bk_mohamed"
+    heureDebut: "<(new \\DateTimeImmutable('15:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+  poste_bk_today_drive_chloe:
+    service: "@svc_bk_today"
+    zone: "@zone_bk_drive"
+    user: "@user_bk_chloe"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+  poste_bk_today_salle_laura:
+    service: "@svc_bk_today"
+    zone: "@zone_bk_salle"
+    user: "@user_bk_laura"
+    heureDebut: "<(new \\DateTimeImmutable('11:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('19:00:00'))>"
+    pauseMinutes: 30
+  poste_bk_today_drive_dimitri:
+    service: "@svc_bk_today"
+    zone: "@zone_bk_drive"
+    user: "@user_bk_dimitri"
+    heureDebut: "<(new \\DateTimeImmutable('17:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 20
+  poste_bk_j2_prod_alex:
+    service: "@svc_bk_j2"
+    zone: "@zone_bk_production"
+    user: "@user_bk_alex"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:30:00'))>"
+    pauseMinutes: 30
+  poste_bk_j2_caisse_chloe:
+    service: "@svc_bk_j2"
+    zone: "@zone_bk_caisse"
+    user: "@user_bk_chloe"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:30:00'))>"
+    pauseMinutes: 30
+  poste_bk_j2_drive_mohamed:
+    service: "@svc_bk_j2"
+    zone: "@zone_bk_drive"
+    user: "@user_bk_mohamed"
+    heureDebut: "<(new \\DateTimeImmutable('10:30:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('18:30:00'))>"
+    pauseMinutes: 30
+
+App\Entity\Completion:
+  c_bk_1: { poste: "@poste_bk_today_prod_alex",        mission: "@m_bk_prod_ouv_1",   user: "@user_bk_alex" }
+  c_bk_2: { poste: "@poste_bk_today_prod_alex",        mission: "@m_bk_prod_ouv_2",   user: "@user_bk_alex" }
+  c_bk_3: { poste: "@poste_bk_today_prod_alex",        mission: "@m_bk_prod_ouv_3",   user: "@user_bk_alex" }
+  c_bk_4: { poste: "@poste_bk_today_caisse_olivier",   mission: "@m_bk_caisse_ouv_1", user: "@user_bk_olivier" }
+  c_bk_5: { poste: "@poste_bk_today_caisse_olivier",   mission: "@m_bk_caisse_ouv_2", user: "@user_bk_olivier" }
+  c_bk_6: { poste: "@poste_bk_today_salle_laura",      mission: "@m_bk_salle_ouv_1",  user: "@user_bk_laura" }
+  c_bk_7: { poste: "@poste_bk_today_drive_chloe",      mission: "@m_bk_drive_ouv_1",  user: "@user_bk_chloe" }
+
+App\Entity\Incident:
+  inc_bk_1:
+    centre:         "@centre_burgerking"
+    service:        "@svc_bk_j3"
+    titre:          "Rupture viande Whopper 45 min — 60 clients refusés en soirée"
+    severite:       "haute"
+    statut:         "RESOLU"
+    user:           "@user_bk_yasmine"
+    zone:           "@zone_bk_production"
+    staffImpliques: ["@user_bk_yasmine", "@user_bk_alex", "@user_bk_mohamed"]
+  inc_bk_2:
+    centre:         "@centre_burgerking"
+    service:        "@svc_bk_j3"
+    titre:          "3 commandes drive erronées — retour client sur réseaux sociaux"
+    severite:       "moyenne"
+    statut:         "RESOLU"
+    user:           "@user_bk_olivier"
+    zone:           "@zone_bk_drive"
+    staffImpliques: ["@user_bk_olivier", "@user_bk_chloe"]
+
+App\Entity\Tutoriel:
+  tuto_bk_whopper:
+    centre:  "@centre_burgerking"
+    titre:   "Cuisson Whopper — le secret de la flamme"
+    zone:    "@zone_bk_production"
+    niveau:  "intermediaire"
+    dureMin: 20
+    contenu:
+      - { type: "intro", text: "Le Whopper est cuit à la flamme, pas à la plaque. C'est la signature Burger King — et c'est ce qui nous distingue." }
+      - { type: "step", number: 1, title: "Préchauffage", text: "Gril à 260°C. Vérifier avec sonde. Ne jamais cuire sur un gril froid (risque viande crue)." }
+      - { type: "step", number: 2, title: "Cuisson", text: "Steak sur la grille, fermer. Temps réglementaire affiché par le minuteur — le respecter à la seconde." }
+      - { type: "step", number: 3, title: "Repos", text: "Sortir, laisser 15 sec sur le plan, assembler immédiatement dans le pain préchauffé." }
+      - { type: "tip", text: "Un steak trop cuit = jeté + fiche de perte. Mieux vaut jeter que servir un produit non conforme." }
+  tuto_bk_haccp:
+    centre:  "@centre_burgerking"
+    titre:   "HACCP Burger King — fondamentaux"
+    zone:    "@zone_bk_production"
+    niveau:  "avance"
+    dureMin: 30
+    contenu:
+      - { type: "intro", text: "HACCP = santé publique + réputation franchise. Zéro tolérance sur les écarts." }
+      - { type: "step", number: 1, title: "Températures", text: "Froid : 0-4°C. Congelé : -18°C. Chaud : >63°C. Relevés toutes les 2h + signature." }
+      - { type: "step", number: 2, title: "Traçabilité", text: "Chaque produit ouvert : étiquette avec date et heure. Pas d'étiquette = jeté." }
+      - { type: "step", number: 3, title: "Nettoyage", text: "Fin de service : dégraissage grils, filtrage huile, sol complet. Registre signé." }
+
+App\Entity\TutoRead:
+  tr_bk_a1: { user: "@user_bk_alex",    tutoriel: "@tuto_bk_whopper" }
+  tr_bk_a2: { user: "@user_bk_alex",    tutoriel: "@tuto_bk_haccp" }
+  tr_bk_m1: { user: "@user_bk_mohamed", tutoriel: "@tuto_bk_whopper" }
+  tr_bk_k1: { user: "@user_bk_kevin2",  tutoriel: "@tuto_bk_whopper" }
+  tr_bk_r1: { user: "@user_bk_raphael", tutoriel: "@tuto_bk_whopper" }
+  tr_bk_y1: { user: "@user_bk_yasmine", tutoriel: "@tuto_bk_haccp" }
+
+App\Entity\PlanningWeek:
+  pw_bk_current:
+    centre:      "@centre_burgerking"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 07:30:00'))>"
+    publishedBy: "@user_bk_olivier"

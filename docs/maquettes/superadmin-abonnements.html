@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — SuperAdmin / Abonnements</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0f14; --surface:#151820; --surface2:#1c2030; --surface3:#111318;
+    --border:#252a3a; --text:#e8eaf0; --muted:#6b7280;
+    --accent:#f97316; --accent2:#fb923c;
+    --blue:#3b82f6; --green:#22c55e; --red:#ef4444; --yellow:#eab308; --purple:#a855f7;
+    --sidebar-w:240px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+  .sidebar{width:var(--sidebar-w);height:100vh;position:fixed;top:0;left:0;background:var(--surface3);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;overflow-y:auto;}
+  .sidebar-header{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
+  .sidebar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;}
+  .sidebar-logo .name{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .sidebar-logo .dot{color:var(--text);}
+  .sidebar-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0f14;padding:3px 9px;border-radius:20px;}
+  .sidebar-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px;}
+  .nav-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:14px 12px 6px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:8px;transition:all 0.12s;text-decoration:none;border-left:3px solid transparent;margin-left:-3px;}
+  .nav-item:hover{background:var(--surface);color:var(--text);}
+  .nav-item.active{background:rgba(249,115,22,0.08);color:var(--accent);border-left-color:var(--accent);font-weight:600;}
+  .nav-item .icon{font-size:15px;width:18px;text-align:center;}
+  .nav-item .badge{margin-left:auto;background:var(--red);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
+  .nav-item .badge.muted{background:var(--surface2);color:var(--muted);}
+  .sidebar-footer{padding:14px;border-top:1px solid var(--border);}
+  .me-card{background:var(--surface);border:1px solid var(--border);padding:10px 12px;border-radius:10px;display:flex;align-items:center;gap:10px;}
+  .me-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .me-info{flex:1;min-width:0;}
+  .me-name{font-size:12px;font-weight:600;line-height:1.2;}
+  .me-role{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;}
+
+  .main{margin-left:var(--sidebar-w);flex:1;padding:24px 28px;min-height:100vh;}
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;}
+  .page-subtitle{font-size:13px;color:var(--muted);margin-top:2px;}
+  .btn{padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:all 0.12s;}
+  .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
+  .kpi-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;font-weight:700;}
+  .kpi-value{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;margin-top:4px;}
+  .kpi-trend{font-size:10px;margin-top:3px;color:var(--muted);}
+  .kpi-trend.up{color:var(--green);}
+  .kpi-trend.down{color:var(--red);}
+
+  /* Funnel/repartition */
+  .repartition{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px;}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .panel-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .panel-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .panel-body{padding:16px 18px;}
+
+  .repart-row{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);}
+  .repart-row:last-child{border-bottom:none;}
+  .repart-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .repart-icon.starter{background:rgba(107,114,128,0.15);}
+  .repart-icon.pro{background:rgba(59,130,246,0.15);}
+  .repart-icon.enterprise{background:rgba(168,85,247,0.15);}
+  .repart-info{flex:1;}
+  .repart-name{font-weight:700;font-size:14px;}
+  .repart-meta{font-size:11px;color:var(--muted);}
+  .repart-bar-wrap{flex:2;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+  .repart-bar{height:100%;border-radius:4px;}
+  .repart-value{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;min-width:80px;text-align:right;}
+
+  .lifecycle{display:flex;flex-direction:column;gap:10px;}
+  .lifecycle-stage{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);}
+  .lifecycle-stage-info{display:flex;align-items:center;gap:10px;}
+  .lifecycle-dot{width:10px;height:10px;border-radius:50%;}
+  .lifecycle-stage-name{font-size:13px;font-weight:600;}
+  .lifecycle-stage-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+  .lifecycle-count{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;}
+
+  /* Filters & table */
+  .filters{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+  .filter-select{background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:9px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+  .search-input{flex:1;min-width:240px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:9px 14px 9px 36px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");background-repeat:no-repeat;background-position:12px center;}
+
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;padding:11px 14px;background:var(--surface2);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;border-bottom:1px solid var(--border);}
+  td{padding:13px 14px;border-bottom:1px solid rgba(37,42,58,0.5);}
+  tbody tr:hover{background:rgba(249,115,22,0.04);cursor:pointer;}
+  tbody tr:last-child td{border-bottom:none;}
+
+  .centre-cell{display:flex;align-items:center;gap:10px;}
+  .centre-avatar{width:30px;height:30px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .centre-name{font-weight:600;}
+  .centre-loc{font-size:10px;color:var(--muted);}
+
+  .plan-pill{display:inline-block;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;}
+  .plan-pill.starter{background:rgba(107,114,128,0.15);color:var(--muted);}
+  .plan-pill.pro{background:rgba(59,130,246,0.15);color:var(--blue);}
+  .plan-pill.enterprise{background:rgba(168,85,247,0.15);color:var(--purple);}
+
+  .mrr-cell{font-family:'Syne',sans-serif;font-weight:700;color:var(--green);}
+
+  .status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;}
+  .status-badge.actif{background:rgba(34,197,94,0.15);color:var(--green);}
+  .status-badge.actif::before{content:'●';font-size:8px;}
+  .status-badge.essai{background:rgba(59,130,246,0.15);color:var(--blue);}
+  .status-badge.suspendu{background:rgba(239,68,68,0.15);color:var(--red);}
+  .status-badge.echeance{background:rgba(234,179,8,0.15);color:var(--yellow);}
+  .status-badge.echec{background:rgba(239,68,68,0.2);color:var(--red);}
+
+  .next-billing{font-size:11px;color:var(--muted);}
+  .next-billing.warn{color:var(--yellow);}
+  .next-billing.danger{color:var(--red);}
+
+  .stripe-link{font-size:11px;color:var(--accent);text-decoration:none;font-weight:600;}
+</style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div class="sidebar-header"><div class="sidebar-logo"><span class="name">Shiftly</span><span class="dot">.</span></div><div class="sidebar-badge">SuperAdmin</div></div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Phase 1 — Monitoring</div>
+      <a class="nav-item"><span class="icon">📊</span> Dashboard</a>
+      <a class="nav-item"><span class="icon">🏢</span> Centres <span class="badge muted">12</span></a>
+      <div class="nav-section-label">Phase 2 — Billing</div>
+      <a class="nav-item active"><span class="icon">💳</span> Abonnements <span class="badge muted">12</span></a>
+      <a class="nav-item"><span class="icon">📄</span> Facturation</a>
+      <a class="nav-item"><span class="icon">🏷️</span> Plans tarifaires</a>
+      <div class="nav-section-label">Phase 3 — Users & Support</div>
+      <a class="nav-item"><span class="icon">👤</span> Utilisateurs <span class="badge muted">147</span></a>
+      <a class="nav-item"><span class="icon">🎧</span> Support <span class="badge">3</span></a>
+      <div class="nav-section-label">Phase 4 — Système</div>
+      <a class="nav-item"><span class="icon">⚡</span> Activity</a>
+      <a class="nav-item"><span class="icon">⚙️</span> Réglages</a>
+    </div>
+    <div class="sidebar-footer"><div class="me-card"><div class="me-avatar">KV</div><div class="me-info"><div class="me-name">Kévin Vanphavong</div><div class="me-role">Fondateur</div></div></div></div>
+  </nav>
+
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">Abonnements</div>
+        <div class="page-subtitle">12 abonnements · 11 actifs · 1 en essai · MRR cumulé 1 287€</div>
+      </div>
+      <button class="btn btn-outline">📊 Voir dans Stripe ↗</button>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-label">MRR</div><div class="kpi-value" style="color:var(--green);">1 287€</div><div class="kpi-trend up">↑ +142€ ce mois</div></div>
+      <div class="kpi"><div class="kpi-label">ARR</div><div class="kpi-value" style="color:var(--text);">15 444€</div><div class="kpi-trend">Annualisé</div></div>
+      <div class="kpi"><div class="kpi-label">Actifs</div><div class="kpi-value" style="color:var(--blue);">11</div><div class="kpi-trend">+1 essai</div></div>
+      <div class="kpi"><div class="kpi-label">Churn rate (30j)</div><div class="kpi-value" style="color:var(--yellow);">2.1%</div><div class="kpi-trend">1 résiliation ce mois</div></div>
+      <div class="kpi"><div class="kpi-label">Trial → Pay (30j)</div><div class="kpi-value" style="color:var(--green);">75%</div><div class="kpi-trend">3/4 conversions</div></div>
+    </div>
+
+    <!-- Répartition + Lifecycle -->
+    <div class="repartition">
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📊 Répartition par plan</div>
+          <span style="font-size:11px;color:var(--muted);">Sur 11 abonnements payants</span>
+        </div>
+        <div class="panel-body">
+          <div class="repart-row">
+            <div class="repart-icon starter">🎯</div>
+            <div class="repart-info">
+              <div class="repart-name">Starter</div>
+              <div class="repart-meta">79€ / mois · 3 centres</div>
+            </div>
+            <div class="repart-bar-wrap"><div class="repart-bar" style="width:27%;background:var(--muted);"></div></div>
+            <div class="repart-value" style="color:var(--muted);">237€</div>
+          </div>
+          <div class="repart-row">
+            <div class="repart-icon pro">💼</div>
+            <div class="repart-info">
+              <div class="repart-name">Pro</div>
+              <div class="repart-meta">129€ / mois · 6 centres</div>
+            </div>
+            <div class="repart-bar-wrap"><div class="repart-bar" style="width:55%;background:var(--blue);"></div></div>
+            <div class="repart-value" style="color:var(--blue);">774€</div>
+          </div>
+          <div class="repart-row">
+            <div class="repart-icon enterprise">🚀</div>
+            <div class="repart-info">
+              <div class="repart-name">Enterprise</div>
+              <div class="repart-meta">199€ / mois · 2 centres</div>
+            </div>
+            <div class="repart-bar-wrap"><div class="repart-bar" style="width:18%;background:var(--purple);"></div></div>
+            <div class="repart-value" style="color:var(--purple);">398€</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">🔄 Lifecycle</div>
+        </div>
+        <div class="panel-body">
+          <div class="lifecycle">
+            <div class="lifecycle-stage">
+              <div class="lifecycle-stage-info">
+                <span class="lifecycle-dot" style="background:var(--blue);"></span>
+                <div>
+                  <div class="lifecycle-stage-name">En essai</div>
+                  <div class="lifecycle-stage-meta">14j gratuits</div>
+                </div>
+              </div>
+              <div class="lifecycle-count" style="color:var(--blue);">1</div>
+            </div>
+            <div class="lifecycle-stage">
+              <div class="lifecycle-stage-info">
+                <span class="lifecycle-dot" style="background:var(--green);"></span>
+                <div>
+                  <div class="lifecycle-stage-name">Actifs</div>
+                  <div class="lifecycle-stage-meta">Paiement OK</div>
+                </div>
+              </div>
+              <div class="lifecycle-count" style="color:var(--green);">11</div>
+            </div>
+            <div class="lifecycle-stage">
+              <div class="lifecycle-stage-info">
+                <span class="lifecycle-dot" style="background:var(--yellow);"></span>
+                <div>
+                  <div class="lifecycle-stage-name">Échéance &lt; 30j</div>
+                  <div class="lifecycle-stage-meta">À surveiller</div>
+                </div>
+              </div>
+              <div class="lifecycle-count" style="color:var(--yellow);">2</div>
+            </div>
+            <div class="lifecycle-stage">
+              <div class="lifecycle-stage-info">
+                <span class="lifecycle-dot" style="background:var(--red);"></span>
+                <div>
+                  <div class="lifecycle-stage-name">Échec paiement</div>
+                  <div class="lifecycle-stage-meta">Action requise</div>
+                </div>
+              </div>
+              <div class="lifecycle-count" style="color:var(--red);">0</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <input type="text" class="search-input" placeholder="Rechercher par centre, plan, ID Stripe...">
+      <select class="filter-select"><option>Tous statuts</option><option>Actifs</option><option>En essai</option><option>Échéance &lt; 30j</option><option>Suspendus</option></select>
+      <select class="filter-select"><option>Tous plans</option><option>Starter</option><option>Pro</option><option>Enterprise</option></select>
+      <select class="filter-select"><option>Tri : MRR ↓</option><option>Date début ↓</option><option>Prochaine facture ↑</option></select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Centre</th>
+            <th>Plan</th>
+            <th>MRR</th>
+            <th>Démarré le</th>
+            <th>Prochaine facture</th>
+            <th>Statut</th>
+            <th>Stripe</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🎳</div><div><div class="centre-name">Bowling Central</div><div class="centre-loc">Blois</div></div></div></td>
+            <td><span class="plan-pill enterprise">Enterprise</span></td>
+            <td class="mrr-cell">199€</td>
+            <td>15 jan 2025 <span style="color:var(--muted);font-size:10px;display:block;">il y a 15 mois</span></td>
+            <td><span class="next-billing">15 mai 2026</span></td>
+            <td><span class="status-badge actif">Actif</span></td>
+            <td><a class="stripe-link">sub_1OvZ... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🎮</div><div><div class="centre-name">Family Games Center</div><div class="centre-loc">Blois</div></div></div></td>
+            <td><span class="plan-pill enterprise">Enterprise</span></td>
+            <td class="mrr-cell">199€</td>
+            <td>2 août 2025 <span style="color:var(--muted);font-size:10px;display:block;">il y a 8 mois</span></td>
+            <td><span class="next-billing">2 mai 2026</span></td>
+            <td><span class="status-badge actif">Actif</span></td>
+            <td><a class="stripe-link">sub_1Pa3... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🎯</div><div><div class="centre-name">Laser Quest Tours</div><div class="centre-loc">Tours</div></div></div></td>
+            <td><span class="plan-pill pro">Pro</span></td>
+            <td class="mrr-cell">129€</td>
+            <td>14 nov 2025 <span style="color:var(--muted);font-size:10px;display:block;">il y a 5 mois</span></td>
+            <td><span class="next-billing">14 mai 2026</span></td>
+            <td><span class="status-badge actif">Actif</span></td>
+            <td><a class="stripe-link">sub_1Qf8... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🎳</div><div><div class="centre-name">Bowling Stadium Orléans</div><div class="centre-loc">Orléans</div></div></div></td>
+            <td><span class="plan-pill pro">Pro</span></td>
+            <td class="mrr-cell">129€</td>
+            <td>12 jan 2026 <span style="color:var(--muted);font-size:10px;display:block;">il y a 3 mois</span></td>
+            <td><span class="next-billing">12 mai 2026</span></td>
+            <td><span class="status-badge actif">Actif</span></td>
+            <td><a class="stripe-link">sub_1Rt9... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🎤</div><div><div class="centre-name">K-Pad Karaoké</div><div class="centre-loc">Paris 11</div></div></div></td>
+            <td><span class="plan-pill starter">Starter</span></td>
+            <td class="mrr-cell">79€</td>
+            <td>22 fév 2026 <span style="color:var(--muted);font-size:10px;display:block;">il y a 2 mois</span></td>
+            <td><span class="next-billing warn">22 avr 2026 (dans 0j)</span></td>
+            <td><span class="status-badge echeance">Renouvellement aujourd'hui</span></td>
+            <td><a class="stripe-link">sub_1S0a... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🥽</div><div><div class="centre-name">VR Arena Lyon</div><div class="centre-loc">Lyon</div></div></div></td>
+            <td><span class="plan-pill pro">Pro</span></td>
+            <td class="mrr-cell">129€</td>
+            <td>3 mars 2026 <span style="color:var(--muted);font-size:10px;display:block;">il y a 1.5 mois</span></td>
+            <td><span class="next-billing">3 mai 2026</span></td>
+            <td><span class="status-badge actif">Actif</span></td>
+            <td><a class="stripe-link">sub_1S2k... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🎳</div><div><div class="centre-name">Quasar Bowl Nantes</div><div class="centre-loc">Nantes</div></div></div></td>
+            <td><span class="plan-pill pro">Pro</span></td>
+            <td class="mrr-cell">129€</td>
+            <td>10 mars 2026 <span style="color:var(--muted);font-size:10px;display:block;">il y a 6 sem.</span></td>
+            <td><span class="next-billing">10 mai 2026</span></td>
+            <td><span class="status-badge actif">Actif</span></td>
+            <td><a class="stripe-link">sub_1S4p... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🎳</div><div><div class="centre-name">Strike Club Bordeaux</div><div class="centre-loc">Bordeaux</div></div></div></td>
+            <td><span class="plan-pill pro">Pro</span></td>
+            <td class="mrr-cell">129€</td>
+            <td>22 mars 2026 <span style="color:var(--muted);font-size:10px;display:block;">il y a 1 mois</span></td>
+            <td><span class="next-billing warn">29 avr 2026 (dans 7j)</span></td>
+            <td><span class="status-badge echeance">Échéance proche</span></td>
+            <td><a class="stripe-link">sub_1S6h... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🎳</div><div><div class="centre-name">Cosmic Bowling Lille</div><div class="centre-loc">Lille</div></div></div></td>
+            <td><span class="plan-pill starter">Starter</span></td>
+            <td class="mrr-cell">79€</td>
+            <td>1 avr 2026 <span style="color:var(--muted);font-size:10px;display:block;">il y a 3 sem.</span></td>
+            <td><span class="next-billing">1 mai 2026</span></td>
+            <td><span class="status-badge actif">Actif</span></td>
+            <td><a class="stripe-link">sub_1S9c... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🌌</div><div><div class="centre-name">Galaxy Park Marseille</div><div class="centre-loc">Marseille</div></div></div></td>
+            <td><span class="plan-pill pro">Pro</span></td>
+            <td class="mrr-cell">129€</td>
+            <td>5 avr 2026 <span style="color:var(--muted);font-size:10px;display:block;">il y a 17j</span></td>
+            <td><span class="next-billing">5 mai 2026</span></td>
+            <td><span class="status-badge actif">Actif</span></td>
+            <td><a class="stripe-link">sub_1SAe... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🕹</div><div><div class="centre-name">Arcade Adventure</div><div class="centre-loc">Strasbourg</div></div></div></td>
+            <td><span class="plan-pill starter">Starter</span></td>
+            <td class="mrr-cell">79€</td>
+            <td>11 avr 2026 <span style="color:var(--muted);font-size:10px;display:block;">il y a 11j</span></td>
+            <td><span class="next-billing">11 mai 2026</span></td>
+            <td><span class="status-badge actif">Actif</span></td>
+            <td><a class="stripe-link">sub_1SBk... ↗</a></td>
+          </tr>
+          <tr>
+            <td><div class="centre-cell"><div class="centre-avatar">🏎</div><div><div class="centre-name">Speed Park Rennes</div><div class="centre-loc">Rennes</div></div></div></td>
+            <td><span class="plan-pill pro">Pro</span></td>
+            <td class="mrr-cell" style="color:var(--blue);">Essai</td>
+            <td>19 avr 2026 <span style="color:var(--muted);font-size:10px;display:block;">il y a 3j</span></td>
+            <td><span class="next-billing">3 mai 2026 (essai)</span></td>
+            <td><span class="status-badge essai">Essai 14j</span></td>
+            <td><a class="stripe-link">sub_1SCm... ↗</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+</body>
+</html>

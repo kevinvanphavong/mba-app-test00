@@ -6,7 +6,7 @@
  */
 
 import { motion } from 'framer-motion'
-import { fadeUp } from '@/lib/animations'
+import { fadeUpVariants as fadeUp } from '@/lib/animations'
 import type { ValidationKPI } from '@/types/validation'
 
 interface Props {
@@ -86,7 +86,7 @@ export default function ValidationKPIs({ kpis }: Props) {
           className="validation-kpi-card kpi-card flex items-center gap-3 p-4"
           variants={fadeUp}
           initial="hidden"
-          animate="visible"
+          animate="show"
           transition={{ delay: i * 0.05 }}
         >
           <div className={`kpi-icon flex items-center justify-center flex-shrink-0 text-xl ${kpi.iconClass}`}>

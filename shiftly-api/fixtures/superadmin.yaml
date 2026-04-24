@@ -1,0 +1,51 @@
+# ═══════════════════════════════════════════════════════════
+#  Shiftly — Fixtures SuperAdmin
+#  Compte fondateur + données démo audit/notes
+#  Email : kevin@shiftly.app / Mot de passe : superadmin2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\User:
+  user_superadmin:
+    centre:       "@centre_fgc"
+    nom:          "Vanphavong"
+    prenom:       "Kévin"
+    email:        "kevin@shiftly.app"
+    password:     "<(password_hash('superadmin2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:        []
+    role:         "SUPERADMIN"
+    codePointage: "9999"
+    avatarColor:  "#f97316"
+    points:       0
+    actif:        true
+    heuresHebdo:  null
+    typeContrat:  null
+
+App\Entity\CentreNote:
+  cnote_1:
+    centre:         "@centre_fgc"
+    superAdminUser: "@user_superadmin"
+    contenu:        "Centre pilote — suivi hebdomadaire en place. RAS sur le module pointage."
+
+  cnote_2:
+    centre:         "@centre_fgc"
+    superAdminUser: "@user_superadmin"
+    contenu:        "Demande d'ajout de la zone VR pour Q3 2026. À prévoir dans le roadmap."
+
+App\Entity\AuditLog:
+  audit_1:
+    superAdminUser: "@user_superadmin"
+    action:         "IMPERSONATE_START"
+    targetType:     "centre"
+    targetId:       1
+    metadata:       { managerId: 1, centreNom: "Family Games Center" }
+    ip:             "127.0.0.1"
+    userAgent:      "Mozilla/5.0"
+
+  audit_2:
+    superAdminUser: "@user_superadmin"
+    action:         "ADD_NOTE"
+    targetType:     "centre"
+    targetId:       1
+    metadata:       { contenu: "Centre pilote — suivi hebdomadaire en place." }
+    ip:             "127.0.0.1"
+    userAgent:      "Mozilla/5.0"

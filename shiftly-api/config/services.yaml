@@ -21,5 +21,12 @@ services:
     App\:
         resource: '../src/'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Service\SentryApiService:
+        arguments:
+            $sentryAuthToken: '%env(SENTRY_AUTH_TOKEN)%'
+            $sentryOrg:       '%env(SENTRY_ORG)%'
+            $sentryProject:   '%env(SENTRY_PROJECT)%'
+
+    App\Service\FileUploadService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

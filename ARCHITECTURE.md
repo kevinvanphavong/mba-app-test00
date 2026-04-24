@@ -62,6 +62,14 @@ mba-app-test00/
 │   │   │   │       └── editeur/
 │   │   │   │           └── page.tsx   # Éditeur zones/missions/compétences
 │   │   │   │
+│   │   │   ├── (superadmin)/          # Back-office SuperAdmin (accès fondateur uniquement)
+│   │   │   │   ├── layout.tsx         # Layout dédié (sidebar SA + ImpersonationBanner)
+│   │   │   │   ├── page.tsx           # Dashboard KPIs
+│   │   │   │   ├── login/page.tsx     # Connexion SuperAdmin
+│   │   │   │   └── centres/
+│   │   │   │       ├── page.tsx       # Liste des centres
+│   │   │   │       └── [id]/page.tsx  # Détail + impersonation + actions
+│   │   │   │
 │   │   │   ├── globals.css            # Variables CSS + reset Tailwind
 │   │   │   └── layout.tsx             # Root layout (fonts, metadata, providers)
 │   │   │
@@ -156,9 +164,9 @@ mba-app-test00/
 │
 └── shiftly-api/                       # Symfony 8.0 — Backend
     ├── src/
-    │   ├── Entity/                    # 14 entités Doctrine
-    │   │   ├── Centre.php
-    │   │   ├── User.php
+    │   ├── Entity/                    # 16 entités Doctrine
+    │   │   ├── Centre.php             # + champ actif (suspension)
+    │   │   ├── User.php               # + ROLE_SUPERADMIN
     │   │   ├── Zone.php
     │   │   ├── Mission.php
     │   │   ├── Competence.php
@@ -170,14 +178,21 @@ mba-app-test00/
     │   │   ├── Tutoriel.php
     │   │   ├── TutoRead.php
     │   │   ├── ValidationHebdo.php    # Statut/heures validation hebdo par employé
-    │   │   └── CorrectionPointage.php # Trace des corrections manuelles
+    │   │   ├── CorrectionPointage.php # Trace des corrections manuelles
+    │   │   ├── AuditLog.php           # Trace des actions SuperAdmin (Phase 1)
+    │   │   └── CentreNote.php         # Notes internes SuperAdmin par centre (Phase 1)
     │   │
     │   ├── Controller/
-    │   │   ├── DashboardController.php   # GET /api/dashboard/{centreId}
-    │   │   └── ValidationController.php  # 7 routes /api/pointages/validation/*
+    │   │   ├── DashboardController.php            # GET /api/dashboard/{centreId}
+    │   │   ├── ValidationController.php           # 7 routes /api/pointages/validation/*
+    │   │   ├── SuperAdminAuthController.php       # GET /api/superadmin/auth/me
+    │   │   ├── SuperAdminDashboardController.php  # GET /api/superadmin/dashboard
+    │   │   └── SuperAdminCentresController.php    # CRUD + impersonate + suspend
     │   │
     │   ├── Service/
-    │   │   └── ValidationHebdoService.php  # Agrégation pointages + alertes IDCC 1790
+    │   │   ├── ValidationHebdoService.php  # Agrégation pointages + alertes IDCC 1790
+    │   │   ├── AuditLogService.php         # Centralise la création d'AuditLog
+    │   │   └── SentryApiService.php        # Appels API REST Sentry
     │   │
     │   ├── Repository/                # Un repository par entité
     │   │   └── ...Repository.php

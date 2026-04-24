@@ -3,1082 +3,380 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shiftly — Super Admin Dashboard</title>
+<title>Shiftly — SuperAdmin Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  /* ─── Variables Shiftly ─────────────────────────────────────── */
   :root {
-    --bg:       #0d0f14;
-    --surface:  #151820;
-    --surface2: #1c2030;
-    --border:   #252a3a;
-    --text:     #e8eaf0;
-    --muted:    #6b7280;
-    --accent:   #f97316;
-    --accent2:  #fb923c;
-    --blue:     #3b82f6;
-    --green:    #22c55e;
-    --red:      #ef4444;
-    --yellow:   #eab308;
-    --purple:   #a855f7;
-    --cyan:     #06b6d4;
-    --radius:   12px;
-    --radius-sm: 8px;
+    --bg:#0d0f14; --surface:#151820; --surface2:#1c2030; --surface3:#111318;
+    --border:#252a3a; --text:#e8eaf0; --muted:#6b7280;
+    --accent:#f97316; --accent2:#fb923c;
+    --blue:#3b82f6; --green:#22c55e; --red:#ef4444; --yellow:#eab308; --purple:#a855f7; --cyan:#06b6d4;
+    --sidebar-w:240px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+  /* ═══ Sidebar SuperAdmin ═══ */
+  .sidebar{width:var(--sidebar-w);height:100vh;position:fixed;top:0;left:0;background:var(--surface3);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;overflow-y:auto;}
+  .sidebar-header{padding:22px 20px 18px;border-bottom:1px solid var(--border);}
+  .sidebar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;}
+  .sidebar-logo .name{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .sidebar-logo .dot{color:var(--text);}
+  .sidebar-badge{display:inline-block;margin-top:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0d0f14;padding:3px 9px;border-radius:20px;}
+  .sidebar-nav{flex:1;padding:14px 12px;display:flex;flex-direction:column;gap:2px;}
+  .nav-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);padding:14px 12px 6px;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:8px;transition:all 0.12s;text-decoration:none;border-left:3px solid transparent;margin-left:-3px;}
+  .nav-item:hover{background:var(--surface);color:var(--text);}
+  .nav-item.active{background:rgba(249,115,22,0.08);color:var(--accent);border-left-color:var(--accent);font-weight:600;}
+  .nav-item .icon{font-size:15px;width:18px;text-align:center;}
+  .nav-item .badge{margin-left:auto;background:var(--red);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;}
+  .nav-item .badge.muted{background:var(--surface2);color:var(--muted);}
+  .sidebar-footer{padding:14px;border-top:1px solid var(--border);}
+  .me-card{background:var(--surface);border:1px solid var(--border);padding:10px 12px;border-radius:10px;display:flex;align-items:center;gap:10px;}
+  .me-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .me-info{flex:1;min-width:0;}
+  .me-name{font-size:12px;font-weight:600;line-height:1.2;}
+  .me-role{font-size:10px;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;}
+  .me-logout{color:var(--muted);cursor:pointer;font-size:14px;}
+  .me-logout:hover{color:var(--red);}
+
+  /* ═══ Main ═══ */
+  .main{margin-left:var(--sidebar-w);flex:1;padding:24px 28px;min-height:100vh;}
+  .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-family:'Syne',sans-serif;font-weight:800;font-size:24px;}
+  .page-subtitle{font-size:13px;color:var(--muted);margin-top:2px;}
+  .header-actions{display:flex;gap:10px;align-items:center;}
+  .btn{padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:6px;transition:all 0.12s;}
+  .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+  .btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+  .period-select{background:var(--surface);color:var(--text);border:1px solid var(--border);padding:9px 14px;border-radius:9px;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;}
+
+  /* KPI Row */
+  .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+  .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);}
+  .kpi-card.green::before{background:var(--green);}
+  .kpi-card.blue::before{background:var(--blue);}
+  .kpi-card.red::before{background:var(--red);}
+  .kpi-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+  .kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+  .kpi-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .kpi-icon.orange{background:rgba(249,115,22,0.12);}
+  .kpi-icon.green{background:rgba(34,197,94,0.12);}
+  .kpi-icon.blue{background:rgba(59,130,246,0.12);}
+  .kpi-icon.red{background:rgba(239,68,68,0.12);}
+  .kpi-value{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;line-height:1;margin-bottom:6px;}
+  .kpi-trend{font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:4px;}
+  .kpi-trend.up{color:var(--green);}
+  .kpi-trend.down{color:var(--red);}
+  .kpi-trend.neutral{color:var(--muted);}
+
+  /* Widget Grid */
+  .widget-grid{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:20px;}
+  .widget{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .widget-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);}
+  .widget-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;}
+  .widget-title .icon{font-size:16px;}
+  .widget-action{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;text-decoration:none;}
+  .widget-action:hover{text-decoration:underline;}
+  .widget-body{padding:16px 18px;}
+
+  /* MRR Chart */
+  .chart-area{height:180px;position:relative;margin:8px 0 12px;}
+  .chart-svg{width:100%;height:100%;}
+  .chart-x-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);padding:0 4px;}
+  .chart-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+  .chart-stat{text-align:center;}
+  .chart-stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;}
+  .chart-stat-value{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;}
+
+  /* Sentry */
+  .sentry-summary{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+  .sentry-icon{width:48px;height:48px;border-radius:12px;background:rgba(34,197,94,0.12);display:flex;align-items:center;justify-content:center;font-size:22px;}
+  .sentry-status{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--green);line-height:1;}
+  .sentry-meta{font-size:11px;color:var(--muted);margin-top:3px;}
+  .sentry-list{display:flex;flex-direction:column;gap:8px;}
+  .sentry-item{display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--surface2);border-radius:8px;font-size:12px;}
+  .sentry-item .severity{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .sentry-item .severity.high{background:var(--red);}
+  .sentry-item .severity.med{background:var(--yellow);}
+  .sentry-item .severity.low{background:var(--blue);}
+  .sentry-item .text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sentry-item .count{background:var(--bg);color:var(--muted);padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+  .sentry-link{display:block;text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);color:var(--accent);font-size:11px;font-weight:600;text-decoration:none;}
+
+  /* Bottom grid */
+  .widget-grid-bottom{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+
+  .activity-list{display:flex;flex-direction:column;gap:0;}
+  .activity-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .activity-item:last-child{border-bottom:none;}
+  .activity-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .activity-icon.green{background:rgba(34,197,94,0.12);color:var(--green);}
+  .activity-icon.blue{background:rgba(59,130,246,0.12);color:var(--blue);}
+  .activity-icon.orange{background:rgba(249,115,22,0.12);color:var(--accent);}
+  .activity-icon.red{background:rgba(239,68,68,0.12);color:var(--red);}
+  .activity-icon.purple{background:rgba(168,85,247,0.12);color:var(--purple);}
+  .activity-content{flex:1;min-width:0;}
+  .activity-title{font-weight:600;font-size:13px;}
+  .activity-title strong{color:var(--accent);}
+  .activity-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  .top-list{display:flex;flex-direction:column;gap:0;}
+  .top-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .top-item:last-child{border-bottom:none;}
+  .top-rank{width:24px;height:24px;border-radius:50%;background:var(--surface2);color:var(--muted);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;flex-shrink:0;}
+  .top-rank.gold{background:rgba(234,179,8,0.15);color:var(--yellow);}
+  .top-rank.silver{background:rgba(107,114,128,0.2);color:var(--muted);}
+  .top-rank.bronze{background:rgba(249,115,22,0.15);color:var(--accent);}
+  .top-content{flex:1;min-width:0;}
+  .top-name{font-weight:600;font-size:13px;}
+  .top-meta{font-size:11px;color:var(--muted);}
+  .top-value{font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--green);}
+
+  .module-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+  .module-row:last-child{border-bottom:none;}
+  .module-name{font-size:13px;font-weight:600;}
+  .module-name .icon{margin-right:6px;}
+  .module-bar-wrap{flex:1;margin:0 16px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;max-width:160px;}
+  .module-bar{height:100%;border-radius:3px;}
+  .module-pct{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--text);min-width:36px;text-align:right;}
+
+  @media (max-width:1100px){
+    .widget-grid{grid-template-columns:1fr;}
+    .widget-grid-bottom{grid-template-columns:1fr;}
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
   }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ─── Top Bar Admin ─────────────────────────────────────────── */
-  .admin-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 32px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .admin-topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .admin-logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 22px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .admin-badge {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    color: var(--bg);
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    padding: 4px 10px;
-    border-radius: 20px;
-  }
-
-  .admin-topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .admin-date {
-    font-size: 13px;
-    color: var(--muted);
-  }
-
-  .admin-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 14px;
-    color: white;
-  }
-
-  /* ─── Toolbar ───────────────────────────────────────────────── */
-  .toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 32px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-  }
-
-  .toolbar-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .toolbar h1 {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-  }
-
-  .toolbar-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .btn-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--surface2);
-    color: var(--text);
-    font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .btn-toolbar:hover {
-    border-color: var(--accent);
-    background: rgba(249, 115, 22, 0.08);
-  }
-
-  .btn-toolbar.active {
-    border-color: var(--accent);
-    background: rgba(249, 115, 22, 0.12);
-    color: var(--accent);
-  }
-
-  .lock-indicator {
-    font-size: 12px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  /* ─── Grid Dashboard ────────────────────────────────────────── */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    padding: 24px 32px;
-    min-height: calc(100vh - 140px);
-  }
-
-  /* ─── Widget Card ───────────────────────────────────────────── */
-  .widget {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
-    position: relative;
-  }
-
-  .widget:hover {
-    border-color: rgba(249, 115, 22, 0.3);
-  }
-
-  .widget.dragging {
-    opacity: 0.5;
-    transform: scale(0.97);
-    border-color: var(--accent);
-    box-shadow: 0 0 30px rgba(249, 115, 22, 0.15);
-  }
-
-  .widget.drag-over {
-    border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(249, 115, 22, 0.1);
-    background: rgba(249, 115, 22, 0.03);
-  }
-
-  .widget-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px 12px;
-    cursor: grab;
-    user-select: none;
-  }
-
-  .widget-header:active { cursor: grabbing; }
-
-  .widget-header-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .widget-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-  }
-
-  .widget-title {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-  }
-
-  .widget-drag-handle {
-    color: var(--muted);
-    font-size: 16px;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .widget:hover .widget-drag-handle {
-    opacity: 1;
-  }
-
-  .widget-body {
-    padding: 0 20px 20px;
-  }
-
-  /* ─── Spans ─────────────────────────────────────────────────── */
-  .widget.span-2 { grid-column: span 2; }
-  .widget.span-3 { grid-column: span 3; }
-  .widget.span-4 { grid-column: span 4; }
-  .widget.row-2  { grid-row: span 2; }
-
-  /* ─── KPI Cards ─────────────────────────────────────────────── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-
-  .kpi-card {
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-  }
-
-  .kpi-label {
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .kpi-value {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 28px;
-    line-height: 1;
-  }
-
-  .kpi-trend {
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 6px;
-    padding: 2px 8px;
-    border-radius: 20px;
-  }
-
-  .kpi-trend.up {
-    color: var(--green);
-    background: rgba(34, 197, 94, 0.1);
-  }
-
-  .kpi-trend.down {
-    color: var(--red);
-    background: rgba(239, 68, 68, 0.1);
-  }
-
-  /* ─── Centre List ───────────────────────────────────────────── */
-  .centre-list { display: flex; flex-direction: column; gap: 8px; }
-
-  .centre-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    transition: background 0.15s;
-    cursor: pointer;
-  }
-
-  .centre-row:hover {
-    background: rgba(249, 115, 22, 0.06);
-  }
-
-  .centre-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .centre-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-
-  .centre-name {
-    font-weight: 600;
-    font-size: 14px;
-  }
-
-  .centre-sub {
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .centre-stats {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .centre-stat-val {
-    font-weight: 700;
-    color: var(--text);
-  }
-
-  .status-badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 20px;
-  }
-
-  .status-badge.active {
-    color: var(--green);
-    background: rgba(34, 197, 94, 0.12);
-  }
-
-  .status-badge.trial {
-    color: var(--yellow);
-    background: rgba(234, 179, 8, 0.12);
-  }
-
-  .status-badge.churned {
-    color: var(--red);
-    background: rgba(239, 68, 68, 0.12);
-  }
-
-  /* ─── Chart Placeholder ─────────────────────────────────────── */
-  .chart-area {
-    width: 100%;
-    height: 180px;
-    position: relative;
-    margin-top: 8px;
-  }
-
-  .chart-svg { width: 100%; height: 100%; }
-
-  .chart-bar-group { cursor: pointer; }
-  .chart-bar-group:hover rect { opacity: 0.9; }
-
-  .chart-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 8px;
-    padding: 0 4px;
-  }
-
-  .chart-legend {
-    display: flex;
-    gap: 16px;
-    margin-top: 12px;
-  }
-
-  .chart-legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .chart-legend-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
-
-  /* ─── Mini Bar Chart ────────────────────────────────────────── */
-  .mini-bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 6px;
-    height: 60px;
-    margin-top: 12px;
-  }
-
-  .mini-bar {
-    flex: 1;
-    border-radius: 3px 3px 0 0;
-    transition: opacity 0.2s;
-    cursor: pointer;
-    position: relative;
-  }
-
-  .mini-bar:hover { opacity: 0.8; }
-
-  /* ─── Donut Chart ───────────────────────────────────────────── */
-  .donut-container {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    margin-top: 8px;
-  }
-
-  .donut-svg {
-    width: 120px;
-    height: 120px;
-    transform: rotate(-90deg);
-  }
-
-  .donut-labels { display: flex; flex-direction: column; gap: 10px; }
-
-  .donut-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-  }
-
-  .donut-label-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-  }
-
-  .donut-label-value {
-    font-weight: 700;
-    margin-left: auto;
-    min-width: 30px;
-    text-align: right;
-  }
-
-  /* ─── Activity Feed ─────────────────────────────────────────── */
-  .activity-list { display: flex; flex-direction: column; gap: 6px; }
-
-  .activity-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 10px 12px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-  }
-
-  .activity-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-top: 5px;
-    flex-shrink: 0;
-  }
-
-  .activity-text { flex: 1; line-height: 1.4; }
-  .activity-text strong { color: var(--accent); font-weight: 600; }
-  .activity-time { font-size: 11px; color: var(--muted); white-space: nowrap; margin-top: 2px; }
-
-  /* ─── Module Usage ──────────────────────────────────────────── */
-  .module-list { display: flex; flex-direction: column; gap: 10px; }
-
-  .module-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .module-name {
-    font-size: 13px;
-    font-weight: 500;
-    width: 100px;
-    flex-shrink: 0;
-  }
-
-  .module-bar-bg {
-    flex: 1;
-    height: 8px;
-    background: var(--surface2);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .module-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.6s ease;
-  }
-
-  .module-pct {
-    font-size: 13px;
-    font-weight: 700;
-    width: 42px;
-    text-align: right;
-  }
-
-  /* ─── Health Score ──────────────────────────────────────────── */
-  .health-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-
-  .health-card {
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    text-align: center;
-  }
-
-  .health-score {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 32px;
-    line-height: 1;
-  }
-
-  .health-label {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  /* ─── Drop Indicator ────────────────────────────────────────── */
-  .drop-placeholder {
-    border: 2px dashed var(--accent);
-    border-radius: var(--radius);
-    background: rgba(249, 115, 22, 0.04);
-    min-height: 200px;
-    display: none;
-  }
-
-  /* ─── Scrollbar ─────────────────────────────────────────────── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 </style>
 </head>
 <body>
 
-<!-- ═══ TOP BAR ═══ -->
-<header class="admin-topbar">
-  <div class="admin-topbar-left">
-    <span class="admin-logo">Shiftly</span>
-    <span class="admin-badge">Super Admin</span>
-  </div>
-  <div class="admin-topbar-right">
-    <span class="admin-date">Mercredi 16 avril 2026</span>
-    <div class="admin-avatar">KV</div>
-  </div>
-</header>
-
-<!-- ═══ TOOLBAR ═══ -->
-<div class="toolbar">
-  <div class="toolbar-left">
-    <h1>Vue d'ensemble</h1>
-    <span class="lock-indicator" id="lockIndicator">
-      <span id="lockIcon">🔓</span>
-      <span id="lockText">Widgets déplaçables</span>
-    </span>
-  </div>
-  <div class="toolbar-actions">
-    <button class="btn-toolbar" id="btnLock" onclick="toggleLock()">
-      <span id="btnLockIcon">🔒</span> Verrouiller
-    </button>
-    <button class="btn-toolbar" onclick="resetLayout()">↻ Réinitialiser</button>
-  </div>
-</div>
-
-<!-- ═══ DASHBOARD GRID ═══ -->
-<div class="dashboard-grid" id="dashboardGrid">
-
-  <!-- ─── Widget 1 : KPI Business ─── -->
-  <div class="widget span-4" draggable="true" data-widget="kpi-business">
-    <div class="widget-header">
-      <div class="widget-header-left">
-        <div class="widget-icon" style="background: rgba(249,115,22,0.12);">💰</div>
-        <span class="widget-title">Métriques Business</span>
-      </div>
-      <span class="widget-drag-handle">⠿</span>
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo"><span class="name">Shiftly</span><span class="dot">.</span></div>
+      <div class="sidebar-badge">SuperAdmin</div>
     </div>
-    <div class="widget-body">
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Centres actifs</div>
-          <div class="kpi-value" style="color: var(--accent);">12</div>
-          <span class="kpi-trend up">↑ +3 ce mois</span>
+
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Phase 1 — Monitoring</div>
+      <a class="nav-item active"><span class="icon">📊</span> Dashboard</a>
+      <a class="nav-item"><span class="icon">🏢</span> Centres <span class="badge muted">12</span></a>
+
+      <div class="nav-section-label">Phase 2 — Billing</div>
+      <a class="nav-item"><span class="icon">💳</span> Abonnements</a>
+      <a class="nav-item"><span class="icon">📄</span> Facturation</a>
+      <a class="nav-item"><span class="icon">🏷️</span> Plans tarifaires</a>
+
+      <div class="nav-section-label">Phase 3 — Users & Support</div>
+      <a class="nav-item"><span class="icon">👤</span> Utilisateurs</a>
+      <a class="nav-item"><span class="icon">🎧</span> Support <span class="badge">3</span></a>
+
+      <div class="nav-section-label">Phase 4 — Système</div>
+      <a class="nav-item"><span class="icon">⚡</span> Activity</a>
+      <a class="nav-item"><span class="icon">⚙️</span> Réglages</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="me-card">
+        <div class="me-avatar">KV</div>
+        <div class="me-info">
+          <div class="me-name">Kévin Vanphavong</div>
+          <div class="me-role">Fondateur</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-label">MRR</div>
-          <div class="kpi-value" style="color: var(--green);">4 680€</div>
-          <span class="kpi-trend up">↑ +18%</span>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Churn rate</div>
-          <div class="kpi-value" style="color: var(--yellow);">2.1%</div>
-          <span class="kpi-trend down">↑ +0.3%</span>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Users totaux</div>
-          <div class="kpi-value" style="color: var(--blue);">147</div>
-          <span class="kpi-trend up">↑ +22</span>
-        </div>
+        <span class="me-logout" title="Déconnexion">⏻</span>
       </div>
     </div>
-  </div>
+  </nav>
 
-  <!-- ─── Widget 2 : Croissance MRR ─── -->
-  <div class="widget span-2" draggable="true" data-widget="mrr-chart">
-    <div class="widget-header">
-      <div class="widget-header-left">
-        <div class="widget-icon" style="background: rgba(34,197,94,0.12);">📈</div>
-        <span class="widget-title">Croissance MRR</span>
-      </div>
-      <span class="widget-drag-handle">⠿</span>
-    </div>
-    <div class="widget-body">
-      <div class="chart-area">
-        <svg class="chart-svg" viewBox="0 0 400 160">
-          <!-- Grille -->
-          <line x1="40" y1="10" x2="40" y2="140" stroke="#252a3a" stroke-width="1"/>
-          <line x1="40" y1="140" x2="390" y2="140" stroke="#252a3a" stroke-width="1"/>
-          <line x1="40" y1="107" x2="390" y2="107" stroke="#252a3a" stroke-width="0.5" stroke-dasharray="4"/>
-          <line x1="40" y1="74" x2="390" y2="74" stroke="#252a3a" stroke-width="0.5" stroke-dasharray="4"/>
-          <line x1="40" y1="41" x2="390" y2="41" stroke="#252a3a" stroke-width="0.5" stroke-dasharray="4"/>
-          <!-- Labels Y -->
-          <text x="34" y="143" fill="#6b7280" font-size="10" text-anchor="end">0€</text>
-          <text x="34" y="110" fill="#6b7280" font-size="10" text-anchor="end">2k€</text>
-          <text x="34" y="77" fill="#6b7280" font-size="10" text-anchor="end">4k€</text>
-          <text x="34" y="44" fill="#6b7280" font-size="10" text-anchor="end">6k€</text>
-          <!-- Aire + Ligne MRR -->
-          <defs>
-            <linearGradient id="mrrGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#f97316" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#f97316" stop-opacity="0.02"/>
-            </linearGradient>
-          </defs>
-          <path d="M60,130 L110,125 L160,115 L210,105 L260,88 L310,68 L360,42 L360,140 L60,140 Z" fill="url(#mrrGrad)"/>
-          <polyline points="60,130 110,125 160,115 210,105 260,88 310,68 360,42" fill="none" stroke="#f97316" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <!-- Points -->
-          <circle cx="60" cy="130" r="3.5" fill="#f97316"/>
-          <circle cx="110" cy="125" r="3.5" fill="#f97316"/>
-          <circle cx="160" cy="115" r="3.5" fill="#f97316"/>
-          <circle cx="210" cy="105" r="3.5" fill="#f97316"/>
-          <circle cx="260" cy="88" r="3.5" fill="#f97316"/>
-          <circle cx="310" cy="68" r="3.5" fill="#f97316"/>
-          <circle cx="360" cy="42" r="4.5" fill="#f97316" stroke="#0d0f14" stroke-width="2"/>
-          <!-- Label dernier point -->
-          <text x="360" y="34" fill="#f97316" font-size="11" font-weight="700" text-anchor="middle">4 680€</text>
-        </svg>
-      </div>
-      <div class="chart-labels">
-        <span>Oct</span><span>Nov</span><span>Déc</span><span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span>
-      </div>
-    </div>
-  </div>
+  <!-- ══════════ MAIN ══════════ -->
+  <main class="main">
 
-  <!-- ─── Widget 3 : Répartition formules ─── -->
-  <div class="widget span-2" draggable="true" data-widget="formules">
-    <div class="widget-header">
-      <div class="widget-header-left">
-        <div class="widget-icon" style="background: rgba(168,85,247,0.12);">🧩</div>
-        <span class="widget-title">Répartition formules</span>
+    <div class="page-header">
+      <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-subtitle">Vue d'ensemble de la plateforme · 22 avril 2026 · 14:32</div>
       </div>
-      <span class="widget-drag-handle">⠿</span>
+      <div class="header-actions">
+        <select class="period-select">
+          <option>30 derniers jours</option>
+          <option>7 derniers jours</option>
+          <option>90 derniers jours</option>
+          <option>Cette année</option>
+        </select>
+        <button class="btn btn-outline">📥 Export</button>
+      </div>
     </div>
-    <div class="widget-body">
-      <div class="donut-container">
-        <svg class="donut-svg" viewBox="0 0 120 120">
-          <circle cx="60" cy="60" r="50" fill="none" stroke="#252a3a" stroke-width="12"/>
-          <!-- Socle: 5/12 = 41.6% → 261.8 * 0.416 = 109 -->
-          <circle cx="60" cy="60" r="50" fill="none" stroke="#3b82f6" stroke-width="12"
-            stroke-dasharray="109 205" stroke-dashoffset="0" stroke-linecap="round"/>
-          <!-- Socle+Planning: 4/12 = 33.3% → 261.8 * 0.333 = 87.2 -->
-          <circle cx="60" cy="60" r="50" fill="none" stroke="#f97316" stroke-width="12"
-            stroke-dasharray="87 227" stroke-dashoffset="-109" stroke-linecap="round"/>
-          <!-- Complet: 3/12 = 25% → 261.8 * 0.25 = 65.5 -->
-          <circle cx="60" cy="60" r="50" fill="none" stroke="#22c55e" stroke-width="12"
-            stroke-dasharray="62 252" stroke-dashoffset="-196" stroke-linecap="round"/>
-        </svg>
-        <div class="donut-labels">
-          <div class="donut-label">
-            <span class="donut-label-dot" style="background: var(--blue);"></span>
-            <span>Socle</span>
-            <span class="donut-label-value">5</span>
+
+    <!-- KPIs -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-header"><div class="kpi-label">Centres actifs</div><div class="kpi-icon orange">🏢</div></div>
+        <div class="kpi-value" style="color:var(--accent);">12</div>
+        <div class="kpi-trend up">↑ +2 vs mois dernier</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-header"><div class="kpi-label">MRR</div><div class="kpi-icon green">💶</div></div>
+        <div class="kpi-value" style="color:var(--green);">1 287€</div>
+        <div class="kpi-trend up">↑ +12.4% (+142€)</div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-header"><div class="kpi-label">Users totaux</div><div class="kpi-icon blue">👥</div></div>
+        <div class="kpi-value" style="color:var(--blue);">147</div>
+        <div class="kpi-trend up">↑ +18 cette semaine</div>
+      </div>
+      <div class="kpi-card red">
+        <div class="kpi-header"><div class="kpi-label">Erreurs Sentry (7j)</div><div class="kpi-icon red">🐛</div></div>
+        <div class="kpi-value" style="color:var(--red);">23</div>
+        <div class="kpi-trend down">↑ +5 vs semaine dernière</div>
+      </div>
+    </div>
+
+    <!-- Top widgets -->
+    <div class="widget-grid">
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title"><span class="icon">📈</span> Croissance MRR</div>
+          <a class="widget-action">Voir détails →</a>
+        </div>
+        <div class="widget-body">
+          <div class="chart-area">
+            <svg class="chart-svg" viewBox="0 0 600 180" preserveAspectRatio="none">
+              <defs><linearGradient id="mrrGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22c55e" stop-opacity="0.4"/><stop offset="100%" stop-color="#22c55e" stop-opacity="0"/></linearGradient></defs>
+              <line x1="0" y1="30" x2="600" y2="30" stroke="#252a3a" stroke-dasharray="3,3"/>
+              <line x1="0" y1="80" x2="600" y2="80" stroke="#252a3a" stroke-dasharray="3,3"/>
+              <line x1="0" y1="130" x2="600" y2="130" stroke="#252a3a" stroke-dasharray="3,3"/>
+              <path d="M 0,150 L 50,140 L 100,135 L 150,125 L 200,115 L 250,100 L 300,95 L 350,80 L 400,75 L 450,55 L 500,45 L 550,35 L 600,28 L 600,180 L 0,180 Z" fill="url(#mrrGrad)"/>
+              <path d="M 0,150 L 50,140 L 100,135 L 150,125 L 200,115 L 250,100 L 300,95 L 350,80 L 400,75 L 450,55 L 500,45 L 550,35 L 600,28" stroke="#22c55e" stroke-width="2.5" fill="none"/>
+              <circle cx="600" cy="28" r="5" fill="#22c55e" stroke="#0d0f14" stroke-width="2"/>
+              <text x="555" y="20" fill="#22c55e" font-size="11" font-weight="700" font-family="Syne">1287€</text>
+            </svg>
           </div>
-          <div class="donut-label">
-            <span class="donut-label-dot" style="background: var(--accent);"></span>
-            <span>Socle + Planning</span>
-            <span class="donut-label-value">4</span>
+          <div class="chart-x-labels">
+            <span>Mai 25</span><span>Juin</span><span>Juil</span><span>Août</span><span>Sept</span><span>Oct</span><span>Nov</span><span>Déc</span><span>Jan 26</span><span>Fév</span><span>Mars</span><span>Avr</span>
           </div>
-          <div class="donut-label">
-            <span class="donut-label-dot" style="background: var(--green);"></span>
-            <span>Complet</span>
-            <span class="donut-label-value">3</span>
+          <div class="chart-stats">
+            <div class="chart-stat"><div class="chart-stat-label">MRR actuel</div><div class="chart-stat-value" style="color:var(--green);">1 287€</div></div>
+            <div class="chart-stat"><div class="chart-stat-label">New MRR (30j)</div><div class="chart-stat-value" style="color:var(--accent);">+217€</div></div>
+            <div class="chart-stat"><div class="chart-stat-label">Churn MRR (30j)</div><div class="chart-stat-value" style="color:var(--red);">−75€</div></div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- ─── Widget 4 : Liste centres ─── -->
-  <div class="widget span-3 row-2" draggable="true" data-widget="centres">
-    <div class="widget-header">
-      <div class="widget-header-left">
-        <div class="widget-icon" style="background: rgba(59,130,246,0.12);">🏢</div>
-        <span class="widget-title">Centres clients</span>
-      </div>
-      <span class="widget-drag-handle">⠿</span>
-    </div>
-    <div class="widget-body">
-      <div class="centre-list">
-        <div class="centre-row">
-          <div class="centre-info">
-            <div class="centre-dot" style="background: var(--green);"></div>
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title"><span class="icon">🛡️</span> Santé Sentry</div>
+          <a class="widget-action">Sentry ↗</a>
+        </div>
+        <div class="widget-body">
+          <div class="sentry-summary">
+            <div class="sentry-icon">✓</div>
             <div>
-              <div class="centre-name">Family Games Center</div>
-              <div class="centre-sub">Blois · Bowling, Arcade, VR</div>
+              <div class="sentry-status">Système opérationnel</div>
+              <div class="sentry-meta">Dernière erreur · il y a 2h14</div>
             </div>
           </div>
-          <div class="centre-stats">
-            <span><span class="centre-stat-val">12</span> staff</span>
-            <span><span class="centre-stat-val">87%</span> complétion</span>
-            <span class="status-badge active">Actif</span>
+          <div class="sentry-list">
+            <div class="sentry-item"><span class="severity high"></span><span class="text">TypeError: Cannot read 'heureArrivee' (PointageStaffCard)</span><span class="count">×8</span></div>
+            <div class="sentry-item"><span class="severity med"></span><span class="text">Doctrine ConnectionLost — Bowling Stadium Orléans</span><span class="count">×4</span></div>
+            <div class="sentry-item"><span class="severity med"></span><span class="text">404 GET /api/competences/47</span><span class="count">×6</span></div>
+            <div class="sentry-item"><span class="severity low"></span><span class="text">Slow query: pointage validation hebdo &gt; 2s</span><span class="count">×5</span></div>
           </div>
+          <a class="sentry-link">Voir les 23 erreurs des 7 derniers jours →</a>
         </div>
-        <div class="centre-row">
-          <div class="centre-info">
-            <div class="centre-dot" style="background: var(--green);"></div>
-            <div>
-              <div class="centre-name">Strike Bowl Paris</div>
-              <div class="centre-sub">Paris 11e · Bowling, Bar</div>
+      </div>
+
+    </div>
+
+    <!-- Bottom widgets -->
+    <div class="widget-grid-bottom">
+
+      <div class="widget">
+        <div class="widget-header">
+          <div class="widget-title"><span class="icon">⚡</span> Activité récente</div>
+          <a class="widget-action">Tout voir →</a>
+        </div>
+        <div class="widget-body">
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon green">🏢</div>
+              <div class="activity-content">
+                <div class="activity-title">Nouveau centre signé : <strong>Speed Park Rennes</strong></div>
+                <div class="activity-meta">Plan Pro 129€ · il y a 3h · Onboarding planifié 25/04</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon blue">👤</div>
+              <div class="activity-content">
+                <div class="activity-title">Nouvel utilisateur : <strong>Léa Dubois</strong> (Bar)</div>
+                <div class="activity-meta">Quasar Bowl Nantes · il y a 5h</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon orange">💳</div>
+              <div class="activity-content">
+                <div class="activity-title">Paiement reçu : <strong>129€</strong></div>
+                <div class="activity-meta">VR Arena Lyon · il y a 8h · Stripe</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon red">🐛</div>
+              <div class="activity-content">
+                <div class="activity-title">Erreur récurrente détectée</div>
+                <div class="activity-meta">PointageStaffCard · 8 occurrences · Bowling Stadium Orléans</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon purple">🎧</div>
+              <div class="activity-content">
+                <div class="activity-title">Ticket support ouvert : <strong>Marc Leroy</strong></div>
+                <div class="activity-meta">Strike Club Bordeaux · "Impossible d'exporter le PDF" · il y a 11h</div>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon green">💳</div>
+              <div class="activity-content">
+                <div class="activity-title">Paiement reçu : <strong>79€</strong></div>
+                <div class="activity-meta">Galaxy Park Marseille · hier 19:42 · Stripe</div>
+              </div>
             </div>
           </div>
-          <div class="centre-stats">
-            <span><span class="centre-stat-val">18</span> staff</span>
-            <span><span class="centre-stat-val">92%</span> complétion</span>
-            <span class="status-badge active">Actif</span>
-          </div>
         </div>
-        <div class="centre-row">
-          <div class="centre-info">
-            <div class="centre-dot" style="background: var(--green);"></div>
-            <div>
-              <div class="centre-name">Laser Nation Lyon</div>
-              <div class="centre-sub">Lyon 3e · Laser Game, Arcade</div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:18px;">
+
+        <div class="widget">
+          <div class="widget-header"><div class="widget-title"><span class="icon">🏆</span> Top 5 centres (engagement 30j)</div></div>
+          <div class="widget-body">
+            <div class="top-list">
+              <div class="top-item"><div class="top-rank gold">1</div><div class="top-content"><div class="top-name">Bowling Central</div><div class="top-meta">Blois · 18 users · 1 247 pointages</div></div><div class="top-value">98%</div></div>
+              <div class="top-item"><div class="top-rank silver">2</div><div class="top-content"><div class="top-name">Family Games Center</div><div class="top-meta">Blois · 22 users · 1 089 pointages</div></div><div class="top-value">94%</div></div>
+              <div class="top-item"><div class="top-rank bronze">3</div><div class="top-content"><div class="top-name">Quasar Bowl Nantes</div><div class="top-meta">Nantes · 15 users · 932 pointages</div></div><div class="top-value">91%</div></div>
+              <div class="top-item"><div class="top-rank">4</div><div class="top-content"><div class="top-name">Strike Club Bordeaux</div><div class="top-meta">Bordeaux · 12 users · 814 pointages</div></div><div class="top-value">87%</div></div>
+              <div class="top-item"><div class="top-rank">5</div><div class="top-content"><div class="top-name">VR Arena Lyon</div><div class="top-meta">Lyon · 11 users · 776 pointages</div></div><div class="top-value">85%</div></div>
             </div>
           </div>
-          <div class="centre-stats">
-            <span><span class="centre-stat-val">8</span> staff</span>
-            <span><span class="centre-stat-val">78%</span> complétion</span>
-            <span class="status-badge active">Actif</span>
+        </div>
+
+        <div class="widget">
+          <div class="widget-header"><div class="widget-title"><span class="icon">📦</span> Adoption modules</div></div>
+          <div class="widget-body">
+            <div class="module-row"><div class="module-name"><span class="icon">⏱️</span>Pointage</div><div class="module-bar-wrap"><div class="module-bar" style="width:100%;background:var(--green);"></div></div><div class="module-pct">100%</div></div>
+            <div class="module-row"><div class="module-name"><span class="icon">📅</span>Service du jour</div><div class="module-bar-wrap"><div class="module-bar" style="width:100%;background:var(--green);"></div></div><div class="module-pct">100%</div></div>
+            <div class="module-row"><div class="module-name"><span class="icon">📆</span>Planning</div><div class="module-bar-wrap"><div class="module-bar" style="width:83%;background:var(--accent);"></div></div><div class="module-pct">83%</div></div>
+            <div class="module-row"><div class="module-name"><span class="icon">🎓</span>Tutoriels</div><div class="module-bar-wrap"><div class="module-bar" style="width:67%;background:var(--accent);"></div></div><div class="module-pct">67%</div></div>
+            <div class="module-row"><div class="module-name"><span class="icon">🍔</span>HACCP</div><div class="module-bar-wrap"><div class="module-bar" style="width:42%;background:var(--yellow);"></div></div><div class="module-pct">42%</div></div>
+            <div class="module-row"><div class="module-name"><span class="icon">🏢</span>Entreprises</div><div class="module-bar-wrap"><div class="module-bar" style="width:25%;background:var(--red);"></div></div><div class="module-pct">25%</div></div>
           </div>
         </div>
-        <div class="centre-row">
-          <div class="centre-info">
-            <div class="centre-dot" style="background: var(--yellow);"></div>
-            <div>
-              <div class="centre-name">Fun Park Nantes</div>
-              <div class="centre-sub">Nantes · Bowling, Karaoké</div>
-            </div>
-          </div>
-          <div class="centre-stats">
-            <span><span class="centre-stat-val">6</span> staff</span>
-            <span><span class="centre-stat-val">45%</span> complétion</span>
-            <span class="status-badge trial">Essai</span>
-          </div>
-        </div>
-        <div class="centre-row">
-          <div class="centre-info">
-            <div class="centre-dot" style="background: var(--green);"></div>
-            <div>
-              <div class="centre-name">Mega Bowl Bordeaux</div>
-              <div class="centre-sub">Bordeaux · Bowling, Billards</div>
-            </div>
-          </div>
-          <div class="centre-stats">
-            <span><span class="centre-stat-val">15</span> staff</span>
-            <span><span class="centre-stat-val">81%</span> complétion</span>
-            <span class="status-badge active">Actif</span>
-          </div>
-        </div>
-        <div class="centre-row">
-          <div class="centre-info">
-            <div class="centre-dot" style="background: var(--red);"></div>
-            <div>
-              <div class="centre-name">GameZone Lille</div>
-              <div class="centre-sub">Lille · Arcade, VR</div>
-            </div>
-          </div>
-          <div class="centre-stats">
-            <span><span class="centre-stat-val">5</span> staff</span>
-            <span><span class="centre-stat-val">—</span> complétion</span>
-            <span class="status-badge churned">Churné</span>
-          </div>
-        </div>
+
       </div>
+
     </div>
-  </div>
 
-  <!-- ─── Widget 5 : Santé opérationnelle ─── -->
-  <div class="widget row-2" draggable="true" data-widget="health">
-    <div class="widget-header">
-      <div class="widget-header-left">
-        <div class="widget-icon" style="background: rgba(34,197,94,0.12);">💚</div>
-        <span class="widget-title">Santé globale</span>
-      </div>
-      <span class="widget-drag-handle">⠿</span>
-    </div>
-    <div class="widget-body">
-      <div class="health-grid">
-        <div class="health-card">
-          <div class="health-score" style="color: var(--green);">84%</div>
-          <div class="health-label">Complétion moy.</div>
-        </div>
-        <div class="health-card">
-          <div class="health-score" style="color: var(--blue);">91%</div>
-          <div class="health-label">Plannings publiés</div>
-        </div>
-        <div class="health-card">
-          <div class="health-score" style="color: var(--yellow);">7</div>
-          <div class="health-label">Incidents ouverts</div>
-        </div>
-        <div class="health-card">
-          <div class="health-score" style="color: var(--accent);">96%</div>
-          <div class="health-label">Staff actif</div>
-        </div>
-      </div>
-
-      <div style="margin-top: 20px;">
-        <div style="font-size: 13px; font-weight: 600; margin-bottom: 10px;">Connexions 7 derniers jours</div>
-        <div class="mini-bars">
-          <div class="mini-bar" style="height: 65%; background: var(--accent);"></div>
-          <div class="mini-bar" style="height: 82%; background: var(--accent);"></div>
-          <div class="mini-bar" style="height: 45%; background: var(--accent); opacity: 0.6;"></div>
-          <div class="mini-bar" style="height: 90%; background: var(--accent);"></div>
-          <div class="mini-bar" style="height: 78%; background: var(--accent);"></div>
-          <div class="mini-bar" style="height: 55%; background: var(--accent); opacity: 0.6;"></div>
-          <div class="mini-bar" style="height: 100%; background: linear-gradient(to top, var(--accent), var(--accent2));"></div>
-        </div>
-        <div class="chart-labels" style="margin-top: 4px;">
-          <span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span><span>Lun</span><span>Mar</span><span>Mer</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── Widget 6 : Adoption modules ─── -->
-  <div class="widget span-2" draggable="true" data-widget="modules">
-    <div class="widget-header">
-      <div class="widget-header-left">
-        <div class="widget-icon" style="background: rgba(6,182,212,0.12);">📊</div>
-        <span class="widget-title">Adoption des modules</span>
-      </div>
-      <span class="widget-drag-handle">⠿</span>
-    </div>
-    <div class="widget-body">
-      <div class="module-list">
-        <div class="module-row">
-          <span class="module-name">Service du Jour</span>
-          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 100%; background: var(--green);"></div></div>
-          <span class="module-pct" style="color: var(--green);">100%</span>
-        </div>
-        <div class="module-row">
-          <span class="module-name">Staff</span>
-          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 100%; background: var(--green);"></div></div>
-          <span class="module-pct" style="color: var(--green);">100%</span>
-        </div>
-        <div class="module-row">
-          <span class="module-name">Planning</span>
-          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 67%; background: var(--accent);"></div></div>
-          <span class="module-pct" style="color: var(--accent);">67%</span>
-        </div>
-        <div class="module-row">
-          <span class="module-name">Tutoriels</span>
-          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 58%; background: var(--blue);"></div></div>
-          <span class="module-pct" style="color: var(--blue);">58%</span>
-        </div>
-        <div class="module-row">
-          <span class="module-name">Compétences</span>
-          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 42%; background: var(--yellow);"></div></div>
-          <span class="module-pct" style="color: var(--yellow);">42%</span>
-        </div>
-        <div class="module-row">
-          <span class="module-name">Incidents</span>
-          <div class="module-bar-bg"><div class="module-bar-fill" style="width: 33%; background: var(--purple);"></div></div>
-          <span class="module-pct" style="color: var(--purple);">33%</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── Widget 7 : Activité récente ─── -->
-  <div class="widget span-2" draggable="true" data-widget="activity">
-    <div class="widget-header">
-      <div class="widget-header-left">
-        <div class="widget-icon" style="background: rgba(234,179,8,0.12);">⚡</div>
-        <span class="widget-title">Activité récente</span>
-      </div>
-      <span class="widget-drag-handle">⠿</span>
-    </div>
-    <div class="widget-body">
-      <div class="activity-list">
-        <div class="activity-item">
-          <div class="activity-dot" style="background: var(--green);"></div>
-          <div class="activity-text"><strong>Fun Park Nantes</strong> a commencé son essai gratuit</div>
-          <div class="activity-time">Il y a 2h</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background: var(--blue);"></div>
-          <div class="activity-text"><strong>Strike Bowl Paris</strong> a publié le planning S17</div>
-          <div class="activity-time">Il y a 5h</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background: var(--accent);"></div>
-          <div class="activity-text"><strong>Mega Bowl Bordeaux</strong> a activé le module Planning</div>
-          <div class="activity-time">Hier 18:30</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background: var(--red);"></div>
-          <div class="activity-text"><strong>GameZone Lille</strong> — abonnement annulé (churn)</div>
-          <div class="activity-time">Hier 14:15</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background: var(--green);"></div>
-          <div class="activity-text"><strong>Family Games Center</strong> — 98% complétion service hier</div>
-          <div class="activity-time">Hier 01:05</div>
-        </div>
-        <div class="activity-item">
-          <div class="activity-dot" style="background: var(--purple);"></div>
-          <div class="activity-text"><strong>Laser Nation Lyon</strong> a créé 3 nouveaux tutoriels</div>
-          <div class="activity-time">Lun 16:40</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- ═══ DRAG & DROP SCRIPT ═══ -->
-<script>
-  let locked = false;
-  let draggedWidget = null;
-
-  // ─── Init drag events ──────────────────────────────────────
-  function initDragEvents() {
-    const widgets = document.querySelectorAll('.widget');
-
-    widgets.forEach(widget => {
-      widget.addEventListener('dragstart', handleDragStart);
-      widget.addEventListener('dragend', handleDragEnd);
-      widget.addEventListener('dragover', handleDragOver);
-      widget.addEventListener('dragenter', handleDragEnter);
-      widget.addEventListener('dragleave', handleDragLeave);
-      widget.addEventListener('drop', handleDrop);
-    });
-  }
-
-  function handleDragStart(e) {
-    if (locked) { e.preventDefault(); return; }
-    draggedWidget = this;
-    this.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', this.dataset.widget);
-  }
-
-  function handleDragEnd(e) {
-    this.classList.remove('dragging');
-    document.querySelectorAll('.widget').forEach(w => w.classList.remove('drag-over'));
-    draggedWidget = null;
-  }
-
-  function handleDragOver(e) {
-    if (locked) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  }
-
-  function handleDragEnter(e) {
-    if (locked || this === draggedWidget) return;
-    this.classList.add('drag-over');
-  }
-
-  function handleDragLeave(e) {
-    this.classList.remove('drag-over');
-  }
-
-  function handleDrop(e) {
-    e.preventDefault();
-    this.classList.remove('drag-over');
-
-    if (locked || !draggedWidget || this === draggedWidget) return;
-
-    const grid = document.getElementById('dashboardGrid');
-    const allWidgets = [...grid.children];
-    const draggedIdx = allWidgets.indexOf(draggedWidget);
-    const targetIdx = allWidgets.indexOf(this);
-
-    if (draggedIdx < targetIdx) {
-      grid.insertBefore(draggedWidget, this.nextSibling);
-    } else {
-      grid.insertBefore(draggedWidget, this);
-    }
-  }
-
-  // ─── Lock / Unlock ─────────────────────────────────────────
-  function toggleLock() {
-    locked = !locked;
-    const widgets = document.querySelectorAll('.widget');
-    widgets.forEach(w => w.setAttribute('draggable', !locked));
-
-    document.getElementById('lockIcon').textContent = locked ? '🔒' : '🔓';
-    document.getElementById('lockText').textContent = locked ? 'Widgets verrouillés' : 'Widgets déplaçables';
-    document.getElementById('btnLockIcon').textContent = locked ? '🔓' : '🔒';
-    document.getElementById('btnLock').querySelector('span:last-child') ||
-      (document.getElementById('btnLock').childNodes[1].textContent = locked ? ' Déverrouiller' : ' Verrouiller');
-
-    if (locked) {
-      document.getElementById('btnLock').classList.add('active');
-    } else {
-      document.getElementById('btnLock').classList.remove('active');
-    }
-  }
-
-  // ─── Reset layout ──────────────────────────────────────────
-  function resetLayout() {
-    const grid = document.getElementById('dashboardGrid');
-    const widgets = [...grid.children];
-    const order = ['kpi-business', 'mrr-chart', 'formules', 'centres', 'health', 'modules', 'activity'];
-
-    order.forEach(name => {
-      const widget = widgets.find(w => w.dataset.widget === name);
-      if (widget) grid.appendChild(widget);
-    });
-  }
-
-  // ─── Init ──────────────────────────────────────────────────
-  initDragEvents();
-</script>
+  </main>
 
 </body>
 </html>

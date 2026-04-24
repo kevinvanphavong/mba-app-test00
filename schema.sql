@@ -390,6 +390,35 @@ CREATE TABLE correction_pointage (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- SUPERADMIN — Phase 1
+-- ============================================================
+
+ALTER TABLE centre ADD COLUMN actif TINYINT(1) NOT NULL DEFAULT 1;
+
+CREATE TABLE audit_log (
+    id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    super_admin_user_id INT UNSIGNED NOT NULL,
+    action          VARCHAR(100) NOT NULL,
+    target_type     VARCHAR(50)  NOT NULL,
+    target_id       INT UNSIGNED,
+    metadata        JSON,
+    ip              VARCHAR(45),
+    user_agent      VARCHAR(255),
+    created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_audit_log_user FOREIGN KEY (super_admin_user_id) REFERENCES user(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE centre_note (
+    id                  INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    centre_id           INT UNSIGNED NOT NULL,
+    super_admin_user_id INT UNSIGNED NOT NULL,
+    contenu             TEXT NOT NULL,
+    created_at          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_centre_note_centre FOREIGN KEY (centre_id)           REFERENCES centre(id),
+    CONSTRAINT fk_centre_note_user   FOREIGN KEY (super_admin_user_id) REFERENCES user(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- NOTES MÉTIER
 -- ============================================================
 
