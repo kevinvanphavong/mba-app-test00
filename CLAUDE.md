@@ -37,19 +37,20 @@ Fonts     : Syne (titres, logo) + DM Sans (corps)
 
 1. Jamais de couleur hardcodée — toujours `var(--nom-variable)` ou classe Tailwind custom
 2. Jamais de `any` TypeScript — typer strictement toutes les données
-3. Un composant = un fichier dans `components/`
+3. Un composant = un fichier dans `components/` — max 150 lignes, découper si dépassement
 4. Mobile-first — style mobile en premier, puis `md:` et `lg:`
-5. Jamais de `fetch()` dans un composant — toujours dans un hook avec React Query
-6. Jamais de `useEffect` pour les appels API — utiliser `useQuery` ou `useMutation`
-7. Toujours 3 états par composant — loading | error | empty
-8. Tous les commentaires en français
-9. Jamais de logique métier dans les composants — hooks ou services Symfony
-10. Jamais committer `.env` ou `.env.local` — uniquement `.env.example`
-11. Composants max 150 lignes — découper si dépassement
-12. Toujours créer `.env.example` avec des valeurs placeholder lors de la création de `.env`
-13. L'état global d'authentification passe par Zustand — pas de Context React pour l'auth
-14. Le token JWT est stocké dans `localStorage` — jamais dans un cookie géré côté JS
-15. Toutes les animations utilisent Framer Motion — pas de CSS keyframes custom
+5. Jamais de `fetch()` ni `useEffect` pour les appels API — toujours `useQuery` ou `useMutation` (TanStack)
+6. Toujours 3 états par composant — loading | error | empty
+7. Tous les commentaires en français
+8. Jamais de logique métier dans les composants — hooks (front) ou services Symfony (back)
+9. Jamais committer `.env` ni `.env.local` — toujours créer un `.env.example` avec valeurs placeholder
+10. État global d'authentification via Zustand — pas de Context React pour l'auth
+11. Token JWT stocké dans `localStorage` — jamais dans un cookie géré côté JS
+12. Toutes les animations utilisent Framer Motion — pas de CSS keyframes custom
+13. Mise à jour des fichiers de référence (`ARCHITECTURE.md`, `DESIGN_SYSTEM.md`, `schema.sql`, `ENTITES.md`) à chaque modification structurelle
+14. Après chaque action/modification — même minime, même atomique — créer un commit. Ne PAS push : Kévin push lui-même, ou demande explicitement un push groupé après plusieurs commits
+14. Multi-tenancy : chaque entité filtrée par `centre_id` via Voters Symfony — jamais de fuite cross-tenant
+15. Migrations Doctrine : NE JAMAIS commiter une migration générée localement en SQLite — toujours vérifier la compatibilité MySQL/PostgreSQL avant push (incident Railway 2026-04-25 : RESYNC_SCHEMA + colonne `taille_haut`)
 
 ---
 
@@ -256,3 +257,5 @@ export const slideUp = {
 - Gérer l'état d'auth avec Context React (utiliser Zustand)
 - Créer des fichiers CSS séparés par composant
 - Utiliser des animations CSS keyframes custom (utiliser Framer Motion)
+- Court-circuiter le filtre par `centre_id` dans une query API (Voter obligatoire)
+- Générer une migration Doctrine en environnement SQLite et la committer sans la traduire en SQL MySQL/PostgreSQL portable (pas de `__temp__` table, pas de `"user"` quoté SQLite-style)
