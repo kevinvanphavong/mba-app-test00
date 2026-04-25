@@ -12,12 +12,18 @@ import {
 export type NavItemWithActive = NavItem & { active: boolean }
 
 function withActive(items: NavItem[], pathname: string): NavItemWithActive[] {
-  return items.map(item => ({
-    ...item,
-    active:
+  // Un item est candidat s'il matche le pathname (exact ou préfixe).
+  // On ne garde actif QUE le match le plus long pour éviter qu'un item parent
+  // (ex: /pointage) reste actif quand un enfant plus spécifique l'est aussi
+  // (ex: /pointage/validation).
+  const longestMatch = items
+    .filter(item =>
       pathname === item.href ||
-      (item.href !== '/dashboard' && pathname.startsWith(item.href + '/')),
-  }))
+      (item.href !== '/dashboard' && pathname.startsWith(item.href + '/'))
+    )
+    .reduce((longest, item) => (item.href.length > longest.length ? item.href : longest), '')
+
+  return items.map(item => ({ ...item, active: item.href === longestMatch }))
 }
 
 export function useDesktopNavItems(): NavItemWithActive[] {
