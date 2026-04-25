@@ -59,6 +59,20 @@ if [ $MIGRATE_RC -ne 0 ]; then
     fi
 fi
 
+# Resynchronisation totale du schéma BDD — opt-in via RESYNC_SCHEMA=1.
+# À utiliser quand l'historique Doctrine ment (ex : `migrations:version --add --all`
+# a marqué des migrations comme exécutées sans que leur SQL ait tourné).
+# Doctrine compare les entités au schéma réel et applique le diff.
+# IMPORTANT : remettre RESYNC_SCHEMA=0 après usage, sinon Doctrine peut drop
+# des colonnes/tables orphelines à chaque redémarrage du container.
+if [ "$RESYNC_SCHEMA" = "1" ]; then
+    echo "RESYNC_SCHEMA=1 détecté — diff entités vs schéma BDD :"
+    php /var/www/html/bin/console doctrine:schema:update --dump-sql --env=prod || true
+    echo "Application du diff (--force)..."
+    php /var/www/html/bin/console doctrine:schema:update --force --env=prod
+    echo "Resynchronisation terminée. Remets RESYNC_SCHEMA=0 sur Railway."
+fi
+
 # Réensemencement opt-in — à activer avec LOAD_FIXTURES=1 dans les variables Railway
 # pour une exécution unique, puis à remettre sur 0 sinon les données sont rechargées
 # (et donc écrasées) à chaque redémarrage du container.
