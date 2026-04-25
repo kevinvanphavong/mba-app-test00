@@ -41,6 +41,7 @@ RUN composer dump-autoload --optimize --no-dev \
     && APP_SECRET=buildsecret1234567890abcdef \
        DATABASE_URL="mysql://app:secret@localhost:3306/app?serverVersion=8.0&charset=utf8mb4" \
        CORS_ALLOW_ORIGIN='^.*$' \
+       SENTRY_DSN='' \
        php bin/console cache:warmup --env=prod
 
 # Config Nginx
