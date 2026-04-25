@@ -120,11 +120,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write', 'poste:read', 'staffcompetence:read'])]
     private ?string $prenom = null;
 
-    #[ORM\Column(length: 10, nullable: true)]
+    /** Champ texte libre — descriptions d'équipement vestimentaire fourni au salarié. */
+    #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['user:read', 'user:write'])]
     private ?string $tailleHaut = null;
 
-    #[ORM\Column(length: 10, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['user:read', 'user:write'])]
     private ?string $tailleBas = null;
 
