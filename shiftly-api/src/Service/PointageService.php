@@ -84,23 +84,38 @@ class PointageService
         return max(0, $duree - $this->calculerTotalPauses($pointage));
     }
 
+    /**
+     * Combine la date du service et l'heure de début du poste en un instant
+     * absolu (timestamp), en interprétant l'heure comme locale Europe/Paris.
+     *
+     * Pourquoi : `Poste.heureDebut` est saisie en heure locale métier (Paris),
+     * mais Doctrine retourne `Pointage.heureArrivee` en UTC. Sans précision de
+     * timezone, `createFromFormat` utilise la TZ serveur (UTC en prod) et la
+     * comparaison sous-estime le retard de l'offset Paris (1h ou 2h).
+     */
+    private function heureDebutPrevueAbs(Pointage $pointage): ?\DateTimeImmutable
+    {
+        $poste = $pointage->getPoste();
+        if (!$poste || !$poste->getHeureDebut()) {
+            return null;
+        }
+
+        return \DateTimeImmutable::createFromFormat(
+            'Y-m-d H:i',
+            $pointage->getService()->getDate()->format('Y-m-d') . ' ' . $poste->getHeureDebut()->format('H:i'),
+            new \DateTimeZone('Europe/Paris')
+        ) ?: null;
+    }
+
     /** Retourne vrai si l'employé est arrivé après l'heure prévue sur le poste. */
     public function estEnRetard(Pointage $pointage): bool
     {
-        $poste   = $pointage->getPoste();
         $arrivee = $pointage->getHeureArrivee();
-
-        if (!$poste || !$arrivee || !$poste->getHeureDebut()) {
+        if (!$arrivee) {
             return false;
         }
 
-        $serviceDate   = $pointage->getService()->getDate();
-        $heureDebutStr = $poste->getHeureDebut()->format('H:i');
-        $heureDebutPrevue = \DateTimeImmutable::createFromFormat(
-            'Y-m-d H:i',
-            $serviceDate->format('Y-m-d') . ' ' . $heureDebutStr
-        );
-
+        $heureDebutPrevue = $this->heureDebutPrevueAbs($pointage);
         return $heureDebutPrevue && $arrivee > $heureDebutPrevue;
     }
 
@@ -111,13 +126,10 @@ class PointageService
             return 0;
         }
 
-        $poste         = $pointage->getPoste();
-        $serviceDate   = $pointage->getService()->getDate();
-        $heureDebutStr = $poste->getHeureDebut()->format('H:i');
-        $heureDebutPrevue = \DateTimeImmutable::createFromFormat(
-            'Y-m-d H:i',
-            $serviceDate->format('Y-m-d') . ' ' . $heureDebutStr
-        );
+        $heureDebutPrevue = $this->heureDebutPrevueAbs($pointage);
+        if (!$heureDebutPrevue) {
+            return 0;
+        }
 
         return (int) round(
             ($pointage->getHeureArrivee()->getTimestamp() - $heureDebutPrevue->getTimestamp()) / 60
