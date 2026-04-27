@@ -7,8 +7,10 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import type { PlanningAbsence, PlanningShift, PlanningWeekData, AbsenceType } from '@/types/planning'
-import { useMoveShift, useCreateAbsence, useDeleteAbsence } from '@/hooks/usePlanning'
+import { useCopyShift, useCreateAbsence, useDeleteAbsence } from '@/hooks/usePlanning'
 import { useAuthStore } from '@/store/authStore'
+import { useToastStore } from '@/store/toastStore'
+import { isAxiosError } from 'axios'
 import { hexAlpha } from '@/lib/colors'
 import DayHeader from './DayHeader'
 import PlanningRow from './PlanningRow'
@@ -50,10 +52,11 @@ function ShiftPreview({ shift }: { shift: PlanningShift }) {
 /** Grille planning complète avec DnD shifts + tri des lignes */
 export default function PlanningGrid({ data, onAddShift, onEditShift }: PlanningGridProps) {
   const today         = new Date().toISOString().split('T')[0]
-  const moveShift     = useMoveShift()
+  const copyShift     = useCopyShift()
   const createAbsence = useCreateAbsence()
   const deleteAbsence = useDeleteAbsence()
   const centreId      = useAuthStore(s => s.centreId)
+  const toast         = useToastStore(s => s.show)
   const storageKey    = `shiftly_row_order_${centreId}`
 
   // État modal absence
@@ -109,13 +112,23 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
     const activeType = active.data.current?.type
     const overId     = String(over.id)
 
-    // ── Shift déplacé vers une nouvelle cellule ──
+    // ── Shift copié vers une nouvelle cellule ──
+    // Drag = COPY (jamais MOVE) : préserve la donnée d'origine pour que le
+    // manager prépare des jours futurs depuis le service du jour sans risque.
     if (activeType === 'shift') {
       const shift: PlanningShift = active.data.current?.shift
       if (overId.startsWith('drop-') && shift) {
         const newDate = overId.split('-').slice(2, 5).join('-') // drop-{empId}-{YYYY-MM-DD}
         if (newDate !== shift.date) {
-          moveShift.mutate({ shift, newDate })
+          copyShift.mutate({ shift, newDate }, {
+            onError: (err) => {
+              if (isAxiosError(err) && (err.response?.status === 409 || err.response?.status === 422)) {
+                toast('Cette assignation existe déjà sur cette date', 'error')
+              } else {
+                toast('Erreur lors de la copie du shift', 'error')
+              }
+            },
+          })
         }
       }
       return
