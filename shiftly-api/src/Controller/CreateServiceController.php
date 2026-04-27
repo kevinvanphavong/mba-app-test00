@@ -6,6 +6,7 @@ use App\Entity\Service;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\ZoneRepository;
+use App\Service\PlanningGuardService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,6 +33,7 @@ class CreateServiceController extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly UserRepository         $userRepo,
         private readonly ZoneRepository         $zoneRepo,
+        private readonly PlanningGuardService   $planningGuard,
     ) {}
 
     #[Route('/api/services/create', name: 'api_service_create_custom', methods: ['POST'], format: 'json')]
@@ -52,6 +54,8 @@ class CreateServiceController extends AbstractController
         if (!$date) {
             throw new BadRequestHttpException('Format de date invalide. Utiliser YYYY-MM-DD.');
         }
+
+        $this->planningGuard->assertDateNotInPast($date);
 
         /** @var User $currentUser */
         $currentUser = $this->getUser();
