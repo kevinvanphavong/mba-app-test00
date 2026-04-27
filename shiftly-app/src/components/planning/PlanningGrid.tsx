@@ -119,17 +119,26 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
       const shift: PlanningShift = active.data.current?.shift
       if (overId.startsWith('drop-') && shift) {
         const newDate = overId.split('-').slice(2, 5).join('-') // drop-{empId}-{YYYY-MM-DD}
-        if (newDate !== shift.date) {
-          copyShift.mutate({ shift, newDate }, {
-            onError: (err) => {
-              if (isAxiosError(err) && (err.response?.status === 409 || err.response?.status === 422)) {
-                toast('Cette assignation existe déjà sur cette date', 'error')
-              } else {
-                toast('Erreur lors de la copie du shift', 'error')
-              }
-            },
-          })
+        if (newDate === shift.date) return
+
+        // Bloque le drop sur une date antérieure au jour courant (le back
+        // rejette aussi via PlanningGuardService, mais on évite l'aller-retour).
+        if (newDate < today) {
+          toast('Impossible : date antérieure au service du jour', 'error')
+          return
         }
+
+        copyShift.mutate({ shift, newDate }, {
+          onError: (err) => {
+            if (isAxiosError(err) && (err.response?.status === 409 || err.response?.status === 422)) {
+              toast('Cette assignation existe déjà sur cette date', 'error')
+            } else if (isAxiosError(err) && err.response?.status === 400) {
+              toast(err.response.data?.detail ?? 'Date non autorisée', 'error')
+            } else {
+              toast('Erreur lors de la copie du shift', 'error')
+            }
+          },
+        })
       }
       return
     }
