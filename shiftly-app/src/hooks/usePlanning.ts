@@ -139,25 +139,27 @@ export function usePlanningSnapshots(weekStart: string) {
   })
 }
 
-// ─── Déplacer un shift (drag & drop inter-jours) ─────────────────────────────
+// ─── Copier un shift (drag & drop inter-jours) ───────────────────────────────
+// Le drag-and-drop produit une COPIE et non un déplacement : le manager peut
+// préparer les jours suivants à partir du jour présent sans altérer les
+// données actuelles. La contrainte unique (service, zone, user) côté back
+// rejette les doublons exacts (même date + zone + user).
 
-export function useMoveShift() {
+export function useCopyShift() {
   const centreId    = useAuthStore(s => s.centreId)
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ shift, newDate }: MoveShiftPayload) => {
-      // Supprime l'ancien poste puis recrée sur la nouvelle date
-      await api.delete(`/postes/${shift.posteId}`)
-      return api.post('/postes/create', {
+    mutationFn: ({ shift, newDate }: MoveShiftPayload) =>
+      api.post('/postes/create', {
         date:         newDate,
         userId:       shift.userId,
         zoneId:       shift.zoneId,
         heureDebut:   shift.heureDebut,
         heureFin:     shift.heureFin,
         pauseMinutes: shift.pauseMinutes,
-      }).then(r => r.data)
-    },
+      }).then(r => r.data),
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planning', 'week', centreId] })
       queryClient.invalidateQueries({ queryKey: ['planning', 'alerts', centreId] })
