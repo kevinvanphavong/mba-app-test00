@@ -10,6 +10,7 @@ import AlertPanel from './AlertPanel'
 import ShiftModal from './ShiftModal'
 import PublishModal from './PublishModal'
 import SnapshotPanel from './SnapshotPanel'
+import TemplatesModal from './TemplatesModal'
 
 function getCurrentMonday(): string {
   // Construction à midi local pour éviter le décalage UTC de toISOString()
@@ -36,6 +37,7 @@ export default function PlanningManagerView() {
   const [showAlerts, setShowAlerts]       = useState(false)
   const [showSnapshots, setShowSnapshots] = useState(false)
   const [publishOpen, setPublishOpen]     = useState(false)
+  const [templatesOpen, setTemplatesOpen] = useState(false)
   const [modalOpen, setModalOpen]         = useState(false)
   const [modalDate, setModalDate]         = useState('')
   const [modalEmpId, setModalEmpId]       = useState<number | undefined>()
@@ -126,6 +128,12 @@ export default function PlanningManagerView() {
             >
               📋 Dupliquer
             </button>
+            <button
+              onClick={() => setTemplatesOpen(true)}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] text-[var(--text)] transition-colors active:border-[var(--accent)]"
+            >
+              📦 Templates
+            </button>
           </div>
         </div>
 
@@ -163,6 +171,12 @@ export default function PlanningManagerView() {
               className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
             >
               📋 Dupliquer semaine
+            </button>
+            <button
+              onClick={() => setTemplatesOpen(true)}
+              className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
+            >
+              📦 Templates
             </button>
             <button
               onClick={() => setPublishOpen(true)}
@@ -229,6 +243,13 @@ export default function PlanningManagerView() {
           data={data}
         />
       )}
+
+      {/* ── Modal templates ── */}
+      <TemplatesModal
+        open={templatesOpen}
+        onClose={() => setTemplatesOpen(false)}
+        currentWeekStart={displayWeekStart}
+      />
     </>
   )
 }
