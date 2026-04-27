@@ -179,18 +179,22 @@ mba-app-test00/
     │   │   ├── TutoRead.php
     │   │   ├── ValidationHebdo.php    # Statut/heures validation hebdo par employé
     │   │   ├── CorrectionPointage.php # Trace des corrections manuelles
+    │   │   ├── PlanningTemplate.php   # Modèle de semaine type réutilisable
+    │   │   ├── PlanningTemplateShift.php # Shifts du template (zone+user+dayOfWeek+horaires)
     │   │   ├── AuditLog.php           # Trace des actions SuperAdmin (Phase 1)
     │   │   └── CentreNote.php         # Notes internes SuperAdmin par centre (Phase 1)
     │   │
     │   ├── Controller/
     │   │   ├── DashboardController.php            # GET /api/dashboard/{centreId}
     │   │   ├── ValidationController.php           # 7 routes /api/pointages/validation/*
+    │   │   ├── PlanningTemplateController.php     # CRUD + apply templates de semaine
     │   │   ├── SuperAdminAuthController.php       # GET /api/superadmin/auth/me
     │   │   ├── SuperAdminDashboardController.php  # GET /api/superadmin/dashboard
     │   │   └── SuperAdminCentresController.php    # CRUD + impersonate + suspend
     │   │
     │   ├── Service/
     │   │   ├── ValidationHebdoService.php  # Agrégation pointages + alertes IDCC 1790
+    │   │   ├── PlanningGuardService.php    # Empêche services à date < jour de référence
     │   │   ├── AuditLogService.php         # Centralise la création d'AuditLog
     │   │   └── SentryApiService.php        # Appels API REST Sentry
     │   │
