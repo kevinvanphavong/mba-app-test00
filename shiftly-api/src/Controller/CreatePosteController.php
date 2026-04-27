@@ -7,6 +7,7 @@ use App\Entity\Poste;
 use App\Entity\Service;
 use App\Entity\Zone;
 use App\Entity\User;
+use App\Service\PlanningGuardService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -36,6 +37,7 @@ class CreatePosteController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly PlanningGuardService   $planningGuard,
     ) {}
 
     #[Route('/api/postes/create', name: 'api_poste_create', methods: ['POST'], format: 'json')]
@@ -136,6 +138,12 @@ class CreatePosteController extends AbstractController
         if ($existing) {
             return $existing;
         }
+
+        // Création implicite d'un service : on bloque si la date est antérieure
+        // au service du jour. Service existant déjà = pas de check (on autorise
+        // d'ajouter un poste sur le service du jour ou un service futur déjà en
+        // place ; on ne crée juste pas de nouveau service dans le passé).
+        $this->planningGuard->assertDateNotInPast($date);
 
         $service = new Service();
         $service->setCentre($centre);
