@@ -137,21 +137,24 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
           {/* Avatars staff */}
           {service.staff.length > 0 && (
             <div className="flex items-center gap-1 mt-3">
-              {service.staff.slice(0, 5).map((member, i) => (
-                <div
-                  key={member.id}
-                  title={member.nom}
-                  className="w-6 h-6 rounded-full border-2 border-surface flex items-center justify-center text-[9px] font-extrabold text-white"
-                  style={{
-                    background: `linear-gradient(135deg, ${member.avatarColor}, ${member.avatarColor}cc)`,
-                    marginLeft: i > 0 ? '-4px' : 0,
-                    zIndex:     10 - i,
-                    position:   'relative',
-                  }}
-                >
-                  {member.nom.charAt(0).toUpperCase()}
-                </div>
-              ))}
+              {service.staff.slice(0, 5).map((member, i) => {
+                const displayName = member.prenom ?? member.nom
+                return (
+                  <div
+                    key={member.id}
+                    title={displayName}
+                    className="w-6 h-6 rounded-full border-2 border-surface flex items-center justify-center text-[9px] font-extrabold text-white"
+                    style={{
+                      background: `linear-gradient(135deg, ${member.avatarColor}, ${member.avatarColor}cc)`,
+                      marginLeft: i > 0 ? '-4px' : 0,
+                      zIndex:     10 - i,
+                      position:   'relative',
+                    }}
+                  >
+                    {displayName.charAt(0).toUpperCase()}
+                  </div>
+                )
+              })}
               {service.staff.length > 5 && (
                 <span className={`${ty.metaSm} ml-1`}>+{service.staff.length - 5}</span>
               )}
@@ -206,27 +209,30 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                           {zone.postes.length === 0 && (
                             <span className={`${ty.meta} italic`}>Aucun membre assigné</span>
                           )}
-                          {zone.postes.map(poste => (
-                            <div
-                              key={poste.posteId}
-                              className="flex items-center gap-1.5 bg-surface border border-border rounded-full pl-1.5 pr-2 py-0.5"
-                            >
+                          {zone.postes.map(poste => {
+                            const displayName = poste.prenom ?? poste.nom
+                            return (
                               <div
-                                className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-extrabold text-white shrink-0"
-                                style={{ background: `linear-gradient(135deg, ${poste.avatarColor}, ${poste.avatarColor}cc)` }}
+                                key={poste.posteId}
+                                className="flex items-center gap-1.5 bg-surface border border-border rounded-full pl-1.5 pr-2 py-0.5"
                               >
-                                {poste.nom.charAt(0).toUpperCase()}
+                                <div
+                                  className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-extrabold text-white shrink-0"
+                                  style={{ background: `linear-gradient(135deg, ${poste.avatarColor}, ${poste.avatarColor}cc)` }}
+                                >
+                                  {displayName.charAt(0).toUpperCase()}
+                                </div>
+                                <span className={ty.meta + ' text-text'}>{displayName}</span>
+                                <button
+                                  onClick={() => deletePoste(poste.posteId)}
+                                  className="text-muted hover:text-red transition-colors text-[13px] leading-none ml-0.5"
+                                  title="Retirer"
+                                >
+                                  ×
+                                </button>
                               </div>
-                              <span className={ty.meta + ' text-text'}>{poste.nom}</span>
-                              <button
-                                onClick={() => deletePoste(poste.posteId)}
-                                className="text-muted hover:text-red transition-colors text-[13px] leading-none ml-0.5"
-                                title="Retirer"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ))}
+                            )
+                          })}
                         </div>
                       </div>
                     ))}

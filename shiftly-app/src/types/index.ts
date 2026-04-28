@@ -96,6 +96,7 @@ export type TutorielBlock =
 export interface ServiceListStaffMember {
   id:          number
   nom:         string
+  prenom:      string | null
   avatarColor: string
 }
 
@@ -103,6 +104,7 @@ export interface ServiceListZonePoste {
   posteId:     number
   userId:      number
   nom:         string
+  prenom:      string | null
   avatarColor: string
 }
 
