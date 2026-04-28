@@ -62,7 +62,32 @@ export default function ValidationDayCell({ jour }: Props) {
   return (
     <td className="validation-day-cell">
       <div className="validation-day-time">
-        {jour.heureArrivee}–{jour.heureDepart}
+        {jour.heureArrivee}–
+        {jour.heureDepartAuto ? (
+          // Départ inféré depuis l'heure de fin du poste : italique + tag auto
+          <>
+            <span style={{ fontStyle: 'italic', color: 'var(--muted)' }}>{jour.heureDepart}</span>
+            <span
+              title="Heure de fin appliquée automatiquement (pas de pointage de départ)"
+              style={{
+                marginLeft:    4,
+                padding:       '0 4px',
+                fontSize:      9,
+                fontWeight:    700,
+                textTransform: 'uppercase',
+                letterSpacing: 0.4,
+                borderRadius:  4,
+                background:    'rgba(249,115,22,0.12)',
+                color:         'var(--accent)',
+                verticalAlign: 'middle',
+              }}
+            >
+              auto
+            </span>
+          </>
+        ) : (
+          jour.heureDepart
+        )}
         {jour.estRetard && <span className="validation-retard-dot" />}
       </div>
       {jour.heuresNettes !== null && (

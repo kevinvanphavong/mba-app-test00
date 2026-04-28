@@ -175,16 +175,17 @@ class ValidationHebdoService
         // Cas : absence justifiée
         if ($absence !== null && $absence->getType() !== 'REPOS') {
             return [
-                'date'         => $dateStr,
-                'jourSemaine'  => $jourSemaine,
-                'statut'       => 'absent_justifie',
-                'heureArrivee' => null,
-                'heureDepart'  => null,
-                'pauses'       => [],
-                'heuresNettes' => null,
-                'heuresPrevues'=> $this->getHeuresPrevuesdepuisPointage($pointage),
-                'estRetard'    => false,
-                'typeAbsence'  => $absence->getType(),
+                'date'             => $dateStr,
+                'jourSemaine'      => $jourSemaine,
+                'statut'           => 'absent_justifie',
+                'heureArrivee'     => null,
+                'heureDepart'      => null,
+                'heureDepartAuto'  => false,
+                'pauses'           => [],
+                'heuresNettes'     => null,
+                'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
+                'estRetard'        => false,
+                'typeAbsence'      => $absence->getType(),
             ];
         }
 
@@ -192,69 +193,147 @@ class ValidationHebdoService
         if ($pointage === null) {
             $estRepos = ($absence !== null && $absence->getType() === 'REPOS') || true;
             return [
-                'date'         => $dateStr,
-                'jourSemaine'  => $jourSemaine,
-                'statut'       => 'repos',
-                'heureArrivee' => null,
-                'heureDepart'  => null,
-                'pauses'       => [],
-                'heuresNettes' => null,
-                'heuresPrevues'=> null,
-                'estRetard'    => false,
-                'typeAbsence'  => null,
+                'date'             => $dateStr,
+                'jourSemaine'      => $jourSemaine,
+                'statut'           => 'repos',
+                'heureArrivee'     => null,
+                'heureDepart'      => null,
+                'heureDepartAuto'  => false,
+                'pauses'           => [],
+                'heuresNettes'     => null,
+                'heuresPrevues'    => null,
+                'estRetard'        => false,
+                'typeAbsence'      => null,
             ];
         }
 
         // Cas : absent non justifié (PREVU après fin du service, sans absence enregistrée)
         if ($pointage->getStatut() === Pointage::STATUT_PREVU && $this->serviceEstTermine($pointage, $now)) {
             return [
-                'date'         => $dateStr,
-                'jourSemaine'  => $jourSemaine,
-                'statut'       => 'absent_non_justifie',
-                'heureArrivee' => null,
-                'heureDepart'  => null,
-                'pauses'       => [],
-                'heuresNettes' => null,
-                'heuresPrevues'=> $this->getHeuresPrevuesdepuisPointage($pointage),
-                'estRetard'    => false,
-                'typeAbsence'  => null,
+                'date'             => $dateStr,
+                'jourSemaine'      => $jourSemaine,
+                'statut'           => 'absent_non_justifie',
+                'heureArrivee'     => null,
+                'heureDepart'      => null,
+                'heureDepartAuto'  => false,
+                'pauses'           => [],
+                'heuresNettes'     => null,
+                'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
+                'estRetard'        => false,
+                'typeAbsence'      => null,
             ];
         }
 
-        // Cas : en cours
+        // Cas : en cours (ou en pause)
         if (in_array($pointage->getStatut(), [Pointage::STATUT_EN_COURS, Pointage::STATUT_EN_PAUSE], true)) {
+            $resolution = $this->resolveFinPointage($pointage, $now);
+
+            // Si la fin est auto-appliquée → la journée est en réalité terminée
+            // (staff a oublié de pointer son départ). On bascule sur 'travaille'
+            // avec l'heure de fin du poste comme heure de départ et un flag.
+            if ($resolution['isAuto']) {
+                return [
+                    'date'             => $dateStr,
+                    'jourSemaine'      => $jourSemaine,
+                    'statut'           => 'travaille',
+                    'heureArrivee'     => $pointage->getHeureArrivee()?->format('H:i'),
+                    'heureDepart'      => $resolution['fin']->format('H:i'),
+                    'heureDepartAuto'  => true,
+                    'pauses'           => $this->formatPauses($pointage),
+                    'heuresNettes'     => $this->calculerHeuresNettes($pointage),
+                    'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
+                    'estRetard'        => $this->estEnRetard($pointage),
+                    'typeAbsence'      => null,
+                ];
+            }
+
             return [
-                'date'         => $dateStr,
-                'jourSemaine'  => $jourSemaine,
-                'statut'       => 'en_cours',
-                'heureArrivee' => $pointage->getHeureArrivee()?->format('H:i'),
-                'heureDepart'  => null,
-                'pauses'       => $this->formatPauses($pointage),
-                'heuresNettes' => $this->calculerHeuresNettes($pointage),
-                'heuresPrevues'=> $this->getHeuresPrevuesdepuisPointage($pointage),
-                'estRetard'    => $this->estEnRetard($pointage),
-                'typeAbsence'  => null,
+                'date'             => $dateStr,
+                'jourSemaine'      => $jourSemaine,
+                'statut'           => 'en_cours',
+                'heureArrivee'     => $pointage->getHeureArrivee()?->format('H:i'),
+                'heureDepart'      => null,
+                'heureDepartAuto'  => false,
+                'pauses'           => $this->formatPauses($pointage),
+                'heuresNettes'     => $this->calculerHeuresNettes($pointage),
+                'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
+                'estRetard'        => $this->estEnRetard($pointage),
+                'typeAbsence'      => null,
             ];
         }
 
         // Cas : travaillé (TERMINE ou ABSENT marqué par le manager)
         $heuresNettes = $this->calculerHeuresNettes($pointage);
         return [
-            'date'         => $dateStr,
-            'jourSemaine'  => $jourSemaine,
-            'statut'       => $pointage->getStatut() === Pointage::STATUT_ABSENT ? 'absent_non_justifie' : 'travaille',
-            'heureArrivee' => $pointage->getHeureArrivee()?->format('H:i'),
-            'heureDepart'  => $pointage->getHeureDepart()?->format('H:i'),
-            'pauses'       => $this->formatPauses($pointage),
-            'heuresNettes' => $heuresNettes,
-            'heuresPrevues'=> $this->getHeuresPrevuesdepuisPointage($pointage),
-            'estRetard'    => $this->estEnRetard($pointage),
-            'typeAbsence'  => null,
+            'date'             => $dateStr,
+            'jourSemaine'      => $jourSemaine,
+            'statut'           => $pointage->getStatut() === Pointage::STATUT_ABSENT ? 'absent_non_justifie' : 'travaille',
+            'heureArrivee'     => $pointage->getHeureArrivee()?->format('H:i'),
+            'heureDepart'      => $pointage->getHeureDepart()?->format('H:i'),
+            'heureDepartAuto'  => false,
+            'pauses'           => $this->formatPauses($pointage),
+            'heuresNettes'     => $heuresNettes,
+            'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
+            'estRetard'        => $this->estEnRetard($pointage),
+            'typeAbsence'      => null,
         ];
     }
 
     /**
+     * Résout l'heure de fin effective d'un pointage.
+     *
+     * Comportement :
+     *   - heureDepart renseignée → on l'utilise telle quelle (manuel: false)
+     *   - heureDepart null + heureFin du poste planifiée passée → on retombe
+     *     sur l'heure de fin du poste (manuel: true). Cas typique : staff a
+     *     pointé son arrivée mais oublié son départ → l'heure de fin du
+     *     service s'applique automatiquement.
+     *   - heureDepart null + on est encore dans la fenêtre du shift → on
+     *     utilise NOW (vue temps réel pour le service du jour). Idem si le
+     *     poste n'a pas de heureFin planifiée.
+     *
+     * @return array{fin: \DateTimeImmutable, isAuto: bool}
+     */
+    public function resolveFinPointage(Pointage $pointage, ?\DateTimeImmutable $now = null): array
+    {
+        $now ??= new \DateTimeImmutable();
+
+        $heureDepart = $pointage->getHeureDepart();
+        if ($heureDepart !== null) {
+            return ['fin' => $heureDepart, 'isAuto' => false];
+        }
+
+        $poste = $pointage->getPoste();
+        $heureFinPoste = $poste?->getHeureFin();
+        if ($poste === null || $heureFinPoste === null) {
+            return ['fin' => $now, 'isAuto' => false];
+        }
+
+        // Combine la date du service avec l'heure de fin planifiée du poste
+        $serviceDate = $pointage->getService()->getDate();
+        $finPlanifiee = new \DateTimeImmutable(
+            $serviceDate->format('Y-m-d') . ' ' . $heureFinPoste->format('H:i:s')
+        );
+
+        // Service de nuit : heureFin < heureDebut → fin sur le jour suivant
+        $heureDebutPoste = $poste->getHeureDebut();
+        if ($heureDebutPoste !== null && $heureFinPoste < $heureDebutPoste) {
+            $finPlanifiee = $finPlanifiee->modify('+1 day');
+        }
+
+        // Si la fin planifiée est encore dans le futur, on est en cours →
+        // on garde NOW (UX temps réel), pas de fallback automatique.
+        if ($finPlanifiee > $now) {
+            return ['fin' => $now, 'isAuto' => false];
+        }
+
+        return ['fin' => $finPlanifiee, 'isAuto' => true];
+    }
+
+    /**
      * Calcule les heures nettes travaillées (arrivée→départ − pauses) en minutes.
+     * Si heureDepart est null mais que le shift est terminé, applique le fallback
+     * sur l'heure de fin du poste (cf. resolveFinPointage).
      */
     public function calculerHeuresNettes(Pointage $pointage): int
     {
@@ -262,7 +341,7 @@ class ValidationHebdoService
             return 0;
         }
 
-        $fin = $pointage->getHeureDepart() ?? new \DateTimeImmutable();
+        $fin   = $this->resolveFinPointage($pointage)['fin'];
         $duree = ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) / 60;
 
         return (int) max(0, $duree - $this->calculerTotalPausesMinutes($pointage));

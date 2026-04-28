@@ -44,6 +44,12 @@ export interface ValidationJour {
   statut: JourStatut
   heureArrivee: string | null
   heureDepart: string | null
+  /**
+   * true si heureDepart est inférée depuis l'heure de fin planifiée du
+   * poste (staff a oublié de pointer son départ et le shift est terminé).
+   * Le manager peut corriger via le formulaire de correction.
+   */
+  heureDepartAuto: boolean
   pauses: ValidationPause[]
   heuresNettes: number | null  // en minutes
   heuresPrevues: number | null // en minutes
