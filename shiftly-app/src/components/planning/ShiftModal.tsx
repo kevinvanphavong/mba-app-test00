@@ -5,9 +5,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { AnimatePresence, motion } from 'framer-motion'
+import { isAxiosError } from 'axios'
 import { sheetVariants, backdropVariants } from '@/lib/animations'
 import { useStaff } from '@/hooks/useStaff'
 import { useCreateShift, useUpdateShift, useDeleteShift } from '@/hooks/usePlanning'
+import { useToastStore } from '@/store/toastStore'
 import type { PlanningShift, PlanningZone } from '@/types/planning'
 import ZoneSelector from './ZoneSelector'
 import TimeRangePicker from './TimeRangePicker'
@@ -39,6 +41,7 @@ export default function ShiftModal({
   const createShift  = useCreateShift()
   const updateShift  = useUpdateShift()
   const deleteShift  = useDeleteShift()
+  const toast        = useToastStore(s => s.show)
   const isEdit       = !!shift
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } =
@@ -89,33 +92,72 @@ export default function ShiftModal({
     }
   }, [open, isEdit, shift, reset, defaultEmployeeId])
 
-  async function onSubmit(values: ShiftFormValues) {
-    if (isEdit && shift) {
-      await updateShift.mutateAsync({
-        posteId:      shift.posteId,
-        zone:         `/api/zones/${values.zoneId}`,
-        heureDebut:   values.heureDebut,
-        heureFin:     values.heureFin,
-        pauseMinutes: values.pauseMinutes,
-      })
-    } else {
-      if (!values.userId) return // sécurité : employé requis en création
-      await createShift.mutateAsync({
-        date,
-        userId:       values.userId,
-        zoneId:       values.zoneId,
-        heureDebut:   values.heureDebut,
-        heureFin:     values.heureFin,
-        pauseMinutes: values.pauseMinutes,
-      })
+  /**
+   * Convertit une erreur API en message toast lisible.
+   * Format Symfony BadRequest : { detail: '…' }
+   * Format CreatePosteController 409 : { error: '…' }
+   * Format Hydra API Platform : { 'hydra:description': '…' }
+   */
+  function toastApiError(err: unknown, fallback: string) {
+    if (isAxiosError(err)) {
+      const status = err.response?.status
+      const data   = err.response?.data as Record<string, unknown> | undefined
+      const msg    =
+        (typeof data?.detail === 'string'              && data.detail) ||
+        (typeof data?.error  === 'string'              && data.error) ||
+        (typeof data?.['hydra:description'] === 'string' && data['hydra:description']) ||
+        null
+
+      // Doublon de poste (contrainte unique service+zone+user)
+      if (status === 409 || status === 422) {
+        toast(msg ?? 'Cette assignation existe déjà sur cette date', 'error')
+        return
+      }
+      if (status === 400 || status === 403) {
+        toast(msg ?? fallback, 'error')
+        return
+      }
     }
-    onClose()
+    toast(fallback, 'error')
+  }
+
+  async function onSubmit(values: ShiftFormValues) {
+    try {
+      if (isEdit && shift) {
+        await updateShift.mutateAsync({
+          posteId:      shift.posteId,
+          zone:         `/api/zones/${values.zoneId}`,
+          heureDebut:   values.heureDebut,
+          heureFin:     values.heureFin,
+          pauseMinutes: values.pauseMinutes,
+        })
+      } else {
+        if (!values.userId) return // sécurité : employé requis en création
+        await createShift.mutateAsync({
+          date,
+          userId:       values.userId,
+          zoneId:       values.zoneId,
+          heureDebut:   values.heureDebut,
+          heureFin:     values.heureFin,
+          pauseMinutes: values.pauseMinutes,
+        })
+      }
+      onClose()
+    } catch (err) {
+      toastApiError(err, isEdit
+        ? 'Erreur lors de la modification du shift'
+        : 'Erreur lors de la création du shift'
+      )
+    }
   }
 
   async function handleDelete() {
-    if (shift) {
+    if (!shift) return
+    try {
       await deleteShift.mutateAsync(shift.posteId)
       onClose()
+    } catch (err) {
+      toastApiError(err, 'Erreur lors de la suppression du shift')
     }
   }
 
