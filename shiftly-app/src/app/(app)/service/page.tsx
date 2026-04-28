@@ -8,6 +8,7 @@ import ModalMissionPonctuelle   from '@/components/service/ModalMissionPonctuell
 import ModalAssignerStaff       from '@/components/service/ModalAssignerStaff'
 import ModalIncident            from '@/components/service/ModalIncident'
 import MissionPhotoCaptureModal from '@/components/service/MissionPhotoCaptureModal'
+import PhotoLightbox            from '@/components/shared/PhotoLightbox'
 import { useServiceToday }      from '@/hooks/useService'
 import { useDeletePoste }       from '@/hooks/useService'
 import { useToggleCompletion }  from '@/hooks/useMissions'
@@ -39,6 +40,8 @@ export default function ServicePage() {
   const [incidentOpen,   setIncidentOpen]   = useState(false)
   // Capture photo : on stocke la mission + le posteId à utiliser pour la completion
   const [photoTarget,    setPhotoTarget]    = useState<{ mission: ServiceMission; posteId: number } | null>(null)
+  // Lightbox : src de la photo (path API relative) en cours de visualisation
+  const [lightboxSrc,    setLightboxSrc]    = useState<string | null>(null)
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const toggleCompletion = useToggleCompletion()
@@ -200,6 +203,7 @@ export default function ServicePage() {
               onAssign={userRole === 'MANAGER' ? z => setAssignZone(z as ServiceZoneData) : undefined}
               onRemoveStaff={userRole === 'MANAGER' ? posteId => deletePoste.mutate(posteId) : undefined}
               onCapturePhoto={(mission, posteId) => setPhotoTarget({ mission, posteId })}
+              onOpenPhoto={(completionId) => setLightboxSrc(`/completions/${completionId}/photo`)}
             />
           ))}
 
@@ -245,6 +249,11 @@ export default function ServicePage() {
         mission={photoTarget?.mission ?? null}
         posteId={photoTarget?.posteId ?? 0}
         onClose={() => setPhotoTarget(null)}
+      />
+
+      <PhotoLightbox
+        src={lightboxSrc}
+        onClose={() => setLightboxSrc(null)}
       />
     </>
   )

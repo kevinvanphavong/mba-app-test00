@@ -109,10 +109,13 @@ export function useCompleteWithPhoto() {
       form.append('posteId',   String(posteId))
       form.append('photo',     photo, 'preuve.jpg')
 
-      // Important : ne PAS forcer le Content-Type ici — Axios met automatiquement
-      // 'multipart/form-data; boundary=...' quand on lui passe un FormData.
+      // Override du Content-Type par défaut du client axios (application/ld+json
+      // dans lib/api.ts). On le force à 'undefined' pour qu'axios recalcule le
+      // header depuis le FormData et y intègre le 'boundary=...' indispensable
+      // au parsing multipart côté Symfony. Si on laisse 'multipart/form-data'
+      // sans boundary, la requête arrive vide ($_POST + $_FILES vides → 400).
       return api.post('/completions/create-with-photo', form, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': undefined as unknown as string },
       }).then(r => r.data as { id: number })
     },
 

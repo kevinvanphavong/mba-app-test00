@@ -20,15 +20,14 @@ interface ZoneCardProps {
   onRemoveStaff?:   (posteId: number) => void
   /** Ouvre la modal de capture photo pour une mission requiresPhoto. Le posteId est résolu depuis la zone. */
   onCapturePhoto?:  (mission: ServiceZoneData['missions'][number], posteId: number) => void
-  onOpenPhoto?:     (url: string) => void
-  /** Map missionId → URL de la photo (servie par /api/completions/{id}/photo + JWT). */
-  photoUrls?:       Record<number, string>
+  /** Ouvre la lightbox plein écran sur la preuve photo d'une completion. */
+  onOpenPhoto?:     (completionId: number) => void
 }
 
 export default function ZoneCard({
   zone, completions, loadingMissions, onToggle,
   onAddPonctuelle, onAssign, onRemoveStaff,
-  onCapturePhoto, onOpenPhoto, photoUrls,
+  onCapturePhoto, onOpenPhoto,
 }: ZoneCardProps) {
   const totalMissions = zone.missions.length
   const doneMissions  = zone.missions.filter(m => completions[m.id]).length
@@ -127,7 +126,6 @@ export default function ZoneCard({
                   loading={loadingMissions.has(mission.id)}
                   onToggle={(id, done) => onToggle(id, done, zone.id)}
                   onCapturePhoto={() => onCapturePhoto?.(mission, firstPosteId)}
-                  photoUrl={photoUrls?.[mission.id] ?? null}
                   onOpenPhoto={onOpenPhoto}
                 />
               )
