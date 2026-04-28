@@ -41,13 +41,14 @@ class CreateMissionController extends AbstractController
     {
         $body = json_decode($request->getContent(), true);
 
-        $texte     = trim((string) ($body['texte']     ?? ''));
-        $categorie = (string) ($body['categorie'] ?? Mission::CAT_PENDANT);
-        $frequence = (string) ($body['frequence'] ?? Mission::FREQ_FIXE);
-        $priorite  = (string) ($body['priorite']  ?? Mission::PRIO_NE_PAS_OUBLIER);
-        $ordre     = (int)    ($body['ordre']     ?? 0);
-        $zoneId    = (int)    ($body['zoneId']    ?? 0);
-        $serviceId = isset($body['serviceId']) ? (int) $body['serviceId'] : null;
+        $texte         = trim((string) ($body['texte']     ?? ''));
+        $categorie     = (string) ($body['categorie'] ?? Mission::CAT_PENDANT);
+        $frequence     = (string) ($body['frequence'] ?? Mission::FREQ_FIXE);
+        $priorite      = (string) ($body['priorite']  ?? Mission::PRIO_NE_PAS_OUBLIER);
+        $ordre         = (int)    ($body['ordre']     ?? 0);
+        $zoneId        = (int)    ($body['zoneId']    ?? 0);
+        $serviceId     = isset($body['serviceId']) ? (int) $body['serviceId'] : null;
+        $requiresPhoto = (bool)   ($body['requiresPhoto'] ?? false);
 
         if (!$texte) {
             throw new BadRequestHttpException('texte est requis.');
@@ -75,6 +76,7 @@ class CreateMissionController extends AbstractController
         $mission->setPriorite($priorite);
         $mission->setOrdre($ordre);
         $mission->setZone($zone);
+        $mission->setRequiresPhoto($requiresPhoto);
 
         // Mission ponctuelle — rattachée à un service
         if ($frequence === Mission::FREQ_PONCTUELLE && $serviceId) {
@@ -88,12 +90,13 @@ class CreateMissionController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'        => $mission->getId(),
-            'texte'     => $mission->getTexte(),
-            'categorie' => $mission->getCategorie(),
-            'frequence' => $mission->getFrequence(),
-            'priorite'  => $mission->getPriorite(),
-            'ordre'     => $mission->getOrdre(),
+            'id'            => $mission->getId(),
+            'texte'         => $mission->getTexte(),
+            'categorie'     => $mission->getCategorie(),
+            'frequence'     => $mission->getFrequence(),
+            'priorite'      => $mission->getPriorite(),
+            'ordre'         => $mission->getOrdre(),
+            'requiresPhoto' => $mission->getRequiresPhoto(),
         ], 201);
     }
 }

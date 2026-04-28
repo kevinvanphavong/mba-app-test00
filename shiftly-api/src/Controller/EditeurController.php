@@ -140,6 +140,7 @@ class EditeurController extends AbstractController
         $mission->setFrequence($data['frequence'] ?? Mission::FREQ_FIXE);
         $mission->setPriorite($data['priorite'] ?? Mission::PRIO_NE_PAS_OUBLIER);
         $mission->setOrdre($data['ordre'] ?? $this->missionRepo->count(['zone' => $zone]));
+        $mission->setRequiresPhoto((bool) ($data['requiresPhoto'] ?? false));
 
         $this->em->persist($mission);
         $this->em->flush();
@@ -155,11 +156,12 @@ class EditeurController extends AbstractController
         if (!$mission) return $this->json(['error' => 'Mission introuvable.'], 404);
 
         $data = json_decode($request->getContent(), true) ?? [];
-        if (isset($data['texte']))     $mission->setTexte($data['texte']);
-        if (isset($data['categorie'])) $mission->setCategorie($data['categorie']);
-        if (isset($data['frequence'])) $mission->setFrequence($data['frequence']);
-        if (isset($data['priorite']))  $mission->setPriorite($data['priorite']);
-        if (isset($data['ordre']))     $mission->setOrdre((int) $data['ordre']);
+        if (isset($data['texte']))         $mission->setTexte($data['texte']);
+        if (isset($data['categorie']))     $mission->setCategorie($data['categorie']);
+        if (isset($data['frequence']))     $mission->setFrequence($data['frequence']);
+        if (isset($data['priorite']))      $mission->setPriorite($data['priorite']);
+        if (isset($data['ordre']))         $mission->setOrdre((int) $data['ordre']);
+        if (array_key_exists('requiresPhoto', $data)) $mission->setRequiresPhoto((bool) $data['requiresPhoto']);
 
         // Déplacement vers une autre zone
         if (isset($data['zoneId'])) {
@@ -354,14 +356,15 @@ class EditeurController extends AbstractController
     private function serializeMission(Mission $m): array
     {
         return [
-            'id'        => $m->getId(),
-            'zoneId'    => $m->getZone()?->getId(),
-            'zoneName'  => $m->getZone()?->getNom(),
-            'texte'     => $m->getTexte(),
-            'categorie' => $m->getCategorie(),
-            'frequence' => $m->getFrequence(),
-            'priorite'  => $m->getPriorite(),
-            'ordre'     => $m->getOrdre(),
+            'id'            => $m->getId(),
+            'zoneId'        => $m->getZone()?->getId(),
+            'zoneName'      => $m->getZone()?->getNom(),
+            'texte'         => $m->getTexte(),
+            'categorie'     => $m->getCategorie(),
+            'frequence'     => $m->getFrequence(),
+            'priorite'      => $m->getPriorite(),
+            'ordre'         => $m->getOrdre(),
+            'requiresPhoto' => $m->getRequiresPhoto(),
         ];
     }
 

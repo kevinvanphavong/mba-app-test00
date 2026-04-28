@@ -70,6 +70,25 @@ class Completion
     #[Groups(['completion:read'])]
     private ?\DateTimeImmutable $completedAt = null;
 
+    /**
+     * Chemin relatif (depuis public/) de la photo de preuve, ex:
+     * "uploads/completion/2026/04/abc123def456.jpg".
+     * NULL si la mission n'avait pas requiresPhoto = true.
+     * On ne sert pas le fichier statique : on passe par GET /api/completions/{id}/photo
+     * qui applique le voter multi-tenant.
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['completion:read'])]
+    private ?string $photoPath = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    #[Groups(['completion:read'])]
+    private ?string $photoMimeType = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['completion:read'])]
+    private ?\DateTimeImmutable $photoTakenAt = null;
+
     public function __construct()
     {
         $this->completedAt = new \DateTimeImmutable();
@@ -84,4 +103,13 @@ class Completion
     public function setUser(?User $u): static { $this->user = $u; return $this; }
     public function getCompletedAt(): ?\DateTimeImmutable { return $this->completedAt; }
     public function setCompletedAt(\DateTimeImmutable $dt): static { $this->completedAt = $dt; return $this; }
+
+    public function getPhotoPath(): ?string { return $this->photoPath; }
+    public function setPhotoPath(?string $p): static { $this->photoPath = $p; return $this; }
+
+    public function getPhotoMimeType(): ?string { return $this->photoMimeType; }
+    public function setPhotoMimeType(?string $m): static { $this->photoMimeType = $m; return $this; }
+
+    public function getPhotoTakenAt(): ?\DateTimeImmutable { return $this->photoTakenAt; }
+    public function setPhotoTakenAt(?\DateTimeImmutable $dt): static { $this->photoTakenAt = $dt; return $this; }
 }
