@@ -22,13 +22,14 @@ export function useMissions(zoneId: number | null | undefined) {
 // ─── Créer une mission ────────────────────────────────────────────────────────
 
 interface CreateMissionPayload {
-  texte:      string
-  categorie:  'OUVERTURE' | 'PENDANT' | 'MENAGE' | 'FERMETURE'
-  frequence:  'FIXE' | 'PONCTUELLE'
-  priorite:   'vitale' | 'important' | 'ne_pas_oublier'
-  ordre?:     number
-  zoneId:     number
-  serviceId?: number
+  texte:          string
+  categorie:      'OUVERTURE' | 'PENDANT' | 'MENAGE' | 'FERMETURE'
+  frequence:      'FIXE' | 'PONCTUELLE'
+  priorite:       'vitale' | 'important' | 'ne_pas_oublier'
+  ordre?:         number
+  zoneId:         number
+  serviceId?:     number
+  requiresPhoto?: boolean
 }
 
 export function useCreateMission() {
@@ -39,12 +40,13 @@ export function useCreateMission() {
     mutationFn: (payload: CreateMissionPayload) =>
       // Endpoint custom — évite les problèmes de résolution IRI d'API Platform
       api.post('/missions/create', {
-        texte:     payload.texte,
-        categorie: payload.categorie,
-        frequence: payload.frequence,
-        priorite:  payload.priorite,
-        ordre:     payload.ordre ?? 0,
-        zoneId:    payload.zoneId,
+        texte:         payload.texte,
+        categorie:     payload.categorie,
+        frequence:     payload.frequence,
+        priorite:      payload.priorite,
+        ordre:         payload.ordre ?? 0,
+        zoneId:        payload.zoneId,
+        requiresPhoto: payload.requiresPhoto ?? false,
         ...(payload.serviceId ? { serviceId: payload.serviceId } : {}),
       }).then(r => r.data),
 
@@ -78,6 +80,40 @@ export function useToggleCompletion() {
       // Cocher → endpoint custom (évite les problèmes de résolution IRI API Platform)
       return api.post('/completions/create', { posteId, missionId })
         .then(r => r.data as { id: number })
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['service', 'today', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard', centreId] })
+    },
+  })
+}
+
+// ─── Cocher avec preuve photo (multipart) ─────────────────────────────────────
+
+interface CompleteWithPhotoPayload {
+  missionId: number
+  posteId:   number
+  /** Blob compressé (jpeg) ou File brut. */
+  photo:     Blob
+}
+
+export function useCompleteWithPhoto() {
+  const centreId    = useAuthStore(s => s.centreId)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ missionId, posteId, photo }: CompleteWithPhotoPayload): Promise<{ id: number }> => {
+      const form = new FormData()
+      form.append('missionId', String(missionId))
+      form.append('posteId',   String(posteId))
+      form.append('photo',     photo, 'preuve.jpg')
+
+      // Important : ne PAS forcer le Content-Type ici — Axios met automatiquement
+      // 'multipart/form-data; boundary=...' quand on lui passe un FormData.
+      return api.post('/completions/create-with-photo', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }).then(r => r.data as { id: number })
     },
 
     onSuccess: () => {

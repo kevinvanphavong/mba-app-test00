@@ -18,11 +18,17 @@ interface ZoneCardProps {
   onAddPonctuelle?: (zone: ServiceZone) => void
   onAssign?:        (zone: ServiceZone) => void
   onRemoveStaff?:   (posteId: number) => void
+  /** Ouvre la modal de capture photo pour une mission requiresPhoto. Le posteId est résolu depuis la zone. */
+  onCapturePhoto?:  (mission: ServiceZoneData['missions'][number], posteId: number) => void
+  onOpenPhoto?:     (url: string) => void
+  /** Map missionId → URL de la photo (servie par /api/completions/{id}/photo + JWT). */
+  photoUrls?:       Record<number, string>
 }
 
 export default function ZoneCard({
   zone, completions, loadingMissions, onToggle,
   onAddPonctuelle, onAssign, onRemoveStaff,
+  onCapturePhoto, onOpenPhoto, photoUrls,
 }: ZoneCardProps) {
   const totalMissions = zone.missions.length
   const doneMissions  = zone.missions.filter(m => completions[m.id]).length
@@ -111,13 +117,21 @@ export default function ZoneCard({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="flex flex-col gap-1 overflow-hidden"
           >
-            {zone.missions.map(mission => (
-              <MissionItem key={mission.id} mission={mission}
-                completed={!!completions[mission.id]}
-                loading={loadingMissions.has(mission.id)}
-                onToggle={(id, done) => onToggle(id, done, zone.id)}
-              />
-            ))}
+            {zone.missions.map(mission => {
+              // Résout le premier poste de la zone — la completion est attachée
+              // à un poste, et tous les staff d'une zone partagent les missions.
+              const firstPosteId = zone.postes[0]?.id ?? 0
+              return (
+                <MissionItem key={mission.id} mission={mission}
+                  completed={!!completions[mission.id]}
+                  loading={loadingMissions.has(mission.id)}
+                  onToggle={(id, done) => onToggle(id, done, zone.id)}
+                  onCapturePhoto={() => onCapturePhoto?.(mission, firstPosteId)}
+                  photoUrl={photoUrls?.[mission.id] ?? null}
+                  onOpenPhoto={onOpenPhoto}
+                />
+              )
+            })}
             {zone.missions.length === 0 && (
               <p className="text-[12px] text-muted text-center py-3">Aucune mission pour cette zone.</p>
             )}

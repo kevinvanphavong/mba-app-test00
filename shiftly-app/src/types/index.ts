@@ -39,6 +39,8 @@ export interface Mission {
   priorite: 'vitale' | 'important' | 'ne_pas_oublier'
   description?: string
   ordre: number
+  /** true → la validation côté staff impose une preuve photo (caméra). */
+  requiresPhoto?: boolean
 }
 
 export interface Competence {

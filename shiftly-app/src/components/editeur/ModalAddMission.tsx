@@ -37,10 +37,11 @@ interface Props {
 }
 
 export default function ModalAddMission({ open, editMission, zone, onClose, onSave }: Props) {
-  const [texte,     setTexte]     = useState('')
-  const [categorie, setCategorie] = useState<MissionCategorie>('PENDANT')
-  const [frequence, setFrequence] = useState<MissionFrequence>('FIXE')
-  const [priorite,  setPriorite]  = useState<MissionPriorite>('ne_pas_oublier')
+  const [texte,         setTexte]         = useState('')
+  const [categorie,     setCategorie]     = useState<MissionCategorie>('PENDANT')
+  const [frequence,     setFrequence]     = useState<MissionFrequence>('FIXE')
+  const [priorite,      setPriorite]      = useState<MissionPriorite>('ne_pas_oublier')
+  const [requiresPhoto, setRequiresPhoto] = useState<boolean>(false)
 
   useEffect(() => {
     if (open) {
@@ -48,12 +49,20 @@ export default function ModalAddMission({ open, editMission, zone, onClose, onSa
       setCategorie(editMission?.categorie ?? 'PENDANT')
       setFrequence(editMission?.frequence ?? 'FIXE')
       setPriorite(editMission?.priorite  ?? 'ne_pas_oublier')
+      setRequiresPhoto(editMission?.requiresPhoto ?? false)
     }
   }, [open, editMission])
 
   function handleSave() {
     if (!texte.trim()) return
-    onSave({ texte: texte.trim(), categorie, frequence, priorite, zoneId: zone.id })
+    onSave({
+      texte: texte.trim(),
+      categorie,
+      frequence,
+      priorite,
+      zoneId: zone.id,
+      requiresPhoto,
+    })
   }
 
   if (!open) return null
@@ -138,6 +147,46 @@ export default function ModalAddMission({ open, editMission, zone, onClose, onSa
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Preuve photo */}
+        <div className="mb-3">
+          <label className="block text-[10px] font-bold uppercase tracking-[0.8px] text-muted mb-[5px]">
+            Preuve photo
+          </label>
+          <button
+            type="button"
+            onClick={() => setRequiresPhoto(v => !v)}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[10px] border transition-all ${
+              requiresPhoto
+                ? 'border-accent bg-accent/10'
+                : 'border-border bg-surface2'
+            }`}
+          >
+            <div className="flex items-start gap-2 text-left">
+              <span className="text-[16px] leading-none">📷</span>
+              <div>
+                <div className={`text-[12px] font-semibold ${requiresPhoto ? 'text-accent' : 'text-text'}`}>
+                  Photo obligatoire pour valider
+                </div>
+                <div className="text-[10px] text-muted leading-snug mt-0.5">
+                  Le staff devra prendre une photo (caméra du téléphone) avant de cocher.
+                </div>
+              </div>
+            </div>
+            {/* Switch visuel */}
+            <span
+              className={`shrink-0 w-9 h-5 rounded-full relative transition-colors ${
+                requiresPhoto ? 'bg-accent' : 'bg-border'
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${
+                  requiresPhoto ? 'left-[18px]' : 'left-0.5'
+                }`}
+              />
+            </span>
+          </button>
         </div>
 
         <div className="flex gap-2 mt-[14px]">

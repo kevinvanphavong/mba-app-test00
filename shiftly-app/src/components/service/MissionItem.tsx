@@ -9,6 +9,12 @@ interface MissionItemProps {
   completed: boolean
   loading?:  boolean
   onToggle:  (missionId: number, currentlyCompleted: boolean) => void
+  /** Appelé quand l'user veut valider une mission requiresPhoto. Ouvre la modal capture côté parent. */
+  onCapturePhoto?: (mission: ServiceMission) => void
+  /** URL de la vignette de la photo de preuve (servie par /api/completions/{id}/photo) */
+  photoUrl?: string | null
+  /** Callback pour ouvrir la lightbox plein écran */
+  onOpenPhoto?: (url: string) => void
 }
 
 const CATEGORIE_BADGE: Record<string, { label: string; cls: string }> = {
@@ -29,6 +35,9 @@ export default function MissionItem({
   completed,
   loading = false,
   onToggle,
+  onCapturePhoto,
+  photoUrl,
+  onOpenPhoto,
 }: MissionItemProps) {
   const cat   = CATEGORIE_BADGE[mission.categorie]
   const prio  = PRIORITE_CONFIG[mission.priorite] ?? PRIORITE_CONFIG['ne_pas_oublier']
@@ -36,9 +45,20 @@ export default function MissionItem({
     ? getInitials(mission.completedBy.nom, mission.completedBy.prenom)
     : null
 
+  // Si la mission demande une photo et n'est pas encore validée → ouvre la modal capture
+  // au lieu du toggle direct. Le décochage (déjà completed) reste un toggle classique.
+  function handleClick() {
+    if (loading) return
+    if (mission.requiresPhoto && !completed) {
+      onCapturePhoto?.(mission)
+      return
+    }
+    onToggle(mission.id, completed)
+  }
+
   return (
     <button
-      onClick={() => !loading && onToggle(mission.id, completed)}
+      onClick={handleClick}
       disabled={loading}
       className={cn(
         'w-full flex items-start gap-3 px-3 py-2.5 rounded-[10px] text-left transition-all duration-200',
@@ -104,8 +124,36 @@ export default function MissionItem({
               Ponct.
             </span>
           )}
+
+          {/* Badge preuve photo requise (visible tant que pas validée) */}
+          {mission.requiresPhoto && !completed && (
+            <span className="text-[9px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-[4px] border text-accent bg-accent/10 border-accent/20 inline-flex items-center gap-0.5">
+              📷 Photo
+            </span>
+          )}
         </div>
       </div>
+
+      {/* Vignette photo de preuve (mission validée + photo dispo) */}
+      {completed && mission.hasPhoto && photoUrl && (
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={(e) => { e.stopPropagation(); onOpenPhoto?.(photoUrl) }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              e.stopPropagation()
+              onOpenPhoto?.(photoUrl)
+            }
+          }}
+          className="w-[28px] h-[28px] rounded-[6px] overflow-hidden flex-shrink-0 border border-border bg-surface cursor-pointer"
+          title="Voir la preuve photo"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={photoUrl} alt="Preuve" className="w-full h-full object-cover" />
+        </span>
+      )}
 
       {/* Avatar completedBy */}
       {completed && initials && mission.completedBy && (
