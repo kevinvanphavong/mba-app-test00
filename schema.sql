@@ -66,12 +66,13 @@ CREATE TABLE zone (
 -- ============================================================
 
 CREATE TABLE mission (
-    id       INT AUTO_INCREMENT NOT NULL,
-    zone_id  INT          NOT NULL,
-    texte    VARCHAR(255) NOT NULL,
-    type     VARCHAR(30)  NOT NULL,    -- catégorie dans le service
-    priorite VARCHAR(30)  NOT NULL,
-    ordre    INT          NOT NULL DEFAULT 0,
+    id             INT AUTO_INCREMENT NOT NULL,
+    zone_id        INT          NOT NULL,
+    texte          VARCHAR(255) NOT NULL,
+    type           VARCHAR(30)  NOT NULL,    -- catégorie dans le service
+    priorite       VARCHAR(30)  NOT NULL,
+    ordre          INT          NOT NULL DEFAULT 0,
+    requires_photo TINYINT(1)   NOT NULL DEFAULT 0,  -- preuve photo requise pour valider
     INDEX idx_mission_zone (zone_id),
     PRIMARY KEY (id),
     CONSTRAINT FK_mission_zone FOREIGN KEY (zone_id) REFERENCES zone (id)
@@ -160,11 +161,15 @@ CREATE TABLE poste (
 -- ============================================================
 
 CREATE TABLE completion (
-    id           INT AUTO_INCREMENT NOT NULL,
-    poste_id     INT      NOT NULL,
-    mission_id   INT      NOT NULL,
-    user_id      INT      DEFAULT NULL,  -- qui a coché (peut être NULL si supprimé)
-    completed_at DATETIME NOT NULL,      -- DateTimeImmutable
+    id              INT AUTO_INCREMENT NOT NULL,
+    poste_id        INT          NOT NULL,
+    mission_id      INT          NOT NULL,
+    user_id         INT          DEFAULT NULL,  -- qui a coché (peut être NULL si supprimé)
+    completed_at    DATETIME     NOT NULL,      -- DateTimeImmutable
+    -- Preuve photo (mission.requires_photo = 1) — NULL pour les missions sans preuve
+    photo_path      VARCHAR(255) DEFAULT NULL,  -- chemin relatif: uploads/completion/YYYY/MM/uuid.jpg
+    photo_mime_type VARCHAR(50)  DEFAULT NULL,  -- image/jpeg | image/png | image/webp
+    photo_taken_at  DATETIME     DEFAULT NULL,  -- DateTimeImmutable
     UNIQUE KEY uniq_completion (poste_id, mission_id),
     INDEX idx_completion_poste   (poste_id),
     INDEX idx_completion_mission (mission_id),

@@ -98,16 +98,17 @@ class ServiceTodayController extends AbstractController
                     : $a->getOrdre() <=> $b->getOrdre();
             });
 
-            // Map missionId → {completionId, completedByUser}
+            // Map missionId → {completionId, completedByUser, hasPhoto}
             // Aggrège les completions de TOUS les postes de la zone (premier trouvé gagne)
-            $completionMap = []; // missionId → ['id' => int, 'user' => User|null]
+            $completionMap = []; // missionId → ['id' => int, 'user' => User|null, 'hasPhoto' => bool]
             foreach ($postes as $poste) {
                 foreach ($poste->getCompletions() as $completion) {
                     $mid = $completion->getMission()->getId();
                     if (!isset($completionMap[$mid])) {
                         $completionMap[$mid] = [
-                            'id'   => $completion->getId(),
-                            'user' => $completion->getUser(),
+                            'id'       => $completion->getId(),
+                            'user'     => $completion->getUser(),
+                            'hasPhoto' => $completion->getPhotoPath() !== null,
                         ];
                     }
                 }
@@ -128,20 +129,22 @@ class ServiceTodayController extends AbstractController
                 ];
             }, $postes);
 
-            // Missions dédupliquées avec completedBy
+            // Missions dédupliquées avec completedBy + flag photo
             $missionsData = array_map(function ($m) use ($completionMap) {
                 $completion   = $completionMap[$m->getId()] ?? null;
                 $completedBy  = $completion ? $completion['user'] : null;
 
                 return [
-                    'id'           => $m->getId(),
-                    'texte'        => $m->getTexte(),
-                    'categorie'    => $m->getCategorie(),
-                    'frequence'    => $m->getFrequence(),
-                    'priorite'     => $m->getPriorite(),
-                    'ordre'        => $m->getOrdre(),
-                    'completionId' => $completion ? $completion['id'] : null,
-                    'completedBy'  => $completedBy ? [
+                    'id'            => $m->getId(),
+                    'texte'         => $m->getTexte(),
+                    'categorie'     => $m->getCategorie(),
+                    'frequence'     => $m->getFrequence(),
+                    'priorite'      => $m->getPriorite(),
+                    'ordre'         => $m->getOrdre(),
+                    'requiresPhoto' => $m->getRequiresPhoto(),
+                    'completionId'  => $completion ? $completion['id'] : null,
+                    'hasPhoto'      => $completion ? $completion['hasPhoto'] : false,
+                    'completedBy'   => $completedBy ? [
                         'id'          => $completedBy->getId(),
                         'nom'         => $completedBy->getNom(),
                         'prenom'      => $completedBy->getPrenom(),

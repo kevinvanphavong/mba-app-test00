@@ -93,6 +93,15 @@ class Mission
     #[Groups(['mission:read', 'mission:write'])]
     private ?Service $service = null;
 
+    /**
+     * true → la mission nécessite une preuve photo pour être validée.
+     * Le front bascule alors sur le flow capture (input capture=environment)
+     * au lieu du toggle direct.
+     */
+    #[ORM\Column(options: ['default' => false])]
+    #[Groups(['mission:read', 'mission:write', 'completion:read'])]
+    private bool $requiresPhoto = false;
+
     public function getId(): ?int { return $this->id; }
 
     public function getZone(): ?Zone { return $this->zone; }
@@ -115,4 +124,7 @@ class Mission
 
     public function getService(): ?Service { return $this->service; }
     public function setService(?Service $service): static { $this->service = $service; return $this; }
+
+    public function getRequiresPhoto(): bool { return $this->requiresPhoto; }
+    public function setRequiresPhoto(bool $r): static { $this->requiresPhoto = $r; return $this; }
 }
