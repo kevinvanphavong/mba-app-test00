@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/cn'
 import { getInitials } from '@/lib/userDisplay'
+import AuthImage from '@/components/shared/AuthImage'
 import type { ServiceMission } from '@/types/service'
 
 interface MissionItemProps {
@@ -11,10 +12,8 @@ interface MissionItemProps {
   onToggle:  (missionId: number, currentlyCompleted: boolean) => void
   /** Appelé quand l'user veut valider une mission requiresPhoto. Ouvre la modal capture côté parent. */
   onCapturePhoto?: (mission: ServiceMission) => void
-  /** URL de la vignette de la photo de preuve (servie par /api/completions/{id}/photo) */
-  photoUrl?: string | null
-  /** Callback pour ouvrir la lightbox plein écran */
-  onOpenPhoto?: (url: string) => void
+  /** Callback pour ouvrir la lightbox plein écran d'une preuve photo. */
+  onOpenPhoto?: (completionId: number) => void
 }
 
 const CATEGORIE_BADGE: Record<string, { label: string; cls: string }> = {
@@ -36,7 +35,6 @@ export default function MissionItem({
   loading = false,
   onToggle,
   onCapturePhoto,
-  photoUrl,
   onOpenPhoto,
 }: MissionItemProps) {
   const cat   = CATEGORIE_BADGE[mission.categorie]
@@ -135,23 +133,29 @@ export default function MissionItem({
       </div>
 
       {/* Vignette photo de preuve (mission validée + photo dispo) */}
-      {completed && mission.hasPhoto && photoUrl && (
+      {completed && mission.hasPhoto && mission.completionId !== null && (
         <span
           role="button"
           tabIndex={0}
-          onClick={(e) => { e.stopPropagation(); onOpenPhoto?.(photoUrl) }}
+          onClick={(e) => {
+            e.stopPropagation()
+            if (mission.completionId !== null) onOpenPhoto?.(mission.completionId)
+          }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if ((e.key === 'Enter' || e.key === ' ') && mission.completionId !== null) {
               e.preventDefault()
               e.stopPropagation()
-              onOpenPhoto?.(photoUrl)
+              onOpenPhoto?.(mission.completionId)
             }
           }}
           className="w-[28px] h-[28px] rounded-[6px] overflow-hidden flex-shrink-0 border border-border bg-surface cursor-pointer"
-          title="Voir la preuve photo"
+          title="Voir la preuve photo (cliquer pour agrandir)"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={photoUrl} alt="Preuve" className="w-full h-full object-cover" />
+          <AuthImage
+            src={`/completions/${mission.completionId}/photo`}
+            alt="Preuve"
+            className="w-full h-full object-cover"
+          />
         </span>
       )}
 
