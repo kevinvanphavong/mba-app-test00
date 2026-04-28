@@ -4,6 +4,7 @@ import { useDroppable } from '@dnd-kit/core'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { PlanningAbsence, PlanningEmployee, PlanningShift } from '@/types/planning'
+import { formatHours } from '@/lib/formatHours'
 import ShiftBlock from './ShiftBlock'
 import AbsenceBlock from './AbsenceBlock'
 
@@ -146,7 +147,7 @@ export default function PlanningRow({
         {employee.heuresHebdo !== null && employee.heuresHebdo > 0 && (
           <div className="flex shrink-0 flex-col items-end">
             <span className="font-syne text-[14px] font-bold" style={{ color: ecartColor }}>
-              {employee.totalHeures}h
+              {formatHours(employee.totalHeures)}
             </span>
             <span className="text-[10px] text-[var(--muted)]">/ {employee.heuresHebdo}h</span>
             <div className="mt-1 h-1 w-12 overflow-hidden rounded-full bg-[var(--surface2)]">

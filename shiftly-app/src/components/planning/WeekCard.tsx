@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { listItemVariants } from '@/lib/animations'
 import type { EmployeeWeek, PlanningAbsence } from '@/types/planning'
+import { formatHours } from '@/lib/formatHours'
 import EmployeeShiftRow from './EmployeeShiftRow'
 
 interface WeekCardProps {
@@ -50,7 +51,7 @@ export default function WeekCard({ week }: WeekCardProps) {
           </p>
         </div>
         <div className="text-right">
-          <p className="text-lg font-bold text-[var(--accent)]">{week.totalHeures}h</p>
+          <p className="text-lg font-bold text-[var(--accent)]">{formatHours(week.totalHeures)}</p>
           <p className="text-[10px] text-[var(--muted)]">cette semaine</p>
         </div>
       </div>
