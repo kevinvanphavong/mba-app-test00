@@ -36,7 +36,11 @@ export default function TemplatesModal({ open, onClose, currentWeekStart }: Temp
 
     create.mutate({ nom: trimmed, weekStart: currentWeekStart }, {
       onSuccess: (t) => {
-        toast(`Template "${t.nom}" sauvegardé (${t.shiftCount} shifts)`, 'success')
+        const parts = [`${t.shiftCount} shift${t.shiftCount > 1 ? 's' : ''}`]
+        if (t.absenceCount > 0) {
+          parts.push(`${t.absenceCount} absence${t.absenceCount > 1 ? 's' : ''}`)
+        }
+        toast(`Template "${t.nom}" sauvegardé (${parts.join(' · ')})`, 'success')
         setNom('')
       },
       onError: (err) => {
@@ -49,8 +53,17 @@ export default function TemplatesModal({ open, onClose, currentWeekStart }: Temp
   function handleApply(id: number) {
     apply.mutate({ id, weekStart: applyDate }, {
       onSuccess: (r) => {
-        const skipped = r.skippedOrphan + r.skippedPast + r.skippedDuplicate
-        toast(`${r.created} shift(s) appliqué(s)${skipped > 0 ? ` — ${skipped} ignoré(s)` : ''}`, 'success')
+        const totalApplied = r.created + r.absencesCreated
+        const totalSkipped =
+          r.skippedOrphan + r.skippedPast + r.skippedDuplicate
+          + r.absencesSkippedOrphan + r.absencesSkippedPast + r.absencesSkippedDuplicate
+        const detail = r.absencesCreated > 0
+          ? ` (${r.created} shift(s) + ${r.absencesCreated} absence(s))`
+          : ''
+        toast(
+          `${totalApplied} entrée(s) appliquée(s)${detail}${totalSkipped > 0 ? ` — ${totalSkipped} ignorée(s)` : ''}`,
+          'success'
+        )
         setApplyTargetId(null)
         onClose()
       },
@@ -117,7 +130,11 @@ export default function TemplatesModal({ open, onClose, currentWeekStart }: Temp
                     <div className="flex items-center justify-between gap-2">
                       <div className="min-w-0">
                         <p className="truncate text-[14px] font-semibold text-[var(--text)]">{t.nom}</p>
-                        <p className="text-[11px] text-[var(--muted)]">{t.shiftCount} shift(s) · créé par {t.createdBy.nom || '—'}</p>
+                        <p className="text-[11px] text-[var(--muted)]">
+                          {t.shiftCount} shift{t.shiftCount > 1 ? 's' : ''}
+                          {t.absenceCount > 0 && ` · ${t.absenceCount} absence${t.absenceCount > 1 ? 's' : ''}`}
+                          {' · créé par '}{t.createdBy.nom || '—'}
+                        </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         <button

@@ -45,10 +45,14 @@ class PlanningTemplate
     #[ORM\OneToMany(mappedBy: 'template', targetEntity: PlanningTemplateShift::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $shifts;
 
+    #[ORM\OneToMany(mappedBy: 'template', targetEntity: PlanningTemplateAbsence::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $absences;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->shifts    = new ArrayCollection();
+        $this->absences  = new ArrayCollection();
         $this->nom       = '';
     }
 
@@ -76,6 +80,24 @@ class PlanningTemplate
     public function removeShift(PlanningTemplateShift $shift): static
     {
         $this->shifts->removeElement($shift);
+        return $this;
+    }
+
+    /** @return Collection<int, PlanningTemplateAbsence> */
+    public function getAbsences(): Collection { return $this->absences; }
+
+    public function addAbsence(PlanningTemplateAbsence $absence): static
+    {
+        if (!$this->absences->contains($absence)) {
+            $this->absences->add($absence);
+            $absence->setTemplate($this);
+        }
+        return $this;
+    }
+
+    public function removeAbsence(PlanningTemplateAbsence $absence): static
+    {
+        $this->absences->removeElement($absence);
         return $this;
     }
 }

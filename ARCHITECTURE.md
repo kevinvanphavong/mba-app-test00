@@ -181,6 +181,7 @@ mba-app-test00/
     │   │   ├── CorrectionPointage.php # Trace des corrections manuelles
     │   │   ├── PlanningTemplate.php   # Modèle de semaine type réutilisable
     │   │   ├── PlanningTemplateShift.php # Shifts du template (zone+user+dayOfWeek+horaires)
+    │   │   ├── PlanningTemplateAbsence.php # Absences du template (user+dayOfWeek+type+motif)
     │   │   ├── AuditLog.php           # Trace des actions SuperAdmin (Phase 1)
     │   │   └── CentreNote.php         # Notes internes SuperAdmin par centre (Phase 1)
     │   │

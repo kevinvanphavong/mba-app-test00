@@ -7,30 +7,49 @@ import { useAuthStore } from '@/store/authStore'
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface PlanningTemplateSummary {
-  id:         number
-  nom:        string
-  createdAt:  string
-  createdBy:  { id: number | null; nom: string }
-  shiftCount: number
+  id:           number
+  nom:          string
+  createdAt:    string
+  createdBy:    { id: number | null; nom: string }
+  shiftCount:   number
+  absenceCount: number
+}
+
+export interface PlanningTemplateShift {
+  id:           number
+  zoneId:       number | null
+  userId:       number | null
+  dayOfWeek:    number          // 0 = lundi, 6 = dimanche
+  heureDebut:   string | null
+  heureFin:     string | null
+  pauseMinutes: number
+}
+
+export interface PlanningTemplateAbsence {
+  id:        number
+  userId:    number | null
+  dayOfWeek: number          // 0 = lundi, 6 = dimanche
+  type:      'CP' | 'RTT' | 'MALADIE' | 'REPOS' | 'EVENEMENT_FAMILLE' | 'AUTRE'
+  motif:     string | null
 }
 
 export interface PlanningTemplate extends PlanningTemplateSummary {
-  shifts: {
-    id:           number
-    zoneId:       number | null
-    userId:       number | null
-    dayOfWeek:    number          // 0 = lundi, 6 = dimanche
-    heureDebut:   string | null
-    heureFin:     string | null
-    pauseMinutes: number
-  }[]
+  shifts:   PlanningTemplateShift[]
+  absences: PlanningTemplateAbsence[]
 }
 
 export interface ApplyTemplateReport {
+  /** Postes (shifts) appliqués */
   created:          number
   skippedOrphan:    number   // shift sans user (employé supprimé)
   skippedPast:      number   // jour cible antérieur au service du jour
   skippedDuplicate: number   // (service, zone, user) déjà existant
+
+  /** Absences appliquées (REPOS, CP, etc.) */
+  absencesCreated:          number
+  absencesSkippedOrphan:    number
+  absencesSkippedPast:      number
+  absencesSkippedDuplicate: number
 }
 
 // ─── Liste des templates du centre ───────────────────────────────────────────

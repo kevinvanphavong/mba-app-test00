@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\Absence;
 use App\Entity\PlanningTemplate;
+use App\Entity\PlanningTemplateAbsence;
 use App\Entity\PlanningTemplateShift;
 use App\Entity\Poste;
 use App\Entity\Service;
 use App\Entity\User;
+use App\Repository\AbsenceRepository;
 use App\Repository\PlanningTemplateRepository;
 use App\Repository\PosteRepository;
 use App\Service\PlanningGuardService;
@@ -41,6 +44,7 @@ class PlanningTemplateController extends AbstractController
         private readonly EntityManagerInterface     $em,
         private readonly PlanningTemplateRepository $templateRepo,
         private readonly PosteRepository            $posteRepo,
+        private readonly AbsenceRepository          $absenceRepo,
         private readonly PlanningGuardService       $planningGuard,
     ) {}
 
@@ -117,6 +121,22 @@ class PlanningTemplateController extends AbstractController
             $template->addShift($shift);
         }
 
+        // Capture également les absences (jours de repos, CP, etc.) de la semaine source
+        $absences = $this->absenceRepo->findByCentreAndDateRange($centre->getId(), $monday, $weekEnd);
+        foreach ($absences as $abs) {
+            /** @var \App\Entity\Absence $abs */
+            $absDate = $abs->getDate();
+            if (!$absDate) {
+                continue;
+            }
+            $tplAbsence = new PlanningTemplateAbsence();
+            $tplAbsence->setUser($abs->getUser());
+            $tplAbsence->setDayOfWeek(((int) $absDate->format('N')) - 1); // 0 = lundi
+            $tplAbsence->setType($abs->getType());
+            $tplAbsence->setMotif($abs->getMotif());
+            $template->addAbsence($tplAbsence);
+        }
+
         try {
             $this->em->persist($template);
             $this->em->flush();
@@ -166,7 +186,16 @@ class PlanningTemplateController extends AbstractController
             throw new BadRequestHttpException('weekStart attendu au format YYYY-MM-DD.');
         }
 
-        $report = ['created' => 0, 'skippedOrphan' => 0, 'skippedPast' => 0, 'skippedDuplicate' => 0];
+        $report = [
+            'created'                 => 0,
+            'skippedOrphan'           => 0,
+            'skippedPast'             => 0,
+            'skippedDuplicate'        => 0,
+            'absencesCreated'         => 0,
+            'absencesSkippedOrphan'   => 0,
+            'absencesSkippedPast'     => 0,
+            'absencesSkippedDuplicate'=> 0,
+        ];
 
         foreach ($template->getShifts() as $shift) {
             /** @var PlanningTemplateShift $shift */
@@ -202,6 +231,45 @@ class PlanningTemplateController extends AbstractController
             } catch (UniqueConstraintViolationException) {
                 $report['skippedDuplicate']++;
                 $this->em->clear(Poste::class);
+            }
+        }
+
+        // Application des absences (jours de repos, CP, etc.)
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+        foreach ($template->getAbsences() as $tplAbsence) {
+            /** @var PlanningTemplateAbsence $tplAbsence */
+            $user = $tplAbsence->getUser();
+            if (!$user) {
+                $report['absencesSkippedOrphan']++;
+                continue;
+            }
+
+            $targetDate = $monday->modify('+' . $tplAbsence->getDayOfWeek() . ' days');
+
+            try {
+                $this->planningGuard->assertDateNotInPast($targetDate);
+            } catch (\Throwable) {
+                $report['absencesSkippedPast']++;
+                continue;
+            }
+
+            $absence = new Absence();
+            $absence->setCentre($centre);
+            $absence->setUser($user);
+            $absence->setDate($targetDate);
+            $absence->setType($tplAbsence->getType());
+            $absence->setMotif($tplAbsence->getMotif());
+            $absence->setCreatedBy($currentUser);
+
+            try {
+                $this->em->persist($absence);
+                $this->em->flush();
+                $report['absencesCreated']++;
+            } catch (UniqueConstraintViolationException) {
+                // Une absence existe déjà ce jour-là pour cet employé → skip silencieux
+                $report['absencesSkippedDuplicate']++;
+                $this->em->clear(Absence::class);
             }
         }
 
@@ -256,14 +324,15 @@ class PlanningTemplateController extends AbstractController
     private function serializeTemplate(PlanningTemplate $t, bool $includeShifts): array
     {
         $data = [
-            'id'         => $t->getId(),
-            'nom'        => $t->getNom(),
-            'createdAt'  => $t->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            'createdBy'  => [
+            'id'           => $t->getId(),
+            'nom'          => $t->getNom(),
+            'createdAt'    => $t->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            'createdBy'    => [
                 'id'  => $t->getCreatedBy()?->getId(),
                 'nom' => trim(($t->getCreatedBy()?->getPrenom() ?? '') . ' ' . ($t->getCreatedBy()?->getNom() ?? '')),
             ],
-            'shiftCount' => $t->getShifts()->count(),
+            'shiftCount'   => $t->getShifts()->count(),
+            'absenceCount' => $t->getAbsences()->count(),
         ];
 
         if ($includeShifts) {
@@ -278,6 +347,17 @@ class PlanningTemplateController extends AbstractController
                     'pauseMinutes' => $s->getPauseMinutes(),
                 ],
                 $t->getShifts()->toArray()
+            );
+
+            $data['absences'] = array_map(
+                fn (PlanningTemplateAbsence $a) => [
+                    'id'        => $a->getId(),
+                    'userId'    => $a->getUser()?->getId(),
+                    'dayOfWeek' => $a->getDayOfWeek(),
+                    'type'      => $a->getType(),
+                    'motif'     => $a->getMotif(),
+                ],
+                $t->getAbsences()->toArray()
             );
         }
 
