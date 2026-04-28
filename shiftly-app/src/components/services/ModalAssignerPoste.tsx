@@ -170,6 +170,8 @@ export default function ModalAssignerPoste({ open, service, zoneId, onClose }: P
                     {allStaff.map(member => {
                       const alreadyAssigned = assignedUserIds.includes(member.id)
                       const isSelected      = selectedUserId === member.id
+                      // Affiche le prénom — fallback sur le nom si prénom non renseigné
+                      const displayName     = member.prenom ?? member.nom
 
                       return (
                         <button
@@ -190,12 +192,12 @@ export default function ModalAssignerPoste({ open, service, zoneId, onClose }: P
                             className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-extrabold text-white shrink-0"
                             style={{ background: `linear-gradient(135deg, #f97316, #fb923c)` }}
                           >
-                            {member.nom.charAt(0).toUpperCase()}
+                            {displayName.charAt(0).toUpperCase()}
                           </div>
 
                           <div className="flex-1 min-w-0">
                             <div className="text-[13px] font-medium text-text leading-tight truncate">
-                              {member.nom}
+                              {displayName}
                             </div>
                             <div className="text-[11px] text-muted leading-tight">
                               {member.role === 'MANAGER' ? 'Manager' : 'Employé'}
