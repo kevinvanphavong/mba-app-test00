@@ -309,6 +309,71 @@ CREATE TABLE planning_snapshot (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- TABLE : planning_template
+-- Modèle de planning hebdomadaire réutilisable (semaine type).
+-- Scopé à un centre. Unicité (centre_id, nom).
+-- ============================================================
+
+CREATE TABLE planning_template (
+    id            INT AUTO_INCREMENT NOT NULL,
+    centre_id     INT          NOT NULL,
+    created_by_id INT          NOT NULL,
+    nom           VARCHAR(100) NOT NULL,
+    created_at    DATETIME     NOT NULL,
+    UNIQUE KEY  uniq_planning_template_centre_nom (centre_id, nom),
+    INDEX IDX_PT_CENTRE (centre_id),
+    INDEX IDX_PT_CREATED_BY (created_by_id),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_PT_CENTRE     FOREIGN KEY (centre_id)     REFERENCES centre (id),
+    CONSTRAINT FK_PT_CREATED_BY FOREIGN KEY (created_by_id) REFERENCES `user` (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLE : planning_template_shift
+-- Shift d'un template (zone + user nullable + dayOfWeek + horaires).
+-- ON DELETE SET NULL sur user → le template survit au turnover.
+-- ============================================================
+
+CREATE TABLE planning_template_shift (
+    id            INT AUTO_INCREMENT NOT NULL,
+    template_id   INT          NOT NULL,
+    zone_id       INT          NOT NULL,
+    user_id       INT          DEFAULT NULL,
+    day_of_week   SMALLINT     NOT NULL,            -- 0 = lundi, 6 = dimanche
+    heure_debut   TIME         DEFAULT NULL,
+    heure_fin     TIME         DEFAULT NULL,
+    pause_minutes INT          NOT NULL DEFAULT 0,
+    INDEX IDX_PTS_TEMPLATE (template_id),
+    INDEX IDX_PTS_ZONE (zone_id),
+    INDEX IDX_PTS_USER (user_id),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_PTS_TEMPLATE FOREIGN KEY (template_id) REFERENCES planning_template (id) ON DELETE CASCADE,
+    CONSTRAINT FK_PTS_ZONE     FOREIGN KEY (zone_id)     REFERENCES zone (id),
+    CONSTRAINT FK_PTS_USER     FOREIGN KEY (user_id)     REFERENCES `user` (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLE : planning_template_absence
+-- Absence figée dans un template (REPOS, CP, RTT, MALADIE, etc.)
+-- À l'application sur une semaine cible, génère une Absence réelle.
+-- ON DELETE SET NULL sur user → robuste au turnover comme les shifts.
+-- ============================================================
+
+CREATE TABLE planning_template_absence (
+    id          INT AUTO_INCREMENT NOT NULL,
+    template_id INT          NOT NULL,
+    user_id     INT          DEFAULT NULL,
+    day_of_week SMALLINT     NOT NULL,            -- 0 = lundi, 6 = dimanche
+    type        VARCHAR(30)  NOT NULL,            -- 'CP' | 'RTT' | 'MALADIE' | 'REPOS' | 'EVENEMENT_FAMILLE' | 'AUTRE'
+    motif       VARCHAR(255) DEFAULT NULL,
+    INDEX IDX_PTA_TEMPLATE (template_id),
+    INDEX IDX_PTA_USER (user_id),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_PTA_TEMPLATE FOREIGN KEY (template_id) REFERENCES planning_template (id) ON DELETE CASCADE,
+    CONSTRAINT FK_PTA_USER     FOREIGN KEY (user_id)     REFERENCES `user` (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- TABLE : absence
 -- Absence journalière d'un employé (CP, RTT, maladie, repos planifié…)
 -- Contrainte UNIQUE (user_id, date) : une seule absence par jour par employé.
