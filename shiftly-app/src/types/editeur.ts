@@ -28,14 +28,16 @@ export interface EditorZone {
 }
 
 export interface EditorMission {
-  id:        number
-  zoneId:    number
-  zoneName?: string
-  texte:     string
-  categorie: MissionCategorie
-  frequence: MissionFrequence
-  priorite:  MissionPriorite
-  ordre:     number
+  id:             number
+  zoneId:         number
+  zoneName?:      string
+  texte:          string
+  categorie:      MissionCategorie
+  frequence:      MissionFrequence
+  priorite:       MissionPriorite
+  ordre:          number
+  /** true → la validation côté staff demande une preuve photo (capture caméra). */
+  requiresPhoto:  boolean
 }
 
 export interface EditorCompetence {
@@ -68,11 +70,12 @@ export interface ZoneFormData {
 }
 
 export interface MissionFormData {
-  texte:     string
-  categorie: MissionCategorie
-  frequence: MissionFrequence
-  priorite:  MissionPriorite
-  zoneId:    number
+  texte:         string
+  categorie:     MissionCategorie
+  frequence:     MissionFrequence
+  priorite:      MissionPriorite
+  zoneId:        number
+  requiresPhoto: boolean
 }
 
 export interface CompetenceFormData {

@@ -52,6 +52,16 @@ export default function MissionRow({ mission }: Props) {
             Ponctuelle
           </span>
         )}
+
+        {/* Badge preuve photo requise */}
+        {mission.requiresPhoto && (
+          <span
+            className="text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] text-accent bg-[rgba(249,115,22,0.12)] inline-flex items-center gap-0.5"
+            title="Cette mission demande une preuve photo pour être validée"
+          >
+            📷 Photo
+          </span>
+        )}
       </div>
     </div>
   )

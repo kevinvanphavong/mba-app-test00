@@ -34,8 +34,12 @@ export interface ServiceMission {
   frequence:   MissionFrequence
   priorite:    MissionPriorite
   ordre:       number
+  /** true → la validation impose une preuve photo (capture caméra) */
+  requiresPhoto: boolean
   /** completionId si cochée, null sinon */
   completionId: number | null
+  /** true si la completion a une photo de preuve attachée (servie par /api/completions/{id}/photo) */
+  hasPhoto:     boolean
   /** Qui a coché cette mission (null si pas encore cochée) */
   completedBy:  Pick<ServiceStaffMember, 'id' | 'nom' | 'prenom' | 'avatarColor'> | null
 }

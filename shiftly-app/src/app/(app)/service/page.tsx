@@ -7,6 +7,7 @@ import ZoneCard                 from '@/components/service/ZoneCard'
 import ModalMissionPonctuelle   from '@/components/service/ModalMissionPonctuelle'
 import ModalAssignerStaff       from '@/components/service/ModalAssignerStaff'
 import ModalIncident            from '@/components/service/ModalIncident'
+import MissionPhotoCaptureModal from '@/components/service/MissionPhotoCaptureModal'
 import { useServiceToday }      from '@/hooks/useService'
 import { useDeletePoste }       from '@/hooks/useService'
 import { useToggleCompletion }  from '@/hooks/useMissions'
@@ -14,7 +15,7 @@ import { useCreateIncident }    from '@/hooks/useIncidents'
 import { useZones }             from '@/hooks/useZones'
 import { useCurrentUser }       from '@/hooks/useCurrentUser'
 import { useAuthStore }         from '@/store/authStore'
-import type { ServiceZoneData } from '@/types/service'
+import type { ServiceZoneData, ServiceMission } from '@/types/service'
 
 export default function ServicePage() {
   // Déclenche le chargement du user et popule centreId dans le store
@@ -36,6 +37,8 @@ export default function ServicePage() {
   const [ponctuellZone,  setPonctuellZone]  = useState<ServiceZoneData | null>(null)
   const [assignZone,     setAssignZone]     = useState<ServiceZoneData | null>(null)
   const [incidentOpen,   setIncidentOpen]   = useState(false)
+  // Capture photo : on stocke la mission + le posteId à utiliser pour la completion
+  const [photoTarget,    setPhotoTarget]    = useState<{ mission: ServiceMission; posteId: number } | null>(null)
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const toggleCompletion = useToggleCompletion()
@@ -196,6 +199,7 @@ export default function ServicePage() {
               onAddPonctuelle={userRole === 'MANAGER' ? z => setPonctuellZone(z as ServiceZoneData) : undefined}
               onAssign={userRole === 'MANAGER' ? z => setAssignZone(z as ServiceZoneData) : undefined}
               onRemoveStaff={userRole === 'MANAGER' ? posteId => deletePoste.mutate(posteId) : undefined}
+              onCapturePhoto={(mission, posteId) => setPhotoTarget({ mission, posteId })}
             />
           ))}
 
@@ -235,6 +239,13 @@ export default function ServicePage() {
           onClose={() => setAssignZone(null)}
         />
       )}
+
+      <MissionPhotoCaptureModal
+        open={photoTarget !== null}
+        mission={photoTarget?.mission ?? null}
+        posteId={photoTarget?.posteId ?? 0}
+        onClose={() => setPhotoTarget(null)}
+      />
     </>
   )
 }
