@@ -212,7 +212,7 @@ class PlanningService
             'alertes'     => $alertes,
             'stats'       => [
                 'employesPlanifies' => $employesPlanifies,
-                'totalHeures'       => round($totalHeures, 1),
+                'totalHeures'       => round($totalHeures, 2),  // précision minute (formatHours côté front)
                 'creneauxVides'     => $creneauxVides,
                 'sousPlanifies'     => $sousPlanifies,
             ],

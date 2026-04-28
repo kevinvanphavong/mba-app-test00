@@ -1,6 +1,7 @@
 'use client'
 
 import type { PlanningStats, PlanningZone } from '@/types/planning'
+import { formatHours } from '@/lib/formatHours'
 
 interface StatsBarProps {
   stats:          PlanningStats
@@ -22,7 +23,7 @@ export default function StatsBar({ stats, zones, alertCount, showAlerts, onToggl
       <div className="flex flex-wrap items-center gap-3 md:gap-6">
         <StatItem dot="var(--green)" label="Planifiés" value={`${stats.employesPlanifies}`} />
         <Sep />
-        <StatItem dot="var(--blue)" label="Heures" value={`${stats.totalHeures}h`} color="var(--accent)" />
+        <StatItem dot="var(--blue)" label="Heures" value={formatHours(stats.totalHeures)} color="var(--accent)" />
         <Sep />
         <StatItem dot="var(--red)" label="Zones vides" value={`${stats.creneauxVides}`} color={creneauxColor} />
         <Sep />

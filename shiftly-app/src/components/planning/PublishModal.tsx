@@ -6,6 +6,7 @@ import { backdropVariants, sheetVariants } from '@/lib/animations'
 import { usePublishWeek } from '@/hooks/usePlanning'
 import type { PlanningWeekData, PublishWarningResponse } from '@/types/planning'
 import { useToastStore } from '@/store/toastStore'
+import { formatHours } from '@/lib/formatHours'
 import DelaiWarning from './DelaiWarning'
 
 interface PublishModalProps {
@@ -118,7 +119,7 @@ export default function PublishModal({ open, onClose, weekStart, data }: Publish
                 </div>
                 <div>
                   <p className="text-[11px] text-[var(--muted)]">Total heures</p>
-                  <p className="text-[20px] font-bold text-[var(--text)]">{data.stats.totalHeures}h</p>
+                  <p className="text-[20px] font-bold text-[var(--text)]">{formatHours(data.stats.totalHeures)}</p>
                 </div>
                 <div>
                   <p className="text-[11px] text-[var(--muted)]">Créneaux vides</p>
