@@ -92,7 +92,34 @@ export default function ValidationEmployeeDetail({
                 ))}
                 {jour.heureDepart && (
                   <div className="validation-detail-time-item flex items-center gap-1">
-                    Départ {jour.heureDepart} <span style={{ color: 'var(--green)' }}>✓</span>
+                    Départ{' '}
+                    {jour.heureDepartAuto ? (
+                      <>
+                        <span style={{ fontStyle: 'italic', color: 'var(--muted)' }}>
+                          {jour.heureDepart}
+                        </span>
+                        <span
+                          title="Heure de fin appliquée automatiquement (pas de pointage de départ)"
+                          style={{
+                            padding:       '0 4px',
+                            fontSize:      9,
+                            fontWeight:    700,
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.4,
+                            borderRadius:  4,
+                            background:    'rgba(249,115,22,0.12)',
+                            color:         'var(--accent)',
+                          }}
+                        >
+                          auto
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        {jour.heureDepart}
+                        <span style={{ color: 'var(--green)' }}>✓</span>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
