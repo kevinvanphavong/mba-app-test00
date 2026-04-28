@@ -5,6 +5,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { PlanningAbsence, PlanningEmployee, PlanningShift } from '@/types/planning'
 import { formatHours } from '@/lib/formatHours'
+import { useToastStore } from '@/store/toastStore'
 import ShiftBlock from './ShiftBlock'
 import AbsenceBlock from './AbsenceBlock'
 
@@ -21,19 +22,26 @@ interface PlanningRowProps {
 
 /** Cellule droppable pour un jour */
 function DayCell({
-  date, employeeId, shifts, absence, isToday, isDraggingRow, onAdd, onEdit, onAddAbsence, onDelAbsence,
+  date, employeeId, shifts, absence, isToday, isPast, isDraggingRow, onAdd, onEdit, onAddAbsence, onDelAbsence,
 }: {
   date: string; employeeId: number; shifts: PlanningShift[]; absence: PlanningAbsence | null
-  isToday: boolean; isDraggingRow: boolean
+  isToday: boolean; isPast: boolean; isDraggingRow: boolean
   onAdd: () => void; onEdit: (s: PlanningShift) => void
   onAddAbsence: () => void; onDelAbsence: (a: PlanningAbsence) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `drop-${employeeId}-${date}`, data: { date, employeeId } })
+  const toast = useToastStore(s => s.show)
 
   // Clic sur cellule vide → absence si aucun shift, sinon shift
+  // Bloque la création sur un jour passé (le back rejette aussi via PlanningGuardService).
   const handleCellClick = () => {
     if (absence) return
-    if (!shifts.length) onAdd()
+    if (shifts.length) return
+    if (isPast) {
+      toast('Impossible : date antérieure au service du jour', 'error')
+      return
+    }
+    onAdd()
   }
 
   return (
@@ -49,7 +57,7 @@ function DayCell({
           : isToday
             ? 'rgba(249,115,22,0.04)'
             : 'var(--bg)',
-        cursor:          absence ? 'default' : (!shifts.length ? 'pointer' : 'default'),
+        cursor:          absence || isPast ? 'default' : (!shifts.length ? 'pointer' : 'default'),
       }}
     >
       {absence ? (
@@ -64,7 +72,8 @@ function DayCell({
           ))}
           {!shifts.length && !isDraggingRow && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-              <span className="text-xl text-[var(--muted)] opacity-40">+</span>
+              {/* '+' caché sur jour passé pour ne pas suggérer une création possible */}
+              {!isPast && <span className="text-xl text-[var(--muted)] opacity-40">+</span>}
               <button
                 onClick={e => { e.stopPropagation(); onAddAbsence() }}
                 className="text-[9px] text-[var(--muted)] hover:text-[var(--text)] transition-colors px-1.5 py-0.5 rounded bg-[var(--surface2)] border border-[var(--border)]"
@@ -166,6 +175,7 @@ export default function PlanningRow({
           shifts={shiftsByDate[date] ?? []}
           absence={absenceByDate[date] ?? null}
           isToday={date === today}
+          isPast={date < today}
           isDraggingRow={isDraggingRow}
           onAdd={() => onAddShift(date, employee.id)}
           onEdit={onEditShift}
