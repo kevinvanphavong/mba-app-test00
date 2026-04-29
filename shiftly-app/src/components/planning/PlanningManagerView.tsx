@@ -219,10 +219,16 @@ export default function PlanningManagerView() {
       {/* ── Panneaux dépliables ── */}
       <div className="flex flex-col gap-3 px-4 py-3 md:px-6 pb-24 md:pb-8">
         <AlertPanel alertes={alertes} show={showAlerts} />
-        {data && (
-          <SnapshotPanel weekStart={displayWeekStart} show={showSnapshots} />
-        )}
       </div>
+
+      {/* ── Modal historique des snapshots ── */}
+      {data && (
+        <SnapshotPanel
+          open={showSnapshots}
+          onClose={() => setShowSnapshots(false)}
+          weekStart={displayWeekStart}
+        />
+      )}
 
       {/* ── Modal shift ── */}
       <ShiftModal
