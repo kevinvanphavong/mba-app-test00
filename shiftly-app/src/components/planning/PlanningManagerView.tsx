@@ -128,7 +128,7 @@ export default function PlanningManagerView() {
       <div className="sticky top-0 z-20 bg-[var(--surface)]">
 
         {/* Header mobile : titre + publier sur la 1ère ligne, actions secondaires sur la 2ème */}
-        <div className="border-b border-[var(--border)] md:hidden">
+        <div className="border-b border-[var(--border)] lg:hidden">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="min-w-0 flex items-center gap-2">
               <h1 className="font-syne shrink-0 text-lg font-bold text-[var(--text)]">Planning</h1>
@@ -196,7 +196,7 @@ export default function PlanningManagerView() {
         </div>
 
         {/* Header desktop : tout en une ligne */}
-        <div className="hidden items-center justify-between border-b border-[var(--border)] px-6 py-4 md:flex">
+        <div className="hidden items-center justify-between border-b border-[var(--border)] px-6 py-4 lg:flex">
           <div className="flex items-center gap-3">
             <h1 className="font-syne text-xl font-bold text-[var(--text)]">Planning</h1>
             <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
