@@ -129,6 +129,12 @@ class ValidationController extends AbstractController
             throw $this->createNotFoundException("Employé {$userId} non trouvé pour cette semaine.");
         }
 
+        // Enrichir le statut depuis ValidationHebdo si la semaine a déjà été validée/corrigée
+        $validation = $this->validationRepo->findOneByUserAndSemaine($centreId, $userId, $lundi);
+        if ($validation !== null) {
+            $employe['statut'] = $validation->getStatut();
+        }
+
         // Ajouter l'historique des corrections sur les pointages de cet employé
         $pointagesDeSemaine = $this->pointageRepo->findByCentreAndDateRange($centreId, $lundi, $lundi->modify('+6 days'));
         $corrections        = [];

@@ -41,6 +41,10 @@ export default function ValidationEmployeeDetail({
     j => j.statut === 'travaille' || j.statut === 'en_cours'
   )
 
+  // Seuls les jours avec un pointage existant peuvent être corrigés
+  const joursCorrigeables = joursActifs.filter(j => j.pointageId !== null)
+  const peutCorriger = joursCorrigeables.length > 0
+
   const handleCorriger = (payload: CorrectionPayload) => {
     onCorriger(payload)
     setShowCorrectionForm(false)
@@ -181,16 +185,22 @@ export default function ValidationEmployeeDetail({
 
         <button
           onClick={() => {
-            // Ouvre le form sur le premier jour travaillé
-            const premierJour = joursActifs[0]
-            if (premierJour) {
+            // Ouvre le form sur le premier jour pointable (avec un Pointage existant)
+            const premierJour = joursCorrigeables[0]
+            if (premierJour && premierJour.pointageId !== null) {
               setCorrectionDate(premierJour.date)
-              setCorrectionPointageId(employe.userId) // proxy — le form envoie au controller
+              setCorrectionPointageId(premierJour.pointageId)
               setShowCorrectionForm(true)
             }
           }}
+          disabled={!peutCorriger}
           className="flex-1 py-2 rounded-lg text-xs font-semibold border transition-all"
-          style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+          style={{
+            borderColor: 'var(--border)',
+            color: 'var(--text)',
+            opacity: peutCorriger ? 1 : 0.5,
+            cursor: peutCorriger ? 'pointer' : 'not-allowed',
+          }}
         >
           ✏️ Corriger
         </button>

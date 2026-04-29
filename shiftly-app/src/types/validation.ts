@@ -41,6 +41,8 @@ export interface ValidationPause {
 export interface ValidationJour {
   date: string               // 'YYYY-MM-DD'
   jourSemaine: string        // 'Lun', 'Mar', etc.
+  /** ID du Pointage du jour, null si repos ou pas de pointage créé. */
+  pointageId: number | null
   statut: JourStatut
   heureArrivee: string | null
   heureDepart: string | null
