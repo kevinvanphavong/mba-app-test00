@@ -22,7 +22,7 @@ function formatDate(iso: string): string {
 
 /**
  * Historique des publications immuables d'une semaine (archivage légal IDCC 1790).
- * Affiché en overlay (bottom-sheet sur mobile, modal centrée sur desktop) — pattern
+ * Affiché en overlay bottom-sheet (mobile + desktop) centré horizontalement — pattern
  * identique aux autres formulaires du module (TemplatesModal, PublishModal).
  */
 export default function SnapshotPanel({ weekStart, open, onClose }: SnapshotPanelProps) {
@@ -64,7 +64,7 @@ export default function SnapshotPanel({ weekStart, open, onClose }: SnapshotPane
           <motion.div
             variants={sheetVariants}
             initial="closed" animate="open" exit="exit"
-            className="fixed inset-x-0 bottom-0 z-[60] mx-auto w-full max-w-[560px] rounded-t-[24px] border-t border-[var(--border)] bg-[var(--surface)] md:inset-x-auto md:left-1/2 md:bottom-auto md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-[20px] md:border"
+            className="fixed inset-x-0 bottom-0 z-[60] mx-auto w-full max-w-[560px] rounded-t-[24px] border-t border-x border-[var(--border)] bg-[var(--surface)]"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}
             onClick={(e) => e.stopPropagation()}
           >
