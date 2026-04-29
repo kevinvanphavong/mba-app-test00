@@ -98,6 +98,14 @@ export interface PlanningWeekData {
   weekStart:  string
   weekEnd:    string
   statut:     'BROUILLON' | 'PUBLIE'
+  /** ISO datetime de la dernière publication (null si jamais publié). */
+  publishedAt: string | null
+  /** Nom (prenom + nom) du dernier publieur, null si jamais publié. */
+  publishedBy: string | null
+  /** ISO datetime de la dernière mutation après la publication, null si à jour. */
+  lastModifiedAt: string | null
+  /** true si le live a divergé du dernier snapshot publié → staff voit version périmée. */
+  hasUnpublishedChanges: boolean
   note:       string | null
   zones:      PlanningZone[]
   employees:  PlanningEmployee[]

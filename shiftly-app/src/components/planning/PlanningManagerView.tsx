@@ -11,6 +11,7 @@ import ShiftModal from './ShiftModal'
 import PublishModal from './PublishModal'
 import SnapshotPanel from './SnapshotPanel'
 import TemplatesModal from './TemplatesModal'
+import StaffPreviewModal from './StaffPreviewModal'
 
 function getCurrentMonday(): string {
   // Construction à midi local pour éviter le décalage UTC de toISOString()
@@ -31,6 +32,37 @@ function getWeekNumber(ws: string): number {
   return Math.ceil(((d.getTime() - jan.getTime()) / 86400000 + jan.getDay() + 1) / 7)
 }
 
+/** "il y a 2h", "il y a 3 jours", etc. */
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const min  = Math.floor(diff / 60_000)
+  if (min < 1)        return "à l'instant"
+  if (min < 60)       return `il y a ${min} min`
+  const h = Math.floor(min / 60)
+  if (h < 24)         return `il y a ${h}h`
+  const d = Math.floor(h / 24)
+  if (d < 7)          return `il y a ${d} jour${d > 1 ? 's' : ''}`
+  return `il y a ${Math.floor(d / 7)} sem.`
+}
+
+/** 3 états du badge planning, dérivés de PlanningWeekData */
+type BadgeState = 'BROUILLON' | 'PUBLIE_PROPRE' | 'PUBLIE_DIRTY'
+
+function resolveBadgeState(
+  statut: 'BROUILLON' | 'PUBLIE',
+  hasUnpublished: boolean,
+): BadgeState {
+  if (statut !== 'PUBLIE')   return 'BROUILLON'
+  if (hasUnpublished)        return 'PUBLIE_DIRTY'
+  return 'PUBLIE_PROPRE'
+}
+
+const BADGE_CONFIG: Record<BadgeState, { label: string; cls: string; pulse: boolean }> = {
+  BROUILLON:     { label: 'Brouillon',           cls: 'bg-[rgba(249,115,22,0.12)] text-[var(--accent)]', pulse: false },
+  PUBLIE_PROPRE: { label: 'Publié',              cls: 'bg-[rgba(34,197,94,0.12)] text-[var(--green)]',   pulse: false },
+  PUBLIE_DIRTY:  { label: '⚠ Modifs non publiées', cls: 'bg-[rgba(234,179,8,0.15)] text-[var(--yellow)]', pulse: true },
+}
+
 /** Vue Manager du module Planning */
 export default function PlanningManagerView() {
   const [weekStart, setWeekStart]         = useState<string>(getCurrentMonday)
@@ -38,6 +70,7 @@ export default function PlanningManagerView() {
   const [showSnapshots, setShowSnapshots] = useState(false)
   const [publishOpen, setPublishOpen]     = useState(false)
   const [templatesOpen, setTemplatesOpen] = useState(false)
+  const [staffPreviewOpen, setStaffPreviewOpen] = useState(false)
   const [modalOpen, setModalOpen]         = useState(false)
   const [modalDate, setModalDate]         = useState('')
   const [modalEmpId, setModalEmpId]       = useState<number | undefined>()
@@ -67,10 +100,20 @@ export default function PlanningManagerView() {
     </div>
   )
 
-  const statut  = data?.statut ?? 'BROUILLON'
-  const alertes = data?.alertes ?? []
-  const stats   = data?.stats
-  const zones   = data?.zones ?? []
+  const statut         = data?.statut ?? 'BROUILLON'
+  const alertes        = data?.alertes ?? []
+  const stats          = data?.stats
+  const zones          = data?.zones ?? []
+  const hasUnpublished = data?.hasUnpublishedChanges ?? false
+  const publishedAt    = data?.publishedAt ?? null
+
+  // Dérivés UI : badge 3 états + style bouton Republier saillant quand dirty
+  const badgeState  = resolveBadgeState(statut, hasUnpublished)
+  const badge       = BADGE_CONFIG[badgeState]
+  const ctaLabel    = statut === 'PUBLIE' ? '↻ Republier' : '✓ Publier'
+  // Quand le live a divergé du snapshot, on rend le CTA plus saillant pour
+  // attirer l'œil du manager (pulse + ring).
+  const ctaSaillant = badgeState === 'PUBLIE_DIRTY'
 
   // Source de vérité : le lundi normalisé par le backend (évite le décalage navigator/grille)
   const displayWeekStart = data!.weekStart
@@ -86,26 +129,41 @@ export default function PlanningManagerView() {
 
         {/* Header mobile : titre + publier sur la 1ère ligne, actions secondaires sur la 2ème */}
         <div className="border-b border-[var(--border)] md:hidden">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-2">
-              <h1 className="font-syne text-lg font-bold text-[var(--text)]">Planning</h1>
-              <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                statut === 'PUBLIE'
-                  ? 'bg-[rgba(34,197,94,0.12)] text-[var(--green)]'
-                  : 'bg-[rgba(249,115,22,0.12)] text-[var(--accent)]'
-              }`}>
-                {statut === 'PUBLIE' ? 'Publié' : 'Brouillon'}
+          <div className="flex items-center justify-between gap-3 px-4 py-3">
+            <div className="min-w-0 flex items-center gap-2">
+              <h1 className="font-syne shrink-0 text-lg font-bold text-[var(--text)]">Planning</h1>
+              <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
+                {badge.label}
               </span>
             </div>
             <button
               onClick={() => setPublishOpen(true)}
-              className="rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[13px] font-semibold text-white transition-opacity active:opacity-80"
+              className={`shrink-0 rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[13px] font-semibold text-white transition-opacity active:opacity-80 ${ctaSaillant ? 'ring-2 ring-[var(--yellow)] ring-offset-2 ring-offset-[var(--surface)]' : ''}`}
             >
-              {statut === 'PUBLIE' ? '↻ Republier' : '✓ Publier'}
+              {ctaLabel}
             </button>
           </div>
+
+          {/* Sous-titre dirty : informe précisément du décalage */}
+          {badgeState === 'PUBLIE_DIRTY' && publishedAt && (
+            <div className="px-4 pb-2 text-[11px] text-[var(--muted)] leading-snug">
+              Le staff voit la version d'<span className="font-semibold text-[var(--text)]">{timeAgo(publishedAt)}</span>. Republie pour mettre à jour leur app.
+            </div>
+          )}
           {/* Actions secondaires — scroll horizontal pour éviter le wrap */}
           <div className="flex items-center gap-2 overflow-x-auto px-4 pb-3 [&::-webkit-scrollbar]:hidden">
+            {statut === 'PUBLIE' && (
+              <button
+                onClick={() => setStaffPreviewOpen(true)}
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] transition-colors ${
+                  badgeState === 'PUBLIE_DIRTY'
+                    ? 'border-[var(--yellow)] bg-[rgba(234,179,8,0.10)] text-[var(--yellow)]'
+                    : 'border-[var(--border)] bg-[var(--surface2)] text-[var(--text)] active:border-[var(--accent)]'
+                }`}
+              >
+                👀 Aperçu staff
+              </button>
+            )}
             <button
               onClick={() => exportPdf(displayWeekStart)}
               className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] text-[var(--text)] transition-colors active:border-[var(--accent)]"
@@ -141,15 +199,28 @@ export default function PlanningManagerView() {
         <div className="hidden items-center justify-between border-b border-[var(--border)] px-6 py-4 md:flex">
           <div className="flex items-center gap-3">
             <h1 className="font-syne text-xl font-bold text-[var(--text)]">Planning</h1>
-            <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${
-              statut === 'PUBLIE'
-                ? 'bg-[rgba(34,197,94,0.12)] text-[var(--green)]'
-                : 'bg-[rgba(249,115,22,0.12)] text-[var(--accent)]'
-            }`}>
-              {statut === 'PUBLIE' ? 'Publié' : 'Brouillon'}
+            <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
+              {badge.label}
             </span>
+            {badgeState === 'PUBLIE_DIRTY' && publishedAt && (
+              <span className="text-[11px] text-[var(--muted)] leading-snug">
+                Le staff voit la version d'<span className="font-semibold text-[var(--text)]">{timeAgo(publishedAt)}</span> — republie pour synchroniser.
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
+            {statut === 'PUBLIE' && (
+              <button
+                onClick={() => setStaffPreviewOpen(true)}
+                className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] transition-colors ${
+                  badgeState === 'PUBLIE_DIRTY'
+                    ? 'border-[var(--yellow)] bg-[rgba(234,179,8,0.10)] text-[var(--yellow)] hover:bg-[rgba(234,179,8,0.16)]'
+                    : 'border-[var(--border)] bg-[var(--surface2)] text-[var(--text)] hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]'
+                }`}
+              >
+                👀 Aperçu staff
+              </button>
+            )}
             <button
               onClick={() => exportPdf(displayWeekStart)}
               className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
@@ -180,9 +251,9 @@ export default function PlanningManagerView() {
             </button>
             <button
               onClick={() => setPublishOpen(true)}
-              className="rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+              className={`rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 ${ctaSaillant ? 'ring-2 ring-[var(--yellow)] ring-offset-2 ring-offset-[var(--surface)]' : ''}`}
             >
-              {statut === 'PUBLIE' ? '↻ Republier' : '✓ Publier'}
+              {ctaLabel}
             </button>
           </div>
         </div>
@@ -255,6 +326,13 @@ export default function PlanningManagerView() {
         open={templatesOpen}
         onClose={() => setTemplatesOpen(false)}
         currentWeekStart={displayWeekStart}
+      />
+
+      {/* ── Modal aperçu staff (ce que le staff voit dans son app) ── */}
+      <StaffPreviewModal
+        open={staffPreviewOpen}
+        onClose={() => setStaffPreviewOpen(false)}
+        weekStart={displayWeekStart}
       />
     </>
   )

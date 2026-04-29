@@ -126,6 +126,32 @@ export function usePublishWeek() {
   })
 }
 
+// ─── Snapshot publié actuellement visible par le staff ────────────────────────
+// Utilisé par la modale "Aperçu staff" : permet au manager de visualiser ce
+// que le staff voit dans son app, à comparer avec son live (potentiellement
+// modifié et non encore republié).
+
+export interface PublishedSnapshotResponse {
+  weekStart:      string
+  publishedAt:    string
+  publishedByNom: string
+  /** Le snapshot stocke un PlanningWeekData JSON figé au moment de la publish. */
+  data:           PlanningWeekData
+}
+
+export function usePublishedSnapshot(weekStart: string, enabled: boolean) {
+  const centreId = useAuthStore(s => s.centreId)
+
+  return useQuery<PublishedSnapshotResponse>({
+    queryKey: ['planning', 'published-snapshot', centreId, weekStart],
+    queryFn:  () =>
+      api.get('/planning/published-snapshot', { params: { centreId, weekStart } }).then(r => r.data),
+    enabled: enabled && !!centreId && !!weekStart,
+    // staleTime généreux : le snapshot est immuable par définition
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
 // ─── Historique des snapshots (archivage légal) ───────────────────────────────
 
 export function usePlanningSnapshots(weekStart: string) {
