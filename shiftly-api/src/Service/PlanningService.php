@@ -185,9 +185,11 @@ class PlanningService
         usort($employees, fn($a, $b) => strcmp($a['nom'], $b['nom']));
 
         // ── Statut de la semaine ──
-        $planningWeek = $this->planningWeekRepository->findByCentreAndWeek($centreId, $weekStart);
-        $statut       = $planningWeek?->getStatut() ?? PlanningWeek::STATUT_BROUILLON;
-        $note         = $planningWeek?->getNote();
+        $planningWeek    = $this->planningWeekRepository->findByCentreAndWeek($centreId, $weekStart);
+        $statut          = $planningWeek?->getStatut() ?? PlanningWeek::STATUT_BROUILLON;
+        $note            = $planningWeek?->getNote();
+        $hasUnpublished  = $planningWeek?->hasUnpublishedChanges() ?? false;
+        $lastModifiedAt  = $planningWeek?->getLastModifiedAt()?->format(\DateTimeInterface::ATOM);
 
         // ── Alertes ──
         $alertes = $this->buildAlerts($employees, $services, $zonesData, $centre, $weekStart);
@@ -201,18 +203,20 @@ class PlanningService
         $creneauxVides = count(array_filter($alertes, fn($a) => $a['type'] === 'ZONE_NON_COUVERTE'));
 
         return [
-            'weekStart'   => $weekStart->format('Y-m-d'),
-            'weekEnd'     => $weekEnd->format('Y-m-d'),
-            'statut'      => $statut,
-            'publishedAt' => $planningWeek?->getPublishedAt()?->format('Y-m-d H:i:s'),
-            'publishedBy' => $planningWeek?->getPublishedBy()?->getNom(),
-            'note'        => $note,
-            'zones'       => $zonesData,
-            'employees'   => array_values($employees),
-            'alertes'     => $alertes,
-            'stats'       => [
+            'weekStart'              => $weekStart->format('Y-m-d'),
+            'weekEnd'                => $weekEnd->format('Y-m-d'),
+            'statut'                 => $statut,
+            'publishedAt'            => $planningWeek?->getPublishedAt()?->format(\DateTimeInterface::ATOM),
+            'publishedBy'            => $planningWeek?->getPublishedBy()?->getNom(),
+            'lastModifiedAt'         => $lastModifiedAt,
+            'hasUnpublishedChanges'  => $hasUnpublished,
+            'note'                   => $note,
+            'zones'                  => $zonesData,
+            'employees'              => array_values($employees),
+            'alertes'                => $alertes,
+            'stats'                  => [
                 'employesPlanifies' => $employesPlanifies,
-                'totalHeures'       => round($totalHeures, 2),  // précision minute (formatHours côté front)
+                'totalHeures'       => round($totalHeures, 2),
                 'creneauxVides'     => $creneauxVides,
                 'sousPlanifies'     => $sousPlanifies,
             ],

@@ -145,6 +145,47 @@ class PlanningController extends AbstractController
     }
 
     /**
+     * GET /api/planning/published-snapshot?centreId={id}&weekStart=YYYY-MM-DD
+     * Retourne le data du dernier snapshot publié pour cette semaine — c'est
+     * littéralement ce que le staff voit dans son app. Utilisé par l'aperçu
+     * staff côté manager pour comparer le live avec la version publiée.
+     *
+     * Réponse : { weekStart, publishedAt, publishedByNom, data: PlanningWeekData }
+     * où data est le snapshot JSON complet figé au moment de la publication.
+     */
+    #[Route('/published-snapshot', name: 'published_snapshot', methods: ['GET'])]
+    #[IsGranted('ROLE_MANAGER')]
+    public function publishedSnapshot(Request $request): JsonResponse
+    {
+        $centreId  = (int) $request->query->get('centreId', 0);
+        $weekParam = $request->query->get('weekStart', '');
+
+        if (!$centreId) {
+            return $this->json(['error' => 'centreId requis'], 400);
+        }
+
+        /** @var \App\Entity\User $currentUser */
+        $currentUser = $this->getUser();
+        if ($currentUser->getCentre()?->getId() !== $centreId) {
+            throw $this->createAccessDeniedException('Accès refusé à ce centre.');
+        }
+
+        $weekStart = $this->resolveMonday($weekParam);
+        $snapshot  = $this->snapshotRepository->findLatestByWeek($centreId, $weekStart);
+
+        if (!$snapshot) {
+            return $this->json(['error' => 'Aucun snapshot publié pour cette semaine'], 404);
+        }
+
+        return $this->json([
+            'weekStart'      => $snapshot->getWeekStart()->format('Y-m-d'),
+            'publishedAt'    => $snapshot->getPublishedAt()->format(\DATE_ATOM),
+            'publishedByNom' => $snapshot->getPublishedBy()->getNom(),
+            'data'           => $snapshot->getData(),
+        ]);
+    }
+
+    /**
      * POST /api/planning/duplicate
      * Body : { "sourceWeekStart": "2026-04-13", "targetWeekStart": "2026-04-20" }
      * Duplique les postes d'une semaine source vers une semaine cible.

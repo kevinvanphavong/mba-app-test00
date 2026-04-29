@@ -274,13 +274,17 @@ INSERT INTO centre (nom, slug, created_at) VALUES
 -- ============================================================
 
 CREATE TABLE planning_week (
-    id           INT AUTO_INCREMENT NOT NULL,
-    centre_id    INT          NOT NULL,
-    week_start   DATE         NOT NULL COMMENT '(DC2Type:date_immutable) — toujours un lundi',
-    statut       VARCHAR(20)  NOT NULL DEFAULT 'BROUILLON',  -- BROUILLON | PUBLIE
-    published_at DATETIME     DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
-    published_by INT          DEFAULT NULL,
-    note         TEXT         DEFAULT NULL,
+    id               INT AUTO_INCREMENT NOT NULL,
+    centre_id        INT          NOT NULL,
+    week_start       DATE         NOT NULL COMMENT '(DC2Type:date_immutable) — toujours un lundi',
+    statut           VARCHAR(20)  NOT NULL DEFAULT 'BROUILLON',  -- BROUILLON | PUBLIE
+    published_at     DATETIME     DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
+    published_by     INT          DEFAULT NULL,
+    note             TEXT         DEFAULT NULL,
+    -- Bumpé par PlanningWeekDirtyListener à chaque mutation Poste/Absence.
+    -- Si last_modified_at > published_at → modifs non publiées (le staff voit
+    -- une version périmée tant qu'on n'a pas republié).
+    last_modified_at DATETIME     DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
     UNIQUE KEY uniq_pw_centre_week (centre_id, week_start),
     INDEX idx_pw_centre (centre_id),
     INDEX idx_pw_published_by (published_by),

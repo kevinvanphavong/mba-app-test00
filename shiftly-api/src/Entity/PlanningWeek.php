@@ -40,6 +40,16 @@ class PlanningWeek
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $note = null;
 
+    /**
+     * Bumpé à chaque mutation (poste, absence) de la semaine via
+     * PlanningWeekDirtyListener. Si lastModifiedAt > publishedAt, le live
+     * a divergé du dernier snapshot publié → le staff voit une version
+     * obsolète tant que le manager n'a pas republié.
+     * NULL si jamais modifié après publication (état "Publié, à jour").
+     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastModifiedAt = null;
+
     public function getId(): ?int { return $this->id; }
 
     public function getCentre(): ?Centre { return $this->centre; }
@@ -61,4 +71,19 @@ class PlanningWeek
 
     public function getNote(): ?string { return $this->note; }
     public function setNote(?string $note): static { $this->note = $note; return $this; }
+
+    public function getLastModifiedAt(): ?\DateTimeImmutable { return $this->lastModifiedAt; }
+    public function setLastModifiedAt(?\DateTimeImmutable $dt): static { $this->lastModifiedAt = $dt; return $this; }
+
+    /**
+     * Vrai si la semaine a été publiée puis modifiée (le staff voit une
+     * version périmée). Retourne false si jamais publiée OU si à jour.
+     */
+    public function hasUnpublishedChanges(): bool
+    {
+        if ($this->publishedAt === null || $this->lastModifiedAt === null) {
+            return false;
+        }
+        return $this->lastModifiedAt > $this->publishedAt;
+    }
 }
