@@ -14,16 +14,18 @@ export default function DayHeader({ date, isToday }: DayHeaderProps) {
   const dayNum  = d.getDate()
 
   return (
-    <div className="flex flex-col items-center justify-center py-3">
-      <span className={`text-[11px] font-semibold uppercase tracking-widest ${
+    <div
+      className={`flex items-baseline justify-center gap-1.5 py-2 ${
+        isToday ? 'bg-[rgba(249,115,22,0.06)]' : ''
+      }`}
+    >
+      <span className={`text-[10px] font-semibold uppercase tracking-widest ${
         isToday ? 'text-[var(--accent)]' : 'text-[var(--muted)]'
       }`}>
         {dayName}
       </span>
-      <span className={`font-syne mt-1 flex h-8 w-8 items-center justify-center rounded-full text-[17px] font-bold ${
-        isToday
-          ? 'bg-[rgba(249,115,22,0.12)] text-[var(--accent)]'
-          : 'text-[var(--text)]'
+      <span className={`font-syne text-[15px] font-bold leading-none ${
+        isToday ? 'text-[var(--accent)]' : 'text-[var(--text)]'
       }`}>
         {dayNum}
       </span>
