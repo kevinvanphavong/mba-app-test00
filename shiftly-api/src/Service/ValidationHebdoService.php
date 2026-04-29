@@ -177,6 +177,7 @@ class ValidationHebdoService
             return [
                 'date'             => $dateStr,
                 'jourSemaine'      => $jourSemaine,
+                'pointageId'       => $pointage?->getId(),
                 'statut'           => 'absent_justifie',
                 'heureArrivee'     => null,
                 'heureDepart'      => null,
@@ -195,6 +196,7 @@ class ValidationHebdoService
             return [
                 'date'             => $dateStr,
                 'jourSemaine'      => $jourSemaine,
+                'pointageId'       => null,
                 'statut'           => 'repos',
                 'heureArrivee'     => null,
                 'heureDepart'      => null,
@@ -212,6 +214,7 @@ class ValidationHebdoService
             return [
                 'date'             => $dateStr,
                 'jourSemaine'      => $jourSemaine,
+                'pointageId'       => $pointage->getId(),
                 'statut'           => 'absent_non_justifie',
                 'heureArrivee'     => null,
                 'heureDepart'      => null,
@@ -235,6 +238,7 @@ class ValidationHebdoService
                 return [
                     'date'             => $dateStr,
                     'jourSemaine'      => $jourSemaine,
+                    'pointageId'       => $pointage->getId(),
                     'statut'           => 'travaille',
                     'heureArrivee'     => $pointage->getHeureArrivee()?->format('H:i'),
                     'heureDepart'      => $resolution['fin']->format('H:i'),
@@ -250,6 +254,7 @@ class ValidationHebdoService
             return [
                 'date'             => $dateStr,
                 'jourSemaine'      => $jourSemaine,
+                'pointageId'       => $pointage->getId(),
                 'statut'           => 'en_cours',
                 'heureArrivee'     => $pointage->getHeureArrivee()?->format('H:i'),
                 'heureDepart'      => null,
@@ -267,6 +272,7 @@ class ValidationHebdoService
         return [
             'date'             => $dateStr,
             'jourSemaine'      => $jourSemaine,
+            'pointageId'       => $pointage->getId(),
             'statut'           => $pointage->getStatut() === Pointage::STATUT_ABSENT ? 'absent_non_justifie' : 'travaille',
             'heureArrivee'     => $pointage->getHeureArrivee()?->format('H:i'),
             'heureDepart'      => $pointage->getHeureDepart()?->format('H:i'),
