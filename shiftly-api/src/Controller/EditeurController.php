@@ -439,7 +439,7 @@ class EditeurController extends AbstractController
         $user->setAvatarColor($data['avatarColor'] ?? null);
         $user->setHeuresHebdo(isset($data['heuresHebdo']) ? (int) $data['heuresHebdo'] : null);
         $user->setTypeContrat($data['typeContrat'] ?? null);
-        if (array_key_exists('codePointage', $data)) $user->setCodePointage($data['codePointage'] ?: null);
+        $user->setCodePointage(!empty($data['codePointage']) ? $data['codePointage'] : '0000');
         $user->setPassword($this->hasher->hashPassword($user, $data['password']));
 
         $this->em->persist($user);

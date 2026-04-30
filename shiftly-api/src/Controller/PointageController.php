@@ -45,10 +45,9 @@ class PointageController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        // Génération automatique si premier appel
-        if (!$this->pointageRepository->hasPointagesForService($serviceId)) {
-            $this->pointageService->genererPointagesDepuisPostes($service);
-        }
+        // Génère les pointages manquants (idempotent : créé pour les postes ajoutés
+        // après le premier chargement, ou rattrape un service jamais ouvert).
+        $this->pointageService->genererPointagesDepuisPostes($service);
 
         $pointages = $this->pointageRepository->findByService($serviceId);
         $stats     = $this->pointageService->calculerStats($pointages);

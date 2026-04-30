@@ -71,7 +71,7 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
       setNom(''); setPrenom(''); setEmail(''); setRole('EMPLOYE')
       setTailleHaut(''); setTailleBas(''); setPointure('')
       setActif(true); setAvatarColor(DEFAULT_COLOR)
-      setHeuresHebdo(''); setTypeContrat(''); setCodePointage(''); setPassword('')
+      setHeuresHebdo(''); setTypeContrat(''); setCodePointage('0000'); setPassword('')
     }
   }, [open, member])
 
