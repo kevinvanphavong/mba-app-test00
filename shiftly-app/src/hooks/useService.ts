@@ -161,6 +161,7 @@ export function useAddServiceNote() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['services', 'list', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['service', 'today', centreId] })
     },
   })
 }

@@ -58,6 +58,7 @@ export interface ServicePageData {
     heureFin:    string     // 'HH:mm'
     statut:      ServiceStatut
     centreName:  string
+    note:        string | null
   }
   zones: ServiceZoneData[]
   staff: ServiceStaffMember[]
