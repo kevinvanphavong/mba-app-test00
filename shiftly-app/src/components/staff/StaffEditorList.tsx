@@ -51,6 +51,19 @@ export default function StaffEditorList({ members, onEdit, onToggleActif, onMana
                   Inactif
                 </span>
               )}
+              {m.codePointage === '0000' && (
+                <span
+                  className="text-[9px] font-bold px-1.5 rounded-[4px] border"
+                  style={{
+                    color: 'var(--accent)',
+                    background: 'color-mix(in srgb, var(--accent) 12%, transparent)',
+                    borderColor: 'color-mix(in srgb, var(--accent) 35%, transparent)',
+                  }}
+                  title="Code PIN par défaut, à personnaliser"
+                >
+                  PIN par défaut
+                </span>
+              )}
             </div>
           </div>
 

@@ -19,8 +19,9 @@ class PointageService
     ) {}
 
     /**
-     * Génère un Pointage PREVU pour chaque poste du service.
-     * Appelé uniquement si aucun pointage n'existe encore pour ce service.
+     * Crée un Pointage PREVU pour chaque poste du service qui n'en a pas encore.
+     * Idempotent : appelable à chaque GET pour rattraper les postes ajoutés
+     * après le premier chargement de la page de pointage.
      */
     public function genererPointagesDepuisPostes(Service $service): array
     {
@@ -29,7 +30,9 @@ class PointageService
             ->from(Poste::class, 'p')
             ->leftJoin('p.user', 'u')
             ->leftJoin('p.zone', 'z')
+            ->leftJoin(Pointage::class, 'pt', 'WITH', 'pt.poste = p AND pt.service = :service')
             ->andWhere('p.service = :service')
+            ->andWhere('pt.id IS NULL')
             ->setParameter('service', $service)
             ->getQuery()
             ->getResult();
@@ -47,7 +50,9 @@ class PointageService
             $pointages[] = $pointage;
         }
 
-        $this->em->flush();
+        if (count($pointages) > 0) {
+            $this->em->flush();
+        }
 
         return $pointages;
     }
