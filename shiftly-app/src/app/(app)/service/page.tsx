@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import Topbar                   from '@/components/layout/Topbar'
 import HeroServiceCard          from '@/components/service/HeroServiceCard'
+import ServiceNoteCard          from '@/components/service/ServiceNoteCard'
 import ZoneCard                 from '@/components/service/ZoneCard'
 import ModalMissionPonctuelle   from '@/components/service/ModalMissionPonctuelle'
 import ModalAssignerStaff       from '@/components/service/ModalAssignerStaff'
@@ -189,6 +190,13 @@ export default function ServicePage() {
             totalDone={totalDone}
             totalAll={totalAll}
             onReportIncident={() => setIncidentOpen(true)}
+          />
+
+          {/* Note du service */}
+          <ServiceNoteCard
+            serviceId={data.service.id}
+            note={data.service.note}
+            isManager={userRole === 'MANAGER'}
           />
 
           {/* Zone cards */}

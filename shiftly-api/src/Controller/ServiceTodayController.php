@@ -180,6 +180,7 @@ class ServiceTodayController extends AbstractController
                 'heureFin'   => $service->getHeureFin()?->format('H:i') ?? '00:00',
                 'statut'     => $this->statutResolver->resolve($service),
                 'centreName' => $service->getCentre()?->getNom() ?? '',
+                'note'       => $service->getNote(),
             ],
             'zones' => $zonesData,
             'staff' => $staffList,
