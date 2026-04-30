@@ -619,6 +619,23 @@ class ValidationHebdoService
     }
 
     /**
+     * Dévalide toute la semaine en supprimant les ValidationHebdo du centre.
+     * Renvoie le nombre d'enregistrements supprimés.
+     */
+    public function devaliderSemaine(int $centreId, \DateTimeImmutable $lundi): int
+    {
+        $validations = $this->validationRepo->findByCentreAndSemaine($centreId, $lundi);
+
+        foreach ($validations as $validation) {
+            $this->em->remove($validation);
+        }
+
+        $this->em->flush();
+
+        return count($validations);
+    }
+
+    /**
      * Applique une correction sur un pointage et trace la modification.
      */
     public function corrigerPointage(
