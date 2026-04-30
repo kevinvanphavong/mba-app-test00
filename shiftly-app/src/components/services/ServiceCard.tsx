@@ -8,6 +8,7 @@ import { expandVariants }   from '@/lib/animations'
 import { cn }               from '@/lib/cn'
 import { ty }               from '@/lib/typography'
 import { useDeletePoste }   from '@/hooks/useService'
+import { useZones }         from '@/hooks/useZones'
 import type { ServiceListItem } from '@/types/index'
 import ModalAssignerPoste          from '@/components/services/ModalAssignerPoste'
 
@@ -56,6 +57,7 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
   const [modalPreZoneId,  setModalPreZoneId]  = useState<number | null>(null)
 
   const { mutate: deletePoste } = useDeletePoste()
+  const { data: allZones = [] } = useZones()
 
   const badge     = resolveBadge(service)
   const canEdit   = isManager && (badge === 'planifie' || badge === 'en_cours')
@@ -185,66 +187,82 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
                       Zones & Staff
                     </p>
 
-                    {/* Zones déjà assignées */}
-                    {service.zones.map(zone => (
-                      <div
-                        key={zone.id}
-                        className="bg-surface2 border border-border rounded-[12px] px-3 py-2.5"
-                      >
-                        {/* Nom de la zone */}
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-2 h-2 rounded-full shrink-0"
-                              style={{ backgroundColor: zone.couleur }}
-                            />
-                            <span className={`${ty.metaLg} font-semibold text-text`}>
-                              {zone.nom}
-                            </span>
+                    {/* Toutes les zones du centre — chacune avec son bouton d'ajout */}
+                    {allZones.map(zone => {
+                      // Postes déjà assignés à cette zone pour ce service
+                      const postes = service.zones.find(z => z.id === zone.id)?.postes ?? []
+                      const color  = zone.couleur ?? '#6b7280'
+
+                      return (
+                        <div
+                          key={zone.id}
+                          className="bg-surface2 border border-border rounded-[12px] px-3 py-2.5"
+                        >
+                          {/* Header zone : nom + bouton "+ Membre" */}
+                          <div className="flex items-center justify-between mb-2 gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div
+                                className="w-2 h-2 rounded-full shrink-0"
+                                style={{ backgroundColor: color }}
+                              />
+                              <span className={`${ty.metaLg} font-semibold text-text truncate`}>
+                                {zone.nom}
+                              </span>
+                              {postes.length > 0 && (
+                                <span className={`${ty.metaSm} shrink-0`}>
+                                  · {postes.length}
+                                </span>
+                              )}
+                            </div>
+
+                            <button
+                              onClick={() => openModalForZone(zone.id)}
+                              className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full transition-all hover:opacity-90 active:scale-[0.97] shrink-0"
+                              style={{
+                                backgroundColor: `${color}1f`,
+                                color,
+                                border:          `1px solid ${color}40`,
+                              }}
+                              title={`Ajouter un membre à ${zone.nom}`}
+                            >
+                              <span className="text-[13px] leading-none">+</span>
+                              Membre
+                            </button>
+                          </div>
+
+                          {/* Badges staff assignés */}
+                          <div className="flex flex-wrap gap-1.5">
+                            {postes.length === 0 && (
+                              <span className={`${ty.meta} italic`}>Aucun membre assigné</span>
+                            )}
+                            {postes.map(poste => {
+                              const displayName = poste.prenom ?? poste.nom
+                              return (
+                                <div
+                                  key={poste.posteId}
+                                  className="flex items-center gap-1.5 bg-surface border border-border rounded-full pl-1.5 pr-2 py-0.5"
+                                >
+                                  <div
+                                    className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-extrabold text-white shrink-0"
+                                    style={{ background: `linear-gradient(135deg, ${poste.avatarColor}, ${poste.avatarColor}cc)` }}
+                                  >
+                                    {displayName.charAt(0).toUpperCase()}
+                                  </div>
+                                  <span className={ty.meta + ' text-text'}>{displayName}</span>
+                                  <button
+                                    onClick={() => deletePoste(poste.posteId)}
+                                    className="text-muted hover:text-red transition-colors text-[13px] leading-none ml-0.5"
+                                    title="Retirer"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              )
+                            })}
                           </div>
                         </div>
-
-                        {/* Badges staff assignés */}
-                        <div className="flex flex-wrap gap-1.5">
-                          {zone.postes.length === 0 && (
-                            <span className={`${ty.meta} italic`}>Aucun membre assigné</span>
-                          )}
-                          {zone.postes.map(poste => {
-                            const displayName = poste.prenom ?? poste.nom
-                            return (
-                              <div
-                                key={poste.posteId}
-                                className="flex items-center gap-1.5 bg-surface border border-border rounded-full pl-1.5 pr-2 py-0.5"
-                              >
-                                <div
-                                  className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-extrabold text-white shrink-0"
-                                  style={{ background: `linear-gradient(135deg, ${poste.avatarColor}, ${poste.avatarColor}cc)` }}
-                                >
-                                  {displayName.charAt(0).toUpperCase()}
-                                </div>
-                                <span className={ty.meta + ' text-text'}>{displayName}</span>
-                                <button
-                                  onClick={() => deletePoste(poste.posteId)}
-                                  className="text-muted hover:text-red transition-colors text-[13px] leading-none ml-0.5"
-                                  title="Retirer"
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Bouton ajouter une nouvelle zone */}
-                    <button
-                      onClick={() => openModalForZone(null)}
-                      className="flex items-center justify-center gap-2 w-full py-2.5 rounded-[12px] border border-dashed border-border text-[12px] text-muted hover:text-text hover:border-accent/40 transition-all"
-                    >
-                      <span className="text-[16px] leading-none">+</span>
-                      Assigner un staff à une zone
-                    </button>
+                      )
+                    })}
                   </div>
                 )}
 
