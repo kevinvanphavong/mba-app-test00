@@ -93,6 +93,19 @@ export function useValiderSemaine(date: string) {
   })
 }
 
+/** Dévalide toute la semaine d'un coup. */
+export function useDevaliderSemaine(date: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: () =>
+      api.post(`/pointages/validation/devalider-semaine/${date}`).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['validation'] })
+    },
+  })
+}
+
 /** Applique une correction sur un pointage. */
 export function useCorrigerPointage(date: string) {
   const queryClient = useQueryClient()

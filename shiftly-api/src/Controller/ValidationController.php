@@ -196,6 +196,27 @@ class ValidationController extends AbstractController
     }
 
     /**
+     * POST /api/pointages/validation/devalider-semaine/{date}
+     * Dévalide toute la semaine (supprime les ValidationHebdo correspondantes).
+     */
+    #[Route('/devalider-semaine/{date}', name: 'api_validation_devalider_semaine', methods: ['POST'])]
+    public function devaliderSemaine(string $date): JsonResponse
+    {
+        /** @var User $manager */
+        $manager  = $this->getUser();
+        $centreId = $manager->getCentre()->getId();
+        $lundi    = $this->parseLundi($date);
+
+        $count = $this->validationService->devaliderSemaine($centreId, $lundi);
+
+        return $this->json([
+            'devalides' => $count,
+            'semaine'   => $lundi->format('Y-m-d'),
+            'statut'    => 'EN_ATTENTE',
+        ]);
+    }
+
+    /**
      * POST /api/pointages/validation/correction
      * Applique une correction sur un pointage.
      * Body: { pointageId, champModifie, nouvelleValeur, motif }

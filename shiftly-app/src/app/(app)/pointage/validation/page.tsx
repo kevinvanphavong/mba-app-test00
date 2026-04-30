@@ -14,6 +14,7 @@ import {
   useValidationDetail,
   useValiderEmploye,
   useValiderSemaine,
+  useDevaliderSemaine,
   useCorrigerPointage,
 } from '@/hooks/useValidation'
 import { AnimatePresence, motion }  from 'framer-motion'
@@ -49,9 +50,10 @@ export default function ValidationPage() {
   const { data: detailEmploye } = useValidationDetail(selectedUserId, dateStr)
 
   // Mutations
-  const validerEmployeMut  = useValiderEmploye(dateStr)
-  const validerSemaineMut  = useValiderSemaine(dateStr)
-  const corrigerMut        = useCorrigerPointage(dateStr)
+  const validerEmployeMut   = useValiderEmploye(dateStr)
+  const validerSemaineMut   = useValiderSemaine(dateStr)
+  const devaliderSemaineMut = useDevaliderSemaine(dateStr)
+  const corrigerMut         = useCorrigerPointage(dateStr)
 
   // Statistiques validation pour le badge
   const nbValides = semaine
@@ -69,6 +71,12 @@ export default function ValidationPage() {
 
   const handleValiderTout = () => {
     validerSemaineMut.mutate()
+  }
+
+  const handleDevaliderTout = () => {
+    if (nbValides === 0) return
+    if (!confirm(`Dévalider les ${nbValides} validation(s) de cette semaine ?`)) return
+    devaliderSemaineMut.mutate()
   }
 
   // ─── États de la page ────────────────────────────────────────────────────
@@ -110,7 +118,22 @@ export default function ValidationPage() {
             Pointage — <span style={{ color: 'var(--accent)' }}>Validation hebdomadaire</span>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={handleDevaliderTout}
+              disabled={devaliderSemaineMut.isPending || nbValides === 0}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all"
+              style={{
+                background: 'transparent',
+                color: 'var(--red)',
+                borderColor: 'var(--red)',
+                opacity: devaliderSemaineMut.isPending || nbValides === 0 ? 0.4 : 1,
+                cursor: devaliderSemaineMut.isPending || nbValides === 0 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              ✕ {devaliderSemaineMut.isPending ? 'Dévalidation...' : 'Tout dévalider'}
+            </button>
+
             <button
               onClick={handleValiderTout}
               disabled={validerSemaineMut.isPending}
