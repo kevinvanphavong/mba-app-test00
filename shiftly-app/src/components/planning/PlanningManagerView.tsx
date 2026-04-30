@@ -1,8 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import { usePlanningWeek, useDuplicateWeek, useExportPlanningPdf } from '@/hooks/usePlanning'
+import { useCurrentUser }      from '@/hooks/useCurrentUser'
+import { useIncidentReporter } from '@/hooks/useIncidentReporter'
 import type { PlanningShift } from '@/types/planning'
+import Topbar from '@/components/layout/Topbar'
 import WeekNavigator from './WeekNavigator'
 import PlanningGrid from './PlanningGrid'
 import StatsBar from './StatsBar'
@@ -80,6 +85,9 @@ export default function PlanningManagerView() {
   const duplicateWeek  = useDuplicateWeek()
   const exportPdf      = useExportPlanningPdf()
 
+  const { user } = useCurrentUser()
+  const { canReport, openReportIncident, IncidentModalElement } = useIncidentReporter()
+
   function openAdd(date: string, employeeId: number) {
     setEditShift(null); setModalDate(date); setModalEmpId(employeeId); setModalOpen(true)
   }
@@ -122,8 +130,32 @@ export default function PlanningManagerView() {
     return d.toISOString().split('T')[0]
   })()
 
+  // Titre + sous-titre du Topbar
+  const startDate = new Date(displayWeekStart + 'T12:00:00')
+  const endDate   = new Date(weekEnd + 'T12:00:00')
+  const sameMonth = startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()
+  const startLabel = sameMonth
+    ? format(startDate, 'd', { locale: fr })
+    : format(startDate, 'd MMM', { locale: fr })
+  const endLabel   = format(endDate, 'd MMM', { locale: fr })
+  const topTitle   = `Planning – Semaine du ${startLabel} au ${endLabel}`
+
+  const nbMembres   = data?.employees.length ?? 0
+  const nbCreneaux  = data?.employees.reduce((sum, emp) => sum + emp.shifts.length, 0) ?? 0
+  const topSubtitle = [
+    user?.centre?.nom,
+    `${nbMembres} membre${nbMembres > 1 ? 's' : ''}`,
+    `${nbCreneaux} créneau${nbCreneaux > 1 ? 'x' : ''}`,
+  ].filter(Boolean).join(' · ')
+
   return (
     <>
+      <Topbar
+        title={topTitle}
+        subtitle={topSubtitle}
+        onReportIncident={canReport ? openReportIncident : undefined}
+      />
+
       {/* ── Zone sticky : header + navigateur de semaine ── */}
       <div className="sticky top-0 z-20 bg-[var(--surface)]">
 
@@ -131,7 +163,6 @@ export default function PlanningManagerView() {
         <div className="border-b border-[var(--border)] lg:hidden">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <div className="min-w-0 flex items-center gap-2">
-              <h1 className="font-syne shrink-0 text-lg font-bold text-[var(--text)]">Planning</h1>
               <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
                 {badge.label}
               </span>
@@ -198,7 +229,6 @@ export default function PlanningManagerView() {
         {/* Header desktop : tout en une ligne */}
         <div className="hidden items-center justify-between border-b border-[var(--border)] px-6 py-4 lg:flex">
           <div className="flex items-center gap-3">
-            <h1 className="font-syne text-xl font-bold text-[var(--text)]">Planning</h1>
             <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
               {badge.label}
             </span>
@@ -334,6 +364,9 @@ export default function PlanningManagerView() {
         onClose={() => setStaffPreviewOpen(false)}
         weekStart={displayWeekStart}
       />
+
+      {/* ── Modal signalement d'incident (déclenché depuis le Topbar) ── */}
+      {IncidentModalElement}
     </>
   )
 }

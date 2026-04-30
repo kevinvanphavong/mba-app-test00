@@ -5,46 +5,70 @@ import { fr } from 'date-fns/locale'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import NotificationBell from '@/components/layout/NotificationBell'
 
-/** Barre supérieure mobile + desktop — date, centre, avatar utilisateur */
-export default function Topbar() {
+interface TopbarProps {
+  /** Titre principal — ex: "Dashboard – Mer. 18 mars 2026" */
+  title?: string
+  /** Sous-titre — ex: "Service en cours — Bowling Central" */
+  subtitle?: string
+  /** Si fourni, affiche le bouton "+ Signaler un incident" */
+  onReportIncident?: () => void
+}
+
+/**
+ * Header commun aux pages de navigation.
+ * - Titre + sous-titre à gauche
+ * - Pastille date + bouton incident (optionnel) + cloche à droite
+ * Sans `title`, fallback sur le centre + date du jour.
+ */
+export default function Topbar({ title, subtitle, onReportIncident }: TopbarProps) {
   const { user } = useCurrentUser()
 
-  // Toujours la date réelle du jour (pas celle du service)
-  const today   = new Date()
-  const dayName = format(today, 'EEEE', { locale: fr })
-  const dayFull = format(today, 'd MMMM yyyy', { locale: fr })
+  const today      = new Date()
+  const dayShort   = format(today, 'EEE d MMM', { locale: fr })   // "mer. 18 mars"
+  const dayFull    = format(today, 'EEEE d MMMM yyyy', { locale: fr })
+  const centreName = user?.centre?.nom ?? '…'
 
-  const centreName  = user?.centre?.nom ?? '…'
-  const avatarColor = user?.avatarColor ?? '#f97316'
-  const initials    = user
-    ? ((user.prenom[0] ?? '') + (user.nom[0] ?? '')).toUpperCase()
-    : '…'
+  // Capitalisation simple de la 1ʳᵉ lettre (date-fns sort en minuscules)
+  const dayShortCap = dayShort.charAt(0).toUpperCase() + dayShort.slice(1)
+  const dayFullCap  = dayFull.charAt(0).toUpperCase()  + dayFull.slice(1)
+
+  const heading  = title    ?? dayFullCap
+  const sub      = subtitle ?? centreName
 
   return (
-    <header className="flex items-center justify-between px-5 pt-5 pb-3 lg:px-7 lg:pt-7 lg:pb-4">
-      {/* Left — greeting + date */}
-      <div>
-        <p className="text-[11px] text-muted uppercase tracking-widest font-syne font-bold">
-          {centreName}
-        </p>
-        <h1 className="font-syne font-extrabold text-[20px] lg:text-[24px] text-text leading-tight capitalize">
-          {dayName}
-          <span className="text-muted font-normal text-[14px] ml-2 normal-case">
-            {dayFull}
-          </span>
+    <header className="flex items-center justify-between gap-3 px-5 pt-5 pb-3 lg:px-7 lg:pt-7 lg:pb-4">
+      {/* Bloc titre */}
+      <div className="min-w-0 flex-1">
+        <h1 className="font-syne font-extrabold text-[20px] lg:text-[26px] text-text leading-tight truncate">
+          {heading}
         </h1>
+        <p className="text-[12px] lg:text-[13px] text-muted mt-0.5 truncate">
+          {sub}
+        </p>
       </div>
 
-      {/* Right — bell + avatar */}
-      <div className="flex items-center gap-3">
-        <NotificationBell />
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-extrabold text-sm flex-shrink-0 shadow-lg"
-          style={{ background: `linear-gradient(135deg, ${avatarColor}, ${avatarColor}cc)` }}
-          title={user ? `${user.prenom} ${user.nom}` : ''}
-        >
-          {initials}
+      {/* Bloc actions */}
+      <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+        {/* Pastille date — masquée sur très petits écrans pour gagner de la place */}
+        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px] bg-surface2 border border-border text-[12px] font-semibold text-text">
+          <span aria-hidden>📅</span>
+          <span>{dayShortCap}</span>
         </div>
+
+        {/* Bouton Signaler un incident */}
+        {onReportIncident && (
+          <button
+            onClick={onReportIncident}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] bg-accent text-white text-[12px] lg:text-[13px] font-syne font-bold hover:bg-accent/90 active:scale-[0.97] transition-all shadow-lg shadow-accent/20"
+            title="Signaler un incident"
+          >
+            <span aria-hidden className="text-[14px] leading-none">+</span>
+            <span className="hidden md:inline">Signaler un incident</span>
+            <span className="md:hidden">Incident</span>
+          </button>
+        )}
+
+        <NotificationBell />
       </div>
     </header>
   )

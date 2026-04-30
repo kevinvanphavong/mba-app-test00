@@ -1,34 +1,35 @@
 'use client'
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import Topbar                   from '@/components/layout/Topbar'
 import HeroServiceCard          from '@/components/service/HeroServiceCard'
-import ServiceNoteCard          from '@/components/service/ServiceNoteCard'
 import ZoneCard                 from '@/components/service/ZoneCard'
 import ModalMissionPonctuelle   from '@/components/service/ModalMissionPonctuelle'
 import ModalAssignerStaff       from '@/components/service/ModalAssignerStaff'
-import ModalIncident            from '@/components/service/ModalIncident'
 import MissionPhotoCaptureModal from '@/components/service/MissionPhotoCaptureModal'
 import PhotoLightbox            from '@/components/shared/PhotoLightbox'
 import { useServiceToday }      from '@/hooks/useService'
 import { useDeletePoste }       from '@/hooks/useService'
 import { useToggleCompletion }  from '@/hooks/useMissions'
-import { useCreateIncident }    from '@/hooks/useIncidents'
-import { useZones }             from '@/hooks/useZones'
 import { useCurrentUser }       from '@/hooks/useCurrentUser'
+import { useIncidentReporter }  from '@/hooks/useIncidentReporter'
 import { useAuthStore }         from '@/store/authStore'
+import { capitalizeFirst }      from '@/lib/strings'
 import type { ServiceZoneData, ServiceMission } from '@/types/service'
 
 export default function ServicePage() {
   // Déclenche le chargement du user et popule centreId dans le store
-  const { loading: userLoading } = useCurrentUser()
+  const { loading: userLoading, user } = useCurrentUser()
   const centreId = useAuthStore(s => s.centreId)
   const userId   = useAuthStore(s => s.userId)
   const userRole = useAuthStore(s => s.user?.role)
 
   const { data, isLoading, isError } = useServiceToday()
-  const { data: allZones = [] }      = useZones()
   const loading = userLoading || isLoading || (!centreId && !isError)
+
+  const { canReport, openReportIncident, IncidentModalElement } = useIncidentReporter()
 
   // ── Completions optimistes ─────────────────────────────────────────────────
   const [completions,     setCompletions]    = useState<Record<number, boolean>>({})
@@ -38,7 +39,6 @@ export default function ServicePage() {
   // ── Modales ────────────────────────────────────────────────────────────────
   const [ponctuellZone,  setPonctuellZone]  = useState<ServiceZoneData | null>(null)
   const [assignZone,     setAssignZone]     = useState<ServiceZoneData | null>(null)
-  const [incidentOpen,   setIncidentOpen]   = useState(false)
   // Capture photo : on stocke la mission + le posteId à utiliser pour la completion
   const [photoTarget,    setPhotoTarget]    = useState<{ mission: ServiceMission; posteId: number } | null>(null)
   // Lightbox : src de la photo (path API relative) en cours de visualisation
@@ -47,25 +47,6 @@ export default function ServicePage() {
   // ── Mutations ──────────────────────────────────────────────────────────────
   const toggleCompletion = useToggleCompletion()
   const deletePoste      = useDeletePoste()
-  const createIncident   = useCreateIncident()
-
-  // ── Handler incident ───────────────────────────────────────────────────────
-  const handleIncidentSubmit = useCallback(async (payload: {
-    titre:    string
-    severite: 'haute' | 'moyenne' | 'basse'
-    zoneId:   number | null
-    staffIds: number[]
-  }) => {
-    if (!data?.service || !centreId) return
-    await createIncident.mutateAsync({
-      titre:     payload.titre,
-      severite:  payload.severite,
-      serviceId: data.service.id,
-      centreId,
-      zoneId:   payload.zoneId,
-      staffIds: payload.staffIds,
-    })
-  }, [data, centreId, createIncident])
 
   // ── Synchronisation des completions depuis les données serveur ─────────────
   useEffect(() => {
@@ -137,11 +118,14 @@ export default function ServicePage() {
     )
   }, [data, userId, completionIds, toggleCompletion])
 
+  // ── Title du Topbar ────────────────────────────────────────────────────────
+  const topTitle = `Service du jour – ${capitalizeFirst(format(new Date(), 'EEE d MMM', { locale: fr }))}`
+
   // ── État chargement ────────────────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-full animate-fadeUp">
-        <Topbar />
+        <Topbar title="Service du jour" subtitle={user?.centre?.nom ?? ''} />
         <div className="px-4 pb-28 space-y-3">
           <div className="h-[180px] bg-surface rounded-[18px] border border-border animate-pulse" />
           <div className="h-[80px]  bg-surface rounded-[18px] border border-border animate-pulse" />
@@ -157,7 +141,7 @@ export default function ServicePage() {
   if (isError || !data || !data.service) {
     return (
       <div className="min-h-full animate-fadeUp">
-        <Topbar />
+        <Topbar title={topTitle} subtitle={user?.centre?.nom ?? ''} />
         <div className="px-4 py-16 flex flex-col items-center gap-3 text-center">
           <span className="text-3xl">📋</span>
           <p className="font-syne font-extrabold text-[15px] text-text">
@@ -175,10 +159,16 @@ export default function ServicePage() {
   // Les modales sont rendues HORS du div animate-fadeUp :
   // transform: translateY(0) (fill-mode forwards) crée un nouveau containing block
   // ce qui brise position:fixed des bottom sheets.
+  const topSubtitle = `${user?.centre?.nom ?? ''} · ${totalDone}/${totalAll} missions · ${data.staff.length} en service`
+
   return (
     <>
       <div className="min-h-full animate-fadeUp">
-        <Topbar />
+        <Topbar
+          title={topTitle}
+          subtitle={topSubtitle}
+          onReportIncident={canReport ? openReportIncident : undefined}
+        />
 
         <div className="px-4 pb-28 lg:px-7 lg:pb-12 space-y-3 lg:mx-auto">
 
@@ -189,13 +179,6 @@ export default function ServicePage() {
             stats={zoneStats}
             totalDone={totalDone}
             totalAll={totalAll}
-            onReportIncident={() => setIncidentOpen(true)}
-          />
-
-          {/* Note du service */}
-          <ServiceNoteCard
-            serviceId={data.service.id}
-            note={data.service.note}
             isManager={userRole === 'MANAGER'}
           />
 
@@ -219,15 +202,7 @@ export default function ServicePage() {
       </div>
 
       {/* Modales — en dehors du div animé pour que position:fixed fonctionne */}
-      <ModalIncident
-        open={incidentOpen}
-        onClose={() => setIncidentOpen(false)}
-        onSubmit={handleIncidentSubmit}
-        zones={allZones
-          .filter(z => !z.archivee)
-          .map(z => ({ id: z.id, nom: z.nom, couleur: z.couleur ?? '#6b7280', ordre: z.ordre }))}
-        staff={data.staff}
-      />
+      {IncidentModalElement}
 
       {ponctuellZone && (
         <ModalMissionPonctuelle

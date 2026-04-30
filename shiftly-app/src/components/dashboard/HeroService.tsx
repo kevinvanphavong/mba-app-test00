@@ -3,8 +3,7 @@ import { ty } from '@/lib/typography'
 import type { DashboardService } from '@/types/dashboard'
 
 interface HeroServiceProps {
-  data:               DashboardService
-  onReportIncident?:  () => void
+  data: DashboardService
 }
 
 const RADIUS = 38
@@ -22,7 +21,7 @@ const STATUT_COLOR: Record<string, string> = {
 }
 
 /** Hero card — service du jour + jauge circulaire d'occupation */
-export default function HeroService({ data, onReportIncident }: HeroServiceProps) {
+export default function HeroService({ data }: HeroServiceProps) {
   const { today, tauxCompletion } = data
 
   if (!today) {
@@ -54,14 +53,6 @@ export default function HeroService({ data, onReportIncident }: HeroServiceProps
               {STATUT_LABEL[today.statut] ?? today.statut}
             </span>
             <span className={ty.meta}>Service du jour</span>
-            {onReportIncident && (
-              <button
-                onClick={onReportIncident}
-                className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-[6px] bg-red/10 text-red border border-red/20 text-[10px] font-extrabold font-syne hover:bg-red/20 transition-colors"
-              >
-                ⚠ Incident
-              </button>
-            )}
           </div>
 
           {today.heureDebut && today.heureFin ? (

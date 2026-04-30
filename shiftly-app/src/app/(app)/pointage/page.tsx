@@ -1,10 +1,15 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { AnimatePresence, motion }        from 'framer-motion'
+import { format }                         from 'date-fns'
+import { fr }                             from 'date-fns/locale'
 import { listVariants }                  from '@/lib/animations'
 import { useManagerGuard }                from '@/hooks/useManagerGuard'
 import { useServiceToday }                from '@/hooks/useService'
+import { useCurrentUser }                 from '@/hooks/useCurrentUser'
+import { useIncidentReporter }            from '@/hooks/useIncidentReporter'
+import { capitalizeFirst }                from '@/lib/strings'
 import {
   usePointageService, usePointageArrivee, usePointageDepart,
   usePointagePauseStart, usePointagePauseEnd,
@@ -36,15 +41,30 @@ function triStatut(p: PointageEntry): number {
 export default function PointagePage() {
   const { isManager, loading: authLoading } = useManagerGuard()
   const { data: serviceToday, isLoading: serviceLoading } = useServiceToday()
+  const { user } = useCurrentUser()
+  const { canReport, openReportIncident, IncidentModalElement } = useIncidentReporter()
 
   const serviceId = serviceToday?.service?.id ?? null
   const { data, isLoading: pointageLoading } = usePointageService(serviceId)
+
+  const topTitle = `Pointage – ${capitalizeFirst(format(new Date(), 'EEE d MMM', { locale: fr }))}`
+  const topSubtitle = data?.stats
+    ? `${user?.centre?.nom ?? ''} · ${data.stats.presents} en service · ${data.stats.enPause} en pause`
+    : (user?.centre?.nom ?? '')
 
   const [selected,        setSelected]        = useState<{ pointage: PointageEntry; action: PinActionType } | null>(null)
   const [showAction,      setShowAction]       = useState(false)
   const [showCloturer,    setShowCloturer]     = useState(false)
   const [pinError,        setPinError]         = useState<string | null>(null)
-  const [now]                                  = useState(() => new Date())
+  // `now` reste null jusqu'au mount client pour éviter un mismatch SSR/CSR
+  // (les durées calculées à partir de `now` rendraient un HTML différent côté serveur).
+  const [now,             setNow]              = useState<Date | null>(null)
+
+  useEffect(() => {
+    setNow(new Date())
+    const id = setInterval(() => setNow(new Date()), 30_000)
+    return () => clearInterval(id)
+  }, [])
 
   const arrivee    = usePointageArrivee(serviceId!)
   const depart     = usePointageDepart(serviceId!)
@@ -106,7 +126,7 @@ export default function PointagePage() {
   if (!serviceToday?.service || serviceToday.service.statut === 'PLANIFIE') {
     return (
       <div className="flex-1 flex flex-col">
-        <Topbar />
+        <Topbar title={topTitle} subtitle={user?.centre?.nom ?? ''} />
         <div className="flex-1 flex items-center justify-center flex-col gap-2 px-6 text-center">
           <p className="text-3xl">📋</p>
           <p className="font-semibold font-syne" style={{ color: 'var(--text)' }}>Aucun service aujourd'hui</p>
@@ -124,7 +144,7 @@ export default function PointagePage() {
     const isLoading = arrivee.isPending || depart.isPending || pauseStart.isPending || pauseEnd.isPending
     return (
       <div className="flex-1 flex flex-col">
-        <Topbar />
+        <Topbar title={topTitle} subtitle={topSubtitle} />
         <div className="flex-1 flex items-center justify-center p-4">
           <PointagePinPad
             pointage={selected.pointage}
@@ -143,7 +163,11 @@ export default function PointagePage() {
 
   return (
     <div className="flex-1 flex flex-col overflow-auto">
-      <Topbar />
+      <Topbar
+        title={topTitle}
+        subtitle={topSubtitle}
+        onReportIncident={canReport ? openReportIncident : undefined}
+      />
 
       {data && (
         <>
@@ -158,7 +182,7 @@ export default function PointagePage() {
               animate="show"
               className="flex flex-col gap-2 px-4 md:px-6"
             >
-              {pointageLoading
+              {pointageLoading || !now
                 ? <p className="text-xs text-center py-4" style={{ color: 'var(--muted)' }}>Chargement…</p>
                 : sortedPointages.length === 0
                   ? <p className="text-xs text-center py-4" style={{ color: 'var(--muted)' }}>Aucun pointage généré</p>
@@ -168,7 +192,7 @@ export default function PointagePage() {
               }
             </motion.div>
 
-            <PointageAlertPanel pointages={data.pointages} now={now} />
+            {now && <PointageAlertPanel pointages={data.pointages} now={now} />}
             <PointageTimeline   pointages={data.pointages} />
           </div>
         </>
@@ -197,6 +221,9 @@ export default function PointagePage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Modale signalement d'incident (déclenchée depuis le Topbar) */}
+      {IncidentModalElement}
     </div>
   )
 }
