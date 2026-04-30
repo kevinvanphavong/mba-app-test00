@@ -13,12 +13,14 @@ import SearchBar      from '@/components/staff/SearchBar'
 import { ty }                          from '@/lib/typography'
 import { useTutoriels, useTutoReads } from '@/hooks/useTutoriels'
 import { useAuthStore }               from '@/store/authStore'
+import { useCurrentUser }             from '@/hooks/useCurrentUser'
 import { useZones }                   from '@/hooks/useZones'
 import type { Tutoriel, ZoneFilter, NiveauFilter, TutoBlock } from '@/types/tutoriel'
 
 function TutorielsContent() {
   const searchParams = useSearchParams()
   const userId       = useAuthStore(s => s.userId)
+  const { user }     = useCurrentUser()
 
   // ── Données réelles ───────────────────────────────────────────────────────
   const { data: rawTutoriels, isLoading: loadTutos, isError: errTutos } = useTutoriels()
@@ -81,9 +83,14 @@ function TutorielsContent() {
   const total     = tutoriels.length
   const isLoading = loadTutos || loadReads
 
+  const topSubtitle = [
+    user?.centre?.nom,
+    total > 0 ? `${readCount}/${total} lus` : null,
+  ].filter(Boolean).join(' · ')
+
   return (
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
-      <Topbar />
+      <Topbar title="Tutoriels" subtitle={topSubtitle} />
 
       <div className="px-4 pb-28 lg:px-7 lg:pb-10 space-y-4 lg:mx-auto">
 

@@ -2,22 +2,23 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import Topbar                from '@/components/layout/Topbar'
 import HeroService           from '@/components/dashboard/HeroService'
 import KPIGrid               from '@/components/dashboard/KPIGrid'
 import IncidentsList         from '@/components/dashboard/IncidentsList'
 import StaffRanking          from '@/components/dashboard/StaffRanking'
-import ModalIncident         from '@/components/service/ModalIncident'
 import ModalIncidentDetail   from '@/components/dashboard/ModalIncidentDetail'
 import ModalIncidentEdit     from '@/components/dashboard/ModalIncidentEdit'
 import Panel                 from '@/components/ui/Panel'
 import { useDashboard }          from '@/hooks/useDashboard'
 import { useServiceToday }       from '@/hooks/useService'
-import { useCreateIncident }     from '@/hooks/useIncidents'
 import { useUpdateIncidentFull } from '@/hooks/useIncidents'
 import { useZones }              from '@/hooks/useZones'
-import { useAuthStore }          from '@/store/authStore'
 import { useCurrentUser }        from '@/hooks/useCurrentUser'
+import { useIncidentReporter }   from '@/hooks/useIncidentReporter'
+import { capitalizeFirst }       from '@/lib/strings'
 import type { DashboardAlerte }  from '@/types/dashboard'
 
 export default function DashboardPage() {
@@ -33,12 +34,10 @@ export default function DashboardPage() {
   const { data, isLoading, isError } = useDashboard()
   const { data: serviceData }        = useServiceToday()
   const { data: zonesData = [] }     = useZones()
-  const centreId                     = useAuthStore(s => s.centreId)
-  const createIncident               = useCreateIncident()
   const updateIncident               = useUpdateIncidentFull()
+  const { canReport, openReportIncident, IncidentModalElement } = useIncidentReporter()
 
   // ── État modales ──────────────────────────────────────────────────────────
-  const [incidentOpen,       setIncidentOpen]       = useState(false)
   const [selectedIncident,   setSelectedIncident]   = useState<DashboardAlerte | null>(null)
   const [detailOpen,         setDetailOpen]         = useState(false)
   const [editOpen,           setEditOpen]           = useState(false)
@@ -55,20 +54,6 @@ export default function DashboardPage() {
     () => (serviceData?.staff ?? []).map(m => ({ id: m.id, nom: m.nom, avatarColor: m.avatarColor })),
     [serviceData]
   )
-
-  const handleIncidentSubmit = useCallback(async (payload: {
-    titre: string; severite: 'haute' | 'moyenne' | 'basse'; zoneId: number | null; staffIds: number[]
-  }) => {
-    if (!serviceData || !centreId) return
-    await createIncident.mutateAsync({
-      titre:     payload.titre,
-      severite:  payload.severite,
-      serviceId: serviceData.service.id,
-      centreId,
-      zoneId:   payload.zoneId,
-      staffIds: payload.staffIds,
-    })
-  }, [serviceData, centreId, createIncident])
 
   const handleView = useCallback((inc: DashboardAlerte) => {
     setSelectedIncident(inc)
@@ -99,7 +84,15 @@ export default function DashboardPage() {
   return (
     <>
       <div className="min-h-full animate-fadeUp">
-        <Topbar />
+        <Topbar
+          title={`Dashboard – ${capitalizeFirst(format(new Date(), 'EEE d MMM yyyy', { locale: fr }))}`}
+          subtitle={
+            data?.service?.today
+              ? `Service en cours — ${user.centre?.nom ?? ''}`
+              : (user.centre?.nom ?? '')
+          }
+          onReportIncident={canReport ? openReportIncident : undefined}
+        />
 
         <div className="px-5 pb-8 lg:px-7 space-y-4">
 
@@ -120,10 +113,7 @@ export default function DashboardPage() {
 
           {data && (
             <>
-              <HeroService
-                data={data.service}
-                onReportIncident={serviceData?.service ? () => setIncidentOpen(true) : undefined}
-              />
+              <HeroService data={data.service} />
 
               <KPIGrid
                 data={{
@@ -161,13 +151,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Modales — hors du div animé pour que position:fixed fonctionne */}
-      <ModalIncident
-        open={incidentOpen}
-        onClose={() => setIncidentOpen(false)}
-        onSubmit={handleIncidentSubmit}
-        zones={allZones}
-        staff={serviceData?.staff ?? []}
-      />
+      {IncidentModalElement}
 
       <ModalIncidentDetail
         open={detailOpen}

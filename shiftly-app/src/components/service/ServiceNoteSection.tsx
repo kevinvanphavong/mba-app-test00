@@ -10,14 +10,15 @@ interface Props {
   isManager: boolean
 }
 
-export default function ServiceNoteCard({ serviceId, note, isManager }: Props) {
-  const [editing,    setEditing]   = useState(false)
-  const [value,      setValue]     = useState(note ?? '')
+// Section "Note du service" — destinée à être embarquée dans une carte parente.
+// Ne rend rien si pas de note ET utilisateur non manager (pas d'espace vide).
+export default function ServiceNoteSection({ serviceId, note, isManager }: Props) {
+  const [editing, setEditing] = useState(false)
+  const [value,   setValue]   = useState(note ?? '')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const { mutate, isPending } = useAddServiceNote()
 
-  // Si pas de note et pas manager → ne rien afficher (évite une carte vide en lecture seule)
   if (!note && !isManager) return null
 
   function startEdit() {
@@ -38,13 +39,13 @@ export default function ServiceNoteCard({ serviceId, note, isManager }: Props) {
   }
 
   return (
-    <div className="bg-surface border border-border rounded-[18px] p-4">
-      <div className="flex items-center justify-between mb-2">
-        <p className={`${ty.labelMuted} uppercase tracking-wide`}>Note du service</p>
+    <div>
+      <div className="flex items-center justify-between mb-1.5">
+        <span className={ty.meta}>Note du service</span>
         {isManager && !editing && (
           <button
             onClick={startEdit}
-            className="text-[11px] text-accent hover:opacity-80 transition-opacity"
+            className="text-[11px] font-bold text-accent hover:opacity-80 transition-opacity"
           >
             {note ? 'Modifier' : '+ Ajouter'}
           </button>
@@ -79,14 +80,14 @@ export default function ServiceNoteCard({ serviceId, note, isManager }: Props) {
           </div>
         </div>
       ) : note ? (
-        <div className="bg-surface2 border border-border rounded-[12px] px-3.5 py-3 flex gap-2.5">
-          <span className="text-[16px] shrink-0">📝</span>
-          <p className={`${ty.bodyLg} leading-relaxed whitespace-pre-wrap`}>{note}</p>
+        <div className="bg-surface2 border border-border rounded-[12px] px-3 py-2.5 flex gap-2.5">
+          <span className="text-[14px] shrink-0 leading-tight">📝</span>
+          <p className="text-[12.5px] text-text leading-relaxed whitespace-pre-wrap">
+            {note}
+          </p>
         </div>
       ) : (
-        <p className={`${ty.bodyLg} text-muted italic`}>
-          Aucune note pour ce service.
-        </p>
+        <p className={`${ty.meta} italic`}>Aucune note ajoutée pour le moment.</p>
       )}
     </div>
   )

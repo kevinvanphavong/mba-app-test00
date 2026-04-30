@@ -1,14 +1,15 @@
 import { cn } from '@/lib/cn'
 import { ty } from '@/lib/typography'
 import type { ServicePageData } from '@/types/service'
+import ServiceNoteSection      from '@/components/service/ServiceNoteSection'
 
 interface HeroServiceCardProps {
-  service:            ServicePageData['service']
-  globalPct:          number
-  stats:              Array<{ nom: string; couleur: string; done: number; total: number }>
-  totalDone:          number
-  totalAll:           number
-  onReportIncident?:  () => void
+  service:    ServicePageData['service']
+  globalPct:  number
+  stats:      Array<{ nom: string; couleur: string; done: number; total: number }>
+  totalDone:  number
+  totalAll:   number
+  isManager:  boolean
 }
 
 const STATUT_CONFIG = {
@@ -23,7 +24,7 @@ export default function HeroServiceCard({
   stats,
   totalDone,
   totalAll,
-  onReportIncident,
+  isManager,
 }: HeroServiceCardProps) {
   const cfg = STATUT_CONFIG[service.statut] ?? STATUT_CONFIG.PLANIFIE
 
@@ -38,52 +39,50 @@ export default function HeroServiceCard({
       {/* Glow overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-transparent pointer-events-none" />
 
-      <div className="relative">
-        {/* ── Header row ── */}
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <div className={ty.cardTitleLg}>
-              {service.centreName}
-            </div>
-            <div className={`${ty.metaLg} mt-0.5 capitalize`}>{dateLabel}</div>
-          </div>
+      <div className="relative flex flex-col gap-4">
 
-          {/* Droite : badge nuit + badge statut + bouton incident */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {isNightShift && (
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-surface2 border border-border text-muted">
-                Nuit
-              </span>
-            )}
-            {onReportIncident && (
-              <button
-                onClick={onReportIncident}
-                className={`${ty.meta} font-extrabold font-syne flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] bg-red/10 text-red border border-red/20 hover:bg-red/20 transition-colors`}
-              >
-                ⚠ Incident
-              </button>
-            )}
-            <div className={cn(
-              'flex items-center gap-1.5 px-2.5 py-1 rounded-[8px]',
-              cfg.cls
-            )}>
-              {cfg.dot && (
-                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse_dot" />
-              )}
-              <span className={`${ty.meta} font-extrabold font-syne`}>{cfg.label}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Hours */}
-        <div className={`${ty.kpi} text-[26px] mb-3`}>
-          {service.heureDebut}
-          <span className="text-muted font-normal text-[16px] mx-2">→</span>
-          {service.heureFin}
-        </div>
-
-        {/* ── Avancement global ── */}
+        {/* ── Section 1 : Identité du service ── */}
         <div>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className={ty.cardTitleLg}>
+                {service.centreName}
+              </div>
+              <div className={`${ty.metaLg} mt-0.5 capitalize`}>{dateLabel}</div>
+            </div>
+
+            {/* Badges + actions à droite */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {isNightShift && (
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-surface2 border border-border text-muted">
+                  Nuit
+                </span>
+              )}
+              <div className={cn(
+                'flex items-center gap-1.5 px-2.5 py-1 rounded-[8px]',
+                cfg.cls
+              )}>
+                {cfg.dot && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse_dot" />
+                )}
+                <span className={`${ty.meta} font-extrabold font-syne`}>{cfg.label}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Horaires */}
+          <div className="mt-2.5 flex items-baseline gap-2">
+            <span className={ty.meta}>Horaires</span>
+            <div className={`${ty.kpi} text-[22px] leading-none`}>
+              {service.heureDebut}
+              <span className="text-muted font-normal text-[14px] mx-1.5">→</span>
+              {service.heureFin}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Section 2 : Avancement ── */}
+        <div className="pt-3 border-t border-border">
           <div className="flex items-center justify-between mb-1.5">
             <span className={ty.meta}>Avancement global</span>
             <span className="font-syne font-extrabold text-[20px] text-accent leading-none">
@@ -124,14 +123,26 @@ export default function HeroServiceCard({
             })}
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
-            <span className="text-[11px] text-muted">Missions complétées</span>
+          {/* Total missions */}
+          <div className="flex items-center justify-between mt-3">
+            <span className={ty.meta}>Missions complétées</span>
             <span className="text-[13px] font-extrabold font-syne text-text">
               {totalDone}<span className="text-muted font-normal">/{totalAll}</span>
             </span>
           </div>
         </div>
+
+        {/* ── Section 3 : Note du service ── */}
+        {(service.note || isManager) && (
+          <div className="pt-3 border-t border-border">
+            <ServiceNoteSection
+              serviceId={service.id}
+              note={service.note}
+              isManager={isManager}
+            />
+          </div>
+        )}
+
       </div>
     </div>
   )

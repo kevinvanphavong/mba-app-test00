@@ -7,6 +7,8 @@ import { useAuthStore }         from '@/store/authStore'
 import { ty }                    from '@/lib/typography'
 import { cn }                    from '@/lib/cn'
 import { useServicesList, useDeleteService, useAddServiceNote } from '@/hooks/useService'
+import { useCurrentUser }       from '@/hooks/useCurrentUser'
+import Topbar              from '@/components/layout/Topbar'
 import ServiceCard         from '@/components/services/ServiceCard'
 import ModalCreateService  from '@/components/services/ModalCreateService'
 
@@ -17,6 +19,7 @@ const LIMITS = [10, 20, 50]
 export default function ServicesPage() {
   const isManager  = useAuthStore(s => s.user?.role === 'MANAGER')
   const centreId   = useAuthStore(s => s.centreId)
+  const { user }   = useCurrentUser()
 
   const { data, isLoading, isError, refetch } = useServicesList()
 
@@ -26,23 +29,33 @@ export default function ServicesPage() {
   const [showCreate,  setShowCreate]  = useState(false)
   const [limitPasse,  setLimitPasse]  = useState(10)
 
+  const servicesCount = data?.length ?? 0
+  const topSubtitle   = [
+    user?.centre?.nom,
+    `${servicesCount} service${servicesCount > 1 ? 's' : ''}`,
+    'triés par date',
+  ].filter(Boolean).join(' · ')
+
   // ── Loading ────────────────────────────────────────────────────────────────
 
   if (!centreId || isLoading) {
     return (
-      <div className="mx-auto px-5 py-6 lg:max-w-2xl">
-        <div className="flex items-start justify-between mb-5">
-          <div>
-            <div className="h-5 w-28 bg-surface2 rounded-lg animate-pulse" />
-            <div className="h-3 w-40 bg-surface2 rounded mt-2 animate-pulse" />
+      <>
+        <Topbar title="Services" subtitle={user?.centre?.nom ?? ''} />
+        <div className="mx-auto px-5 py-6 lg:max-w-2xl">
+          <div className="flex items-start justify-between mb-5">
+            <div>
+              <div className="h-5 w-28 bg-surface2 rounded-lg animate-pulse" />
+              <div className="h-3 w-40 bg-surface2 rounded mt-2 animate-pulse" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-28 bg-surface border border-border rounded-[18px] animate-pulse" />
+            ))}
           </div>
         </div>
-        <div className="flex flex-col gap-3">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-28 bg-surface border border-border rounded-[18px] animate-pulse" />
-          ))}
-        </div>
-      </div>
+      </>
     )
   }
 
@@ -50,21 +63,24 @@ export default function ServicesPage() {
 
   if (isError) {
     return (
-      <div className="mx-auto px-5 py-6 lg:max-w-2xl">
-        <div className="bg-surface border border-red/20 rounded-[18px] p-8 text-center">
-          <p className="text-[28px] mb-2">⚠️</p>
-          <p className={`${ty.cardTitleMd} text-red font-bold`}>Erreur de chargement</p>
-          <p className={`${ty.metaLg} mt-1 mb-4`}>
-            Impossible de récupérer le planning.
-          </p>
-          <button
-            onClick={() => refetch()}
-            className={`${ty.body} px-4 py-2 bg-surface2 border border-border rounded-[10px] hover:border-accent transition-colors`}
-          >
-            Réessayer
-          </button>
+      <>
+        <Topbar title="Services" subtitle={user?.centre?.nom ?? ''} />
+        <div className="mx-auto px-5 py-6 lg:max-w-2xl">
+          <div className="bg-surface border border-red/20 rounded-[18px] p-8 text-center">
+            <p className="text-[28px] mb-2">⚠️</p>
+            <p className={`${ty.cardTitleMd} text-red font-bold`}>Erreur de chargement</p>
+            <p className={`${ty.metaLg} mt-1 mb-4`}>
+              Impossible de récupérer le planning.
+            </p>
+            <button
+              onClick={() => refetch()}
+              className={`${ty.body} px-4 py-2 bg-surface2 border border-border rounded-[10px] hover:border-accent transition-colors`}
+            >
+              Réessayer
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
@@ -78,22 +94,20 @@ export default function ServicesPage() {
 
   if (services.length === 0) {
     return (
-      <div className="mx-auto px-5 py-6 lg:max-w-2xl">
-        <div className="flex items-start justify-between mb-5">
-          <div>
-            <h1 className={`${ty.kpi} text-[20px]`}>Services</h1>
-            <p className={`${ty.metaLg} mt-0.5`}>Aucun service créé pour le moment</p>
-          </div>
+      <>
+        <Topbar title="Services" subtitle={user?.centre?.nom ?? ''} />
+        <div className="mx-auto px-5 py-6 lg:max-w-2xl">
           {isManager && (
-            <button
-              onClick={() => setShowCreate(true)}
-              className="flex items-center gap-1.5 bg-accent text-white text-[12px] font-bold px-3 py-2 rounded-[12px] hover:bg-accent/90 active:scale-[0.97] transition-all"
-            >
-              <span className="text-[16px] leading-none">+</span>
-              Nouveau
-            </button>
+            <div className="flex items-center justify-end mb-5">
+              <button
+                onClick={() => setShowCreate(true)}
+                className="flex items-center gap-1.5 bg-accent text-white text-[12px] font-bold px-3 py-2 rounded-[12px] hover:bg-accent/90 active:scale-[0.97] transition-all"
+              >
+                <span className="text-[16px] leading-none">+</span>
+                Nouveau
+              </button>
+            </div>
           )}
-        </div>
 
         <div className="bg-surface border border-border rounded-[18px] p-10 text-center">
           <p className="text-[36px] mb-3">📅</p>
@@ -119,7 +133,8 @@ export default function ServicesPage() {
             onClose={() => setShowCreate(false)}
           />
         )}
-      </div>
+        </div>
+      </>
     )
   }
 
@@ -138,25 +153,20 @@ export default function ServicesPage() {
   // ── Liste ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="mx-auto px-5 py-6 lg:max-w-2xl pb-28">
-      {/* En-tête */}
-      <div className="flex items-start justify-between mb-5">
-        <div>
-          <h1 className="font-syne font-extrabold text-[20px] text-text">Services</h1>
-          <p className={`${ty.metaLg} mt-0.5`}>
-            {services.length} service{services.length > 1 ? 's' : ''} · triés par date
-          </p>
-        </div>
+    <>
+      <Topbar title="Services" subtitle={topSubtitle} />
+      <div className="mx-auto px-5 py-6 lg:max-w-2xl pb-28">
         {isManager && (
-          <button
-            onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1.5 bg-accent text-white text-[12px] font-bold px-3 py-2 rounded-[12px] hover:bg-accent/90 active:scale-[0.97] transition-all"
-          >
-            <span className="text-[16px] leading-none">+</span>
-            Nouveau
-          </button>
+          <div className="flex items-center justify-end mb-5">
+            <button
+              onClick={() => setShowCreate(true)}
+              className="flex items-center gap-1.5 bg-accent text-white text-[12px] font-bold px-3 py-2 rounded-[12px] hover:bg-accent/90 active:scale-[0.97] transition-all"
+            >
+              <span className="text-[16px] leading-none">+</span>
+              Nouveau
+            </button>
+          </div>
         )}
-      </div>
 
       {/* ── Aujourd'hui ─────────────────────────────────────────────────────── */}
       {todayService && (
@@ -256,6 +266,7 @@ export default function ServicesPage() {
           onClose={() => setShowCreate(false)}
         />
       )}
-    </div>
+      </div>
+    </>
   )
 }

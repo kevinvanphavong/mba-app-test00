@@ -5,6 +5,7 @@ import { motion }         from 'framer-motion'
 import { fadeUpVariants } from '@/lib/animations'
 import { ty }             from '@/lib/typography'
 import { useZones }       from '@/hooks/useZones'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 import Topbar             from '@/components/layout/Topbar'
 import PosteCard          from '@/components/postes/PosteCard'
 import type { Zone }      from '@/types/index'
@@ -14,22 +15,23 @@ import type { Zone }      from '@/types/index'
 
 export default function PostesPage() {
   const { data: zones, isLoading, isError } = useZones()
+  const { user } = useCurrentUser()
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null)
 
   // ─── Zone active : première par défaut dès que les données arrivent ─────────
   const activeZone = selectedZone ?? zones?.[0] ?? null
 
+  const nbZones = zones?.length ?? 0
+  const topSubtitle = [
+    user?.centre?.nom,
+    `${nbZones} zone${nbZones > 1 ? 's' : ''}`,
+  ].filter(Boolean).join(' · ')
+
   return (
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
-      <Topbar />
+      <Topbar title="Postes" subtitle={topSubtitle} />
 
       <div className="px-4 pb-28 lg:px-7 lg:pb-10 space-y-4 lg:mx-auto">
-
-        {/* ── En-tête de section ── */}
-        <div>
-          <h1 className={`${ty.kpi} text-[20px]`}>Postes</h1>
-          <p className={`${ty.metaLg} mt-0.5`}>Fiches de poste par zone</p>
-        </div>
 
         {/* ── État loading ── */}
         {isLoading && (

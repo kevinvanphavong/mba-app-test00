@@ -6,8 +6,10 @@
  */
 
 import { useState } from 'react'
-import { startOfWeek, format } from 'date-fns'
+import { startOfWeek, format, addDays } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import { useManagerGuard }  from '@/hooks/useManagerGuard'
+import { useCurrentUser }   from '@/hooks/useCurrentUser'
 import {
   useValidationSemaine,
   useValidationAlertes,
@@ -34,6 +36,7 @@ function getLundiISO(date: Date): string {
 
 export default function ValidationPage() {
   useManagerGuard()
+  const { user } = useCurrentUser()
 
   // Semaine courante (lundi)
   const [currentLundi, setCurrentLundi] = useState<Date>(() =>
@@ -43,6 +46,16 @@ export default function ValidationPage() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
 
   const dateStr = getLundiISO(currentLundi)
+
+  // Topbar : titre = "Validation hebdo – Semaine du X au Y"
+  const dimanche = addDays(currentLundi, 6)
+  const sameMonth = currentLundi.getMonth() === dimanche.getMonth()
+                  && currentLundi.getFullYear() === dimanche.getFullYear()
+  const startLabel = sameMonth
+    ? format(currentLundi, 'd', { locale: fr })
+    : format(currentLundi, 'd MMM', { locale: fr })
+  const endLabel = format(dimanche, 'd MMM', { locale: fr })
+  const topTitle = `Validation hebdo – Semaine du ${startLabel} au ${endLabel}`
 
   // Données semaine
   const { data: semaine, isLoading, isError } = useValidationSemaine(dateStr)
@@ -84,7 +97,7 @@ export default function ValidationPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
-        <Topbar />
+        <Topbar title={topTitle} subtitle={user?.centre?.nom ?? ''} />
         <div className="flex items-center justify-center flex-1">
           <div className="text-sm" style={{ color: 'var(--muted)' }}>Chargement des données...</div>
         </div>
@@ -95,7 +108,7 @@ export default function ValidationPage() {
   if (isError) {
     return (
       <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
-        <Topbar />
+        <Topbar title={topTitle} subtitle={user?.centre?.nom ?? ''} />
         <div className="flex items-center justify-center flex-1">
           <div className="text-sm" style={{ color: 'var(--red)' }}>Erreur lors du chargement des données.</div>
         </div>
@@ -103,21 +116,19 @@ export default function ValidationPage() {
     )
   }
 
+  const topSubtitle = [
+    user?.centre?.nom,
+    `${nbValides}/${nbTotal} validés`,
+  ].filter(Boolean).join(' · ')
+
   return (
     <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
-      <Topbar />
+      <Topbar title={topTitle} subtitle={topSubtitle} />
 
       <div className="flex-1 p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto w-full">
 
-        {/* En-tête avec boutons d'action */}
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-          <div
-            className="font-syne font-extrabold text-[22px]"
-            style={{ color: 'var(--text)' }}
-          >
-            Pointage — <span style={{ color: 'var(--accent)' }}>Validation hebdomadaire</span>
-          </div>
-
+        {/* Boutons d'action — le titre vient désormais du Topbar */}
+        <div className="flex items-center justify-end mb-5 flex-wrap gap-3">
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={handleDevaliderTout}

@@ -9,6 +9,7 @@ import FilterTabs                               from '@/components/staff/FilterT
 import MemberCard                               from '@/components/staff/MemberCard'
 import { ty }                                    from '@/lib/typography'
 import { useStaff }                             from '@/hooks/useStaff'
+import { useCurrentUser }                       from '@/hooks/useCurrentUser'
 import { listVariants, listItemVariants, fadeUpVariants } from '@/lib/animations'
 import type { RoleFilter, ZoneFilter }          from '@/types/staff'
 
@@ -19,8 +20,14 @@ export default function StaffPage() {
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
   const { data, isLoading, isError } = useStaff()
+  const { user } = useCurrentUser()
   const members = data?.members ?? []
   const meta    = data?.meta    ?? { tutorielsTotal: 0, competencesTotal: 0 }
+  const activeMembers = members.filter(m => m.actif).length
+  const topSubtitle = [
+    user?.centre?.nom,
+    `${activeMembers} membre${activeMembers > 1 ? 's' : ''}`,
+  ].filter(Boolean).join(' · ')
 
   // Zones uniques dans le centre (pour les chips de filtre)
   const zones = useMemo(() => {
@@ -64,7 +71,7 @@ export default function StaffPage() {
   if (isLoading) {
     return (
       <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
-        <Topbar />
+        <Topbar title="Staff" subtitle={topSubtitle} />
         <div className="px-4 pb-28 space-y-3 pt-4">
           <div className="grid grid-cols-3 gap-3">
             {[0,1,2].map(i => <div key={i} className="h-20 bg-surface border border-border rounded-[14px] animate-pulse" />)}
@@ -78,7 +85,7 @@ export default function StaffPage() {
   if (isError) {
     return (
       <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
-        <Topbar />
+        <Topbar title="Staff" subtitle={topSubtitle} />
         <div className="px-4 py-14 text-center">
           <p className={`${ty.cardTitleMd} font-bold text-red mb-1`}>Impossible de charger le staff.</p>
           <p className={ty.metaLg}>Vérifie la connexion ou recharge la page.</p>
@@ -89,7 +96,7 @@ export default function StaffPage() {
 
   return (
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
-      <Topbar />
+      <Topbar title="Staff" subtitle={topSubtitle} />
 
       <div className="px-4 pb-28 lg:px-7 lg:pb-10 space-y-4 lg:mx-auto">
 
