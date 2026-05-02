@@ -3,6 +3,7 @@
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { capitalizeFirst, capitalizeWords } from '@/lib/strings'
 import NotificationBell from '@/components/layout/NotificationBell'
 
 interface TopbarProps {
@@ -24,19 +25,17 @@ export default function Topbar({ title, subtitle, onReportIncident }: TopbarProp
   const { user } = useCurrentUser()
 
   const today      = new Date()
-  const dayShort   = format(today, 'EEE d MMM', { locale: fr })   // "mer. 18 mars"
-  const dayFull    = format(today, 'EEEE d MMMM yyyy', { locale: fr })
-  const centreName = user?.centre?.nom ?? '…'
-
-  // Capitalisation simple de la 1ʳᵉ lettre (date-fns sort en minuscules)
-  const dayShortCap = dayShort.charAt(0).toUpperCase() + dayShort.slice(1)
-  const dayFullCap  = dayFull.charAt(0).toUpperCase()  + dayFull.slice(1)
+  // Pastille raccourcie : chaque mot capitalisé → "Mer. 18 Mars"
+  const dayShortCap = capitalizeWords(format(today, 'EEE d MMM', { locale: fr }))
+  // Fallback titre : seule la 1ʳᵉ lettre capitalisée → "Vendredi 2 mai 2026"
+  const dayFullCap  = capitalizeFirst(format(today, 'EEEE d MMMM yyyy', { locale: fr }))
+  const centreName  = user?.centre?.nom ?? '…'
 
   const heading  = title    ?? dayFullCap
   const sub      = subtitle ?? centreName
 
   return (
-    <header className="flex items-center justify-between gap-3 px-5 pt-5 pb-3 lg:px-7 lg:pt-7 lg:pb-4">
+    <header className="flex items-center justify-between gap-3 bg-surface border-b border-border mb-5 px-5 py-4 lg:px-7 lg:py-5">
       {/* Bloc titre */}
       <div className="min-w-0 flex-1">
         <h1 className="font-syne font-extrabold text-[20px] lg:text-[26px] text-text leading-tight truncate">

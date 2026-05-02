@@ -2,14 +2,11 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { AnimatePresence, motion }        from 'framer-motion'
-import { format }                         from 'date-fns'
-import { fr }                             from 'date-fns/locale'
 import { listVariants }                  from '@/lib/animations'
 import { useManagerGuard }                from '@/hooks/useManagerGuard'
 import { useServiceToday }                from '@/hooks/useService'
 import { useCurrentUser }                 from '@/hooks/useCurrentUser'
 import { useIncidentReporter }            from '@/hooks/useIncidentReporter'
-import { capitalizeFirst }                from '@/lib/strings'
 import {
   usePointageService, usePointageArrivee, usePointageDepart,
   usePointagePauseStart, usePointagePauseEnd,
@@ -47,7 +44,7 @@ export default function PointagePage() {
   const serviceId = serviceToday?.service?.id ?? null
   const { data, isLoading: pointageLoading } = usePointageService(serviceId)
 
-  const topTitle = `Pointage – ${capitalizeFirst(format(new Date(), 'EEE d MMM', { locale: fr }))}`
+  const topTitle = 'Pointage'
   const topSubtitle = data?.stats
     ? `${user?.centre?.nom ?? ''} · ${data.stats.presents} en service · ${data.stats.enPause} en pause`
     : (user?.centre?.nom ?? '')
