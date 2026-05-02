@@ -6,11 +6,10 @@ import { fr } from 'date-fns/locale'
 import { usePlanningWeek, useDuplicateWeek, useExportPlanningPdf } from '@/hooks/usePlanning'
 import { useCurrentUser }      from '@/hooks/useCurrentUser'
 import { useIncidentReporter } from '@/hooks/useIncidentReporter'
+import { formatHours }         from '@/lib/formatHours'
 import type { PlanningShift } from '@/types/planning'
 import Topbar from '@/components/layout/Topbar'
-import WeekNavigator from './WeekNavigator'
 import PlanningGrid from './PlanningGrid'
-import StatsBar from './StatsBar'
 import AlertPanel from './AlertPanel'
 import ShiftModal from './ShiftModal'
 import PublishModal from './PublishModal'
@@ -32,9 +31,16 @@ function shiftWeek(ws: string, delta: number): string {
   return d.toISOString().split('T')[0]
 }
 
-function getWeekNumber(ws: string): number {
-  const d = new Date(ws + 'T12:00:00'); const jan = new Date(d.getFullYear(), 0, 1)
-  return Math.ceil(((d.getTime() - jan.getTime()) / 86400000 + jan.getDay() + 1) / 7)
+/** Mini-carte KPI affichée à droite du bloc "Planning hebdomadaire".
+ *  < lg : flex-1 (4 cellules de largeur égale qui remplissent la carte).
+ *  lg+  : auto-size avec un min-width pour rester lisible. */
+function KpiBox({ label, value, accent }: { label: string; value: string; accent: string }) {
+  return (
+    <div className="flex-1 lg:flex-initial lg:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] bg-[var(--surface2)] px-4 py-2.5">
+      <span className="text-[10px] uppercase tracking-wider text-[var(--muted)] font-syne font-bold">{label}</span>
+      <span className="text-[20px] font-syne font-extrabold mt-0.5 leading-none" style={{ color: accent }}>{value}</span>
+    </div>
+  )
 }
 
 /** "il y a 2h", "il y a 3 jours", etc. */
@@ -71,7 +77,6 @@ const BADGE_CONFIG: Record<BadgeState, { label: string; cls: string; pulse: bool
 /** Vue Manager du module Planning */
 export default function PlanningManagerView() {
   const [weekStart, setWeekStart]         = useState<string>(getCurrentMonday)
-  const [showAlerts, setShowAlerts]       = useState(false)
   const [showSnapshots, setShowSnapshots] = useState(false)
   const [publishOpen, setPublishOpen]     = useState(false)
   const [templatesOpen, setTemplatesOpen] = useState(false)
@@ -130,119 +135,105 @@ export default function PlanningManagerView() {
     return d.toISOString().split('T')[0]
   })()
 
-  // Titre + sous-titre du Topbar
+  // Topbar : juste le nom de la nav item — les infos de semaine sont dans la carte ci-dessous
   const startDate = new Date(displayWeekStart + 'T12:00:00')
   const endDate   = new Date(weekEnd + 'T12:00:00')
   const sameMonth = startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()
-  const startLabel = sameMonth
-    ? format(startDate, 'd', { locale: fr })
-    : format(startDate, 'd MMM', { locale: fr })
-  const endLabel   = format(endDate, 'd MMM', { locale: fr })
-  const topTitle   = `Planning – Semaine du ${startLabel} au ${endLabel}`
 
   const nbMembres   = data?.employees.length ?? 0
   const nbCreneaux  = data?.employees.reduce((sum, emp) => sum + emp.shifts.length, 0) ?? 0
-  const topSubtitle = [
-    user?.centre?.nom,
-    `${nbMembres} membre${nbMembres > 1 ? 's' : ''}`,
-    `${nbCreneaux} créneau${nbCreneaux > 1 ? 'x' : ''}`,
-  ].filter(Boolean).join(' · ')
+
+  // ── Titre interne de la carte "Planning hebdomadaire" ─────────────────────
+  // "Semaine du 16 au 22 mars 2026" / "Semaine du 28 mars au 3 avril 2026" /
+  // "Semaine du 30 déc 2025 au 5 janv 2026"
+  const sameYear = startDate.getFullYear() === endDate.getFullYear()
+  const innerTitle = sameMonth
+    ? `Semaine du ${format(startDate, 'd', { locale: fr })} au ${format(endDate, 'd MMMM yyyy', { locale: fr })}`
+    : sameYear
+      ? `Semaine du ${format(startDate, 'd MMMM', { locale: fr })} au ${format(endDate, 'd MMMM yyyy', { locale: fr })}`
+      : `Semaine du ${format(startDate, 'd MMM yyyy', { locale: fr })} au ${format(endDate, 'd MMM yyyy', { locale: fr })}`
+
+  const totalHeures = stats?.totalHeures   ?? 0
+  const trous       = stats?.creneauxVides ?? 0
 
   return (
     <>
       <Topbar
-        title={topTitle}
-        subtitle={topSubtitle}
+        title="Planning"
         onReportIncident={canReport ? openReportIncident : undefined}
       />
 
-      {/* ── Zone sticky : header + navigateur de semaine ── */}
-      <div className="sticky top-0 z-20 bg-[var(--surface)]">
+      <div className="flex flex-col gap-4 px-4 pb-4 md:px-6 pb-24 md:pb-8">
 
-        {/* Header mobile : titre + publier sur la 1ère ligne, actions secondaires sur la 2ème */}
-        <div className="border-b border-[var(--border)] lg:hidden">
-          <div className="flex items-center justify-between gap-3 px-4 py-3">
-            <div className="min-w-0 flex items-center gap-2">
-              <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
-                {badge.label}
-              </span>
-            </div>
-            <button
-              onClick={() => setPublishOpen(true)}
-              className={`shrink-0 rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[13px] font-semibold text-white transition-opacity active:opacity-80 ${ctaSaillant ? 'ring-2 ring-[var(--yellow)] ring-offset-2 ring-offset-[var(--surface)]' : ''}`}
-            >
-              {ctaLabel}
-            </button>
-          </div>
+        {/* ── Carte "Planning hebdomadaire" ───────────────────────────────── */}
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[14px] p-5 md:p-6 accent-bar relative overflow-hidden">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
 
-          {/* Sous-titre dirty : informe précisément du décalage */}
-          {badgeState === 'PUBLIE_DIRTY' && publishedAt && (
-            <div className="px-4 pb-2 text-[11px] text-[var(--muted)] leading-snug">
-              Le staff voit la version d'<span className="font-semibold text-[var(--text)]">{timeAgo(publishedAt)}</span>. Republie pour mettre à jour leur app.
+            {/* Bloc gauche : label + titre + chevrons + sous-titre */}
+            <div className="min-w-0 w-full lg:flex-1">
+              <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-[var(--muted)] mb-2">
+                Planning hebdomadaire
+              </p>
+              <div className="flex items-center gap-3 flex-nowrap min-w-0">
+                <button
+                  onClick={() => setWeekStart(shiftWeek(displayWeekStart, -1))}
+                  className="shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border border-[var(--border)] bg-[var(--surface2)] text-[var(--muted)] hover:text-[var(--text)] hover:border-[var(--accent)] transition-colors"
+                  aria-label="Semaine précédente"
+                >‹</button>
+                <h2 className="min-w-0 truncate font-syne font-extrabold text-[22px] md:text-[28px] text-[var(--text)] leading-tight capitalize">
+                  {innerTitle}
+                </h2>
+                <button
+                  onClick={() => setWeekStart(shiftWeek(displayWeekStart, +1))}
+                  className="shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border border-[var(--border)] bg-[var(--surface2)] text-[var(--muted)] hover:text-[var(--text)] hover:border-[var(--accent)] transition-colors"
+                  aria-label="Semaine suivante"
+                >›</button>
+              </div>
+              <p className="text-[12px] md:text-[13px] text-[var(--muted)] mt-2">
+                {[user?.centre?.nom, `${nbCreneaux} créneaux planifiés`, `${nbMembres} membres`].filter(Boolean).join(' · ')}
+              </p>
+              {badgeState === 'PUBLIE_DIRTY' && publishedAt && (
+                <p className="text-[11px] text-[var(--yellow)] mt-1.5 leading-snug">
+                  Le staff voit la version d'<span className="font-semibold">{timeAgo(publishedAt)}</span> — republie pour synchroniser.
+                </p>
+              )}
             </div>
-          )}
-          {/* Actions secondaires — scroll horizontal pour éviter le wrap */}
-          <div className="flex items-center gap-2 overflow-x-auto px-4 pb-3 [&::-webkit-scrollbar]:hidden">
-            {statut === 'PUBLIE' && (
-              <button
-                onClick={() => setStaffPreviewOpen(true)}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] transition-colors ${
-                  badgeState === 'PUBLIE_DIRTY'
-                    ? 'border-[var(--yellow)] bg-[rgba(234,179,8,0.10)] text-[var(--yellow)]'
-                    : 'border-[var(--border)] bg-[var(--surface2)] text-[var(--text)] active:border-[var(--accent)]'
-                }`}
-              >
-                👀 Aperçu staff
-              </button>
-            )}
-            <button
-              onClick={() => exportPdf(displayWeekStart)}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] text-[var(--text)] transition-colors active:border-[var(--accent)]"
-            >
-              📥 Export
-            </button>
-            <button
-              onClick={() => setShowSnapshots(v => !v)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] transition-colors ${
-                showSnapshots
-                  ? 'border-[var(--accent)] bg-[rgba(249,115,22,0.08)] text-[var(--accent)]'
-                  : 'border-[var(--border)] bg-[var(--surface2)] text-[var(--text)]'
-              }`}
-            >
-              🗄️ Historique
-            </button>
-            <button
-              onClick={() => duplicateWeek.mutate({ sourceWeekStart: displayWeekStart, targetWeekStart: shiftWeek(displayWeekStart, 1) })}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] text-[var(--text)] transition-colors active:border-[var(--accent)]"
-            >
-              📋 Dupliquer
-            </button>
-            <button
-              onClick={() => setTemplatesOpen(true)}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] text-[var(--text)] transition-colors active:border-[var(--accent)]"
-            >
-              📦 Templates
-            </button>
+
+            {/* Bloc droite : badge statut + 3 KPIs
+                < lg : sous le bloc semaine, chaque cellule prend une part égale (flex-1) → remplit la largeur
+                lg+ : auto-size sur la droite, alignées au centre vertical */}
+            <div className="flex items-stretch gap-2 md:gap-3 w-full lg:w-auto">
+              <div className={`flex-1 lg:flex-initial lg:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] px-4 py-2.5 ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
+                <span className="text-[10px] uppercase tracking-wider opacity-70 font-syne font-bold">Statut</span>
+                <span className="text-[12px] font-bold uppercase mt-0.5 leading-tight text-center">{badge.label}</span>
+              </div>
+              <KpiBox label="Heures"  value={formatHours(totalHeures)} accent="var(--accent)" />
+              <KpiBox label="Membres" value={`${nbMembres}`}            accent="var(--blue)" />
+              <KpiBox label="Trous"   value={`${trous}`}                accent={trous > 0 ? 'var(--red)' : 'var(--text)'} />
+            </div>
           </div>
         </div>
 
-        {/* Header desktop : tout en une ligne */}
-        <div className="hidden items-center justify-between border-b border-[var(--border)] px-6 py-4 lg:flex">
-          <div className="flex items-center gap-3">
-            <span className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
-              {badge.label}
-            </span>
-            {badgeState === 'PUBLIE_DIRTY' && publishedAt && (
-              <span className="text-[11px] text-[var(--muted)] leading-snug">
-                Le staff voit la version d'<span className="font-semibold text-[var(--text)]">{timeAgo(publishedAt)}</span> — republie pour synchroniser.
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
+        {/* ── Toolbar : zones (info) + boutons existants ──────────────────── */}
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          {/* Légende zones — info uniquement, pas de filtre */}
+          {zones.length > 0 && (
+            <div className="flex items-center gap-3 flex-wrap">
+              {zones.map(z => (
+                <div key={z.id} className="flex items-center gap-1.5 text-[12px] text-[var(--muted)]">
+                  <span className="h-2 w-2 rounded-full" style={{ background: z.couleur }} />
+                  {z.nom}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Boutons existants — ordre conservé : Aperçu / Export / Historique / Dupliquer / Templates / Publier */}
+          <div className="flex items-center gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden">
             {statut === 'PUBLIE' && (
               <button
                 onClick={() => setStaffPreviewOpen(true)}
-                className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] transition-colors ${
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] md:text-[13px] transition-colors ${
                   badgeState === 'PUBLIE_DIRTY'
                     ? 'border-[var(--yellow)] bg-[rgba(234,179,8,0.10)] text-[var(--yellow)] hover:bg-[rgba(234,179,8,0.16)]'
                     : 'border-[var(--border)] bg-[var(--surface2)] text-[var(--text)] hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]'
@@ -253,13 +244,13 @@ export default function PlanningManagerView() {
             )}
             <button
               onClick={() => exportPdf(displayWeekStart)}
-              className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] md:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
             >
               📥 Export PDF
             </button>
             <button
               onClick={() => setShowSnapshots(v => !v)}
-              className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[13px] transition-colors ${
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] md:text-[13px] transition-colors ${
                 showSnapshots
                   ? 'border-[var(--accent)] bg-[rgba(249,115,22,0.08)] text-[var(--accent)]'
                   : 'border-[var(--border)] bg-[var(--surface2)] text-[var(--text)] hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]'
@@ -269,57 +260,32 @@ export default function PlanningManagerView() {
             </button>
             <button
               onClick={() => duplicateWeek.mutate({ sourceWeekStart: displayWeekStart, targetWeekStart: shiftWeek(displayWeekStart, 1) })}
-              className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] md:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
             >
               📋 Dupliquer semaine
             </button>
             <button
               onClick={() => setTemplatesOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] md:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
             >
               📦 Templates
             </button>
             <button
               onClick={() => setPublishOpen(true)}
-              className={`rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 ${ctaSaillant ? 'ring-2 ring-[var(--yellow)] ring-offset-2 ring-offset-[var(--surface)]' : ''}`}
+              className={`shrink-0 rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[12px] md:text-[13px] font-semibold text-white transition-opacity hover:opacity-90 ${ctaSaillant ? 'ring-2 ring-[var(--yellow)] ring-offset-2 ring-offset-[var(--surface)]' : ''}`}
             >
               {ctaLabel}
             </button>
           </div>
         </div>
 
-        {/* Navigateur semaine — collé au header sans offset hardcodé */}
-        <WeekNavigator
-          weekStart={displayWeekStart}
-          weekEnd={weekEnd}
-          weekNumber={getWeekNumber(displayWeekStart)}
-          onPrev={() => setWeekStart(shiftWeek(displayWeekStart, -1))}
-          onNext={() => setWeekStart(shiftWeek(displayWeekStart, +1))}
-          onToday={() => setWeekStart(getCurrentMonday())}
-        />
-      </div>
-
-      {/* ── Grille (scroll horizontal) ── */}
-      <div className="p-4 md:p-6">
+        {/* ── Grille (scroll horizontal) — inchangée ──────────────────────── */}
         {data && (
           <PlanningGrid data={data} onAddShift={openAdd} onEditShift={openEdit} />
         )}
-      </div>
 
-      {/* ── Stats + bouton alertes ── */}
-      {stats && (
-        <StatsBar
-          stats={stats}
-          zones={zones}
-          alertCount={alertes.length}
-          showAlerts={showAlerts}
-          onToggleAlerts={() => setShowAlerts(v => !v)}
-        />
-      )}
-
-      {/* ── Panneaux dépliables ── */}
-      <div className="flex flex-col gap-3 px-4 py-3 md:px-6 pb-24 md:pb-8">
-        <AlertPanel alertes={alertes} show={showAlerts} />
+        {/* ── Alertes — toujours en bas ───────────────────────────────────── */}
+        {alertes.length > 0 && <AlertPanel alertes={alertes} show={true} />}
       </div>
 
       {/* ── Modal historique des snapshots ── */}

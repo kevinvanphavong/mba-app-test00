@@ -2,8 +2,6 @@
 
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
 import Topbar                from '@/components/layout/Topbar'
 import HeroService           from '@/components/dashboard/HeroService'
 import KPIGrid               from '@/components/dashboard/KPIGrid'
@@ -18,7 +16,6 @@ import { useUpdateIncidentFull } from '@/hooks/useIncidents'
 import { useZones }              from '@/hooks/useZones'
 import { useCurrentUser }        from '@/hooks/useCurrentUser'
 import { useIncidentReporter }   from '@/hooks/useIncidentReporter'
-import { capitalizeFirst }       from '@/lib/strings'
 import type { DashboardAlerte }  from '@/types/dashboard'
 
 export default function DashboardPage() {
@@ -85,7 +82,7 @@ export default function DashboardPage() {
     <>
       <div className="min-h-full animate-fadeUp">
         <Topbar
-          title={`Dashboard – ${capitalizeFirst(format(new Date(), 'EEE d MMM yyyy', { locale: fr }))}`}
+          title="Dashboard"
           subtitle={
             data?.service?.today
               ? `Service en cours — ${user.centre?.nom ?? ''}`
