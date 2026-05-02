@@ -110,6 +110,21 @@ mba-app-test00/
 │   │   │   │   ├── PosteSection.tsx   # Section par zone/poste
 │   │   │   │   └── IncidentModal.tsx  # Signalement incident
 │   │   │   │
+│   │   │   ├── services/                  # Page /services — vue mobile + desktop
+│   │   │   │   ├── ServiceCard.tsx        # Card mobile (vue empilée — sections Aujourd'hui/À venir/Passés)
+│   │   │   │   ├── ServicesMobileView.tsx # Orchestrateur mobile (rend les sections + ServiceCard)
+│   │   │   │   ├── ServicesDesktopView.tsx # Orchestrateur desktop (hero + onglets + filtre + table)
+│   │   │   │   ├── ServicesHero.tsx       # Hero card desktop (titre, LIVE badge, KPI Tx clôture, + Nouveau)
+│   │   │   │   ├── ServicesTabs.tsx       # Onglets desktop : En cours / À venir / Historique
+│   │   │   │   ├── ServicesPeriodFilter.tsx # Filtre période (date pickers + raccourcis 7J/30J/Tout)
+│   │   │   │   ├── ServicesTable.tsx      # Tableau dépliant (header + rows + animation expand)
+│   │   │   │   ├── ServicesTableHeader.tsx
+│   │   │   │   ├── ServicesTableRow.tsx
+│   │   │   │   ├── ServicesTableExpanded.tsx # Panel : Zones & Staff + Progression + Note
+│   │   │   │   ├── TeamBubbles.tsx        # Avatars empilés (4 max + overflow +N)
+│   │   │   │   ├── ModalCreateService.tsx
+│   │   │   │   └── ModalAssignerPoste.tsx
+│   │   │   │
 │   │   │   ├── staff/
 │   │   │   │   ├── StaffCard.tsx
 │   │   │   │   ├── StaffCardExpanded.tsx  # Fiche dépliée avec compétences
@@ -149,6 +164,9 @@ mba-app-test00/
 │   │   │   ├── animations.ts          # Variants Framer Motion standards
 │   │   │   ├── colors.ts              # Tokens couleurs (zones, priorités)
 │   │   │   ├── staff-colors.ts        # Couleurs déterministes pour avatars
+│   │   │   ├── strings.ts             # Helpers strings (capitalizeFirst, capitalizeWords)
+│   │   │   ├── serviceFilters.ts      # Helpers purs /services (tabs, period, Tx clôture)
+│   │   │   ├── serviceUtils.ts        # getEffectiveToday + helpers service du jour
 │   │   │   └── mock/                  # Données mock pour développement offline
 │   │   │
 │   │   └── types/                     # Types TypeScript (entités + DTOs)
@@ -318,6 +336,21 @@ const x = user.role === 'MANAGER'
 404 → Ressource introuvable → afficher EmptyState
 500 → Erreur serveur → message générique
 ```
+
+---
+
+## 5bis. Module Services Planning — vue mobile vs desktop
+
+La page `/services` propose **deux orchestrations** distinctes selon la largeur :
+
+| Viewport | Composant | Rendu |
+|---|---|---|
+| `< lg` (mobile/tablette) | `ServicesMobileView` | Sections empilées « Aujourd'hui / À venir / Passés » + cards `ServiceCard` (comportement historique préservé) |
+| `≥ lg` (desktop) | `ServicesDesktopView` | Hero + onglets (En cours / À venir / Historique) + filtre période + tableau dense dépliant |
+
+Les **deux vues partagent un seul appel API** (`useServicesList` dans `page.tsx`). Le filtrage onglet + période est entièrement front via `lib/serviceFilters.ts` (`getTabBuckets`, `filterByPeriod`, `computeClotureRate`, `getPeriodShortcut`). Aucune logique métier n'est dupliquée — les composants atomiques (`ServicesHero`, `ServicesTabs`, etc.) consomment les helpers purs.
+
+Le panneau dépliant (`ServicesTableExpanded`) reproduit le pattern note (édition/lecture) déjà présent dans `ServiceCard`, et utilise `useDeletePoste` pour le retrait inline d'un membre. La modale d'assignation (`ModalAssignerPoste`) est portée localement à `ServicesDesktopView` (state `assignTarget`).
 
 ---
 
