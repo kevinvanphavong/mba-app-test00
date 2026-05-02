@@ -268,6 +268,81 @@ avatar: 22–26px rounded-full  fw800  border-2 surface  margin-left -4px
 
 ---
 
+### 5.14 Services Planning — Vue desktop (≥ lg)
+
+La page `/services` propose une vue desktop dense distincte du rendu mobile. L'orchestration vit dans [`ServicesDesktopView.tsx`](shiftly-app/src/components/services/ServicesDesktopView.tsx) ; chaque bloc est isolé et réutilisable.
+
+#### Hero card
+
+```
+container: relative overflow-hidden bg-surface border border-border rounded-[18px] p-5
+           accent-bar (barre orange 3px en haut, classe globale)
+           grid-cols-[1fr_auto] gap-6 items-center
+gauche:    label "SERVICES" (ty.sectionLabel, mb-1.5)
+           titre "Services {centre}" (font-syne text-[22px] font-extrabold)
+           + LIVE badge si ≥1 EN_COURS (animate-ping sur dot 8px + label)
+           sous-titre compteurs (ty.metaLg)
+droite:    KPI card "Tx clôture" (bg-surface2 border rounded-[10px] min-w-[88px])
+             couleur valeur : ≥90→green, 70-89→yellow, <70→red, null→muted "—"
+           bouton + Nouveau service (bg-gradient-to-r from-accent to-accent2,
+             font-syne font-bold text-[11px], hover:opacity-90)
+```
+
+#### Onglets
+
+```
+container: flex gap-1.5 bg-surface border border-border rounded-[10px] p-1 w-fit
+tab actif: bg-surface2 text-text + compteur bg-accent text-white
+tab inactif: text-muted hover:text-text + compteur bg-bg border text-muted
+ordre: En cours · À venir · Historique
+```
+
+#### Filtre période
+
+```
+inputs: 2 × <input type="date"> bg-surface2 border rounded-[7px] px-2 py-1
+        + bouton × reset si dates définies
+raccourcis: 7J · 30J · TOUT (font-syne uppercase tracking-[0.6px])
+            ±N jours autour de today via getPeriodShortcut() de lib/serviceFilters
+compteur: ml-auto text-[11px] text-muted "{n} résultat(s)"
+```
+
+#### Tableau
+
+```
+grille colonnes: grid-cols-[24px_160px_130px_70px_1fr_200px_140px_110px] gap-2.5
+header: bg-surface2 border-b border-border py-2.5
+        labels ty.sectionLabelMd : (chevron) Date Horaires Staff Équipe Zones Responsable Statut
+ligne: cliquable, py-3.5 px-4
+       hover bg-surface2/50, ouverte bg-surface2
+       chevron ▸ rotate-90 via transition-transform duration-200
+       border-b border-border sauf dernière (sauf si ouverte → border maintenue)
+statut chip:
+  EN_COURS   bg-accent/12 text-accent border-accent/25 + dot pulsant + "En cours"
+  PLANIFIE   bg-blue/10   text-blue   border-blue/20   + "Planifié"
+  TERMINE    bg-green/10  text-green  border-green/20  + "Clôturé"
+```
+
+#### Panneau dépliant (3 sections)
+
+```
+1. Zones & Staff (manager + statut PLANIFIE/EN_COURS)
+   - card par zone : dot couleur + nom font-syne extrabold + compteur · N
+   - chips membres : avatar gradient + nom + bouton × (useDeletePoste)
+   - bouton + Membre tinté à zone.couleur (10% bg, 30% border, color = zone)
+2. Progression (toujours)
+   - grid-cols-[160px_1fr_50px] : dot + nom / barre 1.5px h / pourcentage
+   - largeur fill = zone.taux %, background = zone.couleur, transition 400ms
+3. Note (pattern repris de ServiceCard.tsx)
+   - lecture : bg-surface border rounded-[10px] whitespace-pre-wrap
+   - édition : textarea + boutons Annuler / Enregistrer
+   - useAddServiceNote pour la mutation
+```
+
+Animation expand : variant `expandVariants` de `lib/animations.ts` (overflow-hidden + height auto + AnimatePresence). Une seule ligne ouverte à la fois (`expandedId: number | null`).
+
+---
+
 ## 6. Animations
 
 | Composant | Animation |
