@@ -32,10 +32,10 @@ export default function TeamBubbles({ members, total, max = 4 }: TeamBubblesProp
         <div
           key={m.id}
           title={getDisplayName(m.nom, m.prenom)}
-          className="w-6 h-6 rounded-full flex items-center justify-center font-syne font-extrabold text-[10px] text-white border-2 border-surface relative"
+          className="w-7 h-7 rounded-[7px] flex items-center justify-center font-syne font-semibold text-[9px] text-white border-2 border-surface relative"
           style={{
             background:  getGradientFromColor(m.avatarColor),
-            marginLeft:  idx === 0 ? 0 : -7,
+            marginLeft:  idx === 0 ? 0 : -6,
             zIndex:      10 - idx,
           }}
         >
@@ -44,8 +44,8 @@ export default function TeamBubbles({ members, total, max = 4 }: TeamBubblesProp
       ))}
       {extra > 0 && (
         <div
-          className="w-6 h-6 rounded-full flex items-center justify-center font-syne font-extrabold text-[9px] text-muted bg-surface2 border-2 border-surface"
-          style={{ marginLeft: -7 }}
+          className="w-7 h-7 rounded-[7px] flex items-center justify-center font-syne font-semibold text-[8px] text-muted bg-surface2 border-2 border-surface"
+          style={{ marginLeft: -6 }}
         >
           +{extra}
         </div>

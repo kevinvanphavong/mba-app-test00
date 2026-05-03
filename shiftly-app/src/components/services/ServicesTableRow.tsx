@@ -55,7 +55,6 @@ export default function ServicesTableRow({ service, tab, isOpen, isLast, onToggl
   const horaires  = service.heureDebut && service.heureFin
     ? `${service.heureDebut} – ${service.heureFin}`
     : '—'
-  const respLabel = service.managers[0]?.nom ?? '—'
 
   return (
     <div
@@ -107,19 +106,11 @@ export default function ServicesTableRow({ service, tab, isOpen, isLast, onToggl
       {/* Équipe (avatars) */}
       <TeamBubbles members={service.staff} max={4} />
 
-      {/* Zones */}
+      {/* Zones — couleur depuis la BDD pour que les zones custom restent reconnaissables */}
       <div className="flex gap-1 flex-wrap">
         {service.zones.map(z => (
-          <ZoneTag key={z.id} zone={z.nom} size="xs" />
+          <ZoneTag key={z.id} zone={z.nom} color={z.couleur} size="xs" />
         ))}
-      </div>
-
-      {/* Responsable */}
-      <div
-        className="text-[12px] text-text/80 truncate"
-        title={service.managers.map(m => m.nom).join(', ')}
-      >
-        {respLabel}
       </div>
 
       {/* Statut */}

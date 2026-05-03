@@ -58,6 +58,9 @@ class ServicesListController extends AbstractController
         $result = [];
 
         foreach ($services as $service) {
+            // Statut résolu en amont : conditionne le filtrage des zones (cf. plus bas)
+            $statut = $this->statutResolver->resolve($service);
+
             // ── Postes groupés par zone ───────────────────────────────────────
             $postesByZone = []; // zoneId → [poste, ...]
             $staffSeen    = []; // userId → true (dédup)
@@ -80,7 +83,12 @@ class ServicesListController extends AbstractController
                 }
             }
 
-            // ── Progression par zone (toutes les zones, même vides) ──────────
+            // ── Progression par zone ─────────────────────────────────────────
+            // Pour PLANIFIE/EN_COURS : toutes les zones du centre (le manager peut
+            // assigner du staff à une zone fraîchement créée).
+            // Pour TERMINE : seulement les zones qui ont eu au moins un poste sur
+            // ce service — évite que des zones créées après coup polluent
+            // rétroactivement les services passés.
             $zonesData   = [];
             $globalTotal = 0;
             $globalDone  = 0;
@@ -88,6 +96,10 @@ class ServicesListController extends AbstractController
             foreach ($allZones as $zone) {
                 $zid    = $zone->getId();
                 $postes = $postesByZone[$zid] ?? [];
+
+                if ($statut === 'TERMINE' && count($postes) === 0) {
+                    continue;
+                }
 
                 $missions = $this->missionRepo->findForService($zid, $service->getId());
                 $total    = count($missions);
@@ -125,8 +137,6 @@ class ServicesListController extends AbstractController
 
             // Taux de completion global calculé dynamiquement
             $globalTaux = $globalTotal > 0 ? round($globalDone / $globalTotal * 100, 1) : 0.0;
-
-            $statut = $this->statutResolver->resolve($service);
 
             // Managers du service
             $managers = array_map(fn(User $m) => [
