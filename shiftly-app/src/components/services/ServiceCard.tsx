@@ -11,6 +11,7 @@ import { useDeletePoste }   from '@/hooks/useService'
 import { useZones }         from '@/hooks/useZones'
 import type { ServiceListItem } from '@/types/index'
 import ModalAssignerPoste          from '@/components/services/ModalAssignerPoste'
+import ServiceHoursEditor          from '@/components/services/ServiceHoursEditor'
 
 // ─── Badge statut dynamique ───────────────────────────────────────────────────
 
@@ -101,11 +102,11 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
               <div className={`${ty.cardTitleMd} capitalize`}>
                 {dateLabel}
               </div>
-              {(service.heureDebut || service.heureFin) && (
-                <div className={`${ty.meta} mt-0.5`}>
-                  {service.heureDebut ?? '?'}h – {service.heureFin ?? '?'}h
-                </div>
-              )}
+              <div className={`${ty.meta} mt-0.5`}>
+                {service.heureDebut && service.heureFin
+                  ? `${service.heureDebut} – ${service.heureFin}`
+                  : 'Horaires non renseignés'}
+              </div>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
@@ -179,6 +180,18 @@ export default function ServiceCard({ service, isManager, onDelete, onAddNote }:
               className="overflow-hidden"
             >
               <div className="px-4 pb-4 border-t border-border pt-3 flex flex-col gap-4">
+
+                {/* ── Horaires (édition inline pour manager + PLANIFIE/EN_COURS) ─ */}
+                <div className="flex flex-col gap-1.5">
+                  <p className={`${ty.labelMuted} uppercase tracking-wide`}>Horaires</p>
+                  <ServiceHoursEditor
+                    serviceId={service.id}
+                    heureDebut={service.heureDebut ?? null}
+                    heureFin={service.heureFin ?? null}
+                    canEdit={canEdit}
+                    variant="card"
+                  />
+                </div>
 
                 {/* ── Section Zones & Staff (MANAGER + PLANIFIE uniquement) ───── */}
                 {canEdit && (

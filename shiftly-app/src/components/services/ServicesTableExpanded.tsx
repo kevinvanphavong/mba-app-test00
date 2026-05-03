@@ -7,6 +7,7 @@ import { useDeletePoste } from '@/hooks/useService'
 import { getGradientFromColor, hexAlpha } from '@/lib/colors'
 import { getInitials, getDisplayName } from '@/lib/userDisplay'
 import type { ServiceListItem, ServiceListZone } from '@/types/index'
+import ServiceHoursEditor from '@/components/services/ServiceHoursEditor'
 
 interface ServicesTableExpandedProps {
   service:    ServiceListItem
@@ -55,6 +56,20 @@ export default function ServicesTableExpanded({
       className={`overflow-hidden bg-bg ${isLast ? '' : 'border-b border-border'}`}
     >
       <div className="px-6 py-5 flex flex-col gap-6">
+
+        {/* ── Horaires (édition inline pour manager + PLANIFIE/EN_COURS) ───── */}
+        <section>
+          <p className={`${SECTION_LABEL} mb-2.5`}>Horaires</p>
+          <div className="max-w-[320px]">
+            <ServiceHoursEditor
+              serviceId={service.id}
+              heureDebut={service.heureDebut ?? null}
+              heureFin={service.heureFin ?? null}
+              canEdit={canEdit}
+              variant="table"
+            />
+          </div>
+        </section>
 
         {/* ── Zones & Staff (manager only) ──────────────────────────────────── */}
         {canEdit && service.zones.length > 0 && (
