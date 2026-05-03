@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
+import { useToastStore } from '@/store/toastStore'
 import { findTodayService } from '@/lib/serviceUtils'
 import type { ServicePageData } from '@/types/service'
 import type { Service, ServiceListItem } from '@/types/index'
@@ -38,6 +39,7 @@ export function useServices() {
 export function useDeletePoste() {
   const centreId    = useAuthStore(s => s.centreId)
   const queryClient = useQueryClient()
+  const showToast   = useToastStore(s => s.show)
 
   return useMutation({
     mutationFn: (posteId: number) =>
@@ -47,6 +49,19 @@ export function useDeletePoste() {
       queryClient.invalidateQueries({ queryKey: ['service', 'today', centreId] })
       queryClient.invalidateQueries({ queryKey: ['services', 'list', centreId] })
       queryClient.invalidateQueries({ queryKey: ['dashboard', centreId] })
+    },
+
+    // 409 Conflict : remontée par PostePreRemoveListener quand le pointage du
+    // staff est déjà commencé. On affiche le `detail` du serveur via toast.
+    // Pour les autres erreurs, message générique.
+    onError: (error: unknown) => {
+      const e = error as { response?: { status?: number; data?: { detail?: string } } }
+      const detail = e?.response?.data?.detail
+      if (e?.response?.status === 409 && detail) {
+        showToast(detail, 'error')
+      } else {
+        showToast('Impossible de retirer ce membre.', 'error')
+      }
     },
   })
 }
