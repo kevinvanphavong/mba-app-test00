@@ -32,6 +32,11 @@ export function usePointageService(serviceId: number | null) {
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
+// Note : on utilise `onSettled` (pas `onSuccess`) pour invalider le cache.
+// Raison : si le serveur a persisté un changement partiel mais renvoie une
+// erreur, l'UI doit quand même refléter l'état réel — sinon l'utilisateur
+// reste sur des données stale jusqu'au prochain polling 15s.
+
 /** Pointer l'arrivée d'un employé. */
 export function usePointageArrivee(serviceId: number) {
   const queryClient = useQueryClient()
@@ -39,7 +44,7 @@ export function usePointageArrivee(serviceId: number) {
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: PinPayload }) =>
       api.post(`/pointage/${id}/arrivee`, payload).then(r => r.data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
   })
 }
 
@@ -50,7 +55,7 @@ export function usePointageDepart(serviceId: number) {
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: PinPayload }) =>
       api.post(`/pointage/${id}/depart`, payload).then(r => r.data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
   })
 }
 
@@ -61,7 +66,7 @@ export function usePointagePauseStart(serviceId: number) {
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: PauseStartPayload }) =>
       api.post(`/pointage/${id}/pause/start`, payload).then(r => r.data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
   })
 }
 
@@ -72,7 +77,7 @@ export function usePointagePauseEnd(serviceId: number) {
   return useMutation({
     mutationFn: ({ id, payload }: { id: number; payload: PinPayload }) =>
       api.post(`/pointage/${id}/pause/end`, payload).then(r => r.data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
   })
 }
 
@@ -83,7 +88,7 @@ export function usePointageAbsence(serviceId: number) {
   return useMutation({
     mutationFn: ({ id, commentaire }: { id: number; commentaire?: string }) =>
       api.post(`/pointage/${id}/absence`, { commentaire }).then(r => r.data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: key(serviceId) }),
   })
 }
 
