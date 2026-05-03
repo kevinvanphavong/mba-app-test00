@@ -162,6 +162,40 @@ export function useUpdateService() {
   })
 }
 
+// ─── Modifier les horaires d'un service ───────────────────────────────────────
+
+interface UpdateServiceHoursPayload {
+  serviceId:   number
+  heureDebut?: string | null  // 'HH:mm' ou null pour effacer
+  heureFin?:   string | null
+}
+
+export function useUpdateServiceHours() {
+  const centreId    = useAuthStore(s => s.centreId)
+  const queryClient = useQueryClient()
+  const showToast   = useToastStore(s => s.show)
+
+  return useMutation({
+    mutationFn: ({ serviceId, ...data }: UpdateServiceHoursPayload) =>
+      api.patch(`/services/${serviceId}/horaires`, data).then(r => r.data),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services', 'list', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['service', 'today', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['dashboard', centreId] })
+      showToast('Horaires mis à jour.', 'success')
+    },
+
+    onError: (error: unknown) => {
+      const e = error as { response?: { data?: { detail?: string; error?: string } } }
+      const msg = e?.response?.data?.detail
+        ?? e?.response?.data?.error
+        ?? 'Impossible de mettre à jour les horaires.'
+      showToast(msg, 'error')
+    },
+  })
+}
+
 // ─── Ajouter / modifier la note d'un service ──────────────────────────────────
 
 export function useAddServiceNote() {
