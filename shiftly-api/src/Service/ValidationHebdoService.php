@@ -78,8 +78,16 @@ class ValidationHebdoService
             $absenceIndex[$key] = $absence;
         }
 
-        // Tous les users du centre (employés uniquement pour la grille)
-        $users = $this->userRepo->findBy(['centre' => $centreId], ['nom' => 'ASC']);
+        // IDs des employés présents dans le planning de la semaine
+        $plannedIds = $this->posteRepo->findPlanifiedUserIds($centreId, $lundi, $dimanche);
+        $plannedSet = array_flip($plannedIds);
+
+        // Uniquement les users actifs ET planifiés sur la semaine
+        $users = $this->userRepo->findBy(
+            ['centre' => $centreId, 'actif' => true],
+            ['nom' => 'ASC']
+        );
+        $users = array_filter($users, fn(User $u) => isset($plannedSet[$u->getId()]));
 
         $employes = [];
         foreach ($users as $user) {
