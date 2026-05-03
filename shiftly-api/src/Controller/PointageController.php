@@ -88,13 +88,17 @@ class PointageController extends AbstractController
             $pointage->setCommentaire($body['commentaire']);
         }
 
+        // Calcul AVANT flush : si une exception remonte (ex : Poste orphelin →
+        // EntityNotFoundException sur lazy load), aucun changement n'est persisté.
+        $minutesRetard = $this->pointageService->minutesRetard($pointage);
+
         $this->em->flush();
 
         return $this->json([
             'id'           => $pointage->getId(),
             'statut'       => $pointage->getStatut(),
             'heureArrivee' => $now->format('c'),
-            'minutesRetard' => $this->pointageService->minutesRetard($pointage),
+            'minutesRetard' => $minutesRetard,
         ]);
     }
 
@@ -135,13 +139,16 @@ class PointageController extends AbstractController
             $pointage->setCommentaire($body['commentaire']);
         }
 
+        // Calcul AVANT flush — symétrique avec arrivee()
+        $dureeEffective = $this->pointageService->calculerDureeEffective($pointage);
+
         $this->em->flush();
 
         return $this->json([
             'id'             => $pointage->getId(),
             'statut'         => $pointage->getStatut(),
             'heureDepart'    => $now->format('c'),
-            'dureeEffective' => $this->pointageService->calculerDureeEffective($pointage),
+            'dureeEffective' => $dureeEffective,
         ]);
     }
 
