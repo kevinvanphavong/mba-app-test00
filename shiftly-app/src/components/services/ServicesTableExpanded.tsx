@@ -183,7 +183,7 @@ function ZoneRow({ zone, onAddMember, onRemoveMember }: ZoneRowProps) {
       {/* Identité zone */}
       <div className="flex items-center gap-2 min-w-[120px]">
         <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: zone.couleur }} />
-        <span className="font-syne text-[14px] font-extrabold text-text">{zone.nom}</span>
+        <span className="font-syne text-[12px] font-semibold text-text">{zone.nom}</span>
         <span className="text-[11px] text-muted font-semibold">· {zone.postes.length}</span>
       </div>
 
@@ -198,7 +198,7 @@ function ZoneRow({ zone, onAddMember, onRemoveMember }: ZoneRowProps) {
             className="inline-flex items-center gap-1.5 bg-surface2 border border-border rounded-full pl-1 pr-2 py-0.5"
           >
             <span
-              className="w-5 h-5 rounded-full flex items-center justify-center font-syne font-extrabold text-[9px] text-white"
+              className="w-6 h-6 rounded-[6px] flex items-center justify-center font-syne font-semibold text-[8px] text-white"
               style={{ background: getGradientFromColor(p.avatarColor) }}
             >
               {getInitials(p.nom, p.prenom)}

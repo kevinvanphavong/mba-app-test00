@@ -5,7 +5,6 @@ import { cn } from '@/lib/cn'
 
 interface ServicesHeroProps {
   centreName:    string
-  hasLive:       boolean      // true si ≥ 1 service EN_COURS
   nbEnCours:     number
   nbAVenir:      number
   nbHistorique:  number
@@ -30,7 +29,7 @@ function clotureColor(taux: number | null): string {
  * - Bouton "+ Nouveau service"
  */
 export default function ServicesHero({
-  centreName, hasLive, nbEnCours, nbAVenir, nbHistorique, tauxCloture, onCreate,
+  centreName, nbEnCours, nbAVenir, nbHistorique, tauxCloture, onCreate,
 }: ServicesHeroProps) {
   const tauxLabel = tauxCloture === null ? '—' : `${tauxCloture}%`
 
@@ -39,20 +38,9 @@ export default function ServicesHero({
       {/* Bloc gauche */}
       <div className="min-w-0">
         <p className={`${ty.sectionLabel} mb-1.5`}>Services</p>
-        <div className="flex items-center gap-2.5 mb-1">
-          <h2 className="font-syne font-extrabold text-[22px] text-text leading-tight truncate">
-            Services {centreName}
-          </h2>
-          {hasLive && (
-            <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-accent/15 text-accent">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
-              </span>
-              <span className="text-[10px] font-bold font-syne uppercase tracking-wide">Live</span>
-            </span>
-          )}
-        </div>
+        <h2 className="font-syne font-extrabold text-[22px] text-text leading-tight truncate mb-1">
+          {centreName}
+        </h2>
         <p className={ty.metaLg}>
           Vue manager · {nbEnCours} service{nbEnCours > 1 ? 's' : ''} en cours · {nbAVenir} à venir · {nbHistorique} dans l&apos;historique
         </p>
@@ -68,7 +56,7 @@ export default function ServicesHero({
         </div>
         <button
           onClick={onCreate}
-          className="self-stretch px-3.5 rounded-[10px] bg-gradient-to-r from-accent to-accent2 text-white font-syne font-bold text-[11px] hover:opacity-90 active:scale-[0.97] transition-all whitespace-nowrap"
+          className="self-stretch px-3.5 rounded-[10px] bg-accent text-white font-syne font-bold text-[11px] hover:bg-accent/90 active:scale-[0.97] transition-all whitespace-nowrap"
         >
           + Nouveau service
         </button>

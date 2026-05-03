@@ -29,41 +29,48 @@ export default function ServicesTable({
 }: ServicesTableProps) {
   return (
     <div className="bg-surface border border-border rounded-[14px] overflow-hidden">
-      <ServicesTableHeader />
+      {/* Scroll horizontal sur viewport étroit : la grille a une largeur min
+          pour préserver l'alignement des colonnes (sinon les bulles d'avatar
+          + ZoneTags se chevauchent quand l'écran rétrécit). */}
+      <div className="overflow-x-auto">
+        <div className="min-w-[860px]">
+          <ServicesTableHeader />
 
-      {services.length === 0 ? (
-        <div className="px-4 py-10 text-center text-[12px] text-muted">
-          Aucun service sur cette période.
-        </div>
-      ) : (
-        services.map((service, idx) => {
-          const isOpen = expandedId === service.id
-          const isLast = idx === services.length - 1
-          const canEdit = isManager && (service.statut === 'PLANIFIE' || service.statut === 'EN_COURS')
-          return (
-            <Fragment key={service.id}>
-              <ServicesTableRow
-                service={service}
-                tab={tab}
-                isOpen={isOpen}
-                isLast={isLast}
-                onToggle={() => onToggle(service.id)}
-              />
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <ServicesTableExpanded
+          {services.length === 0 ? (
+            <div className="px-4 py-10 text-center text-[12px] text-muted">
+              Aucun service sur cette période.
+            </div>
+          ) : (
+            services.map((service, idx) => {
+              const isOpen = expandedId === service.id
+              const isLast = idx === services.length - 1
+              const canEdit = isManager && (service.statut === 'PLANIFIE' || service.statut === 'EN_COURS')
+              return (
+                <Fragment key={service.id}>
+                  <ServicesTableRow
                     service={service}
+                    tab={tab}
+                    isOpen={isOpen}
                     isLast={isLast}
-                    canEdit={canEdit}
-                    onSaveNote={note => onSaveNote(service.id, note)}
-                    onAssign={zoneId => onAssign(service, zoneId)}
+                    onToggle={() => onToggle(service.id)}
                   />
-                )}
-              </AnimatePresence>
-            </Fragment>
-          )
-        })
-      )}
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <ServicesTableExpanded
+                        service={service}
+                        isLast={isLast}
+                        canEdit={canEdit}
+                        onSaveNote={note => onSaveNote(service.id, note)}
+                        onAssign={zoneId => onAssign(service, zoneId)}
+                      />
+                    )}
+                  </AnimatePresence>
+                </Fragment>
+              )
+            })
+          )}
+        </div>
+      </div>
     </div>
   )
 }

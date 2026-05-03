@@ -60,12 +60,13 @@ export function filterByPeriod(
 }
 
 /**
- * Taux de clôture sur la fenêtre [dateFrom, dateTo].
+ * Taux de clôture sur la fenêtre [dateFrom, dateTo] = moyenne des taux de
+ * complétion des missions sur les services qui auraient dû être clôturés
+ * (TERMINE ou PLANIFIE passés).
  * - Si la fenêtre est vide → fenêtre par défaut [today-30j, today].
- * - Dénominateur = services TERMINE + services PLANIFIE-passés (auraient dû être clôturés).
- * - Numérateur   = services TERMINE.
+ * - Renvoie null si aucun service éligible (UI affiche "—" plutôt que "0%").
  *
- * Renvoie null si dénominateur 0 (UI affiche "—" plutôt que "0%").
+ * Exemple : 3 services passés à 100%, 80%, 60% → taux clôture = 80%.
  */
 export function computeClotureRate(
   services: ServiceListItem[],
@@ -83,8 +84,8 @@ export function computeClotureRate(
   )
   if (eligibles.length === 0) return null
 
-  const termines = eligibles.filter(s => s.statut === 'TERMINE').length
-  return Math.round((termines / eligibles.length) * 100)
+  const sum = eligibles.reduce((acc, s) => acc + s.tauxCompletion, 0)
+  return Math.round(sum / eligibles.length)
 }
 
 /**
