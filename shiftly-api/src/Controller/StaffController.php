@@ -8,6 +8,7 @@ use App\Repository\PosteRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\TutorielRepository;
 use App\Repository\UserRepository;
+use App\Service\ActiveDayResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,6 +32,7 @@ class StaffController extends AbstractController
         private readonly PosteRepository            $posteRepo,
         private readonly ServiceRepository          $serviceRepo,
         private readonly UserPasswordHasherInterface $hasher,
+        private readonly ActiveDayResolver          $activeDayResolver,
     ) {}
 
     // ─── Liste enrichie ───────────────────────────────────────────────────────
@@ -114,7 +116,7 @@ class StaffController extends AbstractController
     /** Retourne les IDs des utilisateurs affectés au service EN_COURS du jour. */
     private function getPresentUserIds(int $centreId): array
     {
-        $today   = new \DateTimeImmutable('today');
+        $today   = $this->activeDayResolver->getActiveDate();
         $service = $this->serviceRepo->findOneBy([
             'centre' => $centreId,
             'statut' => Service::STATUT_EN_COURS,

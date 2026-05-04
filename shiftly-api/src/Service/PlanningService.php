@@ -34,6 +34,7 @@ class PlanningService
         private readonly ZoneRepository              $zoneRepository,
         private readonly UserRepository              $userRepository,
         private readonly EntityManagerInterface      $em,
+        private readonly ActiveDayResolver           $activeDayResolver,
     ) {}
 
     /**
@@ -476,7 +477,7 @@ class PlanningService
         $centre   = $user->getCentre();
         $centreId = $centre->getId();
         $userId   = $user->getId();
-        $today    = new \DateTimeImmutable('today');
+        $today    = $this->activeDayResolver->getActiveDate();
 
         // Lundi de la semaine courante
         $dayOfWeek   = (int) $today->format('N');
