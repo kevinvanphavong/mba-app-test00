@@ -16,6 +16,7 @@ use App\Repository\PlanningTemplateRepository;
 use App\Repository\PosteRepository;
 use App\Service\PlanningGuardService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -100,8 +101,8 @@ class PlanningTemplateController extends AbstractController
             ->andWhere('s.centre = :centre')
             ->andWhere('s.date BETWEEN :from AND :to')
             ->setParameter('centre', $centre)
-            ->setParameter('from', $monday)
-            ->setParameter('to', $weekEnd)
+            ->setParameter('from', $monday, Types::DATE_IMMUTABLE)
+            ->setParameter('to', $weekEnd, Types::DATE_IMMUTABLE)
             ->getQuery()
             ->getResult();
 
