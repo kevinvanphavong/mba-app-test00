@@ -9,7 +9,6 @@ import IncidentsList         from '@/components/dashboard/IncidentsList'
 import StaffRanking          from '@/components/dashboard/StaffRanking'
 import ModalIncidentDetail   from '@/components/dashboard/ModalIncidentDetail'
 import ModalIncidentEdit     from '@/components/dashboard/ModalIncidentEdit'
-import Panel                 from '@/components/ui/Panel'
 import { useDashboard }          from '@/hooks/useDashboard'
 import { useServiceToday }       from '@/hooks/useService'
 import { useUpdateIncidentFull } from '@/hooks/useIncidents'
@@ -91,7 +90,7 @@ export default function DashboardPage() {
           onReportIncident={canReport ? openReportIncident : undefined}
         />
 
-        <div className="px-5 pb-8 lg:px-7 space-y-4">
+        <div className="pt-5 px-5 pb-8 lg:px-7 space-y-4">
 
           {isLoading && (
             <div className="space-y-4 animate-pulse">
@@ -132,16 +131,6 @@ export default function DashboardPage() {
                 />
                 <StaffRanking topStaff={data.topStaff} />
               </div>
-
-              <Panel title="Notifications">
-                <div className="flex flex-col items-center justify-center py-8 gap-2 text-center">
-                  <span className="text-3xl">🔔</span>
-                  <p className="text-[13px] font-semibold text-text">Bientôt disponible</p>
-                  <p className="text-[12px] text-muted max-w-[240px]">
-                    Le centre de notifications arrivera prochainement.
-                  </p>
-                </div>
-              </Panel>
             </>
           )}
         </div>
