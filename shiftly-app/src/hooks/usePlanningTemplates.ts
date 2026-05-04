@@ -43,7 +43,10 @@ export interface ApplyTemplateReport {
   created:          number
   skippedOrphan:    number   // shift sans user (employé supprimé)
   skippedPast:      number   // jour cible antérieur au service du jour
-  skippedDuplicate: number   // (service, zone, user) déjà existant
+  skippedDuplicate: number   // legacy (devrait être 0 depuis le mode replace)
+
+  /** Postes existants supprimés avant ré-écriture (template = source de vérité) */
+  replacedExisting: number
 
   /** Absences appliquées (REPOS, CP, etc.) */
   absencesCreated:          number
@@ -96,7 +99,7 @@ export function useDeletePlanningTemplate() {
   })
 }
 
-// ─── Application sur une semaine cible (mode append uniquement) ──────────────
+// ─── Application sur une semaine cible (le template écrase l'existant) ──────
 
 export function useApplyPlanningTemplate() {
   const centreId    = useAuthStore(s => s.centreId)

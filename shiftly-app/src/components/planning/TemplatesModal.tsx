@@ -50,7 +50,11 @@ export default function TemplatesModal({ open, onClose, currentWeekStart }: Temp
     })
   }
 
-  function handleApply(id: number) {
+  function handleApply(id: number, nomT: string) {
+    if (!confirm(
+      `Appliquer le template "${nomT}" ?\nToutes les assignations existantes de la semaine cible seront remplacées (sauf celles des jours déjà passés).`,
+    )) return
+
     apply.mutate({ id, weekStart: applyDate }, {
       onSuccess: (r) => {
         const totalApplied = r.created + r.absencesCreated
@@ -60,8 +64,11 @@ export default function TemplatesModal({ open, onClose, currentWeekStart }: Temp
         const detail = r.absencesCreated > 0
           ? ` (${r.created} shift(s) + ${r.absencesCreated} absence(s))`
           : ''
+        const replaced = r.replacedExisting > 0
+          ? ` — ${r.replacedExisting} ancien${r.replacedExisting > 1 ? 's' : ''} poste${r.replacedExisting > 1 ? 's' : ''} remplacé${r.replacedExisting > 1 ? 's' : ''}`
+          : ''
         toast(
-          `${totalApplied} entrée(s) appliquée(s)${detail}${totalSkipped > 0 ? ` — ${totalSkipped} ignorée(s)` : ''}`,
+          `${totalApplied} entrée(s) appliquée(s)${detail}${totalSkipped > 0 ? ` — ${totalSkipped} ignorée(s)` : ''}${replaced}`,
           'success'
         )
         setApplyTargetId(null)
@@ -96,6 +103,9 @@ export default function TemplatesModal({ open, onClose, currentWeekStart }: Temp
           >
             <h2 className="font-syne text-lg font-bold text-[var(--text)]">Templates de planning</h2>
             <p className="mt-1 text-[12px] text-[var(--muted)]">Sauvegarde la semaine courante comme modèle réutilisable, puis applique-le à n'importe quelle semaine future.</p>
+            <p className="mt-2 rounded-lg border border-[var(--yellow)]/40 bg-[rgba(234,179,8,0.08)] px-3 py-2 text-[11px] text-[var(--yellow)]">
+              ⚠ Appliquer un template <strong>remplace</strong> les assignations de postes existantes de la semaine cible (les jours déjà passés sont préservés).
+            </p>
 
             {/* Sauvegarder la semaine en cours */}
             <div className="mt-5 flex flex-col gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface2)] p-3">
@@ -160,7 +170,7 @@ export default function TemplatesModal({ open, onClose, currentWeekStart }: Temp
                           className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-[13px] text-[var(--text)] focus:border-[var(--accent)] focus:outline-none"
                         />
                         <button
-                          onClick={() => handleApply(t.id)} disabled={apply.isPending}
+                          onClick={() => handleApply(t.id, t.nom)} disabled={apply.isPending}
                           className="rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[13px] font-semibold text-white disabled:opacity-50"
                         >
                           {apply.isPending ? '…' : 'Confirmer'}
