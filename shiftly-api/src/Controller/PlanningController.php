@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Exception\DelaiPrevenanceException;
 use App\Repository\CentreRepository;
 use App\Repository\PlanningSnapshotRepository;
+use App\Service\PlanningGuardService;
 use App\Service\PlanningService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,7 @@ class PlanningController extends AbstractController
         private readonly PlanningService           $planningService,
         private readonly CentreRepository          $centreRepository,
         private readonly PlanningSnapshotRepository $snapshotRepository,
+        private readonly PlanningGuardService       $planningGuard,
     ) {}
 
     /**
@@ -223,6 +225,42 @@ class PlanningController extends AbstractController
             'targetWeekStart' => $targetWeek->format('Y-m-d'),
             'message'         => 'Semaine dupliquée avec succès.',
         ]);
+    }
+
+    /**
+     * DELETE /api/planning/week?centreId={id}&weekStart=YYYY-MM-DD
+     * Vide toutes les assignations Poste de la semaine pour le centre courant.
+     * Préserve les jours déjà passés (date < service du jour) — non modifiables.
+     * Retourne { deletedCount: int }.
+     */
+    #[Route('/week', name: 'clear_week', methods: ['DELETE'])]
+    #[IsGranted('ROLE_MANAGER')]
+    public function clearWeek(Request $request): JsonResponse
+    {
+        $centreId  = (int) $request->query->get('centreId', 0);
+        $weekParam = $request->query->get('weekStart', '');
+
+        if (!$centreId) {
+            return $this->json(['error' => 'centreId requis'], 400);
+        }
+
+        // Garde multi-tenant
+        /** @var \App\Entity\User $currentUser */
+        $currentUser = $this->getUser();
+        if ($currentUser->getCentre()?->getId() !== $centreId) {
+            throw $this->createAccessDeniedException('Accès refusé à ce centre.');
+        }
+
+        $centre = $this->centreRepository->find($centreId);
+        if (!$centre) {
+            return $this->json(['error' => 'Centre introuvable'], 404);
+        }
+
+        $weekStart   = $this->resolveMonday($weekParam);
+        $minAllowed  = $this->planningGuard->getMinAllowedDate();
+        $deletedCount = $this->planningService->clearWeek($centre, $weekStart, $minAllowed);
+
+        return $this->json(['deletedCount' => $deletedCount]);
     }
 
     /**
