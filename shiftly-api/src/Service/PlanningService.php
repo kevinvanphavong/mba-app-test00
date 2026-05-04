@@ -312,6 +312,40 @@ class PlanningService
     }
 
     /**
+     * Supprime toutes les assignations Poste d'une semaine pour un centre.
+     * Ne touche pas aux dates antérieures au "service du jour" (passé non modifiable).
+     * Retourne le nombre de postes supprimés.
+     */
+    public function clearWeek(Centre $centre, \DateTimeImmutable $weekStart, \DateTimeImmutable $minAllowedDate): int
+    {
+        $weekEnd = $weekStart->modify('+6 days');
+
+        // Borne basse effective : le plus tardif entre le lundi et la date minimale autorisée
+        $effectiveFrom = $weekStart < $minAllowedDate ? $minAllowedDate : $weekStart;
+
+        if ($effectiveFrom > $weekEnd) {
+            // Toute la semaine est dans le passé → rien à faire
+            return 0;
+        }
+
+        $services = $this->serviceRepository->findBetween($centre->getId(), $effectiveFrom, $weekEnd);
+        if (empty($services)) {
+            return 0;
+        }
+        $serviceIds = array_map(static fn (Service $s) => $s->getId(), $services);
+
+        // DELETE en masse via DQL (évite de charger les entités Poste en mémoire)
+        $deleted = $this->em->createQueryBuilder()
+            ->delete(Poste::class, 'p')
+            ->where('p.service IN (:serviceIds)')
+            ->setParameter('serviceIds', $serviceIds)
+            ->getQuery()
+            ->execute();
+
+        return (int) $deleted;
+    }
+
+    /**
      * Duplique tous les postes d'une semaine source vers une semaine cible.
      * Crée les services cibles si absents. Lève une exception si postes déjà présents.
      */
