@@ -72,8 +72,8 @@ class ServiceRepository extends ServiceEntityRepository
             ->andWhere('s.centre = :centreId')
             ->andWhere('s.date BETWEEN :from AND :to')
             ->setParameter('centreId', $centreId)
-            ->setParameter('from', $from)
-            ->setParameter('to', $to)
+            ->setParameter('from', $from, Types::DATE_IMMUTABLE)
+            ->setParameter('to', $to, Types::DATE_IMMUTABLE)
             ->orderBy('s.date', 'ASC')
             ->getQuery()->getResult();
     }
