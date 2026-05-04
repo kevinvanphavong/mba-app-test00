@@ -491,6 +491,38 @@ Le back-office `/superadmin/*` a son propre layout séparé de l'app classique. 
 - Header : label uppercase muted + icône 32×32 en fond teinté 10%
 - Valeur : Syne extrabold 30px, couleur thématique
 - Trend : 11px, `text-green` (up) / `text-red` (down) / `text-muted` (neutral)
+- **Tag contextuel** (V2, prop `tag` de `StatCard`) : badge gris neutre coin
+  sup. droit (10px bold uppercase, `bg-surface2 text-muted`, exclusif avec
+  `trend`). Ex : `En cours`, `+N ce mois`, `À traiter`, `Moy. équipe`.
+
+### 11.2bis Hero Service V2 (Dashboard manager)
+
+Composant : `components/dashboard/HeroService.tsx`. Section unique en haut
+du dashboard, refondue en V2 avec quatre régions empilées :
+
+1. **Bandeau statut** : badge statut (Planifié/En cours/Terminé) ; en
+   `EN_COURS` le badge bascule sur `LIVE` avec un pulse Framer Motion
+   (`animate={{ opacity: [1, 0.55, 1] }}`, 1.4s, infini) + dot vert 6×6.
+2. **Bloc principal** : nom du jour `font-syne extrabold` (24/28px), horaires
+   `→`, ligne « Prénom(s) · Manager responsable » (issue de `Service.managers`,
+   masquée si vide).
+3. **Cercle de progression globale** : SVG 96×96, radius 38, `arcGradient`
+   orange, pourcentage centré (composant inchangé V1 → V2).
+4. **Progression par zone** : grille adaptative selon le nombre de zones du
+   service du jour, triées par `pct ASC` puis `nom ASC` :
+
+   | Viewport | Layout |
+   |---|---|
+   | mobile (`< md`)        | `grid-cols-1` |
+   | tablette (`md`, ≥ 768) | `grid-cols-2` |
+   | desktop (`lg`, ≥ 1200) — 1 zone        | `grid-cols-1` |
+   | desktop — 2 ou 4 zones                  | `grid-cols-2` |
+   | desktop — 3 ou 5+ zones                 | `grid-cols-3` |
+
+   Chaque carte : dot couleur zone + nom + `pct%` (couleur zone) + barre
+   1.5px (couleur zone) + ligne `completed/total mission(s)`.
+5. **En service** : avatars du `staffEnService` empilés (`-space-x-2`, max 8
+   visibles + chip `+N` pour le surplus), count `N membre(s) actif(s)`.
 
 ### 11.3 Widget Shell
 
