@@ -18,6 +18,7 @@ use App\Repository\PlanningWeekRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\UserRepository;
 use App\Repository\ZoneRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -968,8 +969,8 @@ class PlanningService
                 ->andWhere('s.date BETWEEN :from AND :to')
                 ->andWhere('p.user IN (:userIds)')
                 ->setParameter('centre', $centre)
-                ->setParameter('from', $twelveWeeksAgo)
-                ->setParameter('to', $weekEndCurrent)
+                ->setParameter('from', $twelveWeeksAgo, Types::DATE_IMMUTABLE)
+                ->setParameter('to', $weekEndCurrent, Types::DATE_IMMUTABLE)
                 ->setParameter('userIds', $userIds)
                 ->getQuery()
                 ->getResult();
