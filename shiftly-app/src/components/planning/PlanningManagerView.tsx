@@ -3,9 +3,10 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { usePlanningWeek, useDuplicateWeek, useExportPlanningPdf } from '@/hooks/usePlanning'
+import { usePlanningWeek, useDuplicateWeek, useExportPlanningPdf, useClearWeek } from '@/hooks/usePlanning'
 import { useCurrentUser }      from '@/hooks/useCurrentUser'
 import { useIncidentReporter } from '@/hooks/useIncidentReporter'
+import { useToastStore }       from '@/store/toastStore'
 import { formatHours }         from '@/lib/formatHours'
 import type { PlanningShift } from '@/types/planning'
 import Topbar from '@/components/layout/Topbar'
@@ -88,7 +89,9 @@ export default function PlanningManagerView() {
 
   const { data, isLoading, isError } = usePlanningWeek(weekStart)
   const duplicateWeek  = useDuplicateWeek()
+  const clearWeek      = useClearWeek()
   const exportPdf      = useExportPlanningPdf()
+  const toast          = useToastStore(s => s.show)
 
   const { user } = useCurrentUser()
   const { canReport, openReportIncident, IncidentModalElement } = useIncidentReporter()
@@ -98,6 +101,22 @@ export default function PlanningManagerView() {
   }
   function openEdit(shift: PlanningShift) {
     setEditShift(shift); setModalDate(shift.date); setModalEmpId(undefined); setModalOpen(true)
+  }
+
+  function handleClearWeek() {
+    if (clearWeek.isPending) return
+    if (!confirm('Vider toute la semaine affichée ?\nToutes les assignations de postes seront supprimées (sauf celles des jours déjà passés).')) return
+    clearWeek.mutate(displayWeekStart, {
+      onSuccess: (r) => {
+        toast(
+          r.deletedCount > 0
+            ? `${r.deletedCount} assignation${r.deletedCount > 1 ? 's' : ''} supprimée${r.deletedCount > 1 ? 's' : ''}`
+            : 'Aucune assignation à supprimer',
+          'success',
+        )
+      },
+      onError: () => toast('Erreur lors du vidage de la semaine', 'error'),
+    })
   }
 
   if (isLoading) return (
@@ -269,6 +288,13 @@ export default function PlanningManagerView() {
               className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] md:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
             >
               📦 Templates
+            </button>
+            <button
+              onClick={handleClearWeek}
+              disabled={clearWeek.isPending}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] md:text-[13px] text-[var(--red)] transition-colors hover:border-[var(--red)] hover:bg-[rgba(239,68,68,0.08)] disabled:opacity-50"
+            >
+              {clearWeek.isPending ? '…' : '🧹 Vider la semaine'}
             </button>
             <button
               onClick={() => setPublishOpen(true)}
