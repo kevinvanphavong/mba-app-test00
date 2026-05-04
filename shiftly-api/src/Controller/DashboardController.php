@@ -89,7 +89,7 @@ class DashboardController extends AbstractController
 
         // Grouper les postes par zone + collecter le staff unique
         $postesByZone = []; // zoneId → ['zone' => Zone, 'postes' => [Poste, ...]]
-        $staffSeen    = []; // userId → true (déduplication)
+        $staffSeen    = []; // userId → User (déduplication, ordre d'apparition préservé)
         $pointsTotal  = 0;
 
         foreach ($service->getPostes() as $poste) {
@@ -100,18 +100,20 @@ class DashboardController extends AbstractController
 
             $user = $poste->getUser();
             if ($user && !isset($staffSeen[$user->getId()])) {
-                $staffSeen[$user->getId()] = true;
+                $staffSeen[$user->getId()] = $user;
                 $pointsTotal += $user->getPoints();
             }
         }
 
         $totalMissions = 0;
         $doneCount     = 0;
+        $zonesPayload  = [];
 
         foreach ($postesByZone as $zid => $data) {
             // Missions FIXE + PONCTUELLES (cohérent avec ServiceTodayController)
             $missions       = $this->missionRepo->findForService($zid, $service->getId());
-            $totalMissions += count($missions);
+            $zoneTotal      = count($missions);
+            $totalMissions += $zoneTotal;
 
             // Déduplication des completions par missionId (plusieurs postes même zone)
             $completedIds = [];
@@ -120,8 +122,24 @@ class DashboardController extends AbstractController
                     $completedIds[$completion->getMission()->getId()] = true;
                 }
             }
-            $doneCount += count($completedIds);
+            $zoneDone = count($completedIds);
+            $doneCount += $zoneDone;
+
+            $zone = $data['zone'];
+            $zonesPayload[] = [
+                'id'        => $zone->getId(),
+                'nom'       => $zone->getNom(),
+                'couleur'   => $zone->getCouleur() ?? '#6b7280',
+                'completed' => $zoneDone,
+                'total'     => $zoneTotal,
+                'pct'       => $zoneTotal > 0 ? round($zoneDone / $zoneTotal * 100, 1) : 0.0,
+            ];
         }
+
+        // Tri : pct ASC (zone la plus en retard en haut), tie-break nom ASC
+        usort($zonesPayload, static function (array $a, array $b): int {
+            return $a['pct'] <=> $b['pct'] ?: strcmp($a['nom'], $b['nom']);
+        });
 
         $taux = $totalMissions > 0 ? round($doneCount / $totalMissions * 100, 1) : 0.0;
 
@@ -133,6 +151,18 @@ class DashboardController extends AbstractController
                 'heureFin'   => $service->getHeureFin()?->format('H:i'),
                 'statut'     => $this->statutResolver->resolve($service),
                 'nbPostes'   => $service->getPostes()->count(),
+                'zones'      => $zonesPayload,
+                'managersResponsables' => array_map(static fn (User $u) => [
+                    'id'     => $u->getId(),
+                    'nom'    => $u->getNom(),
+                    'prenom' => $u->getPrenom(),
+                ], $service->getManagers()->toArray()),
+                'staffEnService' => array_values(array_map(static fn (User $u) => [
+                    'id'          => $u->getId(),
+                    'nom'         => $u->getNom(),
+                    'prenom'      => $u->getPrenom(),
+                    'avatarColor' => $u->getAvatarColor() ?? '#6b7280',
+                ], $staffSeen)),
             ],
             'tauxCompletion'   => $taux,
             'staffActifCount'  => $this->userRepo->countActifByCentre($centreId),
@@ -141,18 +171,37 @@ class DashboardController extends AbstractController
         ];
     }
 
+    /** Nombre de users du centre créés depuis le 1er du mois en cours (Europe/Paris). */
+    private function countNouveauxCeMois(int $centreId): int
+    {
+        $startOfMonth = (new \DateTimeImmutable('first day of this month', new \DateTimeZone('Europe/Paris')))
+            ->setTime(0, 0, 0);
+
+        return (int) $this->em->createQuery(
+            'SELECT COUNT(u.id) FROM App\Entity\User u
+             WHERE u.centre = :centreId
+               AND u.createdAt >= :start'
+        )
+            ->setParameter('centreId', $centreId)
+            ->setParameter('start', $startOfMonth)
+            ->getSingleScalarResult();
+    }
+
     private function buildStaffSection(int $centreId): array
     {
         $staff = $this->userRepo->findByCentre($centreId);
 
-        return array_map(fn(User $u) => [
-            'id'          => $u->getId(),
-            'nom'         => $u->getNom(),
-            'prenom'      => $u->getPrenom(),
-            'role'        => $u->getRole(),
-            'avatarColor' => $u->getAvatarColor(),
-            'points'      => $u->getPoints(),
-        ], $staff);
+        return [
+            'members' => array_map(fn(User $u) => [
+                'id'          => $u->getId(),
+                'nom'         => $u->getNom(),
+                'prenom'      => $u->getPrenom(),
+                'role'        => $u->getRole(),
+                'avatarColor' => $u->getAvatarColor(),
+                'points'      => $u->getPoints(),
+            ], $staff),
+            'nouveauxCeMois' => $this->countNouveauxCeMois($centreId),
+        ];
     }
 
     /**
