@@ -3,14 +3,17 @@
 namespace App\Repository;
 
 use App\Entity\Service;
+use App\Service\ActiveDayResolver;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
 class ServiceRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private readonly ActiveDayResolver $activeDayResolver,
+    ) {
         parent::__construct($registry, Service::class);
     }
 
@@ -20,19 +23,14 @@ class ServiceRepository extends ServiceEntityRepository
             ->andWhere('s.centre = :centreId')
             ->andWhere('s.date = :today')
             ->setParameter('centreId', $centreId)
-            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->setParameter('today', $this->activeDayResolver->getActiveDate(), Types::DATE_IMMUTABLE)
             ->getQuery()->getOneOrNullResult();
     }
 
 
     public function findTodayActive(int $centreId): ?Service
     {
-        $now = new \DateTimeImmutable();
-
-        // Avant 5h → on est encore dans la journée d'hier (service de nuit)
-        $referenceDate = (int)$now->format('H') < 5
-            ? $now->modify('-1 day')
-            : $now;
+        $referenceDate = $this->activeDayResolver->getActiveDate();
 
         // JOIN sur centre pour charger les horaires en une seule requête
         $service = $this->createQueryBuilder('s')
