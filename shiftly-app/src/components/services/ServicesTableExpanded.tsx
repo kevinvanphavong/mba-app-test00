@@ -14,6 +14,10 @@ interface ServicesTableExpandedProps {
   isLast:     boolean
   /** Manager avec droits édition (statut PLANIFIE ou EN_COURS) */
   canEdit:    boolean
+  /** Manager + service à venir (PLANIFIE uniquement) — autorise la suppression */
+  canDelete:  boolean
+  /** Confirme + supprime le service côté parent (cascade Postes côté back) */
+  onDelete:   () => void
   /** Sauvegarde la note (`useAddServiceNote().mutate` côté parent) */
   onSaveNote: (note: string) => void
   /** Ouvre la modale d'assignation pré-paramétrée sur une zone */
@@ -29,7 +33,7 @@ const SECTION_LABEL = 'text-[10px] font-syne font-bold uppercase tracking-[1.5px
  *  3. Note (lecture/édition, useAddServiceNote)
  */
 export default function ServicesTableExpanded({
-  service, isLast, canEdit, onSaveNote, onAssign,
+  service, isLast, canEdit, canDelete, onDelete, onSaveNote, onAssign,
 }: ServicesTableExpandedProps) {
   const [editingNote, setEditingNote] = useState(false)
   const [noteValue,   setNoteValue]   = useState(service.note ?? '')
@@ -176,6 +180,18 @@ export default function ServicesTableExpanded({
             <p className="text-[12px] text-muted italic">Aucune note pour ce service.</p>
           )}
         </section>
+
+        {/* ── Suppression (PLANIFIE uniquement) ───────────────────────────── */}
+        {canDelete && (
+          <div className="flex justify-end pt-3.5 border-t border-border">
+            <button
+              onClick={onDelete}
+              className="text-[12px] font-medium text-red/60 hover:text-red transition-colors"
+            >
+              Supprimer ce service
+            </button>
+          </div>
+        )}
       </div>
     </motion.div>
   )
