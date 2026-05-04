@@ -142,13 +142,10 @@ export default function PlanningManagerView() {
   const hasUnpublished = data?.hasUnpublishedChanges ?? false
   const publishedAt    = data?.publishedAt ?? null
 
-  // Dérivés UI : badge 3 états + style bouton Republier saillant quand dirty
+  // Dérivés UI : badge 3 états
   const badgeState  = resolveBadgeState(statut, hasUnpublished)
   const badge       = BADGE_CONFIG[badgeState]
   const ctaLabel    = statut === 'PUBLIE' ? '↻ Republier' : '✓ Publier'
-  // Quand le live a divergé du snapshot, on rend le CTA plus saillant pour
-  // attirer l'œil du manager (pulse + ring).
-  const ctaSaillant = badgeState === 'PUBLIE_DIRTY'
 
   // Source de vérité : le lundi normalisé par le backend (évite le décalage navigator/grille)
   const displayWeekStart = data!.weekStart
@@ -301,7 +298,7 @@ export default function PlanningManagerView() {
             </button>
             <button
               onClick={() => setPublishOpen(true)}
-              className={`shrink-0 rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[12px] md:text-[13px] font-semibold text-white transition-opacity hover:opacity-90 ${ctaSaillant ? 'ring-2 ring-[var(--yellow)] ring-offset-2 ring-offset-[var(--surface)]' : ''}`}
+              className="shrink-0 rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[12px] md:text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
             >
               {ctaLabel}
             </button>
