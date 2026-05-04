@@ -17,31 +17,15 @@ class ServiceRepository extends ServiceEntityRepository
         parent::__construct($registry, Service::class);
     }
 
-    public function findToday(int $centreId): ?Service
+    public function findTodayActive(int $centreId): ?Service
     {
         return $this->createQueryBuilder('s')
             ->andWhere('s.centre = :centreId')
-            ->andWhere('s.date = :today')
-            ->setParameter('centreId', $centreId)
-            ->setParameter('today', $this->activeDayResolver->getActiveDate(), Types::DATE_IMMUTABLE)
-            ->getQuery()->getOneOrNullResult();
-    }
-
-
-    public function findTodayActive(int $centreId): ?Service
-    {
-        $referenceDate = $this->activeDayResolver->getActiveDate();
-
-        // JOIN sur centre pour charger les horaires en une seule requête
-        $service = $this->createQueryBuilder('s')
-            ->andWhere('s.centre = :centreId')
             ->andWhere('s.date = :date')
             ->setParameter('centreId', $centreId)
-            ->setParameter('date', $referenceDate, Types::DATE_IMMUTABLE)
+            ->setParameter('date', $this->activeDayResolver->getActiveDate(), Types::DATE_IMMUTABLE)
             ->getQuery()
             ->getOneOrNullResult();
-
-        return $service ? $service : null;
     }
 
     public function findRecent(int $centreId, int $limit = 10): array
