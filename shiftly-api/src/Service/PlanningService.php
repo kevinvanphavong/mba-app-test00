@@ -37,6 +37,37 @@ class PlanningService
     ) {}
 
     /**
+     * Applique sur un Service nouvellement créé les horaires d'ouverture du
+     * centre pour le jour de la semaine concerné. Si aucune entrée n'existe
+     * dans `centre.openingHours[jour]`, les horaires sont laissés à null.
+     *
+     * Utilisé partout où un Service est auto-créé pour accueillir un Poste
+     * (apply template, duplicate semaine, etc.) afin d'éviter d'avoir des
+     * services aux horaires vides en BDD.
+     */
+    public function applyCentreOpeningHoursToService(Service $service, ?Centre $centre, \DateTimeImmutable $date): void
+    {
+        $dayMap = ['1' => 'lundi', '2' => 'mardi', '3' => 'mercredi', '4' => 'jeudi', '5' => 'vendredi', '6' => 'samedi', '7' => 'dimanche'];
+        $dayKey = $dayMap[$date->format('N')] ?? null;
+        $hours  = $centre?->getOpeningHours() ?? [];
+
+        $hd = null;
+        $hf = null;
+        if ($dayKey && !empty($hours[$dayKey])) {
+            $day = $hours[$dayKey];
+            if (!empty($day['ouverture'])) {
+                $hd = \DateTimeImmutable::createFromFormat('H:i', $day['ouverture']) ?: null;
+            }
+            if (!empty($day['fermeture'])) {
+                $hf = \DateTimeImmutable::createFromFormat('H:i', $day['fermeture']) ?: null;
+            }
+        }
+
+        if ($hd) $service->setHeureDebut($hd);
+        if ($hf) $service->setHeureFin($hf);
+    }
+
+    /**
      * Calcule la durée d'un shift en heures décimales.
      * Gère les shifts de nuit (heureFin < heureDebut).
      */
@@ -417,6 +448,7 @@ class PlanningService
                 $tgtService->setCentre($centre);
                 $tgtService->setDate($tgtDate);
                 $tgtService->setStatut('PLANIFIE');
+                $this->applyCentreOpeningHoursToService($tgtService, $centre, $tgtDate);
                 $this->em->persist($tgtService);
             }
 
