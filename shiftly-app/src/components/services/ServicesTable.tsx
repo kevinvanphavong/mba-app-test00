@@ -14,6 +14,7 @@ interface ServicesTableProps {
   isManager:   boolean
   expandedId:  number | null
   onToggle:    (id: number) => void
+  onDelete:    (serviceId: number) => void
   onSaveNote:  (serviceId: number, note: string) => void
   onAssign:    (service: ServiceListItem, zoneId: number) => void
 }
@@ -25,7 +26,7 @@ interface ServicesTableProps {
  * État vide géré ici : aucun service après filtrage onglet/période.
  */
 export default function ServicesTable({
-  services, tab, isManager, expandedId, onToggle, onSaveNote, onAssign,
+  services, tab, isManager, expandedId, onToggle, onDelete, onSaveNote, onAssign,
 }: ServicesTableProps) {
   return (
     <div className="bg-surface border border-border rounded-[14px] overflow-hidden">
@@ -42,9 +43,11 @@ export default function ServicesTable({
             </div>
           ) : (
             services.map((service, idx) => {
-              const isOpen = expandedId === service.id
-              const isLast = idx === services.length - 1
-              const canEdit = isManager && (service.statut === 'PLANIFIE' || service.statut === 'EN_COURS')
+              const isOpen   = expandedId === service.id
+              const isLast   = idx === services.length - 1
+              const canEdit  = isManager && (service.statut === 'PLANIFIE' || service.statut === 'EN_COURS')
+              // Suppression réservée aux services à venir (PLANIFIE) — cohérent avec mobile
+              const canDelete = isManager && service.statut === 'PLANIFIE'
               return (
                 <Fragment key={service.id}>
                   <ServicesTableRow
@@ -60,6 +63,8 @@ export default function ServicesTable({
                         service={service}
                         isLast={isLast}
                         canEdit={canEdit}
+                        canDelete={canDelete}
+                        onDelete={() => onDelete(service.id)}
                         onSaveNote={note => onSaveNote(service.id, note)}
                         onAssign={zoneId => onAssign(service, zoneId)}
                       />

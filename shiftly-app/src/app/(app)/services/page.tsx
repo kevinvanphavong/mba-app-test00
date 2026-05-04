@@ -75,6 +75,7 @@ export default function ServicesPage() {
           isManager={!!isManager}
           isLoading={!centreId || isLoading}
           isError={isError}
+          onDelete={handleDelete}
           onSaveNote={handleAddNote}
           onOpenCreate={() => setShowCreate(true)}
           onRetry={refetch}

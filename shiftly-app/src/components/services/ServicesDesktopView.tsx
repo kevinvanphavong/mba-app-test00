@@ -22,6 +22,7 @@ interface ServicesDesktopViewProps {
   isManager:    boolean
   isLoading:    boolean
   isError:      boolean
+  onDelete:     (id: number) => void
   onSaveNote:   (id: number, note: string) => void
   onOpenCreate: () => void
   onRetry:      () => void
@@ -33,7 +34,7 @@ interface ServicesDesktopViewProps {
  *  Loading/error/empty gérés ici. Filtres entièrement front (pas d'appel API).
  */
 export default function ServicesDesktopView({
-  services, centreName, isManager, isLoading, isError, onSaveNote, onOpenCreate, onRetry,
+  services, centreName, isManager, isLoading, isError, onDelete, onSaveNote, onOpenCreate, onRetry,
 }: ServicesDesktopViewProps) {
   const today = getEffectiveToday()
 
@@ -145,6 +146,7 @@ export default function ServicesDesktopView({
         isManager={isManager}
         expandedId={expandedId}
         onToggle={handleToggleRow}
+        onDelete={onDelete}
         onSaveNote={onSaveNote}
         onAssign={handleAssign}
       />
