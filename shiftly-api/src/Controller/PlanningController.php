@@ -229,9 +229,10 @@ class PlanningController extends AbstractController
 
     /**
      * DELETE /api/planning/week?centreId={id}&weekStart=YYYY-MM-DD
-     * Vide toutes les assignations Poste de la semaine pour le centre courant.
-     * Préserve les jours déjà passés (date < service du jour) — non modifiables.
-     * Retourne { deletedCount: int }.
+     * Vide une semaine pour le centre courant : supprime toutes les assignations
+     * Poste ET toutes les Absences (repos, CP, RTT…). Préserve les jours déjà
+     * passés (date < service du jour) — non modifiables.
+     * Retourne { deletedPostes: int, deletedAbsences: int }.
      */
     #[Route('/week', name: 'clear_week', methods: ['DELETE'])]
     #[IsGranted('ROLE_MANAGER')]
@@ -256,11 +257,14 @@ class PlanningController extends AbstractController
             return $this->json(['error' => 'Centre introuvable'], 404);
         }
 
-        $weekStart   = $this->resolveMonday($weekParam);
-        $minAllowed  = $this->planningGuard->getMinAllowedDate();
-        $deletedCount = $this->planningService->clearWeek($centre, $weekStart, $minAllowed);
+        $weekStart  = $this->resolveMonday($weekParam);
+        $minAllowed = $this->planningGuard->getMinAllowedDate();
+        $deleted    = $this->planningService->clearWeek($centre, $weekStart, $minAllowed, alsoAbsences: true);
 
-        return $this->json(['deletedCount' => $deletedCount]);
+        return $this->json([
+            'deletedPostes'   => $deleted['postes'],
+            'deletedAbsences' => $deleted['absences'],
+        ]);
     }
 
     /**
