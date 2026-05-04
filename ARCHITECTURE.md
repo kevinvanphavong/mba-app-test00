@@ -354,6 +354,27 @@ Le panneau dépliant (`ServicesTableExpanded`) reproduit le pattern note (éditi
 
 ---
 
+## 5quater. Module Dashboard — refonte V2
+
+La page `/dashboard` (manager uniquement) consomme un seul endpoint enrichi (`GET /api/dashboard/{centreId}` → `DashboardController::__invoke`). Trois zones ont été refondues en V2 :
+
+| Composant | Rôle |
+|---|---|
+| `components/dashboard/HeroService.tsx` | Hero V2 : statut LIVE animé + nom du jour + horaires + manager responsable + cercle global + grille zones triées + équipe en service |
+| `components/dashboard/KPIGrid.tsx` | 4 KPIs (Tâches du jour, Staff actifs, Incidents ouverts, Tutos lus) avec tag contextuel `StatCard.tag` |
+| `components/dashboard/StaffRanking.tsx` | Panel « Progression équipe », top 5 sans toggle, lien `Voir tout →` |
+
+Le payload `service.today` côté API ajoute trois listes :
+- `zones[]` : id, nom, couleur, completed, total, pct (triées `pct ASC` puis `nom ASC`).
+- `managersResponsables[]` : issu de `Service::getManagers` (relation existante `service_manager`).
+- `staffEnService[]` : users distincts ayant un `Poste` sur le service du jour.
+
+Le payload `staff` est désormais un objet `{ members: [...], nouveauxCeMois }` (compteur des users du centre créés depuis le 1er du mois en cours, fuseau Europe/Paris). `IncidentsList` et la section Alertes ne sont **pas** concernés par cette V2.
+
+Cf. `DESIGN_SYSTEM.md` §11.2bis pour le layout adaptatif des zones et le pulse `LIVE`.
+
+---
+
 ## 5ter. Jour actif (« service du jour ») — bascule à 5h
 
 Le « jour actif » d'un centre n'est pas le jour calendaire : il bascule à **5h du matin** (timezone `Europe/Paris`) pour gérer les services de nuit / fermetures tardives. Entre 0h et 4h59, on est encore dans la journée d'exploitation de la veille ; à 5h00 pile, on bascule sur le jour calendaire courant. Cette règle régit `EN_COURS` sur les pages `/service`, `/dashboard` et `/services` — **les trois doivent répondre la même chose à la même heure**.
