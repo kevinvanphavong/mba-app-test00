@@ -15,6 +15,7 @@ use App\Repository\AbsenceRepository;
 use App\Repository\PlanningTemplateRepository;
 use App\Repository\PosteRepository;
 use App\Service\PlanningGuardService;
+use App\Service\PlanningService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,6 +48,7 @@ class PlanningTemplateController extends AbstractController
         private readonly PosteRepository            $posteRepo,
         private readonly AbsenceRepository          $absenceRepo,
         private readonly PlanningGuardService       $planningGuard,
+        private readonly PlanningService            $planningService,
     ) {}
 
     /** GET /api/planning/templates */
@@ -168,11 +170,14 @@ class PlanningTemplateController extends AbstractController
      * POST /api/planning/templates/{id}/apply
      * Body : { "weekStart": "2026-05-04" }
      *
-     * Mode unique : append. Ajoute des Postes aux Services de la semaine cible
-     * sans toucher aux assignations existantes. Skip silencieux si :
+     * Le template est la source de vérité : toutes les assignations Poste
+     * existantes de la semaine cible (sur les jours non passés) sont supprimées
+     * avant d'appliquer le template. Skip silencieux si :
      *   - le shift template n'a pas de user (orphelin)
      *   - la date cible est antérieure au service du jour
-     *   - un Poste existe déjà pour (service, zone, user) — contrainte unique
+     *
+     * Les absences gardent le mode "append + skip duplicate" (une absence
+     * existante n'est pas écrasée par le template).
      */
     #[Route('/{id<\d+>}/apply', name: 'apply', methods: ['POST'])]
     public function apply(int $id, Request $request): JsonResponse
@@ -187,11 +192,20 @@ class PlanningTemplateController extends AbstractController
             throw new BadRequestHttpException('weekStart attendu au format YYYY-MM-DD.');
         }
 
+        // Le template écrase les assignations existantes de la semaine cible.
+        // Le passé reste protégé (clearWeek ignore les jours < service du jour).
+        $replacedCount = $this->planningService->clearWeek(
+            $centre,
+            $monday,
+            $this->planningGuard->getMinAllowedDate(),
+        );
+
         $report = [
             'created'                 => 0,
             'skippedOrphan'           => 0,
             'skippedPast'             => 0,
             'skippedDuplicate'        => 0,
+            'replacedExisting'        => $replacedCount,
             'absencesCreated'         => 0,
             'absencesSkippedOrphan'   => 0,
             'absencesSkippedPast'     => 0,
