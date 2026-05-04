@@ -1,6 +1,28 @@
 // ─── Dashboard API response types ────────────────────────────────────────────
 // Matches GET /api/dashboard/{centreId} from DashboardController
 
+export interface DashboardZoneProgress {
+  id:        number
+  nom:       string
+  couleur:   string
+  completed: number
+  total:     number
+  pct:       number   // 0-100, arrondi à 1 décimale, 0 si total=0
+}
+
+export interface DashboardManagerResponsable {
+  id:     number
+  nom:    string
+  prenom: string | null
+}
+
+export interface DashboardStaffEnService {
+  id:          number
+  nom:         string
+  prenom:      string | null
+  avatarColor: string
+}
+
 export interface DashboardServiceToday {
   id:         number
   date:       string             // 'YYYY-MM-DD'
@@ -8,6 +30,12 @@ export interface DashboardServiceToday {
   heureFin:   string | null      // 'HH:mm' — null si non défini
   statut:     'PLANIFIE' | 'EN_COURS' | 'TERMINE'
   nbPostes:   number
+  /** Progression par zone, triées par pct ASC puis nom ASC. */
+  zones:      DashboardZoneProgress[]
+  /** Managers responsables (relation Service.managers — vide si aucun). */
+  managersResponsables: DashboardManagerResponsable[]
+  /** Users distincts assignés à un Poste du service du jour. */
+  staffEnService: DashboardStaffEnService[]
 }
 
 export interface DashboardService {
@@ -80,9 +108,15 @@ export interface DashboardStats {
   totalServices:     number
 }
 
+export interface DashboardStaff {
+  members:        DashboardStaffMember[]
+  /** Nouveaux users créés depuis le 1er du mois en cours (Europe/Paris). */
+  nouveauxCeMois: number
+}
+
 export interface DashboardData {
   service:   DashboardService
-  staff:     DashboardStaffMember[]
+  staff:     DashboardStaff
   incidents: DashboardIncidents
   topStaff:  DashboardTopStaff[]
   tutoriels: DashboardTutoriels
