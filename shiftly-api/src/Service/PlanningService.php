@@ -312,12 +312,21 @@ class PlanningService
     }
 
     /**
-     * Supprime toutes les assignations Poste d'une semaine pour un centre.
-     * Ne touche pas aux dates antérieures au "service du jour" (passé non modifiable).
-     * Retourne le nombre de postes supprimés.
+     * Supprime toutes les assignations d'une semaine pour un centre.
+     * - Toujours : les Postes (assignations sur des Services).
+     * - Optionnel : les Absences (repos, CP, RTT…) si $alsoAbsences = true.
+     *
+     * Ne touche jamais aux dates antérieures au "service du jour" (passé non
+     * modifiable).
+     *
+     * @return array{postes: int, absences: int} Compteurs supprimés.
      */
-    public function clearWeek(Centre $centre, \DateTimeImmutable $weekStart, \DateTimeImmutable $minAllowedDate): int
-    {
+    public function clearWeek(
+        Centre $centre,
+        \DateTimeImmutable $weekStart,
+        \DateTimeImmutable $minAllowedDate,
+        bool $alsoAbsences = false,
+    ): array {
         $weekEnd = $weekStart->modify('+6 days');
 
         // Borne basse effective : le plus tardif entre le lundi et la date minimale autorisée
@@ -325,24 +334,37 @@ class PlanningService
 
         if ($effectiveFrom > $weekEnd) {
             // Toute la semaine est dans le passé → rien à faire
-            return 0;
+            return ['postes' => 0, 'absences' => 0];
         }
 
         $services = $this->serviceRepository->findBetween($centre->getId(), $effectiveFrom, $weekEnd);
-        if (empty($services)) {
-            return 0;
+        $deletedPostes = 0;
+        if (!empty($services)) {
+            $serviceIds = array_map(static fn (Service $s) => $s->getId(), $services);
+
+            // DELETE en masse via DQL (évite de charger les entités Poste en mémoire)
+            $deletedPostes = (int) $this->em->createQueryBuilder()
+                ->delete(Poste::class, 'p')
+                ->where('p.service IN (:serviceIds)')
+                ->setParameter('serviceIds', $serviceIds)
+                ->getQuery()
+                ->execute();
         }
-        $serviceIds = array_map(static fn (Service $s) => $s->getId(), $services);
 
-        // DELETE en masse via DQL (évite de charger les entités Poste en mémoire)
-        $deleted = $this->em->createQueryBuilder()
-            ->delete(Poste::class, 'p')
-            ->where('p.service IN (:serviceIds)')
-            ->setParameter('serviceIds', $serviceIds)
-            ->getQuery()
-            ->execute();
+        $deletedAbsences = 0;
+        if ($alsoAbsences) {
+            $deletedAbsences = (int) $this->em->createQueryBuilder()
+                ->delete(Absence::class, 'a')
+                ->where('a.centre = :centre')
+                ->andWhere('a.date BETWEEN :from AND :to')
+                ->setParameter('centre', $centre)
+                ->setParameter('from', $effectiveFrom, Types::DATE_IMMUTABLE)
+                ->setParameter('to', $weekEnd, Types::DATE_IMMUTABLE)
+                ->getQuery()
+                ->execute();
+        }
 
-        return (int) $deleted;
+        return ['postes' => $deletedPostes, 'absences' => $deletedAbsences];
     }
 
     /**

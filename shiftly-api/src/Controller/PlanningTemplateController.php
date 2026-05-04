@@ -192,13 +192,15 @@ class PlanningTemplateController extends AbstractController
             throw new BadRequestHttpException('weekStart attendu au format YYYY-MM-DD.');
         }
 
-        // Le template écrase les assignations existantes de la semaine cible.
+        // Le template écrase les assignations Poste existantes de la semaine cible.
+        // Les absences ne sont PAS supprimées (mode append + skip duplicate plus bas).
         // Le passé reste protégé (clearWeek ignore les jours < service du jour).
-        $replacedCount = $this->planningService->clearWeek(
+        $cleared       = $this->planningService->clearWeek(
             $centre,
             $monday,
             $this->planningGuard->getMinAllowedDate(),
         );
+        $replacedCount = $cleared['postes'];
 
         $report = [
             'created'                 => 0,
