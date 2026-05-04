@@ -230,6 +230,27 @@ export function useDuplicateWeek() {
   })
 }
 
+// ─── Vider une semaine (supprime toutes les assignations Poste) ──────────────
+// Préserve les jours déjà passés côté back. Sert à remettre une semaine à blanc
+// avant d'appliquer un template ou de repartir de zéro.
+
+export function useClearWeek() {
+  const centreId    = useAuthStore(s => s.centreId)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (weekStart: string) =>
+      api.delete<{ deletedCount: number }>('/planning/week', {
+        params: { centreId, weekStart },
+      }).then(r => r.data),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['planning', 'week', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['planning', 'alerts', centreId] })
+    },
+  })
+}
+
 // ─── Créer une absence ────────────────────────────────────────────────────────
 
 export function useCreateAbsence() {
