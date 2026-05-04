@@ -11,27 +11,24 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * Garde-fou pour les opérations de planification.
  *
  * Empêche notamment de créer/modifier un Service ou un Poste à une date
- * antérieure au "service du jour" (référence du dashboard, cutoff 5h pour
- * gérer les services de nuit).
+ * antérieure au « jour actif » (référence du dashboard, bascule à 5h pour
+ * gérer les services de nuit). La résolution du jour actif passe par
+ * {@see ActiveDayResolver}, source de vérité unique côté backend.
  */
 class PlanningGuardService
 {
     public function __construct(
         private readonly ServiceRepository $serviceRepository,
+        private readonly ActiveDayResolver $activeDayResolver,
     ) {}
 
     /**
-     * Date la plus ancienne autorisée pour créer/modifier un service.
-     * Aligné sur la logique findTodayActive : avant 5h on est encore "hier".
+     * Date la plus ancienne autorisée pour créer/modifier un service —
+     * c'est exactement le « jour actif » du centre.
      */
     public function getMinAllowedDate(): \DateTimeImmutable
     {
-        $now = new \DateTimeImmutable();
-        $reference = (int) $now->format('H') < 5
-            ? $now->modify('-1 day')
-            : $now;
-
-        return $reference->setTime(0, 0, 0);
+        return $this->activeDayResolver->getActiveDate();
     }
 
     /**
