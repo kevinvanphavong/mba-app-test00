@@ -105,15 +105,18 @@ export default function PlanningManagerView() {
 
   function handleClearWeek() {
     if (clearWeek.isPending) return
-    if (!confirm('Vider toute la semaine affichée ?\nToutes les assignations de postes seront supprimées (sauf celles des jours déjà passés).')) return
+    if (!confirm('Vider toute la semaine affichée ?\nToutes les assignations de postes ET les absences (repos, CP, RTT…) seront supprimées (sauf celles des jours déjà passés).')) return
     clearWeek.mutate(displayWeekStart, {
       onSuccess: (r) => {
-        toast(
-          r.deletedCount > 0
-            ? `${r.deletedCount} assignation${r.deletedCount > 1 ? 's' : ''} supprimée${r.deletedCount > 1 ? 's' : ''}`
-            : 'Aucune assignation à supprimer',
-          'success',
-        )
+        const total = r.deletedPostes + r.deletedAbsences
+        if (total === 0) {
+          toast('Aucune assignation à supprimer', 'success')
+          return
+        }
+        const parts: string[] = []
+        if (r.deletedPostes > 0)   parts.push(`${r.deletedPostes} poste${r.deletedPostes > 1 ? 's' : ''}`)
+        if (r.deletedAbsences > 0) parts.push(`${r.deletedAbsences} absence${r.deletedAbsences > 1 ? 's' : ''}`)
+        toast(`Semaine vidée : ${parts.join(' + ')} supprimé${total > 1 ? 's' : ''}`, 'success')
       },
       onError: () => toast('Erreur lors du vidage de la semaine', 'error'),
     })
