@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import Panel from '@/components/ui/Panel'
 import { ty } from '@/lib/typography'
@@ -12,52 +11,22 @@ interface StaffRankingProps {
 }
 
 const RANK_MEDAL: Record<number, string> = { 0: '🥇', 1: '🥈', 2: '🥉' }
+const TOP_LIMIT = 5
 
-/** Panel — classement staff par points avec toggle managers/employés */
+/** Panel V2 — « Progression équipe » : top 5 par points, sans toggle. */
 export default function StaffRanking({ topStaff }: StaffRankingProps) {
-  const [showManagers, setShowManagers] = useState(true)
-
-  // Filtrer selon le toggle
-  const filtered = showManagers
-    ? topStaff
-    : topStaff.filter(u => u.role !== 'MANAGER')
-
-  const max = Math.max(...filtered.map(u => u.points), 1)
+  const visible = topStaff.slice(0, TOP_LIMIT)
+  const max     = Math.max(...visible.map(u => u.points), 1)
 
   return (
-    <Panel title="Top Staff">
-      {/* Toggle managers / employés seulement */}
-      <div className="flex items-center gap-1.5 mb-4 bg-surface2 rounded-[10px] p-1 w-fit">
-        <button
-          onClick={() => setShowManagers(true)}
-          className={`${ty.label} px-3 py-1 rounded-[8px] transition-all ${
-            showManagers
-              ? 'bg-surface text-text shadow-sm'
-              : 'text-muted hover:text-text'
-          }`}
-        >
-          Tous
-        </button>
-        <button
-          onClick={() => setShowManagers(false)}
-          className={`${ty.label} px-3 py-1 rounded-[8px] transition-all ${
-            !showManagers
-              ? 'bg-surface text-text shadow-sm'
-              : 'text-muted hover:text-text'
-          }`}
-        >
-          Employés
-        </button>
-      </div>
-
-      {filtered.length === 0 ? (
+    <Panel title="Progression équipe">
+      {visible.length === 0 ? (
         <p className={`${ty.metaLg} py-3`}>Aucun employé dans la liste.</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {filtered.map((member, idx) => {
+          {visible.map((member, idx) => {
             const initials = getInitials(member.nom, member.prenom)
-
-            const pct = Math.round((member.points / max) * 100)
+            const pct      = Math.round((member.points / max) * 100)
 
             return (
               <div key={member.id} className="flex items-center gap-3">
@@ -115,7 +84,7 @@ export default function StaffRanking({ topStaff }: StaffRankingProps) {
         href="/staff"
         className={`${ty.meta} mt-4 flex items-center justify-center gap-1.5 w-full py-2 rounded-[10px] border border-border hover:text-text hover:border-border/60 transition-all`}
       >
-        Voir tout le staff
+        Voir tout
         <span className={ty.metaSm}>→</span>
       </Link>
     </Panel>
