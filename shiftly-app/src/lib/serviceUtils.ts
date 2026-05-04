@@ -1,13 +1,19 @@
 import { format } from 'date-fns'
 import type { ServiceListItem } from '@/types/index'
 
-/** Avant 5h du matin → on est encore dans le service de la veille */
-const NIGHT_SHIFT_HOUR = 5
+/**
+ * Heure (0-23) de bascule du « jour actif » sur le jour calendaire suivant.
+ *
+ * DOIT MATCHER `App\Service\ActiveDayResolver::NIGHT_SHIFT_HOUR` (backend).
+ * Si tu changes l'une, change l'autre — sinon les pages /service, /dashboard
+ * et /services divergeront à nouveau entre minuit et le seuil de bascule.
+ */
+export const NIGHT_SHIFT_HOUR = 5
 
 /**
- * Retourne la date effective du "jour actif" au format YYYY-MM-DD.
- * Entre 0h et 4h59 → date d'hier (service de nuit en cours).
- * À partir de 5h → date calendaire normale.
+ * Retourne la date du « jour actif » au format YYYY-MM-DD.
+ * Entre 0h et NIGHT_SHIFT_HOUR-1 → date d'hier (service de nuit en cours).
+ * À partir de NIGHT_SHIFT_HOUR → date calendaire normale.
  */
 export function getEffectiveToday(): string {
   const now = new Date()
