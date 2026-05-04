@@ -6,31 +6,38 @@ interface KPIGridProps {
 }
 
 /**
- * Grille des 6 KPI principaux :
- *  1. Moyenne completion de tous les services
- *  2. Employés actifs dans le service du jour
- *  3. Incidents ouverts
- *  4. Taux lecture tutoriels
- *  5. Cumul points staff actif
- *  6. Total missions du service du jour
+ * Grille des 4 KPI principaux (V2) :
+ *  1. Tâches du jour       — completed/total · tag « En cours »
+ *  2. Staff actifs         — count           · tag « +N ce mois »
+ *  3. Incidents ouverts    — count           · tag « À traiter »
+ *  4. Tutos lus équipe     — % lecture       · tag « Moy. équipe »
  */
 export default function KPIGrid({ data }: KPIGridProps) {
-  const { service, incidents, tutoriels, stats } = data
+  const { service, staff, incidents, tutoriels } = data
+
+  // Calcul tâches : on a tauxCompletion (%) et totalMissions sur service du jour.
+  // Pour l'affichage type "5/18", on dérive completed = round(taux * total / 100).
+  const totalTaches     = service.totalMissions
+  const completedTaches = totalTaches > 0
+    ? Math.round((service.tauxCompletion / 100) * totalTaches)
+    : 0
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-      {/* 1 — Moyenne completion tous services */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* 1 — Tâches du jour */}
       <StatCard
-        icon="📊"
-        value={`${stats.moyenneCompletion.toFixed(0)}%`}
-        label="Moy. complétion services"
+        icon="✅"
+        value={`${completedTaches}/${totalTaches}`}
+        label="Tâches du jour"
+        tag="En cours"
       />
 
-      {/* 2 — Staff actif dans le service du jour */}
+      {/* 2 — Staff actifs */}
       <StatCard
         icon="👥"
         value={service.staffActifCount}
-        label="Employés actifs"
+        label="Staff actifs"
+        tag={staff.nouveauxCeMois > 0 ? `+${staff.nouveauxCeMois} ce mois` : undefined}
       />
 
       {/* 3 — Incidents ouverts */}
@@ -38,32 +45,15 @@ export default function KPIGrid({ data }: KPIGridProps) {
         icon="⚠️"
         value={incidents.total}
         label="Incidents ouverts"
-        trend={
-          incidents.haute > 0
-            ? { value: `${incidents.haute} haute`, up: false }
-            : undefined
-        }
+        tag="À traiter"
       />
 
-      {/* 4 — Taux lecture tutoriels */}
+      {/* 4 — Tutos lus équipe */}
       <StatCard
         icon="📖"
         value={`${tutoriels.tauxLecture.toFixed(0)}%`}
-        label="Taux lecture tutos"
-      />
-
-      {/* 5 — Cumul points staff actif */}
-      <StatCard
-        icon="⭐"
-        value={service.pointsStaffActif}
-        label="Points staff actif"
-      />
-
-      {/* 6 — Total missions du service du jour */}
-      <StatCard
-        icon="✅"
-        value={service.totalMissions}
-        label="Missions du service"
+        label="Tutos lus équipe"
+        tag="Moy. équipe"
       />
     </div>
   )
