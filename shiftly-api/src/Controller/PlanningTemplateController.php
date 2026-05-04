@@ -333,6 +333,7 @@ class PlanningTemplateController extends AbstractController
         $service->setCentre($centre);
         $service->setDate($date);
         $service->setStatut('PLANIFIE');
+        $this->planningService->applyCentreOpeningHoursToService($service, $centre, $date);
         $this->em->persist($service);
         $this->em->flush();
         return $service;

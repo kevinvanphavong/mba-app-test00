@@ -8,6 +8,7 @@ use App\Entity\Service;
 use App\Entity\Zone;
 use App\Entity\User;
 use App\Service\PlanningGuardService;
+use App\Service\PlanningService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -38,6 +39,7 @@ class CreatePosteController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly PlanningGuardService   $planningGuard,
+        private readonly PlanningService        $planningService,
     ) {}
 
     #[Route('/api/postes/create', name: 'api_poste_create', methods: ['POST'], format: 'json')]
@@ -149,25 +151,7 @@ class CreatePosteController extends AbstractController
         $service->setCentre($centre);
         $service->setDate($date);
         $service->setStatut('PLANIFIE');
-
-        // Pré-remplir les heures depuis les réglages du centre pour ce jour de la semaine
-        $dayMap = ['1' => 'lundi', '2' => 'mardi', '3' => 'mercredi', '4' => 'jeudi', '5' => 'vendredi', '6' => 'samedi', '7' => 'dimanche'];
-        $dayKey = $dayMap[$date->format('N')] ?? null;
-        $hours  = $centre?->getOpeningHours() ?? [];
-
-        $hd = null;
-        $hf = null;
-        if ($dayKey && !empty($hours[$dayKey])) {
-            $day = $hours[$dayKey];
-            if (!empty($day['ouverture'])) {
-                $hd = \DateTimeImmutable::createFromFormat('H:i', $day['ouverture']) ?: null;
-            }
-            if (!empty($day['fermeture'])) {
-                $hf = \DateTimeImmutable::createFromFormat('H:i', $day['fermeture']) ?: null;
-            }
-        }
-        $service->setHeureDebut($hd ?? \DateTimeImmutable::createFromFormat('H:i', '00:00') ?: null);
-        $service->setHeureFin($hf ?? \DateTimeImmutable::createFromFormat('H:i', '00:00') ?: null);
+        $this->planningService->applyCentreOpeningHoursToService($service, $centre, $date);
 
         $this->em->persist($service);
         // Flush différé — sera fait avec le Poste
