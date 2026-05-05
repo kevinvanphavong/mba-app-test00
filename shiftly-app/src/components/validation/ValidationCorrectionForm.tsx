@@ -37,7 +37,13 @@ export default function ValidationCorrectionForm({
     e.preventDefault()
     if (!heure) return
 
-    const nouvelleValeur = `${date}T${heure}:00`
+    // Le manager saisit l'heure en local (Europe/Paris). On reconstruit un Date
+    // dans le fuseau du navigateur puis on sérialise en ISO UTC pour que le
+    // back stocke la bonne instant : 15:00 Paris (été) → "T13:00:00.000Z".
+    const [year, month, day] = date.split('-').map(Number)
+    const [hh, mm]           = heure.split(':').map(Number)
+    const nouvelleValeur     = new Date(year, month - 1, day, hh, mm, 0).toISOString()
+
     onSubmit({ pointageId, champModifie: champ, nouvelleValeur, motif: motif || undefined })
   }
 
