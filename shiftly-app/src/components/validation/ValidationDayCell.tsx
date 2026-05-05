@@ -6,6 +6,7 @@
  */
 
 import type { ValidationJour } from '@/types/validation'
+import { formatHeure } from '@/lib/formatHeure'
 
 interface Props {
   jour: ValidationJour
@@ -52,7 +53,7 @@ export default function ValidationDayCell({ jour }: Props) {
           en cours{jour.estRetard && <span className="validation-retard-dot" />}
         </div>
         {jour.heureArrivee && (
-          <div className="validation-day-hours">{jour.heureArrivee}–??</div>
+          <div className="validation-day-hours">{formatHeure(jour.heureArrivee)}–??</div>
         )}
       </td>
     )
@@ -62,11 +63,11 @@ export default function ValidationDayCell({ jour }: Props) {
   return (
     <td className="validation-day-cell">
       <div className="validation-day-time">
-        {jour.heureArrivee}–
+        {formatHeure(jour.heureArrivee)}–
         {jour.heureDepartAuto ? (
           // Départ inféré depuis l'heure de fin du poste : italique + tag auto
           <>
-            <span style={{ fontStyle: 'italic', color: 'var(--muted)' }}>{jour.heureDepart}</span>
+            <span style={{ fontStyle: 'italic', color: 'var(--muted)' }}>{formatHeure(jour.heureDepart)}</span>
             <span
               title="Heure de fin appliquée automatiquement (pas de pointage de départ)"
               style={{
@@ -86,7 +87,7 @@ export default function ValidationDayCell({ jour }: Props) {
             </span>
           </>
         ) : (
-          jour.heureDepart
+          formatHeure(jour.heureDepart)
         )}
         {jour.estRetard && <span className="validation-retard-dot" />}
       </div>

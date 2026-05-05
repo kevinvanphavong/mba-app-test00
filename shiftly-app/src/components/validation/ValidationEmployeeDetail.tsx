@@ -9,6 +9,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { fadeUpVariants as fadeUp } from '@/lib/animations'
 import ValidationCorrectionForm from './ValidationCorrectionForm'
+import { formatHeure } from '@/lib/formatHeure'
 import type { ValidationEmploye, CorrectionPayload } from '@/types/validation'
 
 interface Props {
@@ -81,7 +82,7 @@ export default function ValidationEmployeeDetail({
               <div className="validation-detail-times flex-1">
                 {jour.heureArrivee && (
                   <div className="validation-detail-time-item flex items-center gap-1">
-                    Arrivée {jour.heureArrivee}
+                    Arrivée {formatHeure(jour.heureArrivee)}
                     {jour.estRetard
                       ? <span style={{ color: 'var(--accent)' }}>⚠</span>
                       : <span style={{ color: 'var(--green)' }}>✓</span>
@@ -90,7 +91,7 @@ export default function ValidationEmployeeDetail({
                 )}
                 {jour.pauses.map((p, i) => (
                   <div key={i} className="validation-detail-time-item flex items-center gap-1">
-                    Pause {p.debut}–{p.fin ?? '??'}
+                    Pause {formatHeure(p.debut)}–{p.fin ? formatHeure(p.fin) : '??'}
                     <span>({p.dureeMinutes} min)</span>
                   </div>
                 ))}
@@ -100,7 +101,7 @@ export default function ValidationEmployeeDetail({
                     {jour.heureDepartAuto ? (
                       <>
                         <span style={{ fontStyle: 'italic', color: 'var(--muted)' }}>
-                          {jour.heureDepart}
+                          {formatHeure(jour.heureDepart)}
                         </span>
                         <span
                           title="Heure de fin appliquée automatiquement (pas de pointage de départ)"
@@ -120,7 +121,7 @@ export default function ValidationEmployeeDetail({
                       </>
                     ) : (
                       <>
-                        {jour.heureDepart}
+                        {formatHeure(jour.heureDepart)}
                         <span style={{ color: 'var(--green)' }}>✓</span>
                       </>
                     )}
