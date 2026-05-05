@@ -6,7 +6,7 @@
  */
 
 import { motion } from 'framer-motion'
-import { format, addWeeks, subWeeks, getISOWeek } from 'date-fns'
+import { format, addDays, addWeeks, subWeeks, getISOWeek } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import type { ValidationSemaine } from '@/types/validation'
 
@@ -31,11 +31,11 @@ export default function ValidationWeekControl({
   nbValides,
   nbTotal,
 }: Props) {
-  const dimanche  = addWeeks(currentLundi, 1)
+  const dimanche   = addDays(currentLundi, 6)
   const numSemaine = getISOWeek(currentLundi)
 
   const labelDebut = format(currentLundi, 'd MMM', { locale: fr })
-  const labelFin   = format(addWeeks(currentLundi, 1).setDate(addWeeks(currentLundi, 1).getDate() - 1), 'd MMM yyyy', { locale: fr })
+  const labelFin   = format(dimanche, 'd MMM yyyy', { locale: fr })
 
   const badgeLabel = nbValides !== undefined && nbTotal !== undefined
     ? `${nbValides}/${nbTotal} validés`
