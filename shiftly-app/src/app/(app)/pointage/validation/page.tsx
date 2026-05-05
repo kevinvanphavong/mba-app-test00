@@ -28,7 +28,15 @@ import ValidationEmployeeDetail     from '@/components/validation/ValidationEmpl
 import ValidationWeekSummary        from '@/components/validation/ValidationWeekSummary'
 import ValidationLegalAlerts        from '@/components/validation/ValidationLegalAlerts'
 import ConfirmModal                 from '@/components/ui/ConfirmModal'
+import { useToastStore }            from '@/store/toastStore'
 import type { CorrectionPayload }   from '@/types/validation'
+
+/** Extrait un message lisible d'une erreur API (axios + JSON-LD API Platform). */
+function extractApiError(err: unknown, fallback: string): string {
+  const e = err as { response?: { data?: { 'hydra:description'?: string; detail?: string; message?: string } } }
+  const d = e?.response?.data
+  return d?.['hydra:description'] ?? d?.detail ?? d?.message ?? fallback
+}
 
 function getLundiISO(date: Date): string {
   const lundi = startOfWeek(date, { weekStartsOn: 1 })
@@ -46,6 +54,7 @@ export default function ValidationPage() {
 
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
   const [showDevaliderModal, setShowDevaliderModal] = useState(false)
+  const showToast = useToastStore(s => s.show)
 
   const dateStr = getLundiISO(currentLundi)
 
@@ -77,15 +86,24 @@ export default function ValidationPage() {
   const nbTotal = semaine?.employes.length ?? 0
 
   const handleValiderEmploye = (userId: number) => {
-    validerEmployeMut.mutate(userId)
+    validerEmployeMut.mutate(userId, {
+      onSuccess: () => showToast('Employé validé', 'success'),
+      onError:   (err) => showToast(extractApiError(err, 'Erreur lors de la validation'), 'error'),
+    })
   }
 
   const handleCorriger = (payload: CorrectionPayload) => {
-    corrigerMut.mutate(payload)
+    corrigerMut.mutate(payload, {
+      onSuccess: () => showToast('Correction appliquée', 'success'),
+      onError:   (err) => showToast(extractApiError(err, 'Erreur lors de la correction'), 'error'),
+    })
   }
 
   const handleValiderTout = () => {
-    validerSemaineMut.mutate()
+    validerSemaineMut.mutate(undefined, {
+      onSuccess: () => showToast('Semaine validée', 'success'),
+      onError:   (err) => showToast(extractApiError(err, 'Erreur lors de la validation hebdo'), 'error'),
+    })
   }
 
   const handleDevaliderTout = () => {
@@ -95,6 +113,8 @@ export default function ValidationPage() {
 
   const confirmDevaliderTout = () => {
     devaliderSemaineMut.mutate(undefined, {
+      onSuccess: () => showToast('Semaine dévalidée', 'success'),
+      onError:   (err) => showToast(extractApiError(err, 'Erreur lors de la dévalidation'), 'error'),
       onSettled: () => setShowDevaliderModal(false),
     })
   }
