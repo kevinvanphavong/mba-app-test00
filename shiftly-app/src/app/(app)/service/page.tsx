@@ -170,7 +170,7 @@ export default function ServicePage() {
           onReportIncident={canReport ? openReportIncident : undefined}
         />
 
-        <div className="px-4 pb-28 lg:px-7 lg:pb-12 space-y-3 lg:mx-auto">
+        <div className="p-6 pb-28 lg:px-7 lg:pb-12 space-y-3 lg:mx-auto">
 
           {/* Hero service */}
           <HeroServiceCard

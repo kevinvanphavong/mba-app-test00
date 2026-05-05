@@ -117,7 +117,7 @@ export default function ServicesDesktopView({
   }
 
   return (
-    <div className="px-6 pb-12 flex flex-col gap-3.5">
+    <div className="p-6 pb-12 flex flex-col gap-3.5">
       <ServicesHero
         centreName={centreName}
         nbEnCours={buckets.encours.length}

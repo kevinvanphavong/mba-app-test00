@@ -31,7 +31,7 @@ export default function PostesPage() {
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
       <Topbar title="Postes" subtitle={topSubtitle} />
 
-      <div className="px-4 pb-28 lg:px-7 lg:pb-10 space-y-4 lg:mx-auto">
+      <div className="pt-6 px-4 pb-28 lg:px-7 lg:pb-10 space-y-4 lg:mx-auto">
 
         {/* ── État loading ── */}
         {isLoading && (

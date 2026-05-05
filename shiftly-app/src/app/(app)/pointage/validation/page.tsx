@@ -125,7 +125,7 @@ export default function ValidationPage() {
     <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
       <Topbar title={topTitle} subtitle={topSubtitle} />
 
-      <div className="flex-1 p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto w-full">
+      <div className="flex-1 p-4 md:p-6 mx-auto w-full">
 
         {/* Boutons d'action — le titre vient désormais du Topbar */}
         <div className="flex items-center justify-end mb-5 flex-wrap gap-3">

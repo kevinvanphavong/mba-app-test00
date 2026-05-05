@@ -35,7 +35,7 @@ export default function Topbar({ title, subtitle, onReportIncident }: TopbarProp
   const sub      = subtitle ?? centreName
 
   return (
-    <header className="flex items-center justify-between gap-3 bg-surface border-b border-border mb-5 px-5 py-4 lg:px-7 lg:py-5">
+    <header className="flex items-center justify-between gap-3 bg-surface border-b border-border px-5 py-4 lg:px-7 lg:py-5">
       {/* Bloc titre */}
       <div className="min-w-0 flex-1">
         <h1 className="font-syne font-extrabold text-[20px] lg:text-[26px] text-text leading-tight truncate">
