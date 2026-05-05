@@ -182,7 +182,7 @@ export default function PlanningManagerView() {
         onReportIncident={canReport ? openReportIncident : undefined}
       />
 
-      <div className="flex flex-col gap-4 px-4 pb-4 md:px-6 pb-24 md:pb-8">
+      <div className="flex flex-col gap-4 p-6 md:px-6 pb-24 md:pb-8">
 
         {/* ── Carte "Planning hebdomadaire" ───────────────────────────────── */}
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[14px] p-5 md:p-6 accent-bar relative overflow-hidden">
