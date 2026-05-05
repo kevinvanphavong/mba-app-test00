@@ -248,8 +248,8 @@ class ValidationHebdoService
                     'jourSemaine'      => $jourSemaine,
                     'pointageId'       => $pointage->getId(),
                     'statut'           => 'travaille',
-                    'heureArrivee'     => $pointage->getHeureArrivee()?->format('H:i'),
-                    'heureDepart'      => $resolution['fin']->format('H:i'),
+                    'heureArrivee'     => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
+                    'heureDepart'      => $resolution['fin']->format(\DateTimeInterface::ATOM),
                     'heureDepartAuto'  => true,
                     'pauses'           => $this->formatPauses($pointage),
                     'heuresNettes'     => $this->calculerHeuresNettes($pointage),
@@ -264,7 +264,7 @@ class ValidationHebdoService
                 'jourSemaine'      => $jourSemaine,
                 'pointageId'       => $pointage->getId(),
                 'statut'           => 'en_cours',
-                'heureArrivee'     => $pointage->getHeureArrivee()?->format('H:i'),
+                'heureArrivee'     => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
                 'heureDepart'      => null,
                 'heureDepartAuto'  => false,
                 'pauses'           => $this->formatPauses($pointage),
@@ -282,8 +282,8 @@ class ValidationHebdoService
             'jourSemaine'      => $jourSemaine,
             'pointageId'       => $pointage->getId(),
             'statut'           => $pointage->getStatut() === Pointage::STATUT_ABSENT ? 'absent_non_justifie' : 'travaille',
-            'heureArrivee'     => $pointage->getHeureArrivee()?->format('H:i'),
-            'heureDepart'      => $pointage->getHeureDepart()?->format('H:i'),
+            'heureArrivee'     => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
+            'heureDepart'      => $pointage->getHeureDepart()?->format(\DateTimeInterface::ATOM),
             'heureDepartAuto'  => false,
             'pauses'           => $this->formatPauses($pointage),
             'heuresNettes'     => $heuresNettes,
@@ -738,8 +738,8 @@ class ValidationHebdoService
             $duree  = (int) (($fin->getTimestamp() - $pause->getHeureDebut()->getTimestamp()) / 60);
 
             $result[] = [
-                'debut'        => $pause->getHeureDebut()->format('H:i'),
-                'fin'          => $pause->getHeureFin()?->format('H:i'),
+                'debut'        => $pause->getHeureDebut()->format(\DateTimeInterface::ATOM),
+                'fin'          => $pause->getHeureFin()?->format(\DateTimeInterface::ATOM),
                 'type'         => $pause->getType(),
                 'dureeMinutes' => max(0, $duree),
             ];
@@ -798,8 +798,10 @@ class ValidationHebdoService
                 continue;
             }
 
-            $depart  = new \DateTimeImmutable($jourA['date'] . ' ' . $jourA['heureDepart']);
-            $arrivee = new \DateTimeImmutable($jourB['date'] . ' ' . $jourB['heureArrivee']);
+            // heureDepart / heureArrivee sont maintenant des chaînes ISO ATOM
+            // qui incluent déjà la date et le fuseau, parsing direct.
+            $depart  = new \DateTimeImmutable($jourA['heureDepart']);
+            $arrivee = new \DateTimeImmutable($jourB['heureArrivee']);
             $repos   = ($arrivee->getTimestamp() - $depart->getTimestamp()) / 3600;
 
             if ($repos < 11) {
