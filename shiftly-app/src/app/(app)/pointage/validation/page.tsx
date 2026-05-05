@@ -27,6 +27,7 @@ import ValidationTable              from '@/components/validation/ValidationTabl
 import ValidationEmployeeDetail     from '@/components/validation/ValidationEmployeeDetail'
 import ValidationWeekSummary        from '@/components/validation/ValidationWeekSummary'
 import ValidationLegalAlerts        from '@/components/validation/ValidationLegalAlerts'
+import ConfirmModal                 from '@/components/ui/ConfirmModal'
 import type { CorrectionPayload }   from '@/types/validation'
 
 function getLundiISO(date: Date): string {
@@ -44,6 +45,7 @@ export default function ValidationPage() {
   )
 
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
+  const [showDevaliderModal, setShowDevaliderModal] = useState(false)
 
   const dateStr = getLundiISO(currentLundi)
 
@@ -88,8 +90,13 @@ export default function ValidationPage() {
 
   const handleDevaliderTout = () => {
     if (nbValides === 0) return
-    if (!confirm(`Dévalider les ${nbValides} validation(s) de cette semaine ?`)) return
-    devaliderSemaineMut.mutate()
+    setShowDevaliderModal(true)
+  }
+
+  const confirmDevaliderTout = () => {
+    devaliderSemaineMut.mutate(undefined, {
+      onSettled: () => setShowDevaliderModal(false),
+    })
   }
 
   // ─── États de la page ────────────────────────────────────────────────────
@@ -315,6 +322,17 @@ export default function ValidationPage() {
         </div>
 
       </div>
+
+      <ConfirmModal
+        open={showDevaliderModal}
+        title="Dévalider toute la semaine ?"
+        message={`Cette action retirera les ${nbValides} validation(s) de cette semaine. Les pointages restent intacts, seul l'état "validé" est annulé.`}
+        confirmLabel={devaliderSemaineMut.isPending ? 'Dévalidation…' : 'Dévalider'}
+        onConfirm={confirmDevaliderTout}
+        onCancel={() => setShowDevaliderModal(false)}
+        variant="danger"
+        isLoading={devaliderSemaineMut.isPending}
+      />
     </div>
   )
 }
