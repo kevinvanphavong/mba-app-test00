@@ -220,6 +220,16 @@ mba-app-test00/
     │   ├── Repository/                # Un repository par entité
     │   │   └── ...Repository.php
     │   │
+    │   ├── EventListener/             # Listeners Doctrine
+    │   │   ├── CompletionListener.php             # Recalcul taux_completion (postPersist/postRemove)
+    │   │   ├── CompletionPhotoCleanupListener.php # Supprime fichier photo sur disque (preRemove)
+    │   │   ├── PlanningWeekDirtyListener.php
+    │   │   └── PostePreRemoveListener.php         # Garde-fou suppression Poste vs Pointage
+    │   │
+    │   ├── Command/                   # Commandes Symfony Console
+    │   │   ├── CleanupOrphanPointagesCommand.php          # pointage:cleanup-orphans
+    │   │   └── CleanupOrphanCompletionPhotosCommand.php   # completion:cleanup-orphan-photos
+    │   │
     │   ├── ApiResource/               # Décorateurs API Platform custom si besoin
     │   │
     │   ├── Security/                  # Voters, JWT extractor
