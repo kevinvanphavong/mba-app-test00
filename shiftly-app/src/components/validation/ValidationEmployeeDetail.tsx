@@ -42,13 +42,16 @@ export default function ValidationEmployeeDetail({
     j => j.statut === 'travaille' || j.statut === 'en_cours'
   )
 
-  // Seuls les jours avec un pointage existant peuvent être corrigés
-  const joursCorrigeables = joursActifs.filter(j => j.pointageId !== null)
-  const peutCorriger = joursCorrigeables.length > 0
-
   const handleCorriger = (payload: CorrectionPayload) => {
     onCorriger(payload)
     setShowCorrectionForm(false)
+  }
+
+  // Ouvre le formulaire de correction pré-rempli sur un jour donné
+  const openCorrectionFor = (pointageId: number, date: string) => {
+    setCorrectionPointageId(pointageId)
+    setCorrectionDate(date)
+    setShowCorrectionForm(true)
   }
 
   return (
@@ -132,6 +135,27 @@ export default function ValidationEmployeeDetail({
               <div className="validation-detail-net">
                 {minToHHMM(jour.heuresNettes)}
               </div>
+
+              {jour.pointageId !== null && (
+                <button
+                  type="button"
+                  onClick={() => openCorrectionFor(jour.pointageId as number, jour.date)}
+                  aria-label={`Corriger le pointage du ${jour.jourSemaine} ${jour.date.slice(8)}`}
+                  className="validation-detail-correct-btn shrink-0"
+                  style={{
+                    color: 'var(--muted)',
+                    background: 'transparent',
+                    border: '1px solid var(--border)',
+                    borderRadius: 6,
+                    padding: '2px 6px',
+                    fontSize: 11,
+                    cursor: 'pointer',
+                  }}
+                  title="Corriger ce pointage"
+                >
+                  ✏️
+                </button>
+              )}
             </div>
           ))
         )}
@@ -168,7 +192,7 @@ export default function ValidationEmployeeDetail({
         </div>
       )}
 
-      {/* Boutons d'action */}
+      {/* Bouton de validation — la correction passe désormais par le ✏️ inline sur chaque jour */}
       <div className="flex gap-2 mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
         <button
           onClick={() => onValider(employe.userId)}
@@ -182,28 +206,6 @@ export default function ValidationEmployeeDetail({
           }}
         >
           {employe.statut === 'VALIDEE' ? '✓ Déjà validé' : isValidating ? 'Validation...' : '✓ Valider'}
-        </button>
-
-        <button
-          onClick={() => {
-            // Ouvre le form sur le premier jour pointable (avec un Pointage existant)
-            const premierJour = joursCorrigeables[0]
-            if (premierJour && premierJour.pointageId !== null) {
-              setCorrectionDate(premierJour.date)
-              setCorrectionPointageId(premierJour.pointageId)
-              setShowCorrectionForm(true)
-            }
-          }}
-          disabled={!peutCorriger}
-          className="flex-1 py-2 rounded-lg text-xs font-semibold border transition-all"
-          style={{
-            borderColor: 'var(--border)',
-            color: 'var(--text)',
-            opacity: peutCorriger ? 1 : 0.5,
-            cursor: peutCorriger ? 'pointer' : 'not-allowed',
-          }}
-        >
-          ✏️ Corriger
         </button>
       </div>
     </motion.div>
