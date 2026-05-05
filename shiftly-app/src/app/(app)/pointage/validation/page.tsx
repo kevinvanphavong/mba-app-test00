@@ -162,7 +162,7 @@ export default function ValidationPage() {
               disabled={devaliderSemaineMut.isPending || nbValides === 0}
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all"
               style={{
-                background: 'transparent',
+                background: 'var(--surface2)',
                 color: 'var(--red)',
                 borderColor: 'var(--red)',
                 opacity: devaliderSemaineMut.isPending || nbValides === 0 ? 0.4 : 1,
