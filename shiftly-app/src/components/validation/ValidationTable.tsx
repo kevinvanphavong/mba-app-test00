@@ -75,7 +75,9 @@ export default function ValidationTable({ employes, selectedUserId, onSelectEmpl
           {employes.map((employe, idx) => {
             const rowStatus  = getRowStatus(employe)
             const badge      = getBadgeStatus(employe)
-            const ecartClass = employe.ecart > 0 ? 'green' : employe.ecart < 0 ? 'red' : 'green'
+            // Écart positif = heures sup à payer → signal d'attention budget (orange)
+            // Écart négatif = sous-réalisation → rouge ; 0 = nominal → vert
+            const ecartClass = employe.ecart > 0 ? 'orange' : employe.ecart < 0 ? 'red' : 'green'
             const supClass   = employe.heuresSup > 0 ? 'orange' : ''
             const isSelected = selectedUserId === employe.userId
 
