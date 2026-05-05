@@ -215,6 +215,10 @@ export default function ValidationPage() {
               employes={semaine.employes}
               selectedUserId={selectedUserId}
               onSelectEmploye={(id) => setSelectedUserId(prev => prev === id ? null : id)}
+              onValiderSelected={() => {
+                if (selectedUserId !== null) handleValiderEmploye(selectedUserId)
+              }}
+              isValidating={validerEmployeMut.isPending}
               dateDebut={semaine.dateDebut}
             />
           ) : (

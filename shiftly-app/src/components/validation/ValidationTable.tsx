@@ -3,18 +3,25 @@
 /**
  * ValidationTable — Tableau principal employés × 7 jours.
  * Ligne cliquable pour ouvrir le panneau détail.
+ * Navigation clavier ↑/↓ pour passer d'un employé à l'autre,
+ * Entrée pour valider l'employé sélectionné.
  */
 
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import ValidationDayCell from './ValidationDayCell'
-import type { ValidationEmploye, ValidationJour } from '@/types/validation'
+import type { ValidationEmploye } from '@/types/validation'
 
 interface Props {
   employes: ValidationEmploye[]
   selectedUserId: number | null
   onSelectEmploye: (userId: number) => void
+  onValiderSelected?: () => void
   dateDebut: string
+  isValidating?: boolean
 }
+
+const FORM_TAGS = new Set(['INPUT', 'TEXTAREA', 'SELECT'])
 
 function minToHHMM(minutes: number): string {
   const h   = Math.floor(Math.abs(minutes) / 60)
@@ -37,7 +44,54 @@ function getBadgeStatus(employe: ValidationEmploye): { label: string; status: 'v
 
 const JOURS_HEADERS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
-export default function ValidationTable({ employes, selectedUserId, onSelectEmploye, dateDebut }: Props) {
+export default function ValidationTable({
+  employes,
+  selectedUserId,
+  onSelectEmploye,
+  onValiderSelected,
+  dateDebut,
+  isValidating = false,
+}: Props) {
+  // Navigation clavier ↑/↓ + Entrée — actif uniquement si un employé est sélectionné
+  useEffect(() => {
+    if (selectedUserId === null) return
+
+    function handleKey(e: KeyboardEvent) {
+      // Ne pas voler le clavier dans les champs de saisie (formulaire correction)
+      const target = e.target as HTMLElement | null
+      if (target && (FORM_TAGS.has(target.tagName) || target.isContentEditable)) return
+
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp' && e.key !== 'Enter') return
+
+      const currentIdx = employes.findIndex(emp => emp.userId === selectedUserId)
+      if (currentIdx === -1) return
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        const nextIdx = (currentIdx + 1) % employes.length
+        onSelectEmploye(employes[nextIdx].userId)
+        return
+      }
+
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        const prevIdx = (currentIdx - 1 + employes.length) % employes.length
+        onSelectEmploye(employes[prevIdx].userId)
+        return
+      }
+
+      if (e.key === 'Enter') {
+        const current = employes[currentIdx]
+        if (current.statut === 'VALIDEE' || isValidating) return
+        e.preventDefault()
+        onValiderSelected?.()
+      }
+    }
+
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [selectedUserId, employes, onSelectEmploye, onValiderSelected, isValidating])
+
   if (employes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16" style={{ color: 'var(--muted)' }}>
