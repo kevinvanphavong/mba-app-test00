@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Shiftly — Aperçu des 3 thèmes</title>
+
+  <!-- Tokens Shiftly (copie miroir de globals.css — section tokens uniquement) -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+    /* Invariants */
+    :root {
+      --shiftly-orange:        #f97316;
+      --shiftly-orange-light:  #fb923c;
+      --shiftly-orange-dark:   #ea580c;
+
+      --raw-green:   34, 197, 94;
+      --raw-red:     239, 68, 68;
+      --raw-yellow:  234, 179, 8;
+      --raw-blue:    59, 130, 246;
+      --raw-purple:  168, 85, 247;
+      --raw-orange:  249, 115, 22;
+      --raw-gray:    107, 114, 128;
+
+      --font-syne:    'Syne', system-ui, sans-serif;
+      --font-dm-sans: 'DM Sans', system-ui, sans-serif;
+
+      --radius-card:    14px;
+      --radius-card-lg: 18px;
+    }
+
+    /* DARK */
+    [data-theme="dark"] {
+      --bg: #0d0f14; --surface: #151820; --surface2: #1c2030;
+      --border: #252a3a; --border-strong: #2f3548;
+      --text: #e8eaf0; --text-soft: #c7cad3; --muted: #6b7280;
+      --accent: var(--shiftly-orange); --accent2: var(--shiftly-orange-light);
+      --accent-grad: linear-gradient(90deg, #f97316, #fb923c);
+      --on-accent: #ffffff;
+      --green: #22c55e; --red: #ef4444; --yellow: #eab308; --blue: #3b82f6; --purple: #a855f7;
+      --zone-accueil: #3b82f6; --zone-bar: #a855f7; --zone-salle: #22c55e; --zone-manager: #f97316;
+      --shadow-card: 0 1px 0 rgba(255,255,255,.02) inset, 0 1px 2px rgba(0,0,0,.25);
+      color-scheme: dark;
+    }
+
+    /* LIGHT */
+    [data-theme="light"] {
+      --bg: #ffffff; --surface: #ffffff; --surface2: #f4f5f8;
+      --border: #e5e7eb; --border-strong: #d1d5db;
+      --text: #111827; --text-soft: #374151; --muted: #6b7280;
+      --accent: var(--shiftly-orange-dark); --accent2: var(--shiftly-orange);
+      --accent-grad: linear-gradient(90deg, #ea580c, #f97316);
+      --on-accent: #ffffff;
+      --green: #16a34a; --red: #dc2626; --yellow: #ca8a04; --blue: #2563eb; --purple: #9333ea;
+      --zone-accueil: #2563eb; --zone-bar: #9333ea; --zone-salle: #16a34a; --zone-manager: #ea580c;
+      --shadow-card: 0 1px 2px rgba(17,24,39,.04), 0 1px 3px rgba(17,24,39,.04);
+      color-scheme: light;
+    }
+
+    /* SAND */
+    [data-theme="sand"] {
+      --bg: #f5efe6; --surface: #fbf7f0; --surface2: #ece4d6;
+      --border: #e3d9c7; --border-strong: #d4c7b0;
+      --text: #2a2520; --text-soft: #4a4239; --muted: #8c7f6e;
+      --accent: #d9531a; --accent2: var(--shiftly-orange);
+      --accent-grad: linear-gradient(90deg, #d9531a, #f97316);
+      --on-accent: #fff8ed;
+      --green: #4a7c2a; --red: #b3321e; --yellow: #a87a0c; --blue: #2a5fb3; --purple: #7a3fb3;
+      --zone-accueil: #2a5fb3; --zone-bar: #7a3fb3; --zone-salle: #4a7c2a; --zone-manager: #d9531a;
+      --shadow-card: 0 1px 2px rgba(80,60,30,.05), 0 1px 3px rgba(80,60,30,.04);
+      color-scheme: light;
+    }
+
+    /* Chassis page */
+    body {
+      margin: 0;
+      background: #0a0a0a;
+      font-family: var(--font-dm-sans);
+      color: #e8eaf0;
+      min-height: 100vh;
+      padding: 32px 20px;
+    }
+    .header {
+      max-width: 1480px; margin: 0 auto 28px;
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 24px; flex-wrap: wrap;
+    }
+    .header h1 {
+      font-family: var(--font-syne); font-weight: 800; font-size: 24px;
+      margin: 0; letter-spacing: -0.5px;
+    }
+    .header h1 .dot { color: var(--shiftly-orange); }
+    .header p { color: #6b7280; font-size: 13px; margin: 4px 0 0; }
+    .grid {
+      max-width: 1480px; margin: 0 auto;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+    }
+    @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
+    /* Carte de prévisualisation = un thème complet */
+    .preview {
+      background: var(--bg);
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid #1a1d26;
+    }
+    .preview-label {
+      padding: 10px 16px;
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      font-family: var(--font-syne);
+      font-weight: 800;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .preview-body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 22px;
+      display: flex; flex-direction: column; gap: 16px;
+      font-family: var(--font-dm-sans);
+    }
+
+    /* Composants */
+    .logo { font-family: var(--font-syne); font-weight: 800; font-size: 22px; color: var(--accent); letter-spacing: -0.5px; }
+    .logo .dot { color: var(--text); }
+
+    .hero-card {
+      position: relative;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-card-lg); padding: 18px 16px 16px;
+      box-shadow: var(--shadow-card);
+    }
+    .hero-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--accent-grad);
+      border-radius: var(--radius-card-lg) var(--radius-card-lg) 0 0;
+    }
+    .hero-title { font-family: var(--font-syne); font-weight: 800; font-size: 16px; margin: 0 0 4px; color: var(--text); }
+    .hero-sub { font-size: 12px; color: var(--muted); }
+    .hero-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+    .btn-primary {
+      background: var(--accent-grad); color: var(--on-accent);
+      border: none; border-radius: 9px; padding: 8px 14px;
+      font-family: var(--font-syne); font-size: 12px; font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-ghost {
+      background: transparent; color: var(--accent);
+      border: 1px solid var(--border); border-radius: 9px; padding: 7px 12px;
+      font-family: var(--font-dm-sans); font-size: 12px; font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* KPI grid */
+    .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .kpi {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-card); padding: 12px 14px;
+      box-shadow: var(--shadow-card);
+    }
+    .kpi-icon { font-size: 16px; margin-bottom: 6px; }
+    .kpi-num { font-family: var(--font-syne); font-weight: 800; font-size: 22px; color: var(--text); line-height: 1; }
+    .kpi-label { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+    /* Chips zone */
+    .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .row-label { font-family: var(--font-syne); font-weight: 700; font-size: 9px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--muted); margin-right: 6px; }
+    .chip {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+      padding: 3px 9px; border-radius: 9px;
+    }
+    .chip.zone-accueil { background: rgba(var(--raw-blue),   .13); border: 1px solid rgba(var(--raw-blue),   .25); color: var(--blue); }
+    .chip.zone-bar     { background: rgba(var(--raw-purple), .13); border: 1px solid rgba(var(--raw-purple), .25); color: var(--purple); }
+    .chip.zone-salle   { background: rgba(var(--raw-green),  .13); border: 1px solid rgba(var(--raw-green),  .25); color: var(--green); }
+    .chip.zone-manager { background: rgba(var(--raw-orange), .10); border: 1px solid rgba(var(--raw-orange), .20); color: var(--accent); }
+
+    /* Chips statut */
+    .chip-green  { background: rgba(var(--raw-green),  .13); border: 1px solid rgba(var(--raw-green),  .25); color: var(--green); }
+    .chip-red    { background: rgba(var(--raw-red),    .13); border: 1px solid rgba(var(--raw-red),    .25); color: var(--red); }
+    .chip-yellow { background: rgba(var(--raw-yellow), .13); border: 1px solid rgba(var(--raw-yellow), .25); color: var(--yellow); }
+    .chip-blue   { background: rgba(var(--raw-blue),   .13); border: 1px solid rgba(var(--raw-blue),   .25); color: var(--blue); }
+
+    /* Live badge */
+    .live {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(var(--raw-orange), .12);
+      border: 1px solid rgba(var(--raw-orange), .30);
+      color: var(--accent);
+      border-radius: 999px; padding: 3px 10px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+    }
+    .live .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* Carte service */
+    .service-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-card); padding: 12px 14px;
+      box-shadow: var(--shadow-card);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .service-card .name { font-family: var(--font-syne); font-weight: 800; font-size: 13px; color: var(--text); }
+    .service-card .meta { font-size: 11px; color: var(--muted); }
+    .progress { flex: 1; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; min-width: 80px; }
+    .progress > div { height: 100%; background: var(--accent-grad); width: 64%; border-radius: 3px; }
+
+    /* Avatar */
+    .avatar {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: var(--accent-grad);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-syne); font-weight: 800; font-size: 13px; color: var(--on-accent);
+    }
+
+    /* Section label */
+    .section-label {
+      font-family: var(--font-syne); font-weight: 700; font-size: 10px;
+      text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted);
+    }
+
+    /* Switcher */
+    .switcher { display: inline-flex; gap: 4px; background: rgba(255,255,255,.05); border-radius: 8px; padding: 4px; }
+    .switcher button {
+      background: transparent; color: #c7cad3; border: none;
+      padding: 6px 12px; border-radius: 6px; cursor: pointer;
+      font-family: var(--font-dm-sans); font-size: 12px; font-weight: 600;
+    }
+    .switcher button.active { background: var(--shiftly-orange); color: #fff; }
+
+    .legend { font-size: 11px; color: #6b7280; margin-top: 28px; max-width: 1480px; margin-left: auto; margin-right: auto; }
+    .legend code { background: rgba(255,255,255,.05); padding: 1px 6px; border-radius: 4px; color: #fb923c; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <h1>Shiftly<span class="dot">.</span> — Aperçu des 3 thèmes</h1>
+      <p>Architecture tokens V2 · même HTML/CSS, seul l'attribut <code style="color:#fb923c">data-theme</code> change.</p>
+    </div>
+    <div class="switcher" id="switcher">
+      <button data-mode="all" class="active">Tous</button>
+      <button data-mode="dark">Dark</button>
+      <button data-mode="light">Light</button>
+      <button data-mode="sand">Sand</button>
+    </div>
+  </div>
+
+  <div class="grid" id="grid">
+    <!-- Les 3 cartes sont injectées via JS pour éviter la duplication -->
+  </div>
+
+  <div class="legend">
+    Chaque carte ci-dessus contient exactement le même balisage HTML, recouvert d'un <code>data-theme="…"</code> différent.
+    Aucun composant ne hardcode de couleur — tout passe par les CSS variables (<code>--bg</code>, <code>--surface</code>, <code>--accent</code>…).
+    Les chips teintés sont construits via <code>rgba(var(--raw-X), .15)</code>, ce qui leur permet de rester lisibles dans tous les thèmes.
+  </div>
+
+  <script>
+    const PREVIEW_HTML = `
+      <div class="preview-body">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div class="logo">Shiftly<span class="dot">.</span></div>
+          <span class="live"><span class="dot"></span>Live</span>
+        </div>
+
+        <div class="hero-card">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+            <div>
+              <h2 class="hero-title">Service du soir</h2>
+              <p class="hero-sub">Mer. 18 mars · 18h → 23h · 6 staff actifs</p>
+            </div>
+            <div class="avatar">K</div>
+          </div>
+          <div class="hero-actions">
+            <button class="btn-primary">+ Nouveau service</button>
+            <button class="btn-ghost">Modifier</button>
+          </div>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi"><div class="kpi-icon">⚡</div><div class="kpi-num">96%</div><div class="kpi-label">Tx clôture</div></div>
+          <div class="kpi"><div class="kpi-icon">📅</div><div class="kpi-num">12</div><div class="kpi-label">Services</div></div>
+          <div class="kpi"><div class="kpi-icon">👥</div><div class="kpi-num">8</div><div class="kpi-label">Staff actif</div></div>
+        </div>
+
+        <div>
+          <div class="section-label" style="margin-bottom:8px;">Zones</div>
+          <div class="row">
+            <span class="chip zone-accueil">Accueil</span>
+            <span class="chip zone-bar">Bar</span>
+            <span class="chip zone-salle">Salle</span>
+            <span class="chip zone-manager">Manager</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label" style="margin-bottom:8px;">Statuts</div>
+          <div class="row">
+            <span class="chip chip-green">Clôturé</span>
+            <span class="chip chip-blue">Planifié</span>
+            <span class="chip chip-yellow">Attention</span>
+            <span class="chip chip-red">Incident</span>
+          </div>
+        </div>
+
+        <div class="service-card">
+          <div class="avatar" style="background: var(--zone-bar);">L</div>
+          <div style="flex:1; min-width: 0;">
+            <div class="name">Léa Martin</div>
+            <div class="meta">Bar · 18h → 23h</div>
+          </div>
+          <div class="progress"><div></div></div>
+        </div>
+      </div>
+    `;
+
+    const themes = ['dark', 'light', 'sand'];
+    const grid = document.getElementById('grid');
+    const cards = themes.map(t => {
+      const el = document.createElement('div');
+      el.className = 'preview';
+      el.dataset.theme = t;
+      el.setAttribute('data-theme', t);
+      el.innerHTML = `<div class="preview-label">Thème · ${t.toUpperCase()}</div>${PREVIEW_HTML}`;
+      grid.appendChild(el);
+      return el;
+    });
+
+    document.getElementById('switcher').addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      document.querySelectorAll('#switcher button').forEach(b => b.classList.toggle('active', b === btn));
+      const mode = btn.dataset.mode;
+      cards.forEach(c => {
+        c.style.display = (mode === 'all' || mode === c.dataset.theme) ? '' : 'none';
+      });
+      grid.style.gridTemplateColumns = (mode === 'all') ? 'repeat(3, 1fr)' : '1fr';
+      if (mode !== 'all') grid.style.maxWidth = '720px';
+      else grid.style.maxWidth = '1480px';
+    });
+  </script>
+</body>
+</html>
