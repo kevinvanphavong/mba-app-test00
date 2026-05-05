@@ -122,4 +122,32 @@ class FileUploadService
     {
         return $this->projectDir . '/public/' . $relativePath;
     }
+
+    /**
+     * Supprime physiquement une photo de completion sur disque.
+     *
+     * Silencieux si le fichier est déjà absent (idempotent).
+     * Loggue un warning via error_log() si l'unlink échoue (permissions, etc.)
+     * sans throw : l'appelant (listener Doctrine) ne doit pas casser la transaction.
+     *
+     * @return bool true si le fichier a été supprimé ou était déjà absent, false sur échec d'unlink.
+     */
+    public function deleteCompletionPhoto(string $relativePath): bool
+    {
+        $absolutePath = $this->getCompletionPhotoAbsolutePath($relativePath);
+
+        if (!is_file($absolutePath)) {
+            return true;
+        }
+
+        if (!@unlink($absolutePath)) {
+            error_log(sprintf(
+                '[FileUploadService] Échec suppression photo completion : %s',
+                $absolutePath
+            ));
+            return false;
+        }
+
+        return true;
+    }
 }
