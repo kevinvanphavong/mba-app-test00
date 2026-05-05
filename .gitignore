@@ -15,7 +15,15 @@ shiftly-api/vendor/
 
 # Build / cache
 shiftly-app/.next/
+shiftly-app/tsconfig.tsbuildinfo
 shiftly-api/var/
+
+# User uploads (data, pas code)
+shiftly-api/public/uploads/
+
+# OS
+.DS_Store
+**/.DS_Store
 
 .claude
 haccp-allergenes.html
