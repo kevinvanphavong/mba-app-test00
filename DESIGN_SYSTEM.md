@@ -43,65 +43,96 @@ fontFamily: {
 
 ## 3. Palette de Couleurs
 
-### Variables CSS fondamentales
+### 3.1 Architecture tokens (3 couches)
 
-```css
-:root {
-  /* Arrière-plans */
-  --bg:       #0d0f14;   /* fond principal */
-  --surface:  #151820;   /* cartes, sidebars */
-  --surface2: #1c2030;   /* surfaces secondaires, inputs */
+Inspirée de la maquette V2 — `src/app/globals.css` est l'unique source de vérité. Le système s'articule en trois couches :
 
-  /* Bordures */
-  --border:   #252a3a;
+1. **Invariants** (`--shiftly-orange`, `--raw-green`, radius, spacing, fonts) — mêmes valeurs partout, peu importe le thème.
+2. **Theme aliases** (`--bg`, `--surface`, `--text`, `--accent`…) — réassignés par thème via `[data-theme="..."]`.
+3. **Helpers** (`.shiftly-card`, `.chip-green`, `.shiftly-hero-bar`) — utilitaires construits depuis les deux couches précédentes.
 
-  /* Texte */
-  --text:     #e8eaf0;   /* texte principal */
-  --muted:    #6b7280;   /* texte secondaire */
+### 3.2 Les 3 thèmes
 
-  /* Accent principal (orange) */
-  --accent:   #f97316;   /* orange Shiftly */
-  --accent2:  #fb923c;   /* orange clair (gradient) */
+| Thème | `--bg` | `--surface` | `--text` | `--accent` | Cas d'usage |
+|---|---|---|---|---|---|
+| **dark** (défaut) | `#0d0f14` | `#151820` | `#e8eaf0` | `#f97316` | Service en salle / soir |
+| **light** | `#ffffff` | `#ffffff` | `#111827` | `#ea580c` | Bureau / jour / impression |
+| **sand** (Bone & Ember) | `#f5efe6` | `#fbf7f0` | `#2a2520` | `#d9531a` | Variante chaleureuse |
 
-  /* Couleurs sémantiques */
-  --blue:     #3b82f6;   /* zone Accueil */
-  --green:    #22c55e;   /* succès, terminé */
-  --red:      #ef4444;   /* erreur, incident haute priorité */
-  --yellow:   #eab308;   /* avertissement, incident moyen */
-  --purple:   #a855f7;   /* zone Bar */
-  --indigo:   #6366f1;
-  --teal:     #14b8a6;
-  --pink:     #f472b6;
-}
+**Activation :**
+```html
+<html data-theme="light">  <!-- ou "dark" (défaut), "sand" -->
 ```
 
-### Couleurs par zone
+**Persistance recommandée :** `localStorage.setItem('shiftly-theme', t)` + lecture au mount sur `<html>`.
 
-| Zone | Couleur | Hex |
-|------|---------|-----|
-| Accueil | Bleu | `#3b82f6` |
-| Bar | Violet | `#a855f7` |
-| Salle | Vert | `#22c55e` |
-| Manager | Orange | `#f97316` |
+**Règles d'adaptation :**
+- L'accent s'**assombrit** en light/sand pour passer le contraste AA sur fond clair (`--shiftly-orange-dark`).
+- En dark, l'élévation passe par les **bordures** + ombre minimale. En light/sand, ce sont de **vraies ombres douces** (`--shadow-card`).
+- Les zones (Accueil/Bar/Salle/Manager) sont également **assombries** dans les thèmes clairs pour rester lisibles sur surface blanche.
 
-### Tokens Tailwind
+### 3.3 Palette RAW (triplets RGB)
+
+Les chips teintés (fond translucide) sont construits depuis ces triplets, ce qui garantit un AA correct dans les 3 thèmes sans dupliquer les valeurs.
+
+```css
+--raw-green:   34, 197, 94;
+--raw-red:     239, 68, 68;
+--raw-yellow:  234, 179, 8;
+--raw-blue:    59, 130, 246;
+--raw-purple:  168, 85, 247;
+--raw-orange:  249, 115, 22;
+--raw-gray:    107, 114, 128;
+```
+
+**Idiome de chip teinté :**
+```css
+background: rgba(var(--raw-green), .15);
+border:     1px solid rgba(var(--raw-green), .25);
+color:      var(--green);   /* prend la teinte du thème */
+```
+
+Ou plus simple, via les utilitaires pré-définis : `.chip-green`, `.chip-red`, `.chip-yellow`, `.chip-blue`, `.chip-purple`, `.chip-orange`, `.chip-gray`.
+
+### 3.4 Couleurs par zone (par thème)
+
+| Zone | Variable | Dark | Light | Sand |
+|---|---|---|---|---|
+| Accueil | `--zone-accueil` | `#3b82f6` | `#2563eb` | `#2a5fb3` |
+| Bar | `--zone-bar` | `#a855f7` | `#9333ea` | `#7a3fb3` |
+| Salle | `--zone-salle` | `#22c55e` | `#16a34a` | `#4a7c2a` |
+| Manager | `--zone-manager` | `#f97316` | `#ea580c` | `#d9531a` |
+
+> **Runtime (style={}) :** utiliser `var(--zone-accueil)` plutôt que `getZoneColor()` quand c'est possible — la couleur suivra automatiquement le thème.
+
+### 3.5 Tokens Tailwind (branchés sur CSS vars)
+
+`tailwind.config.ts` ne hardcode plus aucune couleur. Toutes les classes Tailwind suivent automatiquement le thème actif :
 
 ```js
 colors: {
-  bg:       '#0d0f14',
-  surface:  '#151820',
-  surface2: '#1c2030',
-  border:   '#252a3a',
-  text:     '#e8eaf0',
-  muted:    '#6b7280',
-  accent:   { DEFAULT: '#f97316', light: '#fb923c' },
+  bg:       'var(--bg)',
+  surface:  'var(--surface)',
+  surface2: 'var(--surface2)',
+  border:   'var(--border)',
+  text:     'var(--text)',
+  muted:    'var(--muted)',
+  accent: { DEFAULT: 'var(--accent)', light: 'var(--accent2)', on: 'var(--on-accent)' },
   zone: {
-    accueil: '#3b82f6',
-    bar:     '#a855f7',
-    salle:   '#22c55e',
-  }
+    accueil: 'var(--zone-accueil)',
+    bar:     'var(--zone-bar)',
+    salle:   'var(--zone-salle)',
+    manager: 'var(--zone-manager)',
+  },
+  green:  'var(--green)',
+  red:    'var(--red)',
+  yellow: 'var(--yellow)',
+  blue:   'var(--blue)',
+  purple: 'var(--purple)',
 }
 ```
+
+> **Limitation Tailwind :** les modificateurs d'opacité (`bg-surface/50`) ne fonctionnent pas avec `var(--…)` direct. Pour la transparence, utiliser les classes `.chip-*` ou un `style={{ background: 'rgba(var(--raw-…), .15)' }}` inline.
 
 ---
 
