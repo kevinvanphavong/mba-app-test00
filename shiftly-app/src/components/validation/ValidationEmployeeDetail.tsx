@@ -37,6 +37,7 @@ export default function ValidationEmployeeDetail({
   const [showCorrectionForm, setShowCorrectionForm] = useState(false)
   const [correctionPointageId, setCorrectionPointageId] = useState<number | null>(null)
   const [correctionDate, setCorrectionDate] = useState('')
+  const [correctionPauseId, setCorrectionPauseId] = useState<number | null>(null)
 
   const joursActifs = employe.jours.filter(
     j => j.statut === 'travaille' || j.statut === 'en_cours'
@@ -47,10 +48,11 @@ export default function ValidationEmployeeDetail({
     setShowCorrectionForm(false)
   }
 
-  // Ouvre le formulaire de correction pré-rempli sur un jour donné
-  const openCorrectionFor = (pointageId: number, date: string) => {
+  // Ouvre le formulaire de correction pré-rempli sur un jour, éventuellement sur une pause précise.
+  const openCorrectionFor = (pointageId: number, date: string, pauseId: number | null = null) => {
     setCorrectionPointageId(pointageId)
     setCorrectionDate(date)
+    setCorrectionPauseId(pauseId)
     setShowCorrectionForm(true)
   }
 
@@ -92,10 +94,31 @@ export default function ValidationEmployeeDetail({
                     }
                   </div>
                 )}
-                {jour.pauses.map((p, i) => (
-                  <div key={i} className="validation-detail-time-item flex items-center gap-1">
+                {jour.pauses.map((p) => (
+                  <div key={p.id} className="validation-detail-time-item flex items-center gap-1">
                     Pause {formatHeure(p.debut)}–{p.fin ? formatHeure(p.fin) : '??'}
                     <span>({p.dureeMinutes} min)</span>
+                    {jour.pointageId !== null && (
+                      <button
+                        type="button"
+                        onClick={() => openCorrectionFor(jour.pointageId as number, jour.date, p.id)}
+                        aria-label={`Corriger la pause de ${jour.jourSemaine} ${jour.date.slice(8)}`}
+                        title="Corriger cette pause"
+                        className="ml-1 shrink-0"
+                        style={{
+                          color: 'var(--muted)',
+                          background: 'transparent',
+                          border: '1px solid var(--border)',
+                          borderRadius: 6,
+                          padding: '0 4px',
+                          fontSize: 10,
+                          cursor: 'pointer',
+                          lineHeight: '14px',
+                        }}
+                      >
+                        ✏️
+                      </button>
+                    )}
                   </div>
                 ))}
                 {jour.heureDepart && (
@@ -185,6 +208,7 @@ export default function ValidationEmployeeDetail({
           <ValidationCorrectionForm
             pointageId={correctionPointageId}
             date={correctionDate}
+            pauseId={correctionPauseId ?? undefined}
             onSubmit={handleCorriger}
             onCancel={() => setShowCorrectionForm(false)}
             isLoading={isCorrecting}
