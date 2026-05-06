@@ -93,11 +93,11 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 | Dashboard | `/dashboard` | Manager uniquement |
 | Service du Jour | `/service` | Manager + Employé |
 | Services Planning | `/services` | Manager uniquement |
-| Postes | `/postes` | Manager (écriture) / Employé (lecture) |
+| Postes | `/postes` | Manager (édition zones/missions/compétences + drag-drop) / Employé (lecture) |
 | Staff | `/staff` | Manager (écriture) / Employé (lecture) |
 | Tutoriels | `/tutoriels` | Manager + Employé |
 | Réglages | `/reglages` | Manager (tout) / Employé (profil + notifs) |
-| Gestion du contenu | `/reglages/editeur` | Manager uniquement |
+| Tutoriels (gestion) | `/reglages/editeur` | Manager uniquement — zones/missions/compétences ont migré sur /postes |
 
 Redirection par défaut : `/` → `/service`
 

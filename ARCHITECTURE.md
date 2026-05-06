@@ -52,7 +52,7 @@ mba-app-test00/
 │   │   │   │   ├── services/
 │   │   │   │   │   └── page.tsx       # Planning des services
 │   │   │   │   ├── postes/
-│   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx       # Manager : carousel zones + plateau 4 colonnes + compétences (CRUD)
 │   │   │   │   ├── staff/
 │   │   │   │   │   └── page.tsx
 │   │   │   │   ├── tutoriels/
@@ -60,7 +60,7 @@ mba-app-test00/
 │   │   │   │   └── reglages/
 │   │   │   │       ├── page.tsx
 │   │   │   │       └── editeur/
-│   │   │   │           └── page.tsx   # Éditeur zones/missions/compétences
+│   │   │   │           └── page.tsx   # Tutoriels uniquement (zones/missions/compétences déplacés sur /postes)
 │   │   │   │
 │   │   │   ├── (superadmin)/          # Back-office SuperAdmin (accès fondateur uniquement)
 │   │   │   │   ├── layout.tsx         # Layout dédié (sidebar SA + ImpersonationBanner)
@@ -144,10 +144,23 @@ mba-app-test00/
 │   │   │   │   ├── ValidationWeekSummary.tsx     # Résumé totaux équipe
 │   │   │   │   └── ValidationLegalAlerts.tsx     # Alertes légales IDCC 1790
 │   │   │   │
-│   │   │   └── editeur/
-│   │   │       ├── ZonesManager.tsx
-│   │   │       ├── MissionsManager.tsx
-│   │   │       └── CompetencesManager.tsx
+│   │   │   ├── postes/                 # Page /postes — gestion manager + lecture employé
+│   │   │   │   ├── PostesDesktopView.tsx   # Vue ≥ lg : carousel + 4 colonnes + compétences
+│   │   │   │   ├── ZoneTabsCarousel.tsx    # Carousel scroll-snap des zones (3-4 visibles)
+│   │   │   │   ├── MissionsBoard.tsx       # Plateau 4 colonnes + drag-drop (@dnd-kit)
+│   │   │   │   ├── MissionTile.tsx         # Tile mission desktop (avec menu actions)
+│   │   │   │   ├── CompetencesPanel.tsx    # Panel compétences desktop + lignes inline
+│   │   │   │   ├── PosteCard.tsx           # Vue mobile (manager + employé)
+│   │   │   │   ├── MissionRow.tsx          # Ligne mission mobile
+│   │   │   │   └── CompetenceRow.tsx       # Ligne compétence mobile
+│   │   │   │
+│   │   │   └── editeur/                # Modales partagées (utilisées par /postes + /reglages/editeur)
+│   │   │       ├── ModalAddMission.tsx
+│   │   │       ├── ModalAddCompetence.tsx
+│   │   │       ├── ModalAddTutoriel.tsx
+│   │   │       ├── ModalConfirmDelete.tsx
+│   │   │       ├── TutorielList.tsx
+│   │   │       └── TutorielItem.tsx
 │   │   │
 │   │   ├── hooks/                     # Custom hooks React Query
 │   │   │   ├── useAuth.ts             # Store Zustand auth
@@ -432,11 +445,11 @@ type Role = 'MANAGER' | 'EMPLOYE'
 Dashboard            → MANAGER uniquement
 Service du Jour      → MANAGER + EMPLOYE (vue différente)
 Services Planning    → MANAGER uniquement
-Postes               → MANAGER (écriture) | EMPLOYE (lecture)
+Postes               → MANAGER (édition complète : zones, missions, compétences, drag-drop reorder) | EMPLOYE (lecture)
 Staff                → MANAGER (écriture + valide compétences) | EMPLOYE (lecture)
 Tutoriels            → MANAGER + EMPLOYE
 Réglages             → MANAGER (tout) | EMPLOYE (profil + notifs)
-Éditeur contenu      → MANAGER uniquement
+Éditeur tutoriels    → MANAGER uniquement (/reglages/editeur — zones/missions/compétences ont migré sur /postes)
 Pointage             → MANAGER uniquement
 Validation hebdo     → MANAGER uniquement (/pointage/validation)
 ```

@@ -22,26 +22,29 @@ const COLUMNS: { key: MissionCategorie; label: string; icon: string }[] = [
 
 interface Props {
   missions:     EditorMission[]
+  /** Si false : pas de menu ⋯ ni bouton « + Mission » (vue employé). */
+  manager:      boolean
   reorderMode:  boolean
-  onEdit:       (m: EditorMission) => void
-  onDelete:     (m: EditorMission) => void
-  onAddInCat:   (cat: MissionCategorie) => void
+  onEdit?:      (m: EditorMission) => void
+  onDelete?:    (m: EditorMission) => void
+  onAddInCat?:  (cat: MissionCategorie) => void
   /** Persiste l'ordre après drop : reçoit la liste complète des missions de la zone réordonnées. */
-  onReorder:    (next: EditorMission[]) => void
+  onReorder?:   (next: EditorMission[]) => void
 }
 
 export default function MissionsBoard({
-  missions, reorderMode, onEdit, onDelete, onAddInCat, onReorder,
+  missions, manager, reorderMode, onEdit, onDelete, onAddInCat, onReorder,
 }: Props) {
 
-  // Regroupe par catégorie en respectant l'ordre `ordre` croissant
+  // Regroupe par catégorie puis trie par `ordre` à l'intérieur de chaque colonne.
+  // Important : NE PAS trier globalement avant de grouper, car on remappe
+  // `ordre` à 0..n par colonne au drop — un tri global créerait des collisions
+  // entre catégories qui feraient sauter l'ordre au refresh.
   const grouped = useMemo(() => {
     const out = {} as Record<MissionCategorie, EditorMission[]>
     COLUMNS.forEach(c => { out[c.key] = [] })
-    missions
-      .slice()
-      .sort((a, b) => a.ordre - b.ordre)
-      .forEach(m => { out[m.categorie]?.push(m) })
+    missions.forEach(m => { out[m.categorie]?.push(m) })
+    Object.values(out).forEach(list => list.sort((a, b) => a.ordre - b.ordre))
     return out
   }, [missions])
 
@@ -65,7 +68,7 @@ export default function MissionsBoard({
 
     // Reconstruit la liste complète : autres catégories + colonne modifiée
     const others = missions.filter(m => m.categorie !== cat)
-    onReorder([...others, ...moved])
+    onReorder?.([...others, ...moved])
   }
 
   return (
@@ -93,6 +96,7 @@ export default function MissionsBoard({
                     key={m.id}
                     mission={m}
                     index={idx}
+                    manager={manager}
                     reorderMode={reorderMode}
                     onEdit={onEdit}
                     onDelete={onDelete}
@@ -100,12 +104,14 @@ export default function MissionsBoard({
                 ))}
               </SortableContext>
 
-              <button
-                onClick={() => onAddInCat(col.key)}
-                className="mt-1 py-2 rounded-[9px] border border-dashed border-border bg-transparent text-muted text-[11px] font-semibold hover:border-accent hover:text-accent transition-colors"
-              >
-                + Mission
-              </button>
+              {manager && (
+                <button
+                  onClick={() => onAddInCat?.(col.key)}
+                  className="mt-1 py-2 rounded-[9px] border border-dashed border-border bg-transparent text-muted text-[11px] font-semibold hover:border-accent hover:text-accent transition-colors"
+                >
+                  + Mission
+                </button>
+              )}
             </div>
           )
         })}
