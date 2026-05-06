@@ -645,13 +645,17 @@ class ValidationHebdoService
 
     /**
      * Applique une correction sur un pointage et trace la modification.
+     *
+     * Pour `pauseDebut` / `pauseFin`, $pauseId est obligatoire et la PointagePause
+     * doit appartenir au $pointage ciblé (sinon InvalidArgumentException).
      */
     public function corrigerPointage(
         int    $pointageId,
         string $champ,
         string $nouvelleValeurStr,
         ?string $motif,
-        User   $manager
+        User   $manager,
+        ?int   $pauseId = null
     ): CorrectionPointage {
         $pointage = $this->pointageRepo->find($pointageId);
 
@@ -663,12 +667,33 @@ class ValidationHebdoService
             throw new \InvalidArgumentException("Champ {$champ} non modifiable.");
         }
 
+        $isPauseChamp = in_array($champ, ['pauseDebut', 'pauseFin'], true);
+
+        // Cible pause : id obligatoire et appartenance au pointage
+        $pause = null;
+        if ($isPauseChamp) {
+            if ($pauseId === null) {
+                throw new \InvalidArgumentException("pauseId requis pour modifier {$champ}.");
+            }
+            $pause = $this->em->find(PointagePause::class, $pauseId);
+            if ($pause === null) {
+                throw new \InvalidArgumentException("PointagePause {$pauseId} introuvable.");
+            }
+            if ($pause->getPointage()?->getId() !== $pointage->getId()) {
+                throw new \InvalidArgumentException(
+                    "La pause {$pauseId} n'appartient pas au pointage {$pointageId}."
+                );
+            }
+        }
+
         $nouvelleValeur = new \DateTimeImmutable($nouvelleValeurStr);
 
         // Récupérer l'ancienne valeur
         $ancienneValeur = match ($champ) {
             'heureArrivee' => $pointage->getHeureArrivee(),
             'heureDepart'  => $pointage->getHeureDepart(),
+            'pauseDebut'   => $pause?->getHeureDebut(),
+            'pauseFin'     => $pause?->getHeureFin(),
             default        => null,
         };
 
@@ -676,6 +701,8 @@ class ValidationHebdoService
         match ($champ) {
             'heureArrivee' => $pointage->setHeureArrivee($nouvelleValeur),
             'heureDepart'  => $pointage->setHeureDepart($nouvelleValeur),
+            'pauseDebut'   => $pause?->setHeureDebut($nouvelleValeur),
+            'pauseFin'     => $pause?->setHeureFin($nouvelleValeur),
             default        => null,
         };
 
@@ -684,6 +711,7 @@ class ValidationHebdoService
         // Tracer la correction
         $correction = new CorrectionPointage();
         $correction->setPointage($pointage);
+        $correction->setPause($pause);
         $correction->setChampModifie($champ);
         $correction->setAncienneValeur($ancienneValeur);
         $correction->setNouvelleValeur($nouvelleValeur);
@@ -706,6 +734,7 @@ class ValidationHebdoService
         return array_map(fn(CorrectionPointage $c) => [
             'id'             => $c->getId(),
             'pointageId'     => $c->getPointage()->getId(),
+            'pauseId'        => $c->getPause()?->getId(),
             'champModifie'   => $c->getChampModifie(),
             'ancienneValeur' => $c->getAncienneValeur()?->format('Y-m-d H:i:s'),
             'nouvelleValeur' => $c->getNouvelleValeur()?->format('Y-m-d H:i:s'),
@@ -738,6 +767,7 @@ class ValidationHebdoService
             $duree  = (int) (($fin->getTimestamp() - $pause->getHeureDebut()->getTimestamp()) / 60);
 
             $result[] = [
+                'id'           => $pause->getId(),
                 'debut'        => $pause->getHeureDebut()->format(\DateTimeInterface::ATOM),
                 'fin'          => $pause->getHeureFin()?->format(\DateTimeInterface::ATOM),
                 'type'         => $pause->getType(),
