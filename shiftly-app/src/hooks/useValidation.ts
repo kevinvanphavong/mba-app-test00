@@ -73,9 +73,8 @@ export function useValiderEmploye(date: string) {
   return useMutation({
     mutationFn: (userId: number) =>
       api.post(`/pointages/validation/valider/${userId}/${date}`).then(r => r.data),
-    onSuccess: (_, userId) => {
-      queryClient.invalidateQueries({ queryKey: keysSemaine(date) })
-      queryClient.invalidateQueries({ queryKey: keysDetail(userId, date) })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['validation'] })
     },
   })
 }
@@ -88,7 +87,7 @@ export function useValiderSemaine(date: string) {
     mutationFn: () =>
       api.post(`/pointages/validation/valider-semaine/${date}`).then(r => r.data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: keysSemaine(date) })
+      queryClient.invalidateQueries({ queryKey: ['validation'] })
     },
   })
 }
@@ -114,7 +113,11 @@ export function useCorrigerPointage(date: string) {
     mutationFn: (payload: CorrectionPayload) =>
       api.post('/pointages/validation/correction', payload).then(r => r.data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: keysSemaine(date) })
+      // Une correction touche la semaine (heures, écarts, statut),
+      // le détail employé (jours + historique corrections) et les
+      // alertes légales (heures sup, repos, etc.) → on invalide la
+      // racine ['validation'] pour éviter tout cache obsolète.
+      queryClient.invalidateQueries({ queryKey: ['validation'] })
     },
   })
 }
