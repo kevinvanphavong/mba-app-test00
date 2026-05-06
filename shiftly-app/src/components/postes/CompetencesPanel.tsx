@@ -9,11 +9,13 @@ import type { Zone } from '@/types/index'
 interface Props {
   zone:        Zone
   competences: EditorCompetence[]
+  /** Si false : pas de bouton « + Compétence » ni menu ⋯ (vue employé). */
+  manager:     boolean
   loading:     boolean
   error:       boolean
-  onAdd:       () => void
-  onEdit:      (c: EditorCompetence) => void
-  onDelete:    (c: EditorCompetence) => void
+  onAdd?:      () => void
+  onEdit?:     (c: EditorCompetence) => void
+  onDelete?:   (c: EditorCompetence) => void
 }
 
 // Mapping difficulte → niveau (1-3) pour les 3 dots de la maquette
@@ -25,7 +27,7 @@ const DIFF_LABEL: Record<EditorCompetence['difficulte'], string> = {
   simple: 'Simple', avancee: 'Avancée', experimente: 'Expérimenté',
 }
 
-export default function CompetencesPanel({ zone, competences, loading, error, onAdd, onEdit, onDelete }: Props) {
+export default function CompetencesPanel({ zone, competences, manager, loading, error, onAdd, onEdit, onDelete }: Props) {
   const color = zone.couleur ?? 'var(--accent)'
 
   return (
@@ -44,12 +46,14 @@ export default function CompetencesPanel({ zone, competences, loading, error, on
             Référentiel des savoir-faire pour {zone.nom}
           </div>
         </div>
-        <button
-          onClick={onAdd}
-          className="px-3 py-1.5 rounded-[9px] bg-accent text-white text-[11px] font-syne font-bold"
-        >
-          + Compétence
-        </button>
+        {manager && (
+          <button
+            onClick={onAdd}
+            className="px-3 py-1.5 rounded-[9px] bg-accent text-white text-[11px] font-syne font-bold"
+          >
+            + Compétence
+          </button>
+        )}
       </div>
 
       {/* Corps */}
@@ -79,6 +83,7 @@ export default function CompetencesPanel({ zone, competences, loading, error, on
               competence={c}
               isLast={idx === competences.length - 1}
               color={color}
+              manager={manager}
               onEdit={onEdit}
               onDelete={onDelete}
             />
@@ -93,13 +98,14 @@ export default function CompetencesPanel({ zone, competences, loading, error, on
 // Sous-composant inline (court) — pas de fichier dédié.
 
 function CompetenceLine({
-  competence: c, isLast, color, onEdit, onDelete,
+  competence: c, isLast, color, manager, onEdit, onDelete,
 }: {
   competence: EditorCompetence
   isLast:     boolean
   color:      string
-  onEdit:     (c: EditorCompetence) => void
-  onDelete:   (c: EditorCompetence) => void
+  manager:    boolean
+  onEdit?:    (c: EditorCompetence) => void
+  onDelete?:  (c: EditorCompetence) => void
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -115,9 +121,13 @@ function CompetenceLine({
 
   const level = DIFF_LEVEL[c.difficulte]
 
+  // Grille à 4 colonnes (infos / niveau / points / menu) pour manager,
+  // 3 colonnes (sans menu) pour employé.
+  const gridCols = manager ? 'grid-cols-[1fr_auto_auto_auto]' : 'grid-cols-[1fr_auto_auto]'
+
   return (
     <div
-      className="grid grid-cols-[1fr_auto_auto_auto] gap-3 items-center px-4 py-3"
+      className={`grid ${gridCols} gap-3 items-center px-4 py-3`}
       style={{ borderBottom: isLast ? 'none' : '1px solid var(--border)' }}
     >
       <div className="min-w-0">
@@ -144,32 +154,34 @@ function CompetenceLine({
       {/* Points */}
       <span className="font-syne font-extrabold text-accent text-[13px]">+{c.points}</span>
 
-      {/* Menu actions */}
-      <div className="relative" ref={menuRef}>
-        <button
-          onClick={() => setMenuOpen(v => !v)}
-          className="text-muted hover:text-text text-[14px] px-1 leading-none"
-          aria-label="Actions"
-        >
-          ⋯
-        </button>
-        {menuOpen && (
-          <div className="absolute right-0 top-full mt-1 z-20 bg-surface border border-border rounded-[10px] shadow-card overflow-hidden min-w-[140px]">
-            <button
-              onClick={() => { setMenuOpen(false); onEdit(c) }}
-              className="block w-full text-left px-3 py-2 text-[12px] text-text hover:bg-surface2"
-            >
-              Modifier
-            </button>
-            <button
-              onClick={() => { setMenuOpen(false); onDelete(c) }}
-              className="block w-full text-left px-3 py-2 text-[12px] text-red hover:bg-red/10"
-            >
-              Supprimer
-            </button>
-          </div>
-        )}
-      </div>
+      {/* Menu actions — manager seulement */}
+      {manager && (
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen(v => !v)}
+            className="text-muted hover:text-text text-[14px] px-1 leading-none"
+            aria-label="Actions"
+          >
+            ⋯
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-1 z-20 bg-surface border border-border rounded-[10px] shadow-card overflow-hidden min-w-[140px]">
+              <button
+                onClick={() => { setMenuOpen(false); onEdit?.(c) }}
+                className="block w-full text-left px-3 py-2 text-[12px] text-text hover:bg-surface2"
+              >
+                Modifier
+              </button>
+              <button
+                onClick={() => { setMenuOpen(false); onDelete?.(c) }}
+                className="block w-full text-left px-3 py-2 text-[12px] text-red hover:bg-red/10"
+              >
+                Supprimer
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

@@ -16,12 +16,14 @@ const PRIO_LABEL: Record<EditorMission['priorite'], { label: string; cls: string
 interface Props {
   mission:     EditorMission
   index:       number
+  /** Si false : pas de menu ⋯ (vue employé). */
+  manager:     boolean
   reorderMode: boolean
-  onEdit:      (m: EditorMission) => void
-  onDelete:    (m: EditorMission) => void
+  onEdit?:     (m: EditorMission) => void
+  onDelete?:   (m: EditorMission) => void
 }
 
-export default function MissionTile({ mission, index, reorderMode, onEdit, onDelete }: Props) {
+export default function MissionTile({ mission, index, manager, reorderMode, onEdit, onDelete }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -82,7 +84,7 @@ export default function MissionTile({ mission, index, reorderMode, onEdit, onDel
         {prio.label}
       </span>
 
-      {!reorderMode && (
+      {manager && !reorderMode && (
         <div className="relative flex-shrink-0" ref={menuRef}>
           <button
             type="button"
@@ -95,13 +97,13 @@ export default function MissionTile({ mission, index, reorderMode, onEdit, onDel
           {menuOpen && (
             <div className="absolute right-0 top-full mt-1 z-20 bg-surface border border-border rounded-[10px] shadow-card overflow-hidden min-w-[140px]">
               <button
-                onClick={() => { setMenuOpen(false); onEdit(mission) }}
+                onClick={() => { setMenuOpen(false); onEdit?.(mission) }}
                 className="block w-full text-left px-3 py-2 text-[12px] text-text hover:bg-surface2"
               >
                 Modifier
               </button>
               <button
-                onClick={() => { setMenuOpen(false); onDelete(mission) }}
+                onClick={() => { setMenuOpen(false); onDelete?.(mission) }}
                 className="block w-full text-left px-3 py-2 text-[12px] text-red hover:bg-red/10"
               >
                 Supprimer
