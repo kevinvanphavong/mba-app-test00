@@ -3,14 +3,15 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { backdropVariants, sheetVariants } from '@/lib/animations'
-import type { PointageEntry, PauseType } from '@/types/pointage'
+import type { PointageEntry } from '@/types/pointage'
 
 type ActionType = 'arrivee' | 'depart' | 'pause_start' | 'pause_end' | 'absence'
 
 interface Props {
   pointage:   PointageEntry
   action:     ActionType
-  onConfirm:  (opts: { pauseType?: PauseType; commentaire?: string }) => void
+  /** Le type de pause + le PIN ont déjà été validés en amont — la modale ne fait que confirmer. */
+  onConfirm:  (opts: { commentaire?: string }) => void
   onCancel:   () => void
   isLoading?: boolean
 }
@@ -34,9 +35,10 @@ const CONFIG: Record<ActionType, { icon: string; color: string; label: string; a
 }
 
 export default function PointageActionModal({ pointage, action, onConfirm, onCancel, isLoading }: Props) {
-  const [pauseType,    setPauseType]    = useState<PauseType>('COURTE')
-  const [commentaire,  setCommentaire]  = useState('')
-  const [showComment,  setShowComment]  = useState(false)
+  // Le commentaire ne s'affiche plus que pour les actions absence/pause_end où il a un sens métier.
+  const [commentaire, setCommentaire] = useState('')
+  const [showComment, setShowComment] = useState(false)
+  const showCommentField = action === 'absence' || action === 'pause_end'
   const cfg = CONFIG[action]
   const now = new Date()
 
@@ -86,28 +88,8 @@ export default function PointageActionModal({ pointage, action, onConfirm, onCan
             </div>
           </div>
 
-          {/* Choix type de pause */}
-          {action === 'pause_start' && (
-            <div className="flex gap-2">
-              {(['COURTE', 'REPAS'] as PauseType[]).map(t => (
-                <button
-                  key={t}
-                  onClick={() => setPauseType(t)}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                  style={{
-                    background: pauseType === t ? 'rgba(234,179,8,0.2)' : 'var(--surface2)',
-                    color:      pauseType === t ? 'var(--yellow)' : 'var(--muted)',
-                    border:     `1px solid ${pauseType === t ? 'var(--yellow)' : 'var(--border)'}`,
-                  }}
-                >
-                  {t === 'COURTE' ? '☕ Courte' : '🍽 Repas'}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Commentaire optionnel */}
-          {!showComment ? (
+          {/* Commentaire optionnel — masqué pour pause_start (le type a déjà été choisi avant le PIN). */}
+          {showCommentField && (!showComment ? (
             <button
               onClick={() => setShowComment(true)}
               className="text-xs text-center"
@@ -125,7 +107,7 @@ export default function PointageActionModal({ pointage, action, onConfirm, onCan
               style={{ background: 'var(--surface2)', color: 'var(--text)', border: '1px solid var(--border)' }}
               autoFocus
             />
-          )}
+          ))}
 
           {/* Boutons d'action (uniquement si pas auto-dismiss) */}
           {!cfg.autoDismiss && (
@@ -138,7 +120,7 @@ export default function PointageActionModal({ pointage, action, onConfirm, onCan
                 Annuler
               </button>
               <button
-                onClick={() => onConfirm({ pauseType, commentaire: commentaire || undefined })}
+                onClick={() => onConfirm({ commentaire: commentaire || undefined })}
                 disabled={isLoading}
                 className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
                 style={{ background: 'var(--accent)', color: '#fff', opacity: isLoading ? 0.6 : 1 }}
