@@ -3,11 +3,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { fadeUpVariants } from '@/lib/animations'
-import type { PointageEntry } from '@/types/pointage'
+import type { PointageEntry, PauseType } from '@/types/pointage'
 
 interface Props {
   pointage:     PointageEntry
   action:       'arrivee' | 'depart' | 'pause_start' | 'pause_end'
+  /** Type choisi pour la pause (uniquement quand action='pause_start'). */
+  pauseType?:    PauseType
+  onPauseTypeChange?: (t: PauseType) => void
   onValidate:   (pin: string | null, managerBypass: boolean) => void
   onCancel:     () => void
   isLoading?:   boolean
@@ -36,7 +39,7 @@ function Avatar({ user }: { user: PointageEntry['user'] }) {
 }
 
 export default function PointagePinPad({
-  pointage, action, onValidate, onCancel, isLoading, errorMessage,
+  pointage, action, pauseType, onPauseTypeChange, onValidate, onCancel, isLoading, errorMessage,
 }: Props) {
   const [pin,         setPin]         = useState('')
   const [shake,       setShake]       = useState(false)
@@ -106,6 +109,31 @@ export default function PointagePinPad({
           <p className="text-xs text-[var(--muted)] mt-0.5">{LABEL_ACTION[action]}</p>
         </div>
       </div>
+
+      {/* Choix type de pause — uniquement avant un démarrage de pause */}
+      {action === 'pause_start' && pauseType && onPauseTypeChange && (
+        <div className="flex gap-2 w-full">
+          {(['COURTE', 'REPAS'] as PauseType[]).map(t => {
+            const selected = pauseType === t
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => onPauseTypeChange(t)}
+                disabled={isLoading || !!verrou}
+                className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all"
+                style={{
+                  background: selected ? 'rgba(234,179,8,0.18)' : 'var(--surface2)',
+                  color:      selected ? 'var(--yellow)' : 'var(--muted)',
+                  border:     `1px solid ${selected ? 'var(--yellow)' : 'var(--border)'}`,
+                }}
+              >
+                {t === 'COURTE' ? '☕ Courte' : '🍽 Repas'}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {/* 4 cercles indicateurs */}
       <motion.div

@@ -21,7 +21,7 @@ import PointageActionModal     from '@/components/pointage/PointageActionModal'
 import PointageTimeline        from '@/components/pointage/PointageTimeline'
 import PointageAlertPanel      from '@/components/pointage/PointageAlertPanel'
 import PointageCloturerModal   from '@/components/pointage/PointageCloturerModal'
-import type { PointageEntry } from '@/types/pointage'
+import type { PointageEntry, PauseType } from '@/types/pointage'
 
 type ActionType    = 'arrivee' | 'depart' | 'pause_start' | 'pause_end' | 'absence'
 type PinActionType = Exclude<ActionType, 'absence'>
@@ -53,6 +53,8 @@ export default function PointagePage() {
   const [showAction,      setShowAction]       = useState(false)
   const [showCloturer,    setShowCloturer]     = useState(false)
   const [pinError,        setPinError]         = useState<string | null>(null)
+  // Type de pause choisi avant la saisie du PIN (uniquement pour action='pause_start').
+  const [pauseType,       setPauseType]        = useState<PauseType>('COURTE')
   // `now` reste null jusqu'au mount client pour éviter un mismatch SSR/CSR
   // (les durées calculées à partir de `now` rendraient un HTML différent côté serveur).
   const [now,             setNow]              = useState<Date | null>(null)
@@ -81,13 +83,16 @@ export default function PointagePage() {
       return
     }
     setPinError(null)
+    // Reset systématique du type sur 'COURTE' à chaque nouvelle ouverture du PinPad
+    // pour pause_start, pour ne pas hériter du choix précédent d'un autre staff.
+    if (action === 'pause_start') setPauseType('COURTE')
     setSelected({ pointage, action })
   }, [absence])
 
   const handlePin = useCallback((pin: string | null, managerBypass: boolean) => {
     if (!selected) return
     const { pointage, action } = selected
-    const payload = { codePin: pin ?? undefined, managerBypass }
+    const basePayload = { codePin: pin ?? undefined, managerBypass }
 
     const onSuccess = () => { setShowAction(true) }
     const onError   = (e: unknown) => {
@@ -96,11 +101,11 @@ export default function PointagePage() {
       setPinError(msg)
     }
 
-    if (action === 'arrivee')     arrivee.mutate({ id: pointage.id, payload }, { onSuccess, onError })
-    if (action === 'depart')      depart.mutate({ id: pointage.id, payload }, { onSuccess, onError })
-    if (action === 'pause_start') pauseStart.mutate({ id: pointage.id, payload }, { onSuccess, onError })
-    if (action === 'pause_end')   pauseEnd.mutate({ id: pointage.id, payload }, { onSuccess, onError })
-  }, [selected, arrivee, depart, pauseStart, pauseEnd])
+    if (action === 'arrivee')     arrivee.mutate({ id: pointage.id, payload: basePayload }, { onSuccess, onError })
+    if (action === 'depart')      depart.mutate({ id: pointage.id, payload: basePayload }, { onSuccess, onError })
+    if (action === 'pause_start') pauseStart.mutate({ id: pointage.id, payload: { ...basePayload, type: pauseType } }, { onSuccess, onError })
+    if (action === 'pause_end')   pauseEnd.mutate({ id: pointage.id, payload: basePayload }, { onSuccess, onError })
+  }, [selected, pauseType, arrivee, depart, pauseStart, pauseEnd])
 
   const closeFlow = useCallback(() => {
     setSelected(null)
@@ -146,6 +151,8 @@ export default function PointagePage() {
           <PointagePinPad
             pointage={selected.pointage}
             action={selected.action}
+            pauseType={pauseType}
+            onPauseTypeChange={setPauseType}
             onValidate={handlePin}
             onCancel={closeFlow}
             isLoading={isLoading}
