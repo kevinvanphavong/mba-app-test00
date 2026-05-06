@@ -39,6 +39,19 @@ function pauseEnCoursDepuis(pointage: PointageEntry, now: Date): number {
   return Math.round((now.getTime() - new Date(pauseOuverte.heureDebut).getTime()) / 60000)
 }
 
+function pauseEnCours(pointage: PointageEntry) {
+  return pointage.pauses.find(p => !p.heureFin)
+}
+
+function formatPausesBreakdown(pointage: PointageEntry): string {
+  const courtes = pointage.pauses.filter(p => p.type === 'COURTE').length
+  const repas   = pointage.pauses.filter(p => p.type === 'REPAS').length
+  const parts: string[] = []
+  if (courtes > 0) parts.push(`${courtes} ☕`)
+  if (repas > 0)   parts.push(`${repas} 🍽`)
+  return parts.length > 0 ? parts.join(' · ') : `${pointage.pauses.length} pause${pointage.pauses.length > 1 ? 's' : ''}`
+}
+
 function dataStatus(pointage: PointageEntry): string {
   const { statut, minutesRetard } = pointage
   if (statut === 'PREVU' && minutesRetard > 0) return 'prevu-retard'
@@ -149,7 +162,7 @@ export default function PointageStaffCard({ pointage, now, onAction }: Props) {
       {statut === 'EN_PAUSE' && (
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs font-semibold" style={{ color: 'var(--yellow)' }}>
-            En pause depuis {pauseEnCoursDepuis(pointage, now)} min
+            {pauseEnCours(pointage)?.type === 'REPAS' ? '🍽 Pause repas' : '☕ Pause courte'} depuis {pauseEnCoursDepuis(pointage, now)} min
           </p>
           <button
             onClick={() => onAction(pointage, 'pause_end')}
@@ -167,7 +180,7 @@ export default function PointageStaffCard({ pointage, now, onAction }: Props) {
             <p>{formatHeure(heureArrivee)} → {formatHeure(heureDepart)} — {formatDuree(dureeEffective)} nets</p>
           )}
           {pointage.pauses.length > 0 && (
-            <p className="mt-0.5">{pointage.pauses.length} pause{pointage.pauses.length > 1 ? 's' : ''}</p>
+            <p className="mt-0.5">{formatPausesBreakdown(pointage)}</p>
           )}
         </div>
       )}

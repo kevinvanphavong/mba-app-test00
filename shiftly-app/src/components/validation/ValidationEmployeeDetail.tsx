@@ -96,7 +96,7 @@ export default function ValidationEmployeeDetail({
                 )}
                 {jour.pauses.map((p) => (
                   <div key={p.id} className="validation-detail-time-item flex items-center gap-1">
-                    Pause {formatHeure(p.debut)}–{p.fin ? formatHeure(p.fin) : '??'}
+                    {p.type === 'REPAS' ? '🍽' : '☕'} {formatHeure(p.debut)}–{p.fin ? formatHeure(p.fin) : '??'}
                     <span>({p.dureeMinutes} min)</span>
                     {jour.pointageId !== null && (
                       <button
