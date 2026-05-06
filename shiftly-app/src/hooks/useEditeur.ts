@@ -7,11 +7,26 @@ import type { Competence } from '@/types/index'
 import type {
   EditorMission,
   EditorCompetence,
+  EditorZone,
   MissionCategorie,
   MissionFrequence,
   MissionPriorite,
   DifficulteComp,
 } from '@/types/editeur'
+
+// ─── Liste des zones (format éditeur — avec missionCount + competenceCount) ──
+// Utilisé par /postes pour alimenter le carousel : les compteurs sont déjà
+// agrégés côté serveur, pas besoin d'un round-trip par zone.
+
+export function useEditeurZones() {
+  const centreId = useAuthStore(s => s.centreId)
+
+  return useQuery<EditorZone[]>({
+    queryKey: ['editeur-zones', centreId],
+    queryFn:  () => api.get('/editeur/zones').then(r => r.data),
+    enabled:  !!centreId,
+  })
+}
 
 // ─── Liste des compétences ────────────────────────────────────────────────────
 
@@ -50,6 +65,7 @@ export function useCreateCompetence() {
       queryClient.invalidateQueries({ queryKey: ['competences', centreId, undefined] })
       queryClient.invalidateQueries({ queryKey: ['editeur-competences', centreId, variables.zoneId] })
       queryClient.invalidateQueries({ queryKey: ['zones', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['editeur-zones', centreId] })
     },
   })
 }
@@ -93,6 +109,7 @@ export function useDeleteCompetence() {
       queryClient.invalidateQueries({ queryKey: ['competences', centreId] })
       queryClient.invalidateQueries({ queryKey: ['editeur-competences', centreId] })
       queryClient.invalidateQueries({ queryKey: ['zones', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['editeur-zones', centreId] })
     },
   })
 }
@@ -152,6 +169,7 @@ export function useCreateEditeurMission() {
       queryClient.invalidateQueries({ queryKey: ['editeur-missions', centreId, variables.zoneId] })
       queryClient.invalidateQueries({ queryKey: ['missions', centreId, variables.zoneId] })
       queryClient.invalidateQueries({ queryKey: ['zones', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['editeur-zones', centreId] })
     },
   })
 }
@@ -198,6 +216,7 @@ export function useDeleteEditeurMission() {
       queryClient.invalidateQueries({ queryKey: ['editeur-missions', centreId] })
       queryClient.invalidateQueries({ queryKey: ['missions', centreId] })
       queryClient.invalidateQueries({ queryKey: ['zones', centreId] })
+      queryClient.invalidateQueries({ queryKey: ['editeur-zones', centreId] })
     },
   })
 }

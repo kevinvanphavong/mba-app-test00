@@ -6,7 +6,7 @@ import MissionsBoard    from './MissionsBoard'
 import CompetencesPanel from './CompetencesPanel'
 import {
   useEditeurMissions, useEditeurCompetences,
-  useUpdateEditeurMission,
+  useUpdateEditeurMission, useEditeurZones,
 } from '@/hooks/useEditeur'
 import type { Zone } from '@/types/index'
 import type { EditorMission, EditorCompetence, MissionCategorie } from '@/types/editeur'
@@ -16,18 +16,20 @@ import type { EditorMission, EditorCompetence, MissionCategorie } from '@/types/
 interface Props {
   zones:        Zone[]
   activeZone:   Zone
+  /** Si false : vue lecture seule (employé) — pas de boutons CRUD ni menus ⋯ */
+  manager:      boolean
   onSelectZone: (z: Zone) => void
-  /** Callbacks remontés à la page pour ouvrir les modales unifiées */
-  onAddMission:    (cat?: MissionCategorie) => void
-  onEditMission:   (m: EditorMission) => void
-  onDeleteMission: (m: EditorMission) => void
-  onAddCompetence:    () => void
-  onEditCompetence:   (c: EditorCompetence) => void
-  onDeleteCompetence: (c: EditorCompetence) => void
+  /** Callbacks remontés à la page pour ouvrir les modales unifiées (manager seulement) */
+  onAddMission?:    (cat?: MissionCategorie) => void
+  onEditMission?:   (m: EditorMission) => void
+  onDeleteMission?: (m: EditorMission) => void
+  onAddCompetence?:    () => void
+  onEditCompetence?:   (c: EditorCompetence) => void
+  onDeleteCompetence?: (c: EditorCompetence) => void
 }
 
 export default function PostesDesktopView({
-  zones, activeZone, onSelectZone,
+  zones, activeZone, manager, onSelectZone,
   onAddMission, onEditMission, onDeleteMission,
   onAddCompetence, onEditCompetence, onDeleteCompetence,
 }: Props) {
@@ -36,21 +38,24 @@ export default function PostesDesktopView({
 
   const { data: missions    = [], isLoading: lm, isError: em } = useEditeurMissions(activeZone.id)
   const { data: competences = [], isLoading: lc, isError: ec } = useEditeurCompetences(activeZone.id)
+  const { data: editorZones = [] } = useEditeurZones()
   const updateMission = useUpdateEditeurMission()
 
   // ─── Compteurs par zone (utilisés par le carousel) ─────────────────────────
-  // On charge tout ici via les hooks zone-active. Pour les autres zones, on
-  // affiche pour l'instant les compteurs renvoyés par les payloads de zone si
-  // disponibles, sinon 0. Solution simple : un objet partiel.
+  // /api/editeur/zones renvoie déjà missionCount + competenceCount agrégés
+  // côté serveur — pas besoin d'un round-trip par zone. La zone active est
+  // surchargée avec la longueur réelle des listes pour rester en phase avec
+  // les créations/suppressions optimistes.
   const counters = useMemo(() => {
     const out: Record<number, { missions: number; competences: number }> = {}
     zones.forEach(z => {
+      const ez = editorZones.find(e => e.id === z.id)
       out[z.id] = z.id === activeZone.id
         ? { missions: missions.length, competences: competences.length }
-        : { missions: 0, competences: 0 }
+        : { missions: ez?.missionCount ?? 0, competences: ez?.competenceCount ?? 0 }
     })
     return out
-  }, [zones, activeZone.id, missions.length, competences.length])
+  }, [zones, editorZones, activeZone.id, missions.length, competences.length])
 
   const totalTasks = missions.length
   const color = activeZone.couleur ?? 'var(--accent)'
@@ -85,22 +90,26 @@ export default function PostesDesktopView({
             </div>
             <div className="text-[11px] text-muted">Plateau d'organisation des missions par moment du service</div>
           </div>
-          <button
-            onClick={() => setReorderMode(v => !v)}
-            className={`px-3 py-1.5 rounded-[9px] border text-[11px] font-semibold transition-colors ${
-              reorderMode
-                ? 'border-accent bg-accent/10 text-accent'
-                : 'border-border bg-surface2 text-text hover:border-accent/40'
-            }`}
-          >
-            {reorderMode ? '✓ Terminer' : '↻ Réordonner'}
-          </button>
-          <button
-            onClick={() => onAddMission()}
-            className="px-3 py-1.5 rounded-[9px] bg-accent text-white text-[11px] font-syne font-bold"
-          >
-            + Ajouter tâche
-          </button>
+          {manager && (
+            <>
+              <button
+                onClick={() => setReorderMode(v => !v)}
+                className={`px-3 py-1.5 rounded-[9px] border text-[11px] font-semibold transition-colors ${
+                  reorderMode
+                    ? 'border-accent bg-accent/10 text-accent'
+                    : 'border-border bg-surface2 text-text hover:border-accent/40'
+                }`}
+              >
+                {reorderMode ? '✓ Terminer' : '↻ Réordonner'}
+              </button>
+              <button
+                onClick={() => onAddMission?.()}
+                className="px-3 py-1.5 rounded-[9px] bg-accent text-white text-[11px] font-syne font-bold"
+              >
+                + Ajouter tâche
+              </button>
+            </>
+          )}
         </div>
 
         {/* États loading / error / empty */}
@@ -113,7 +122,8 @@ export default function PostesDesktopView({
         {!lm && !em && (
           <MissionsBoard
             missions={missions}
-            reorderMode={reorderMode}
+            manager={manager}
+            reorderMode={reorderMode && manager}
             onEdit={onEditMission}
             onDelete={onDeleteMission}
             onAddInCat={onAddMission}
@@ -126,6 +136,7 @@ export default function PostesDesktopView({
       <CompetencesPanel
         zone={activeZone}
         competences={competences}
+        manager={manager}
         loading={lc}
         error={ec}
         onAdd={onAddCompetence}
