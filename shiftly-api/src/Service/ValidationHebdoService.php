@@ -706,6 +706,19 @@ class ValidationHebdoService
             default        => null,
         };
 
+        // Si le manager renseigne explicitement l'heure de départ sur un
+        // pointage encore EN_COURS/EN_PAUSE, le shift est par définition
+        // terminé : on bascule le statut, sinon buildJourData masque la
+        // correction (branche EN_COURS qui rend heureDepart=null après
+        // resolveFinPointage non-auto).
+        if ($champ === 'heureDepart' && in_array(
+            $pointage->getStatut(),
+            [Pointage::STATUT_EN_COURS, Pointage::STATUT_EN_PAUSE],
+            true
+        )) {
+            $pointage->setStatut(Pointage::STATUT_TERMINE);
+        }
+
         $pointage->setUpdatedAt(new \DateTimeImmutable());
 
         // Tracer la correction
