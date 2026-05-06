@@ -7,6 +7,8 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { format, parseISO } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import type { CorrectionPayload } from '@/types/validation'
 
 type ChampCorrection = 'heureArrivee' | 'heureDepart' | 'pauseDebut' | 'pauseFin'
@@ -71,8 +73,9 @@ export default function ValidationCorrectionForm({
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <div className="text-sm font-semibold mb-3" style={{ color: 'var(--text)' }}>
-        ✏️ Corriger un pointage
+      <div className="flex items-baseline justify-between gap-2 mb-3">
+        <div className="text-sm font-semibold" style={{ color: 'var(--text)' }}>✏️ Corriger un pointage</div>
+        <div className="text-[12px] font-medium capitalize" style={{ color: 'var(--muted)' }}>{format(parseISO(date), 'EEEE d MMM', { locale: fr })}</div>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
