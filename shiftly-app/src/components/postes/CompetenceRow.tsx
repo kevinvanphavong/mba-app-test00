@@ -1,20 +1,37 @@
 'use client'
 
-import type { Competence } from '@/types/index'
+import { useState, useRef, useEffect } from 'react'
+import type { EditorCompetence } from '@/types/editeur'
 
-// ─── Styles des niveaux de difficulté ─────────────────────────────────────────
+// ─── Ligne compétence (vue mobile/tablette) ───────────────────────────────────
 
-const DIFF_CONFIG: Record<Competence['difficulte'], { label: string; color: string }> = {
+const DIFF_CONFIG: Record<EditorCompetence['difficulte'], { label: string; color: string }> = {
   simple:      { label: 'Simple',      color: 'var(--green)'  },
   avancee:     { label: 'Avancé',      color: 'var(--accent)' },
   experimente: { label: 'Expérimenté', color: 'var(--red)'    },
 }
 
 interface Props {
-  competence: Competence
+  competence: EditorCompetence
+  /** Si fournis, affiche un menu ⋯ avec actions manager. */
+  onEdit?:   (c: EditorCompetence) => void
+  onDelete?: (c: EditorCompetence) => void
 }
 
-export default function CompetenceRow({ competence }: Props) {
+export default function CompetenceRow({ competence, onEdit, onDelete }: Props) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const editable = !!onEdit && !!onDelete
+
+  useEffect(() => {
+    if (!menuOpen) return
+    function handler(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [menuOpen])
+
   const diff = DIFF_CONFIG[competence.difficulte]
 
   return (
@@ -25,7 +42,6 @@ export default function CompetenceRow({ competence }: Props) {
         {competence.description && (
           <div className="text-[10px] text-muted mt-0.5 truncate">{competence.description}</div>
         )}
-        {/* Badge difficulté */}
         <span
           className="text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] mt-1 inline-block"
           style={{ color: diff.color, background: `${diff.color}20` }}
@@ -39,6 +55,35 @@ export default function CompetenceRow({ competence }: Props) {
         <div className="font-syne font-extrabold text-[15px] text-accent">+{competence.points}</div>
         <div className="text-[9px] text-muted">pts</div>
       </div>
+
+      {/* Menu actions manager */}
+      {editable && (
+        <div className="relative flex-shrink-0" ref={menuRef}>
+          <button
+            onClick={() => setMenuOpen(v => !v)}
+            className="text-muted hover:text-text text-[14px] px-1 leading-none"
+            aria-label="Actions"
+          >
+            ⋯
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-1 z-20 bg-surface border border-border rounded-[10px] shadow-card overflow-hidden min-w-[140px]">
+              <button
+                onClick={() => { setMenuOpen(false); onEdit!(competence) }}
+                className="block w-full text-left px-3 py-2 text-[12px] text-text hover:bg-surface2"
+              >
+                Modifier
+              </button>
+              <button
+                onClick={() => { setMenuOpen(false); onDelete!(competence) }}
+                className="block w-full text-left px-3 py-2 text-[12px] text-red hover:bg-red/10"
+              >
+                Supprimer
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
