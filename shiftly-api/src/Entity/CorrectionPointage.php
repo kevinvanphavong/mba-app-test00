@@ -22,6 +22,17 @@ class CorrectionPointage
     #[ORM\JoinColumn(nullable: false)]
     private ?Pointage $pointage = null;
 
+    /**
+     * Pause ciblée si la correction porte sur `pauseDebut` / `pauseFin`.
+     * NULL pour les corrections heureArrivee / heureDepart.
+     * ON DELETE SET NULL : si la pause est supprimée, on garde la trace
+     * d'audit dans correction_pointage avec un pointer cassé plutôt que
+     * de perdre l'enregistrement.
+     */
+    #[ORM\ManyToOne(targetEntity: PointagePause::class)]
+    #[ORM\JoinColumn(name: 'pause_id', nullable: true, onDelete: 'SET NULL')]
+    private ?PointagePause $pause = null;
+
     /** 'heureArrivee' | 'heureDepart' | 'pauseDebut' | 'pauseFin' */
     #[ORM\Column(length: 50)]
     private string $champModifie = '';
@@ -52,6 +63,9 @@ class CorrectionPointage
 
     public function getPointage(): ?Pointage { return $this->pointage; }
     public function setPointage(?Pointage $pointage): static { $this->pointage = $pointage; return $this; }
+
+    public function getPause(): ?PointagePause { return $this->pause; }
+    public function setPause(?PointagePause $pause): static { $this->pause = $pause; return $this; }
 
     public function getChampModifie(): string { return $this->champModifie; }
     public function setChampModifie(string $champ): static { $this->champModifie = $champ; return $this; }
