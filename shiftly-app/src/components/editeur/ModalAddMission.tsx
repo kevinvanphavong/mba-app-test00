@@ -31,12 +31,14 @@ const PRIORITES: { id: MissionPriorite; label: string; cls: string }[] = [
 interface Props {
   open:         boolean
   editMission?: EditorMission | null
+  /** Catégorie pré-sélectionnée à l'ouverture (mode création uniquement). */
+  defaultCategorie?: MissionCategorie
   zone:         EditorZone
   onClose:      () => void
   onSave:       (data: MissionFormData) => void
 }
 
-export default function ModalAddMission({ open, editMission, zone, onClose, onSave }: Props) {
+export default function ModalAddMission({ open, editMission, defaultCategorie, zone, onClose, onSave }: Props) {
   const [texte,         setTexte]         = useState('')
   const [categorie,     setCategorie]     = useState<MissionCategorie>('PENDANT')
   const [frequence,     setFrequence]     = useState<MissionFrequence>('FIXE')
@@ -46,12 +48,12 @@ export default function ModalAddMission({ open, editMission, zone, onClose, onSa
   useEffect(() => {
     if (open) {
       setTexte(editMission?.texte     ?? '')
-      setCategorie(editMission?.categorie ?? 'PENDANT')
+      setCategorie(editMission?.categorie ?? defaultCategorie ?? 'PENDANT')
       setFrequence(editMission?.frequence ?? 'FIXE')
       setPriorite(editMission?.priorite  ?? 'ne_pas_oublier')
       setRequiresPhoto(editMission?.requiresPhoto ?? false)
     }
-  }, [open, editMission])
+  }, [open, editMission, defaultCategorie])
 
   function handleSave() {
     if (!texte.trim()) return
