@@ -219,7 +219,8 @@ class ValidationController extends AbstractController
     /**
      * POST /api/pointages/validation/correction
      * Applique une correction sur un pointage.
-     * Body: { pointageId, champModifie, nouvelleValeur, motif }
+     * Body: { pointageId, champModifie, nouvelleValeur, motif?, pauseId? }
+     * pauseId est requis quand champModifie ∈ {'pauseDebut', 'pauseFin'}.
      */
     #[Route('/correction', name: 'api_validation_correction', methods: ['POST'])]
     public function corrigerPointage(Request $request): JsonResponse
@@ -244,8 +245,9 @@ class ValidationController extends AbstractController
                 $data['pointageId'],
                 $data['champModifie'],
                 $data['nouvelleValeur'],
-                $data['motif'] ?? null,
-                $manager
+                $data['motif']   ?? null,
+                $manager,
+                isset($data['pauseId']) ? (int) $data['pauseId'] : null
             );
         } catch (\InvalidArgumentException $e) {
             return $this->json(['error' => $e->getMessage()], 400);
@@ -254,6 +256,7 @@ class ValidationController extends AbstractController
         return $this->json([
             'id'             => $correction->getId(),
             'pointageId'     => $correction->getPointage()->getId(),
+            'pauseId'        => $correction->getPause()?->getId(),
             'champModifie'   => $correction->getChampModifie(),
             'ancienneValeur' => $correction->getAncienneValeur()?->format('Y-m-d H:i:s'),
             'nouvelleValeur' => $correction->getNouvelleValeur()?->format('Y-m-d H:i:s'),
