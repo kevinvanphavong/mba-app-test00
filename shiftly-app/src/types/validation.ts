@@ -32,6 +32,7 @@ export interface ValidationKPI {
 }
 
 export interface ValidationPause {
+  id: number
   debut: string
   fin: string | null
   type: 'COURTE' | 'REPAS'
@@ -115,4 +116,6 @@ export interface CorrectionPayload {
   champModifie: 'heureArrivee' | 'heureDepart' | 'pauseDebut' | 'pauseFin'
   nouvelleValeur: string   // ISO datetime
   motif?: string
+  /** Obligatoire quand champModifie est 'pauseDebut' ou 'pauseFin'. */
+  pauseId?: number
 }

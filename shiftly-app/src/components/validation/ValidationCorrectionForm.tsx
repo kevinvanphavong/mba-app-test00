@@ -9,42 +9,60 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import type { CorrectionPayload } from '@/types/validation'
 
+type ChampCorrection = 'heureArrivee' | 'heureDepart' | 'pauseDebut' | 'pauseFin'
+
 interface Props {
   pointageId: number
   date: string
+  /** Si défini, le formulaire propose aussi "Début/Fin de pause" et cible cette pause. */
+  pauseId?: number
   onSubmit: (payload: CorrectionPayload) => void
   onCancel: () => void
   isLoading?: boolean
 }
 
-const CHAMPS = [
+const CHAMPS_BASE = [
   { value: 'heureArrivee', label: "Heure d'arrivée" },
   { value: 'heureDepart',  label: 'Heure de départ' },
+] as const
+
+const CHAMPS_PAUSE = [
+  { value: 'pauseDebut', label: 'Début de pause' },
+  { value: 'pauseFin',   label: 'Fin de pause'   },
 ] as const
 
 export default function ValidationCorrectionForm({
   pointageId,
   date,
+  pauseId,
   onSubmit,
   onCancel,
   isLoading = false,
 }: Props) {
-  const [champ, setChamp] = useState<'heureArrivee' | 'heureDepart'>('heureArrivee')
+  // Si pauseId est défini, on pré-sélectionne pauseDebut (clic sur ✏️ pause).
+  const [champ, setChamp] = useState<ChampCorrection>(pauseId !== undefined ? 'pauseDebut' : 'heureArrivee')
   const [heure, setHeure] = useState('')
   const [motif, setMotif] = useState('')
+
+  const champs = pauseId !== undefined ? [...CHAMPS_BASE, ...CHAMPS_PAUSE] : CHAMPS_BASE
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!heure) return
 
-    // Le manager saisit l'heure en local (Europe/Paris). On reconstruit un Date
-    // dans le fuseau du navigateur puis on sérialise en ISO UTC pour que le
-    // back stocke la bonne instant : 15:00 Paris (été) → "T13:00:00.000Z".
+    // Saisie en local (Europe/Paris) → ISO UTC pour stockage uniforme côté back.
     const [year, month, day] = date.split('-').map(Number)
     const [hh, mm]           = heure.split(':').map(Number)
     const nouvelleValeur     = new Date(year, month - 1, day, hh, mm, 0).toISOString()
+    const isPauseChamp       = champ === 'pauseDebut' || champ === 'pauseFin'
 
-    onSubmit({ pointageId, champModifie: champ, nouvelleValeur, motif: motif || undefined })
+    onSubmit({
+      pointageId,
+      champModifie:   champ,
+      nouvelleValeur,
+      motif:          motif || undefined,
+      pauseId:        isPauseChamp ? pauseId : undefined,
+    })
   }
 
   return (
@@ -65,9 +83,9 @@ export default function ValidationCorrectionForm({
           <select
             className="validation-correction-input px-3 py-2 mt-1"
             value={champ}
-            onChange={e => setChamp(e.target.value as typeof champ)}
+            onChange={e => setChamp(e.target.value as ChampCorrection)}
           >
-            {CHAMPS.map(c => (
+            {champs.map(c => (
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
           </select>
