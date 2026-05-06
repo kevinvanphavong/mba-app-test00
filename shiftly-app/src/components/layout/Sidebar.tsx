@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { useDesktopNavItems } from '@/hooks/useNavItems'
 import { ty } from '@/lib/typography'
+import ThemeSwitcher from '@/components/layout/ThemeSwitcher'
 
 function getInitials(prenom: string, nom: string): string {
   const p = prenom.trim()[0] ?? ''
@@ -60,6 +61,11 @@ export default function Sidebar() {
           </Link>
         ))}
       </nav>
+
+      {/* Switcher de thème — bloc « Apparence » façon V2 */}
+      <div className="mt-4">
+        <ThemeSwitcher />
+      </div>
 
       {/* User row */}
       <div className="flex items-center gap-2.5 px-3 pt-4 border-t border-border mt-4">
