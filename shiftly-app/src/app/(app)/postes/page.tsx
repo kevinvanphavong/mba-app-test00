@@ -175,19 +175,19 @@ export default function PostesPage() {
             </div>
 
             {/* ── Vue desktop : carousel + plateau 4 colonnes ────────────── */}
-            {isManager && (
-              <PostesDesktopView
-                zones={zones}
-                activeZone={activeZone}
-                onSelectZone={setSelectedZone}
-                onAddMission={openAddMission}
-                onEditMission={openEditMission}
-                onDeleteMission={(m) => setConfirmDelete({ type: 'mission', item: m })}
-                onAddCompetence={() => { setEditComp(null); setShowAddComp(true) }}
-                onEditCompetence={(c) => { setEditComp(c); setShowAddComp(true) }}
-                onDeleteCompetence={(c) => setConfirmDelete({ type: 'competence', item: c })}
-              />
-            )}
+            {/* Visible pour tous : manager (CRUD) + employé (lecture seule). */}
+            <PostesDesktopView
+              zones={zones}
+              activeZone={activeZone}
+              manager={isManager}
+              onSelectZone={setSelectedZone}
+              onAddMission={isManager ? openAddMission : undefined}
+              onEditMission={isManager ? openEditMission : undefined}
+              onDeleteMission={isManager ? (m) => setConfirmDelete({ type: 'mission', item: m }) : undefined}
+              onAddCompetence={isManager ? () => { setEditComp(null); setShowAddComp(true) } : undefined}
+              onEditCompetence={isManager ? (c) => { setEditComp(c); setShowAddComp(true) } : undefined}
+              onDeleteCompetence={isManager ? (c) => setConfirmDelete({ type: 'competence', item: c }) : undefined}
+            />
           </>
         )}
 
