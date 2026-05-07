@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import MediaUploader from '@/components/media/MediaUploader'
+import MediaGallery  from '@/components/media/MediaGallery'
 import type {
   EditorMission,
   EditorZone,
@@ -190,6 +192,19 @@ export default function ModalAddMission({ open, editMission, defaultCategorie, z
             </span>
           </button>
         </div>
+
+        {/* Médias — uniquement en mode édition (l'entité doit exister) */}
+        {editMission?.id && (
+          <div className="mb-3">
+            <label className="block text-[10px] font-bold uppercase tracking-[0.8px] text-muted mb-[5px]">
+              Médias
+            </label>
+            <div className="flex flex-col gap-2">
+              <MediaUploader entityType="mission" entityId={editMission.id} />
+              <MediaGallery  entityType="mission" entityId={editMission.id} />
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-2 mt-[14px]">
           <button onClick={onClose} className="flex-1 py-3 rounded-[12px] border border-border bg-transparent text-muted text-[13px] font-semibold">
