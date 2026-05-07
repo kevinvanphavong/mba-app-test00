@@ -54,7 +54,7 @@ mba-app-test00/
 │   │   │   │   ├── postes/
 │   │   │   │   │   └── page.tsx       # Manager : carousel zones + plateau 4 colonnes + compétences (CRUD)
 │   │   │   │   ├── staff/
-│   │   │   │   │   └── page.tsx
+│   │   │   │   │   └── page.tsx       # v2 : table expandable + CRUD manager + lecture employé (fusion editeur-staff)
 │   │   │   │   ├── tutoriels/
 │   │   │   │   │   └── page.tsx
 │   │   │   │   └── reglages/
@@ -125,10 +125,16 @@ mba-app-test00/
 │   │   │   │   ├── ModalCreateService.tsx
 │   │   │   │   └── ModalAssignerPoste.tsx
 │   │   │   │
-│   │   │   ├── staff/
-│   │   │   │   ├── StaffCard.tsx
-│   │   │   │   ├── StaffCardExpanded.tsx  # Fiche dépliée avec compétences
-│   │   │   │   └── CompetenceRow.tsx
+│   │   │   ├── staff/                  # Page /staff v2 (manager + employé fusionnés)
+│   │   │   │   ├── MemberRow.tsx          # Ligne table desktop (cliquable, expandable)
+│   │   │   │   ├── MemberPanel.tsx        # Panel déplié (skills + contrat + tenue + actions)
+│   │   │   │   ├── SkillCardsByZone.tsx   # Grille compétences groupées par zone
+│   │   │   │   ├── SkillTag.tsx           # Pastille compétence cliquable (toggle direct)
+│   │   │   │   ├── ModalEditStaff.tsx     # Modale create/edit (manager only)
+│   │   │   │   ├── LevelDots.tsx
+│   │   │   │   ├── SearchBar.tsx
+│   │   │   │   ├── CompetenceList.tsx
+│   │   │   │   └── ZoneChips.tsx
 │   │   │   │
 │   │   │   ├── tutoriels/
 │   │   │   │   ├── TutorielCard.tsx
@@ -177,6 +183,8 @@ mba-app-test00/
 │   │   │   ├── animations.ts          # Variants Framer Motion standards
 │   │   │   ├── colors.ts              # Tokens couleurs (zones, priorités)
 │   │   │   ├── staff-colors.ts        # Couleurs déterministes pour avatars
+│   │   │   ├── staff.ts                # calculerNiveau (4 paliers) + calculerAnciennete + staffInitials
+│   │   │   ├── formatHeure.ts          # ISO ATOM → 'HH:MM' Europe/Paris
 │   │   │   ├── strings.ts             # Helpers strings (capitalizeFirst, capitalizeWords)
 │   │   │   ├── serviceFilters.ts      # Helpers purs /services (tabs, period, Tx clôture)
 │   │   │   ├── serviceUtils.ts        # getEffectiveToday + helpers service du jour

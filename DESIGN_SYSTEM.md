@@ -228,16 +228,34 @@ Checkbox: 20px w/h, rounded-md, border-2
 Priority dot: w-[6px] h-[6px] rounded-full (red/yellow/muted)
 ```
 
-### 5.7 Member Card (Staff)
+### 5.7 Staff v2 — MemberRow + MemberPanel + SkillTag
 
 ```
-rounded-[18px]  expand/collapse on click
-Avatar: 48px rounded-[14px] gradient
-Status dot: 12px circle bottom-right (green=actif, yellow=pause)
-Expanded: border-color rgba(249,115,22,0.35)
-  → Zones chips colorées
-  → Level dots (5 dots, filled=accent)
-  → Vêtements box (surface2)
+MemberRow (.staff-member-row)
+  display: grid; grid-template-columns: 2fr 100px 1.6fr 130px 120px 110px;
+  bg surface, border, rounded-[14px], gap-16, padding 14/16, mb-8.
+  .expanded → border rgba(249,115,22,0.30)
+  .is-self  → border-left 3px var(--accent), padding-left 13
+  Avatar : 40px rounded-[10px] gradient + wrapper 2px de la couleur user.
+  Cols : Identity · Role badge · Zones (chips colorées) · Level dots (4) · Points · Tutos
+  Niveau : 4 paliers via calculerNiveau() — Débutant <30% / Intermédiaire 30-60% /
+           Confirmé 60-90% / Avancé ≥90%
+
+MemberPanel (.staff-member-panel)
+  bg surface, border, no-top-border, rounded-bottom-14, mt -8 (chevauche row).
+  3 sections : SkillCardsByZone · info-row (3 cols) · actions-row.
+
+SkillTag (motion.button)
+  rounded-md px-2.5 py-1 text-[11px] font-semibold border.
+  Acquired : background = `${zoneCouleur}1f`, border = `${zoneCouleur}66`,
+             color = zone color + ✓ prefix.
+  Non-acquired : surface neutre.
+  Highlight 1.5s : Framer Motion (scale + box-shadow pulsé) — pas de keyframe CSS.
+
+Mobile (< 980px)
+  .staff-table-headers : display:none.
+  .staff-member-row : grid → 1 col, .col → flex-start.
+  .skill-grid + .info-row : 1 col.
 ```
 
 ### 5.8 Tutoriel Card
