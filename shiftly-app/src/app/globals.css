@@ -576,6 +576,72 @@ input:focus { border-color: var(--accent); }
 .validation-mobile-modal-sheet    { position: relative; background: var(--surface); border-top: 1px solid var(--border); border-radius: 20px 20px 0 0; max-height: 90dvh; display: flex; flex-direction: column; overflow: hidden; }
 .validation-mobile-modal-handle   { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 10px auto 0; }
 
+/* ─── Staff v2 ──────────────────────────────────────────────────────────────── */
+
+.staff-table-headers {
+  display: grid;
+  grid-template-columns: minmax(200px, 2fr) 100px minmax(180px, 1.6fr) 130px 120px 110px;
+  gap: 16px;
+  padding: 0 16px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--muted);
+}
+
+.staff-member-row {
+  display: grid;
+  grid-template-columns: minmax(200px, 2fr) 100px minmax(180px, 1.6fr) 130px 120px 110px;
+  gap: 16px; align-items: center;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 14px 16px; margin-bottom: 8px;
+  transition: border-color 0.15s;
+}
+.staff-member-row.expanded { border-color: rgba(249, 115, 22, 0.30); }
+.staff-member-row.is-self  { border-left: 3px solid var(--accent); padding-left: 13px; }
+
+.staff-member-panel {
+  background: var(--surface); border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 14px 14px;
+  margin-top: -8px; margin-bottom: 8px;
+  padding: 8px 16px 16px;
+}
+.panel-section + .panel-section { margin-top: 14px; }
+.panel-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+  color: var(--muted); margin-bottom: 8px;
+}
+
+.skill-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.skill-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.skill-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+
+.info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.info-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+
+.btn-staff-secondary {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  padding: 9px 14px; border-radius: 10px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-staff-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn-staff-danger {
+  background: transparent; border: 1px solid rgba(239, 68, 68, 0.40); color: var(--red);
+  padding: 9px 14px; border-radius: 10px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.btn-staff-danger:hover { background: rgba(239, 68, 68, 0.10); }
+
+@media (max-width: 980px) {
+  .staff-table-headers { display: none; }
+  .staff-member-row { grid-template-columns: 1fr; gap: 12px; }
+  .staff-member-row .col { justify-content: flex-start; }
+  .skill-grid { grid-template-columns: 1fr; }
+  .info-row   { grid-template-columns: 1fr; }
+}
+
 @layer components {
 
   /* Corps de texte ─────────────────────────────────────────────────────────── */
