@@ -15,6 +15,7 @@ import {
   useValidationAlertes,
   useValidationDetail,
   useValiderEmploye,
+  useDevaliderEmploye,
   useValiderSemaine,
   useDevaliderSemaine,
   useCorrigerPointage,
@@ -75,6 +76,7 @@ export default function ValidationPage() {
 
   // Mutations
   const validerEmployeMut   = useValiderEmploye(dateStr)
+  const devaliderEmployeMut = useDevaliderEmploye(dateStr)
   const validerSemaineMut   = useValiderSemaine(dateStr)
   const devaliderSemaineMut = useDevaliderSemaine(dateStr)
   const corrigerMut         = useCorrigerPointage(dateStr)
@@ -89,6 +91,13 @@ export default function ValidationPage() {
     validerEmployeMut.mutate(userId, {
       onSuccess: () => showToast('Employé validé', 'success'),
       onError:   (err) => showToast(extractApiError(err, 'Erreur lors de la validation'), 'error'),
+    })
+  }
+
+  const handleDevaliderEmploye = (userId: number) => {
+    devaliderEmployeMut.mutate(userId, {
+      onSuccess: () => showToast('Validation annulée', 'success'),
+      onError:   (err) => showToast(extractApiError(err, 'Erreur lors de la dévalidation'), 'error'),
     })
   }
 
@@ -268,8 +277,10 @@ export default function ValidationPage() {
                   <ValidationEmployeeDetail
                     employe={detailEmploye}
                     onValider={handleValiderEmploye}
+                    onDevalider={handleDevaliderEmploye}
                     onCorriger={handleCorriger}
                     isValidating={validerEmployeMut.isPending}
+                    isDevalidating={devaliderEmployeMut.isPending}
                     isCorrecting={corrigerMut.isPending}
                   />
                 </div>
@@ -298,8 +309,10 @@ export default function ValidationPage() {
                 <ValidationEmployeeDetail
                   employe={detailEmploye}
                   onValider={handleValiderEmploye}
+                  onDevalider={handleDevaliderEmploye}
                   onCorriger={handleCorriger}
                   isValidating={validerEmployeMut.isPending}
+                  isDevalidating={devaliderEmployeMut.isPending}
                   isCorrecting={corrigerMut.isPending}
                 />
               ) : (

@@ -9,14 +9,17 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { fadeUpVariants as fadeUp } from '@/lib/animations'
 import ValidationCorrectionForm from './ValidationCorrectionForm'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 import { formatHeure } from '@/lib/formatHeure'
 import type { ValidationEmploye, CorrectionPayload } from '@/types/validation'
 
 interface Props {
   employe: ValidationEmploye
   onValider: (userId: number) => void
+  onDevalider: (userId: number) => void
   onCorriger: (payload: CorrectionPayload) => void
   isValidating?: boolean
+  isDevalidating?: boolean
   isCorrecting?: boolean
 }
 
@@ -30,14 +33,19 @@ function minToHHMM(minutes: number | null): string {
 export default function ValidationEmployeeDetail({
   employe,
   onValider,
+  onDevalider,
   onCorriger,
   isValidating = false,
+  isDevalidating = false,
   isCorrecting = false,
 }: Props) {
   const [showCorrectionForm, setShowCorrectionForm] = useState(false)
   const [correctionPointageId, setCorrectionPointageId] = useState<number | null>(null)
   const [correctionDate, setCorrectionDate] = useState('')
   const [correctionPauseId, setCorrectionPauseId] = useState<number | null>(null)
+  const [showDevalidConfirm, setShowDevalidConfirm] = useState(false)
+
+  const isValidee = employe.statut === 'VALIDEE'
 
   const joursActifs = employe.jours.filter(
     j => j.statut === 'travaille' || j.statut === 'en_cours'
@@ -216,22 +224,55 @@ export default function ValidationEmployeeDetail({
         </div>
       )}
 
-      {/* Bouton de validation — la correction passe désormais par le ✏️ inline sur chaque jour */}
+      {/* Bouton de validation — toggle valider / dévalider selon l'état */}
       <div className="flex gap-2 mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-        <button
-          onClick={() => onValider(employe.userId)}
-          disabled={isValidating || employe.statut === 'VALIDEE'}
-          className="flex-1 py-2 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1"
-          style={{
-            background: 'rgba(34,197,94,0.15)',
-            color: 'var(--green)',
-            borderColor: 'var(--green)',
-            opacity: isValidating || employe.statut === 'VALIDEE' ? 0.5 : 1,
-          }}
-        >
-          {employe.statut === 'VALIDEE' ? '✓ Déjà validé' : isValidating ? 'Validation...' : '✓ Valider'}
-        </button>
+        {isValidee ? (
+          <button
+            onClick={() => setShowDevalidConfirm(true)}
+            disabled={isDevalidating}
+            className="flex-1 py-2 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1.5"
+            style={{
+              background: 'var(--surface2)',
+              color: 'var(--muted)',
+              borderColor: 'var(--border)',
+              opacity: isDevalidating ? 0.5 : 1,
+            }}
+            title="Annuler la validation de cette semaine pour cet employé"
+          >
+            {isDevalidating ? 'Annulation…' : '↺ Annuler la validation'}
+          </button>
+        ) : (
+          <button
+            onClick={() => onValider(employe.userId)}
+            disabled={isValidating}
+            className="flex-1 py-2 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1"
+            style={{
+              background: 'rgba(34,197,94,0.15)',
+              color: 'var(--green)',
+              borderColor: 'var(--green)',
+              opacity: isValidating ? 0.5 : 1,
+            }}
+          >
+            {isValidating ? 'Validation…' : '✓ Valider la semaine'}
+          </button>
+        )}
       </div>
+
+      {/* Confirmation avant dévalidation — paie sensible, on évite le clic accidentel */}
+      <ConfirmModal
+        open={showDevalidConfirm}
+        title="Annuler la validation de la semaine ?"
+        message={`Les heures validées de ${employe.prenom} ${employe.nom} repasseront en attente. Tu pourras revalider à tout moment.`}
+        confirmLabel="Annuler la validation"
+        cancelLabel="Garder validée"
+        variant="danger"
+        isLoading={isDevalidating}
+        onCancel={() => setShowDevalidConfirm(false)}
+        onConfirm={() => {
+          onDevalider(employe.userId)
+          setShowDevalidConfirm(false)
+        }}
+      />
     </motion.div>
   )
 }
