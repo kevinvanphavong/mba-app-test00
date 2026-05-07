@@ -510,6 +510,13 @@ JWT_TTL=3600
 CORS_ALLOW_ORIGIN=http://localhost:3000
 APP_ENV=dev
 APP_SECRET=CHANGE_ME
+
+# Cloudflare R2 — module Media (object storage S3-compatible)
+R2_ACCOUNT_ID=your-r2-account-id
+R2_ACCESS_KEY_ID=your-r2-access-key-id
+R2_SECRET_ACCESS_KEY=your-r2-secret-access-key
+R2_BUCKET=shiftly-dev
+R2_ENDPOINT=https://your-r2-account-id.r2.cloudflarestorage.com
 ```
 
 ### Frontend (`shiftly-app/.env.example`)
@@ -530,6 +537,7 @@ composer require nelmio/cors-bundle
 composer require doctrine/doctrine-bundle doctrine/orm doctrine/doctrine-migrations-bundle
 composer require hautelook/alice-bundle --dev
 composer require symfony/maker-bundle --dev
+composer require async-aws/s3                # module Media — wrapper R2
 ```
 
 ### Frontend
@@ -552,3 +560,66 @@ Bottom nav (5 items) :
 Page active : accent (#f97316) + opacity-100
 Page inactive : muted (#6b7280) + opacity-40
 ```
+
+---
+
+## 12. Module Media — stockage Cloudflare R2
+
+Module générique pour attacher des images (JPEG/PNG/WebP) ou des PDF à n'importe quelle entité parente. Utilisé aujourd'hui par **Mission** et **Tutoriel**, conçu pour être étendu (HACCP, documents, etc.).
+
+### Architecture
+
+- **Stockage** : Cloudflare R2 (S3-compatible), buckets `shiftly-dev` et `shiftly-prod`. Bucket privé, lecture via URL signée TTL 1h.
+- **Lib PHP** : `async-aws/s3` (région `auto`, `pathStyleEndpoint: true`).
+- **Path R2** : `{centreId}/media/{entityType}/{uuid}.{ext}` — isolation tenant dans la clé.
+- **Whitelist** : images max 5 MB, PDF max 20 MB. Tout autre MIME rejeté en 400.
+
+### Backend (`shiftly-api/`)
+
+| Élément | Fichier |
+|---|---|
+| Entité polymorphe | `src/Entity/Media.php` (champs : centre, entityType, entityId, filename, mimeType, sizeBytes, storagePath, uploadedBy, createdAt) |
+| Enum | `src/Enum/MediaEntityType.php` (`mission` \| `tutoriel` \| `document`) |
+| Repository | `src/Repository/MediaRepository.php` (`findByEntity` filtre centre, `findAllByEntity` pour les listeners) |
+| Wrapper R2 (générique, sans logique métier) | `src/Service/R2StorageService.php` |
+| Service métier upload | `src/Service/MediaUploader.php` |
+| Controller | `src/Controller/MediaController.php` |
+| Voter multi-tenant (`MEDIA_VIEW`, `MEDIA_DELETE`, `MEDIA_UPLOAD`) | `src/Security/Voter/MediaVoter.php` |
+| Cleanup binaire R2 sur `Media::preRemove` | `src/EventListener/MediaR2CleanupListener.php` |
+| Cleanup en cascade quand Mission/Tutoriel est supprimé | `src/EventListener/MissionMediaCleanupListener.php` + `TutorielMediaCleanupListener.php` |
+| Migration | `migrations/Version20260507120000.php` (table `media`, portable MySQL/PostgreSQL/SQLite) |
+
+### Endpoints API
+
+```
+POST   /api/media                         multipart : file, entityType, entityId       (manager)
+GET    /api/media/{id}/url                renvoie { url, expiresAt } (signée 1h)        (voter VIEW)
+DELETE /api/media/{id}                    supprime ligne BDD + binaire R2               (manager + voter DELETE)
+GET    /api/missions/{id}/medias          liste les médias d'une mission                (auth user)
+GET    /api/tutoriels/{id}/medias         liste les médias d'un tutoriel                (auth user)
+```
+
+### Frontend (`shiftly-app/`)
+
+| Élément | Fichier |
+|---|---|
+| Types | `src/types/media.ts` (`Media`, `MediaEntityType`, `MediaUrlResponse`, `MediaUploadResponse`) |
+| Hooks React Query | `src/hooks/useMedias.ts` (`useMedias`, `useMediaUrl`, `useUploadMedia`, `useDeleteMedia`) |
+| Composants | `src/components/media/MediaUploader.tsx` (drag&drop), `MediaGallery.tsx` (grid responsive), `MediaThumb.tsx` (vignette + delete), `MediaLightbox.tsx` (image plein écran) |
+| Wiring actuel | `ModalAddMission.tsx` et `ModalAddTutoriel.tsx` (section "Médias" en mode édition uniquement) |
+
+### Multi-tenancy
+
+- `MediaVoter` vérifie systématiquement `user.centre === media.centre`.
+- Pour `MEDIA_UPLOAD` (la ligne Media n'existe pas encore), le voter remonte sur l'entité parente (Mission via `Zone.centre`, Tutoriel via `Tutoriel.centre`) pour vérifier l'appartenance.
+- Le path R2 lui-même contient `{centreId}` en racine — défense en profondeur.
+
+### Variables d'environnement (cf. section 9)
+
+`R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET`, `R2_ENDPOINT`. À configurer aussi dans Railway pour la prod (bucket `shiftly-prod`).
+
+### Limitations connues
+
+- Pas de génération côté serveur de miniatures (Next.js `<Image>` peut s'en charger côté client si besoin).
+- Pas de purge automatique (à ajouter quand on aura un volume significatif).
+- CORS du bucket à configurer côté Cloudflare si `<img>` cross-origin pose souci en prod.

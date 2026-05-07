@@ -497,6 +497,39 @@ CREATE TABLE centre_note (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- TABLE : media
+-- Module Media — fichiers (images JPEG/PNG/WebP, PDF) attachés
+-- de manière polymorphe à une entité parente (mission, tutoriel,
+-- document à venir) via la combo (entity_type, entity_id).
+-- Stockage binaire sur Cloudflare R2 — la BDD ne stocke que la clé.
+-- entity_type : 'mission' | 'tutoriel' | 'document'
+-- ============================================================
+
+CREATE TABLE media (
+    id              INT AUTO_INCREMENT NOT NULL,
+    centre_id       INT          NOT NULL,
+    uploaded_by_id  INT          NOT NULL,
+    entity_type     VARCHAR(20)  NOT NULL,
+    entity_id       INT          NOT NULL,
+    filename        VARCHAR(255) NOT NULL,
+    mime_type       VARCHAR(100) NOT NULL,
+    size_bytes      INT          NOT NULL,
+    storage_path    VARCHAR(500) NOT NULL COMMENT 'Clé R2 — ex : "1/media/mission/uuid.jpg"',
+    created_at      DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    INDEX idx_media_entity (entity_type, entity_id, centre_id),
+    INDEX IDX_6A2CA10C463CD7C3 (centre_id),
+    INDEX IDX_6A2CA10CA2B28FE8 (uploaded_by_id),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_media_centre FOREIGN KEY (centre_id)      REFERENCES centre (id),
+    CONSTRAINT FK_media_user   FOREIGN KEY (uploaded_by_id) REFERENCES `user` (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Pas de FK SQL vers mission/tutoriel : la relation est polymorphe.
+-- Le nettoyage des Media orphelins est géré côté PHP par
+-- MissionMediaCleanupListener / TutorielMediaCleanupListener (preRemove)
+-- qui suppriment aussi le binaire R2 via R2StorageService::delete().
+
+-- ============================================================
 -- NOTES MÉTIER
 -- ============================================================
 

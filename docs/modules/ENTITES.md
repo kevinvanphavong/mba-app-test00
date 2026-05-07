@@ -648,6 +648,52 @@ Créé automatiquement à chaque appel de `POST /api/planning/publish`.
 
 ---
 
+## Module Media — fichiers polymorphes
+
+Module générique d'attachement de fichiers (images JPEG/PNG/WebP, PDF) à n'importe quelle entité parente. Branché aujourd'hui sur **Mission** et **Tutoriel**, conçu pour être étendu (HACCP, documents, etc.).
+
+### Entité `Media`
+
+Ligne BDD pour chaque fichier uploadé. Le binaire vit sur Cloudflare R2, la BDD ne stocke que la clé.
+
+| Champ | Type | Nullable | Notes |
+|---|---|---|---|
+| `id` | int | non | Auto-généré |
+| `centre` | Centre | non | FK multi-tenant |
+| `entityType` | enum (`mission` \| `tutoriel` \| `document`) | non | Type d'entité parente — `App\Enum\MediaEntityType` (VARCHAR(20) en BDD, pas d'ENUM MySQL pour rester portable) |
+| `entityId` | int | non | ID de l'entité parente (pas de FK SQL — relation polymorphe) |
+| `filename` | string(255) | non | Nom de fichier original côté client |
+| `mimeType` | string(100) | non | Whitelist : `image/jpeg`, `image/png`, `image/webp`, `application/pdf` |
+| `sizeBytes` | int | non | Vérifié à l'upload : ≤ 5 MB pour images, ≤ 20 MB pour PDF |
+| `storagePath` | string(500) | non | Clé R2 — format `{centreId}/media/{entityType}/{uuid}.{ext}` |
+| `uploadedBy` | User | non | FK + ON DELETE CASCADE |
+| `createdAt` | DateTimeImmutable | non | Auto-set au constructeur |
+
+**Index :** `idx_media_entity (entity_type, entity_id, centre_id)` pour le sub-resource listing.
+
+**Relations :**
+- `centre` → ManyToOne → Centre
+- `uploadedBy` → ManyToOne → User
+- Pas de relation Doctrine vers Mission/Tutoriel (polymorphe — résolu côté repository).
+
+### Comportement de cleanup
+
+- `MediaR2CleanupListener` (preRemove sur Media) : supprime le binaire R2 à chaque DELETE de ligne Media.
+- `MissionMediaCleanupListener` (preRemove sur Mission) : récupère tous les Media liés à la Mission et les supprime (binaire R2 + ligne BDD). Idem `TutorielMediaCleanupListener`.
+- L'ordre est toujours : binaire R2 d'abord, ligne BDD ensuite — sinon orphelins sur le bucket.
+
+### Endpoints
+
+| Méthode | Route | Accès |
+|---|---|---|
+| POST | `/api/media` | Manager + voter `MEDIA_UPLOAD` |
+| GET | `/api/media/{id}/url` | Voter `MEDIA_VIEW` (URL signée TTL 1h) |
+| DELETE | `/api/media/{id}` | Manager + voter `MEDIA_DELETE` |
+| GET | `/api/missions/{id}/medias` | Auth user (filtré par centre) |
+| GET | `/api/tutoriels/{id}/medias` | Auth user (filtré par centre) |
+
+---
+
 ## Note — Alertes légales du module Planning
 
 Le `PlanningService::getLegalAlerts()` génère 6 alertes basées sur le Code du travail.
