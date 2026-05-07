@@ -122,11 +122,39 @@ class StaffController extends AbstractController
                 'tutorielsTotal'     => $tutorielsTotal,
                 'competencesTotal'   => $competencesTotal,
                 'competencesParZone' => $competencesParZone,
+                'competencesCatalog' => $this->buildCompetencesCatalog($centreId),
                 'tenueHaut'          => $centre->getTenueHaut(),
                 'tenueBas'           => $centre->getTenueBas(),
                 'tenueChaussures'    => $centre->getTenueChaussures(),
             ],
         ]);
+    }
+
+    /**
+     * Liste complète des compétences du centre — sert au front pour rendre
+     * les skill tags non-acquis (en gris) en plus des acquis (colorés).
+     * Triée par zone puis par nom.
+     */
+    private function buildCompetencesCatalog(int $centreId): array
+    {
+        $rows = $this->em->createQuery(
+            'SELECT c.id, c.nom, c.points, c.difficulte,
+                    z.id AS zoneId, z.nom AS zoneName, z.couleur AS zoneCouleur, z.ordre AS zoneOrdre
+             FROM App\Entity\Competence c
+             JOIN c.zone z
+             WHERE z.centre = :centreId
+             ORDER BY z.ordre ASC, c.points DESC, c.nom ASC'
+        )->setParameter('centreId', $centreId)->getArrayResult();
+
+        return array_map(fn(array $r) => [
+            'id'          => (int) $r['id'],
+            'nom'         => $r['nom'],
+            'difficulte'  => $r['difficulte'],
+            'points'      => (int) $r['points'],
+            'zoneId'      => (int) $r['zoneId'],
+            'zoneName'    => $r['zoneName'],
+            'zoneCouleur' => $r['zoneCouleur'] ?? '#6b7280',
+        ], $rows);
     }
 
     /**
@@ -159,6 +187,7 @@ class StaffController extends AbstractController
             'tutorielsTotal'     => 0,
             'competencesTotal'   => 0,
             'competencesParZone' => (object) [],
+            'competencesCatalog' => [],
             'tenueHaut'          => null,
             'tenueBas'           => null,
             'tenueChaussures'    => null,

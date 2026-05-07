@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — Staff (v2)</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --surface3: #232838;
+    --border: #252a3a;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #a855f7;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 10;
+  }
+  .sidebar-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--accent);
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .sidebar-section {
+    padding: 14px 16px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active {
+    color: var(--accent);
+    background: rgba(249, 115, 22, 0.08);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  .nav-item .icon { font-size: 18px; width: 24px; text-align: center; }
+
+  /* ── Main ── */
+  .main {
+    margin-left: 240px;
+    flex: 1;
+    padding: 22px 32px 60px;
+    min-height: 100vh;
+  }
+
+  /* ── Topbar ── */
+  .topbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    gap: 16px;
+  }
+  .topbar-titles .title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1;
+  }
+  .topbar-titles .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .date-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .btn-incident {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-incident:hover { background: var(--accent2); }
+  .bell {
+    width: 36px; height: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .bell::after {
+    content: '';
+    position: absolute;
+    top: 8px; right: 9px;
+    width: 6px; height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+  }
+
+  /* ── Hero band ── */
+  .hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .hero-left { display: flex; align-items: center; gap: 14px; }
+  .hero-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 22px;
+  }
+  .hero-meta { display: flex; flex-direction: column; }
+  .hero-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1.1;
+    margin-top: 2px;
+  }
+  .hero-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .hero-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    text-align: center;
+    min-width: 92px;
+  }
+  .stat-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--text);
+  }
+  .stat-value.green { color: var(--green); }
+  .stat-value.accent { color: var(--accent); }
+  .btn-add {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-add:hover { background: var(--accent2); }
+
+  /* ── Filters row ── */
+  .filters-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .tabs { display: flex; gap: 6px; }
+  .tab {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 7px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .tab.active {
+    background: rgba(249, 115, 22, 0.10);
+    border-color: rgba(249, 115, 22, 0.40);
+    color: var(--accent);
+  }
+  .search {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .search input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 13px;
+  }
+  .search input::placeholder { color: var(--muted); }
+  .results-count {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ── Table headers ── */
+  .table-headers {
+    display: grid;
+    grid-template-columns: minmax(200px,2fr) 100px minmax(180px,1.6fr) 130px 120px 110px;
+    gap: 16px;
+    padding: 0 16px 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+  }
+
+  /* ── Member row ── */
+  .member {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .member.expanded { border-color: rgba(249, 115, 22, 0.30); }
+  .member-row {
+    display: grid;
+    grid-template-columns: minmax(200px,2fr) 100px minmax(180px,1.6fr) 130px 120px 110px;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 16px;
+    cursor: pointer;
+  }
+  .member-row .col { display: flex; align-items: center; }
+
+  /* Col Membre */
+  .member-identity { gap: 12px; }
+  .avatar-wrap {
+    padding: 2.5px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 800;
+    color: white;
+    font-size: 11px;
+    letter-spacing: 0.4px;
+    /* Léger padding interne pour que les initiales ne touchent pas l'encadré coloré */
+    padding: 2px;
+  }
+  .member-info { display: flex; flex-direction: column; min-width: 0; }
+  .member-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .member-contract-meta {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .expand-marker {
+    margin-left: 6px;
+    color: var(--accent);
+    font-size: 10px;
+  }
+
+  /* Col Rôle */
+  .role-badge {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .role-manager {
+    background: rgba(249, 115, 22, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(249, 115, 22, 0.30);
+  }
+  .role-membre {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  /* Col Zones */
+  .zones { gap: 4px; flex-wrap: wrap; }
+  .zone-tag {
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border: 1px solid;
+  }
+  .z-accueil { background: rgba(59,130,246,0.12); color: var(--blue); border-color: rgba(59,130,246,0.30); }
+  .z-bar     { background: rgba(168,85,247,0.12); color: var(--purple); border-color: rgba(168,85,247,0.30); }
+  .z-salle   { background: rgba(34,197,94,0.12); color: var(--green); border-color: rgba(34,197,94,0.30); }
+  .z-manager { background: rgba(249,115,22,0.12); color: var(--accent); border-color: rgba(249,115,22,0.30); }
+
+  /* Col Niveau */
+  .level { gap: 8px; }
+  .level-dots { display: flex; gap: 3px; }
+  .level-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--surface3);
+  }
+  .level-dot.on { background: var(--accent); }
+  .level-label {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Col Points */
+  .points-wrap { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .points-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    color: var(--accent);
+    font-size: 18px;
+    line-height: 1;
+  }
+  .points-value .pts {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+  .points-bar {
+    width: 60px;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .points-bar > div {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+  }
+
+  /* Col Tutoriels */
+  .tuto { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .tuto-text { font-size: 12px; color: var(--text); font-weight: 600; }
+  .tuto-bar {
+    width: 60px;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .tuto-bar > div {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ── Expanded panel ── */
+  .expanded-panel {
+    padding: 8px 16px 16px;
+    border-top: 1px solid var(--border);
+    display: none;
+  }
+  .member.expanded .expanded-panel { display: block; }
+
+  .panel-section + .panel-section { margin-top: 14px; }
+  .panel-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* Compétences par zone */
+  .skill-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .skill-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .skill-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .skill-zone {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .skill-zone-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .skill-progress {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .skill-progress strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+  .skill-percent {
+    font-size: 10px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .skill-tag {
+    padding: 4px 9px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .skill-tag:hover { border-color: var(--muted); color: var(--text); }
+  .skill-tag.acquired {
+    background: rgba(255,255,255,0.02);
+    color: var(--text);
+  }
+  .skill-tag.acquired::before {
+    content: '✓';
+    font-weight: 800;
+    font-size: 11px;
+  }
+  /* Couleurs par zone — appliquées quand acquired */
+  .skill-card[data-zone="accueil"] .skill-zone-dot { background: var(--blue); }
+  .skill-card[data-zone="accueil"] .skill-zone { color: var(--blue); }
+  .skill-card[data-zone="accueil"] .skill-tag.acquired {
+    background: rgba(59,130,246,0.12);
+    border-color: rgba(59,130,246,0.40);
+    color: var(--blue);
+  }
+  .skill-card[data-zone="bar"] .skill-zone-dot { background: var(--purple); }
+  .skill-card[data-zone="bar"] .skill-zone { color: var(--purple); }
+  .skill-card[data-zone="bar"] .skill-tag.acquired {
+    background: rgba(168,85,247,0.12);
+    border-color: rgba(168,85,247,0.40);
+    color: var(--purple);
+  }
+  .skill-card[data-zone="salle"] .skill-zone-dot { background: var(--green); }
+  .skill-card[data-zone="salle"] .skill-zone { color: var(--green); }
+  .skill-card[data-zone="salle"] .skill-tag.acquired {
+    background: rgba(34,197,94,0.12);
+    border-color: rgba(34,197,94,0.40);
+    color: var(--green);
+  }
+  .skill-card[data-zone="manager"] .skill-zone-dot { background: var(--accent); }
+  .skill-card[data-zone="manager"] .skill-zone { color: var(--accent); }
+  .skill-card[data-zone="manager"] .skill-tag.acquired {
+    background: rgba(249,115,22,0.12);
+    border-color: rgba(249,115,22,0.40);
+    color: var(--accent);
+  }
+
+  /* Triple bloc bottom : contrat / tutoriels / tenue */
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .info-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .info-card .panel-label { margin-bottom: 6px; }
+  .contract-line {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .contract-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .tuto-card-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--text);
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .tuto-card-text .total {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .tuto-card-bar {
+    margin-top: 8px;
+    height: 5px;
+    background: var(--surface);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .tuto-card-bar > div {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 3px;
+  }
+  .tenue {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .tenue-icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .tenue-list {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    line-height: 1.4;
+  }
+  .tenue-list .sep {
+    margin: 0 6px;
+    color: var(--muted);
+  }
+
+  /* Action buttons row */
+  .actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .actions-left { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-danger {
+    background: transparent;
+    border: 1px solid rgba(239,68,68,0.40);
+    color: var(--red);
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.10); }
+
+  /* ── Mobile flex-wrap : à partir de < 980px les colonnes wrappent ── */
+  @media (max-width: 980px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 16px; }
+
+    .table-headers { display: none; }
+
+    .member-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .member-row .col {
+      justify-content: flex-start;
+    }
+    /* Les blocs (rôle / zones / niveau / points / tuto) s'enroulent sous l'identité */
+    .col-role, .col-zones, .col-level, .col-points, .col-tuto {
+      width: 100%;
+    }
+    .col-points, .col-tuto {
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+    }
+    .col-points .points-bar, .col-tuto .tuto-bar { flex: 1; }
+    .skill-grid { grid-template-columns: 1fr; }
+    .info-row { grid-template-columns: 1fr; }
+  }
+
+  /* Sur très petit écran, les éléments wrappent au sein d'une rangée flex */
+  @media (max-width: 640px) {
+    .topbar { flex-direction: column; align-items: stretch; }
+    .topbar-right { justify-content: flex-start; }
+    .hero { flex-direction: column; align-items: stretch; }
+    .hero-right { justify-content: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ SIDEBAR ============ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">SHIFTLY</div>
+  <div class="sidebar-section">Manager</div>
+  <div class="nav-item"><span class="icon">📊</span> Dashboard</div>
+  <div class="nav-item"><span class="icon">📅</span> Services</div>
+  <div class="nav-item"><span class="icon">🎯</span> Service du jour</div>
+  <div class="nav-item"><span class="icon">📍</span> Postes</div>
+  <div class="nav-item active"><span class="icon">👥</span> Staff</div>
+  <div class="nav-item"><span class="icon">⏱</span> Pointage</div>
+  <div class="nav-item"><span class="icon">🎓</span> Tutoriels</div>
+  <div class="nav-item"><span class="icon">🧪</span> HACCP</div>
+  <div class="sidebar-section">Compte</div>
+  <div class="nav-item"><span class="icon">⚙️</span> Réglages</div>
+</aside>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-titles">
+      <div class="title">Staff</div>
+      <div class="subtitle">Roster, compétences &amp; contrats — Bowling Central</div>
+    </div>
+    <div class="topbar-right">
+      <div class="date-pill">📅 Mer. 18 mars</div>
+      <button class="btn-incident">⚠ Signaler un incident</button>
+      <div class="bell">🔔</div>
+    </div>
+  </div>
+
+  <!-- Hero band -->
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-icon">👥</div>
+      <div class="hero-meta">
+        <div class="hero-label">Staff</div>
+        <div class="hero-title">Équipe Bowling Central</div>
+        <div class="hero-sub">Vue manager · 6 actifs · 5 présents · 1173 pts cumulés</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="stat">
+        <div class="stat-label">Membres</div>
+        <div class="stat-value">6</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Présents</div>
+        <div class="stat-value green">5</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Total pts</div>
+        <div class="stat-value accent">1173</div>
+      </div>
+      <button class="btn-add">+ Ajouter un membre</button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-row">
+    <div class="tabs">
+      <button class="tab active">Tous</button>
+      <button class="tab">Managers</button>
+      <button class="tab">Membres</button>
+    </div>
+    <div class="search">
+      <span style="color: var(--muted); font-size: 13px;">🔍</span>
+      <input type="text" placeholder="Rechercher un membre…">
+    </div>
+    <div class="results-count">7 résultats</div>
+  </div>
+
+  <!-- Table headers -->
+  <div class="table-headers">
+    <div>Membre</div>
+    <div>Rôle</div>
+    <div>Zones maîtrisées</div>
+    <div>Niveau</div>
+    <div>Points</div>
+    <div>Tutoriels</div>
+  </div>
+
+  <!-- ============ MEMBER 1 — KÉVIN (expanded) ============ -->
+  <div class="member expanded" data-member="1">
+    <div class="member-row" onclick="toggleMember(1)">
+      <div class="col col-identity member-identity">
+        <div class="avatar-wrap" style="background: #f97316;">
+          <div class="avatar" style="background: linear-gradient(135deg, #f97316, #fb923c);">KV</div>
+        </div>
+        <div class="member-info">
+          <div class="member-name">Kévin V. P. <span class="expand-marker">▼</span></div>
+          <div class="member-contract-meta">CDI · 39h</div>
+        </div>
+      </div>
+      <div class="col col-role">
+        <span class="role-badge role-manager">Manager</span>
+      </div>
+      <div class="col col-zones zones">
+        <span class="zone-tag z-accueil">Accueil</span>
+        <span class="zone-tag z-bar">Bar</span>
+        <span class="zone-tag z-salle">Salle</span>
+        <span class="zone-tag z-manager">Manager</span>
+      </div>
+      <div class="col col-level level">
+        <div class="level-dots">
+          <span class="level-dot on"></span>
+          <span class="level-dot on"></span>
+          <span class="level-dot on"></span>
+          <span class="level-dot on"></span>
+        </div>
+        <span class="level-label">Avancé</span>
+      </div>
+      <div class="col col-points">
+        <div class="points-wrap">
+          <div class="points-value">285<span class="pts">pts</span></div>
+          <div class="points-bar"><div style="width: 95%;"></div></div>
+        </div>
+      </div>
+      <div class="col col-tuto">
+        <div class="tuto">
+          <div class="tuto-text">8/12</div>
+          <div class="tuto-bar"><div style="width: 67%;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expanded panel -->
+    <div class="expanded-panel">
+
+      <!-- Compétences par zone -->
+      <div class="panel-section">
+        <div class="panel-label">Compétences par zone</div>
+        <div class="skill-grid">
+
+          <div class="skill-card" data-zone="accueil">
+            <div class="skill-card-head">
+              <div class="skill-zone"><span class="skill-zone-dot"></span> Accueil</div>
+              <span class="skill-progress"><strong>5/5</strong></span>
+              <span class="skill-percent">100%</span>
+            </div>
+            <div class="skill-tags">
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Caisse</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Plan piste</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Carte fidélité</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Téléphone</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Anniversaire</span>
+            </div>
+          </div>
+
+          <div class="skill-card" data-zone="bar">
+            <div class="skill-card-head">
+              <div class="skill-zone"><span class="skill-zone-dot"></span> Bar</div>
+              <span class="skill-progress"><strong>4/5</strong></span>
+              <span class="skill-percent">80%</span>
+            </div>
+            <div class="skill-tags">
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Tirage pression</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Cocktails</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Caisse bar</span>
+              <span class="skill-tag" onclick="toggleSkill(event, this)">Inventaire</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">HACCP</span>
+            </div>
+          </div>
+
+          <div class="skill-card" data-zone="salle">
+            <div class="skill-card-head">
+              <div class="skill-zone"><span class="skill-zone-dot"></span> Salle</div>
+              <span class="skill-progress"><strong>3/4</strong></span>
+              <span class="skill-percent">75%</span>
+            </div>
+            <div class="skill-tags">
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Service</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Chaussures</span>
+              <span class="skill-tag" onclick="toggleSkill(event, this)">Nettoyage</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Mise en place</span>
+            </div>
+          </div>
+
+          <div class="skill-card" data-zone="manager">
+            <div class="skill-card-head">
+              <div class="skill-zone"><span class="skill-zone-dot"></span> Manager</div>
+              <span class="skill-progress"><strong>4/4</strong></span>
+              <span class="skill-percent">100%</span>
+            </div>
+            <div class="skill-tags">
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Clôture caisse</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Planning</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Validation heures</span>
+              <span class="skill-tag acquired" onclick="toggleSkill(event, this)">Incidents</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Triple bloc : Contrat / Tutoriels / Tenue -->
+      <div class="panel-section">
+        <div class="info-row">
+
+          <div class="info-card">
+            <div class="panel-label">Contrat</div>
+            <div class="contract-line">CDI · 35h</div>
+            <div class="contract-meta">Ancienneté · 4 ans</div>
+          </div>
+
+          <div class="info-card">
+            <div class="panel-label">Tutoriels lus</div>
+            <div class="tuto-card-text">8 <span class="total">sur 12</span></div>
+            <div class="tuto-card-bar"><div style="width: 67%;"></div></div>
+          </div>
+
+          <div class="info-card">
+            <div class="panel-label">Tenue de service</div>
+            <div class="tenue">
+              <div class="tenue-icon">👕</div>
+              <div class="tenue-list">
+                <span>Chemise blanche Shiftly</span>
+                <span class="sep">·</span>
+                <span>Pantalon noir</span>
+                <span class="sep">·</span>
+                <span>Chaussures noires</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions-row">
+        <div class="actions-left">
+          <button class="btn-secondary">✎ Modifier la fiche</button>
+          <button class="btn-secondary">+ Ajouter une compétence</button>
+        </div>
+        <button class="btn-danger">⊘ Désactiver</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ MEMBER 2 — PATOU ============ -->
+  <div class="member" data-member="2">
+    <div class="member-row" onclick="toggleMember(2)">
+      <div class="col col-identity member-identity">
+        <div class="avatar-wrap" style="background: #a855f7;">
+          <div class="avatar" style="background: linear-gradient(135deg, #a855f7, #c084fc);">PM</div>
+        </div>
+        <div class="member-info">
+          <div class="member-name">Patou M.</div>
+          <div class="member-contract-meta">CDD · 30h</div>
+        </div>
+      </div>
+      <div class="col col-role"><span class="role-badge role-membre">Membre</span></div>
+      <div class="col col-zones zones">
+        <span class="zone-tag z-accueil">Accueil</span>
+        <span class="zone-tag z-bar">Bar</span>
+        <span class="zone-tag z-salle">Salle</span>
+      </div>
+      <div class="col col-level level">
+        <div class="level-dots">
+          <span class="level-dot on"></span>
+          <span class="level-dot on"></span>
+          <span class="level-dot on"></span>
+          <span class="level-dot"></span>
+        </div>
+        <span class="level-label">Confirmé</span>
+      </div>
+      <div class="col col-points">
+        <div class="points-wrap">
+          <div class="points-value">245<span class="pts">pts</span></div>
+          <div class="points-bar"><div style="width: 81%;"></div></div>
+        </div>
+      </div>
+      <div class="col col-tuto">
+        <div class="tuto">
+          <div class="tuto-text">10/12</div>
+          <div class="tuto-bar"><div style="width: 83%;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MEMBER 3 — GABIN ============ -->
+  <div class="member" data-member="3">
+    <div class="member-row" onclick="toggleMember(3)">
+      <div class="col col-identity member-identity">
+        <div class="avatar-wrap" style="background: #06b6d4;">
+          <div class="avatar" style="background: linear-gradient(135deg, #06b6d4, #22d3ee);">GL</div>
+        </div>
+        <div class="member-info">
+          <div class="member-name">Gabin L.</div>
+          <div class="member-contract-meta">CDI · 39h</div>
+        </div>
+      </div>
+      <div class="col col-role"><span class="role-badge role-membre">Membre</span></div>
+      <div class="col col-zones zones">
+        <span class="zone-tag z-bar">Bar</span>
+        <span class="zone-tag z-salle">Salle</span>
+      </div>
+      <div class="col col-level level">
+        <div class="level-dots">
+          <span class="level-dot on"></span>
+          <span class="level-dot on"></span>
+          <span class="level-dot"></span>
+          <span class="level-dot"></span>
+        </div>
+        <span class="level-label">Intermédiaire</span>
+      </div>
+      <div class="col col-points">
+        <div class="points-wrap">
+          <div class="points-value">198<span class="pts">pts</span></div>
+          <div class="points-bar"><div style="width: 66%;"></div></div>
+        </div>
+      </div>
+      <div class="col col-tuto">
+        <div class="tuto">
+          <div class="tuto-text">7/12</div>
+          <div class="tuto-bar"><div style="width: 58%;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MEMBER 4 — AYA ============ -->
+  <div class="member" data-member="4">
+    <div class="member-row" onclick="toggleMember(4)">
+      <div class="col col-identity member-identity">
+        <div class="avatar-wrap" style="background: #22c55e;">
+          <div class="avatar" style="background: linear-gradient(135deg, #22c55e, #4ade80);">AB</div>
+        </div>
+        <div class="member-info">
+          <div class="member-name">Aya B.</div>
+          <div class="member-contract-meta">CDD · 24h</div>
+        </div>
+      </div>
+      <div class="col col-role"><span class="role-badge role-membre">Membre</span></div>
+      <div class="col col-zones zones">
+        <span class="zone-tag z-accueil">Accueil</span>
+        <span class="zone-tag z-salle">Salle</span>
+      </div>
+      <div class="col col-level level">
+        <div class="level-dots">
+          <span class="level-dot on"></span>
+          <span class="level-dot"></span>
+          <span class="level-dot"></span>
+          <span class="level-dot"></span>
+        </div>
+        <span class="level-label">Débutant</span>
+      </div>
+      <div class="col col-points">
+        <div class="points-wrap">
+          <div class="points-value">142<span class="pts">pts</span></div>
+          <div class="points-bar"><div style="width: 47%;"></div></div>
+        </div>
+      </div>
+      <div class="col col-tuto">
+        <div class="tuto">
+          <div class="tuto-text">5/12</div>
+          <div class="tuto-bar"><div style="width: 42%;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MEMBER 5 — ERWAN ============ -->
+  <div class="member" data-member="5">
+    <div class="member-row" onclick="toggleMember(5)">
+      <div class="col col-identity member-identity">
+        <div class="avatar-wrap" style="background: #22c55e;">
+          <div class="avatar" style="background: linear-gradient(135deg, #16a34a, #22c55e);">ED</div>
+        </div>
+        <div class="member-info">
+          <div class="member-name">Erwan D.</div>
+          <div class="member-contract-meta">Étudiant · 16h</div>
+        </div>
+      </div>
+      <div class="col col-role"><span class="role-badge role-membre">Membre</span></div>
+      <div class="col col-zones zones">
+        <span class="zone-tag z-salle">Salle</span>
+      </div>
+      <div class="col col-level level">
+        <div class="level-dots">
+          <span class="level-dot on"></span>
+          <span class="level-dot"></span>
+          <span class="level-dot"></span>
+          <span class="level-dot"></span>
+        </div>
+        <span class="level-label">Débutant</span>
+      </div>
+      <div class="col col-points">
+        <div class="points-wrap">
+          <div class="points-value">88<span class="pts">pts</span></div>
+          <div class="points-bar"><div style="width: 30%;"></div></div>
+        </div>
+      </div>
+      <div class="col col-tuto">
+        <div class="tuto">
+          <div class="tuto-text">3/12</div>
+          <div class="tuto-bar"><div style="width: 25%;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MEMBER 6 — MOHCINE ============ -->
+  <div class="member" data-member="6">
+    <div class="member-row" onclick="toggleMember(6)">
+      <div class="col col-identity member-identity">
+        <div class="avatar-wrap" style="background: #ef4444;">
+          <div class="avatar" style="background: linear-gradient(135deg, #ef4444, #f87171);">MR</div>
+        </div>
+        <div class="member-info">
+          <div class="member-name">Mohcine R.</div>
+          <div class="member-contract-meta">CDI · 35h</div>
+        </div>
+      </div>
+      <div class="col col-role"><span class="role-badge role-membre">Membre</span></div>
+      <div class="col col-zones zones">
+        <span class="zone-tag z-accueil">Accueil</span>
+        <span class="zone-tag z-bar">Bar</span>
+      </div>
+      <div class="col col-level level">
+        <div class="level-dots">
+          <span class="level-dot on"></span>
+          <span class="level-dot on"></span>
+          <span class="level-dot"></span>
+          <span class="level-dot"></span>
+        </div>
+        <span class="level-label">Intermédiaire</span>
+      </div>
+      <div class="col col-points">
+        <div class="points-wrap">
+          <div class="points-value">215<span class="pts">pts</span></div>
+          <div class="points-bar"><div style="width: 72%;"></div></div>
+        </div>
+      </div>
+      <div class="col col-tuto">
+        <div class="tuto">
+          <div class="tuto-text">9/12</div>
+          <div class="tuto-bar"><div style="width: 75%;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // Toggle expand/collapse d'un membre — un seul ouvert à la fois
+  function toggleMember(id) {
+    const target = document.querySelector('.member[data-member="' + id + '"]');
+    if (!target) return;
+    const wasOpen = target.classList.contains('expanded');
+    document.querySelectorAll('.member').forEach(m => m.classList.remove('expanded'));
+    if (!wasOpen) target.classList.add('expanded');
+  }
+
+  // Toggle d'une compétence (POST/DELETE côté API en prod)
+  function toggleSkill(event, el) {
+    event.stopPropagation();
+    el.classList.toggle('acquired');
+
+    // Mettre à jour le compteur "X/Y" et le %
+    const card = el.closest('.skill-card');
+    const total = card.querySelectorAll('.skill-tag').length;
+    const acquired = card.querySelectorAll('.skill-tag.acquired').length;
+    card.querySelector('.skill-progress strong').textContent = acquired + '/' + total;
+    const pct = total > 0 ? Math.round(acquired / total * 100) : 0;
+    card.querySelector('.skill-percent').textContent = pct + '%';
+  }
+</script>
+
+</body>
+</html>
