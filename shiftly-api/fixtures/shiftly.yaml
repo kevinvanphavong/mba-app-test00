@@ -9,8 +9,11 @@
 # ─── Centre ──────────────────────────────────────────────────────────────────
 App\Entity\Centre:
   centre_fgc:
-    nom:     "Family Games Center"
-    adresse: "25 rue Robert Nau, 41000 Blois"
+    nom:             "Family Games Center"
+    adresse:         "25 rue Robert Nau, 41000 Blois"
+    tenueHaut:       "Polo Shiftly noir"
+    tenueBas:        "Pantalon noir"
+    tenueChaussures: "Chaussures noires fermées"
 
 # ─── Zones ───────────────────────────────────────────────────────────────────
 App\Entity\Zone:
@@ -55,6 +58,7 @@ App\Entity\User:
     tailleHaut:  "2 polo manches longues, 1 sweat"
     heuresHebdo: 39
     typeContrat: "CDI"
+    dateEmbauche: <(new \DateTimeImmutable('-4 years'))>
 
   user_megane:
     centre:      "@centre_fgc"
@@ -70,6 +74,7 @@ App\Entity\User:
     actif:       true
     heuresHebdo: 39
     typeContrat: "CDI"
+    dateEmbauche: <(new \DateTimeImmutable('-3 years'))>
 
   user_micka:
     centre:      "@centre_fgc"
@@ -85,6 +90,7 @@ App\Entity\User:
     actif:       true
     heuresHebdo: 39
     typeContrat: "CDI"
+    dateEmbauche: <(new \DateTimeImmutable('-2 years -3 months'))>
 
   user_erwan:
     centre:      "@centre_fgc"
@@ -101,6 +107,7 @@ App\Entity\User:
     tailleHaut:  "2 tshirts, 1 polo manches courtes"
     heuresHebdo: 39
     typeContrat: "CDI"
+    dateEmbauche: <(new \DateTimeImmutable('-1 year -8 months'))>
 
   user_patou:
     centre:      "@centre_fgc"
@@ -117,6 +124,7 @@ App\Entity\User:
     tailleHaut:  "1 veste sans manche"
     heuresHebdo: 35
     typeContrat: "CDI"
+    dateEmbauche: <(new \DateTimeImmutable('-3 years -6 months'))>
 
   user_pol:
     centre:      "@centre_fgc"
@@ -133,6 +141,7 @@ App\Entity\User:
     tailleHaut:  "1 polo manches longues (new)"
     heuresHebdo: 35
     typeContrat: "CDI"
+    dateEmbauche: <(new \DateTimeImmutable('-9 months'))>
 
   user_cynthia:
     centre:      "@centre_fgc"
@@ -149,6 +158,7 @@ App\Entity\User:
     tailleHaut:  "2 t-shirts, 2 polaires manches longues"
     heuresHebdo: 35
     typeContrat: "CDI"
+    dateEmbauche: <(new \DateTimeImmutable('-2 years -1 month'))>
 
   user_gabin:
     centre:      "@centre_fgc"
@@ -165,6 +175,7 @@ App\Entity\User:
     tailleHaut:  "1 polo manches longues + 2 polos"
     heuresHebdo: 25
     typeContrat: "CDI"
+    dateEmbauche: <(new \DateTimeImmutable('-1 year -2 months'))>
 
   user_aya:
     centre:      "@centre_fgc"
@@ -180,6 +191,7 @@ App\Entity\User:
     actif:       true
     heuresHebdo: 15
     typeContrat: "CDD"
+    dateEmbauche: <(new \DateTimeImmutable('-5 months'))>
 
   user_securite:
     centre:      "@centre_fgc"
@@ -196,6 +208,7 @@ App\Entity\User:
     tailleHaut:  "Badge"
     heuresHebdo: 0
     typeContrat: "EXTRA"
+    dateEmbauche: <(new \DateTimeImmutable('-1 year -4 months'))>
 
   user_hiba:
     centre:      "@centre_fgc"
@@ -211,6 +224,7 @@ App\Entity\User:
     actif:       true
     heuresHebdo: 15
     typeContrat: "EXTRA"
+    dateEmbauche: <(new \DateTimeImmutable('-3 months'))>
 
   user_daniela:
     centre:      "@centre_fgc"
@@ -226,6 +240,7 @@ App\Entity\User:
     actif:       true
     heuresHebdo: 15
     typeContrat: "EXTRA"
+    dateEmbauche: <(new \DateTimeImmutable('-2 months'))>
 
 # ─── Missions Accueil (44) ───────────────────────────────────────────────────
 App\Entity\Mission:
