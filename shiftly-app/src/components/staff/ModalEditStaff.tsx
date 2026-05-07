@@ -25,6 +25,7 @@ interface SaveData {
   avatarColor:   string
   heuresHebdo:   number | null
   typeContrat:   string | null
+  dateEmbauche:  string | null
   codePointage:  string | null
   password?:     string
 }
@@ -49,6 +50,7 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
   const [avatarColor,  setAvatarColor]  = useState(DEFAULT_COLOR)
   const [heuresHebdo,   setHeuresHebdo]   = useState('')
   const [typeContrat,   setTypeContrat]   = useState('')
+  const [dateEmbauche,  setDateEmbauche]  = useState('')
   const [codePointage,  setCodePointage]  = useState('')
 
   useEffect(() => {
@@ -65,13 +67,14 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
       setAvatarColor(member.avatarColor ?? DEFAULT_COLOR)
       setHeuresHebdo(member.heuresHebdo != null ? String(member.heuresHebdo) : '')
       setTypeContrat(member.typeContrat ?? '')
+      setDateEmbauche(member.dateEmbauche ?? '')
       setCodePointage(member.codePointage ?? '')
       setPassword('')
     } else {
       setNom(''); setPrenom(''); setEmail(''); setRole('EMPLOYE')
       setTailleHaut(''); setTailleBas(''); setPointure('')
       setActif(true); setAvatarColor(DEFAULT_COLOR)
-      setHeuresHebdo(''); setTypeContrat(''); setCodePointage('0000'); setPassword('')
+      setHeuresHebdo(''); setTypeContrat(''); setDateEmbauche(''); setCodePointage('0000'); setPassword('')
     }
   }, [open, member])
 
@@ -89,6 +92,7 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
       avatarColor,
       heuresHebdo:  heuresHebdo !== '' ? parseInt(heuresHebdo, 10) : null,
       typeContrat:  typeContrat || null,
+      dateEmbauche: dateEmbauche || null,
       codePointage: codePointage.length === 4 ? codePointage : null,
       password:     password || undefined,
     })
@@ -165,6 +169,13 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
             value={heuresHebdo}
             onChange={e => setHeuresHebdo(e.target.value.replace(/\D/g, ''))}
             placeholder="Heures / semaine (ex : 35)"
+            className={inputCls}
+          />
+          <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-1 mt-3">Date d'embauche</p>
+          <input
+            type="date"
+            value={dateEmbauche}
+            onChange={e => setDateEmbauche(e.target.value)}
             className={inputCls}
           />
         </div>

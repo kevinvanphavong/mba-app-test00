@@ -31,6 +31,7 @@ interface CreateStaffPayload {
   avatarColor?:  string
   heuresHebdo?:  number | null
   typeContrat?:  string | null
+  dateEmbauche?: string | null
   codePointage?: string | null
 }
 
@@ -63,6 +64,7 @@ interface UpdateStaffPayload {
   avatarColor?:  string
   heuresHebdo?:  number | null
   typeContrat?:  string | null
+  dateEmbauche?: string | null
   codePointage?: string | null
 }
 
