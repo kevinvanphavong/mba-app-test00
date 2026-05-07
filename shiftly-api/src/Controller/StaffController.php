@@ -3,11 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Service;
+use App\Entity\User;
 use App\Repository\CompetenceRepository;
 use App\Repository\PosteRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\TutorielRepository;
 use App\Repository\UserRepository;
+use App\Repository\ZoneRepository;
 use App\Service\ActiveDayResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,6 +33,7 @@ class StaffController extends AbstractController
         private readonly TutorielRepository         $tutorielRepo,
         private readonly PosteRepository            $posteRepo,
         private readonly ServiceRepository          $serviceRepo,
+        private readonly ZoneRepository             $zoneRepo,
         private readonly UserPasswordHasherInterface $hasher,
         private readonly ActiveDayResolver          $activeDayResolver,
     ) {}
@@ -41,28 +44,32 @@ class StaffController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function list(): JsonResponse
     {
-        /** @var \App\Entity\User $me */
+        /** @var User $me */
         $me     = $this->getUser();
         $centre = $me->getCentre();
+        $isManager = in_array(User::ROLE_MANAGER, $me->getRoles(), true);
 
         if (!$centre) {
-            return $this->json(['members' => [], 'meta' => ['tutorielsTotal' => 0, 'competencesTotal' => 0]]);
+            return $this->json([
+                'members' => [],
+                'meta'    => $this->buildEmptyMeta(),
+            ]);
         }
+
+        $centreId = $centre->getId();
 
         // Membres du centre (tous, actifs ou non)
         $users = $this->userRepo->findBy(['centre' => $centre], ['nom' => 'ASC']);
 
-        // Total compétences dans le centre (pour calcul du niveau en %)
-        $competencesTotal = $this->competenceRepo->countByCentre($centre->getId());
-
-        // Total tutoriels dans le centre
-        $tutorielsTotal = $this->tutorielRepo->countByCentre($centre->getId());
-
-        // Utilisateurs présents dans le service EN_COURS du jour
-        $presentUserIds = $this->getPresentUserIds($centre->getId());
+        $tutorielsTotal      = $this->tutorielRepo->countByCentre($centreId);
+        $competencesTotal    = $this->competenceRepo->countByCentre($centreId);
+        $competencesParZone  = $this->buildCompetencesParZone($centreId);
+        $presentUserIds      = $this->getPresentUserIds($centreId);
 
         $members = [];
         foreach ($users as $user) {
+            $isSelf = $user->getId() === $me->getId();
+
             // Compétences acquises
             $staffComps = [];
             foreach ($user->getStaffCompetences() as $sc) {
@@ -71,6 +78,7 @@ class StaffController extends AbstractController
                 $zone = $comp->getZone();
                 $staffComps[] = [
                     'id'          => $sc->getId(),
+                    'competenceId'=> $comp->getId(),
                     'nom'         => $comp->getNom(),
                     'zoneName'    => $zone?->getNom(),
                     'zoneCouleur' => $zone?->getCouleur(),
@@ -81,6 +89,9 @@ class StaffController extends AbstractController
 
             // Tutoriels lus
             $tutorielsLus = $user->getTutoReads()->count();
+
+            // Champs sensibles : exposés au manager OU sur sa propre fiche.
+            $exposeContract = $isManager || $isSelf;
 
             $members[] = [
                 'id'               => $user->getId(),
@@ -94,8 +105,11 @@ class StaffController extends AbstractController
                 'tailleHaut'       => $user->getTailleHaut(),
                 'tailleBas'        => $user->getTailleBas(),
                 'pointure'         => $user->getPointure(),
-                'heuresHebdo'      => $user->getHeuresHebdo(),
-                'typeContrat'      => $user->getTypeContrat(),
+                // Champs contrat — null pour un employé qui regarde un autre membre
+                'heuresHebdo'      => $exposeContract ? $user->getHeuresHebdo() : null,
+                'typeContrat'      => $exposeContract ? $user->getTypeContrat() : null,
+                'dateEmbauche'     => $exposeContract ? $user->getDateEmbauche()?->format('Y-m-d') : null,
+                'codePointage'     => $exposeContract ? $user->getCodePointage()        : null,
                 'staffCompetences' => $staffComps,
                 'tutorielsLus'     => $tutorielsLus,
                 'isPresent'        => in_array($user->getId(), $presentUserIds, true),
@@ -105,10 +119,50 @@ class StaffController extends AbstractController
         return $this->json([
             'members' => $members,
             'meta'    => [
-                'tutorielsTotal'   => $tutorielsTotal,
-                'competencesTotal' => $competencesTotal,
+                'tutorielsTotal'     => $tutorielsTotal,
+                'competencesTotal'   => $competencesTotal,
+                'competencesParZone' => $competencesParZone,
+                'tenueHaut'          => $centre->getTenueHaut(),
+                'tenueBas'           => $centre->getTenueBas(),
+                'tenueChaussures'    => $centre->getTenueChaussures(),
             ],
         ]);
+    }
+
+    /**
+     * Retourne les totaux compétences groupés par zone du centre.
+     * Format : ['Accueil' => ['total' => 5, 'couleur' => '#3b82f6'], ...]
+     */
+    private function buildCompetencesParZone(int $centreId): array
+    {
+        $rows = $this->em->createQuery(
+            'SELECT z.nom AS zoneName, z.couleur AS zoneCouleur, COUNT(c.id) AS total
+             FROM App\Entity\Competence c
+             JOIN c.zone z
+             WHERE z.centre = :centreId
+             GROUP BY z.id, z.nom, z.couleur'
+        )->setParameter('centreId', $centreId)->getArrayResult();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[$row['zoneName']] = [
+                'total'   => (int) $row['total'],
+                'couleur' => $row['zoneCouleur'] ?? '#6b7280',
+            ];
+        }
+        return $result;
+    }
+
+    private function buildEmptyMeta(): array
+    {
+        return [
+            'tutorielsTotal'     => 0,
+            'competencesTotal'   => 0,
+            'competencesParZone' => (object) [],
+            'tenueHaut'          => null,
+            'tenueBas'           => null,
+            'tenueChaussures'    => null,
+        ];
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

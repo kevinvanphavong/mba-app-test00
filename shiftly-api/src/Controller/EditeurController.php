@@ -439,6 +439,7 @@ class EditeurController extends AbstractController
         $user->setAvatarColor($data['avatarColor'] ?? null);
         $user->setHeuresHebdo(isset($data['heuresHebdo']) ? (int) $data['heuresHebdo'] : null);
         $user->setTypeContrat($data['typeContrat'] ?? null);
+        $user->setDateEmbauche(!empty($data['dateEmbauche']) ? new \DateTimeImmutable($data['dateEmbauche']) : null);
         $user->setCodePointage(!empty($data['codePointage']) ? $data['codePointage'] : '0000');
         $user->setPassword($this->hasher->hashPassword($user, $data['password']));
 
@@ -473,6 +474,7 @@ class EditeurController extends AbstractController
         if (array_key_exists('avatarColor', $data))   $user->setAvatarColor($data['avatarColor']);
         if (array_key_exists('heuresHebdo', $data))   $user->setHeuresHebdo($data['heuresHebdo'] !== null ? (int) $data['heuresHebdo'] : null);
         if (array_key_exists('typeContrat', $data))   $user->setTypeContrat($data['typeContrat'] ?: null);
+        if (array_key_exists('dateEmbauche', $data))  $user->setDateEmbauche($data['dateEmbauche'] ? new \DateTimeImmutable($data['dateEmbauche']) : null);
         if (array_key_exists('codePointage', $data))  $user->setCodePointage($data['codePointage'] ?: null);
         if (!empty($data['password']))  $user->setPassword($this->hasher->hashPassword($user, $data['password']));
 
@@ -618,6 +620,7 @@ class EditeurController extends AbstractController
             'avatarColor' => $u->getAvatarColor(),
             'heuresHebdo'  => $u->getHeuresHebdo(),
             'typeContrat'  => $u->getTypeContrat(),
+            'dateEmbauche' => $u->getDateEmbauche()?->format('Y-m-d'),
             'codePointage' => $u->getCodePointage(),
         ];
     }
