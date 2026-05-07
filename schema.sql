@@ -11,10 +11,13 @@
 -- ============================================================
 
 CREATE TABLE centre (
-    id         INT AUTO_INCREMENT NOT NULL,
-    nom        VARCHAR(100)        NOT NULL,
-    slug       VARCHAR(120)        NOT NULL,
-    created_at DATETIME            NOT NULL,   -- DateTimeImmutable
+    id               INT AUTO_INCREMENT NOT NULL,
+    nom              VARCHAR(100)        NOT NULL,
+    slug             VARCHAR(120)        NOT NULL,
+    tenue_haut       VARCHAR(120)        DEFAULT NULL,  -- ex: "Polo Shiftly noir"
+    tenue_bas        VARCHAR(120)        DEFAULT NULL,
+    tenue_chaussures VARCHAR(120)        DEFAULT NULL,
+    created_at       DATETIME            NOT NULL,   -- DateTimeImmutable
     UNIQUE KEY uniq_slug (slug),
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -25,16 +28,17 @@ CREATE TABLE centre (
 -- ============================================================
 
 CREATE TABLE `user` (
-    id           INT AUTO_INCREMENT NOT NULL,
-    centre_id    INT          NOT NULL,
-    nom          VARCHAR(100) NOT NULL,
-    email        VARCHAR(180) NOT NULL,
-    password     VARCHAR(255) NOT NULL,          -- hashé via UserPasswordHasher
-    roles        JSON         NOT NULL,           -- ex: ["ROLE_USER", "ROLE_MANAGER"]
-    role         VARCHAR(20)  NOT NULL,           -- 'MANAGER' | 'EMPLOYE'
-    avatar_color VARCHAR(20)  DEFAULT NULL,       -- couleur hex déterministe
-    points       INT          NOT NULL DEFAULT 0, -- SUM des compétences validées
-    created_at   DATETIME     NOT NULL,
+    id            INT AUTO_INCREMENT NOT NULL,
+    centre_id     INT          NOT NULL,
+    nom           VARCHAR(100) NOT NULL,
+    email         VARCHAR(180) NOT NULL,
+    password      VARCHAR(255) NOT NULL,          -- hashé via UserPasswordHasher
+    roles         JSON         NOT NULL,           -- ex: ["ROLE_USER", "ROLE_MANAGER"]
+    role          VARCHAR(20)  NOT NULL,           -- 'MANAGER' | 'EMPLOYE'
+    avatar_color  VARCHAR(20)  DEFAULT NULL,       -- couleur hex déterministe
+    points        INT          NOT NULL DEFAULT 0, -- SUM des compétences validées
+    date_embauche DATE         DEFAULT NULL,       -- sert au calcul d'ancienneté côté front
+    created_at    DATETIME     NOT NULL,
     UNIQUE KEY uniq_email (email),
     INDEX idx_user_centre (centre_id),
     PRIMARY KEY (id),
