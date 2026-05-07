@@ -99,19 +99,22 @@ class PlanningWeekDirtyListener
             $service = $entity->getService();
             $centre  = $service?->getCentre();
             $date    = $service?->getDate();
-            if (!$centre || !$date) {
+            $cid     = $centre?->getId();
+            // cid peut être null pendant un load fixtures (cascade-persist non flushé)
+            if ($cid === null || !$date) {
                 return null;
             }
-            return $this->buildKey($centre->getId(), $date);
+            return $this->buildKey($cid, $date);
         }
 
         if ($entity instanceof Absence) {
             $centre = $entity->getCentre();
             $date   = $entity->getDate();
-            if (!$centre || !$date) {
+            $cid    = $centre?->getId();
+            if ($cid === null || !$date) {
                 return null;
             }
-            return $this->buildKey($centre->getId(), $date);
+            return $this->buildKey($cid, $date);
         }
 
         return null;
