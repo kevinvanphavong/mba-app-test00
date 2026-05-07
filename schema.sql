@@ -497,6 +497,33 @@ CREATE TABLE centre_note (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
+-- TABLE : media
+-- Média polymorphe (image ou PDF) attaché à une entité parente
+-- (mission, tutoriel, document) via la combo entity_type + entity_id.
+-- entity_type : 'mission' | 'tutoriel' | 'document'  (VARCHAR portable, pas d'ENUM)
+-- storage_path : clé R2 (ex : "1/media/mission/uuid.jpg") — jamais exposée au front
+-- Pas de FK SQL vers mission/tutoriel : nettoyage géré par les EventListener
+--   (MissionMediaCleanupListener, TutorielMediaCleanupListener) + R2.
+-- Index composé (entity_type, entity_id, centre_id) pour les listings sub-resource.
+-- ============================================================
+
+CREATE TABLE media (
+    id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    centre_id       INT UNSIGNED NOT NULL,
+    uploaded_by_id  INT UNSIGNED NOT NULL,
+    entity_type     VARCHAR(20)  NOT NULL,
+    entity_id       INT UNSIGNED NOT NULL,
+    filename        VARCHAR(255) NOT NULL,
+    mime_type       VARCHAR(100) NOT NULL,
+    size_bytes      INT UNSIGNED NOT NULL,
+    storage_path    VARCHAR(500) NOT NULL,
+    created_at      DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_media_entity (entity_type, entity_id, centre_id),
+    CONSTRAINT fk_media_centre FOREIGN KEY (centre_id)      REFERENCES centre(id),
+    CONSTRAINT fk_media_user   FOREIGN KEY (uploaded_by_id) REFERENCES `user`(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
 -- NOTES MÉTIER
 -- ============================================================
 

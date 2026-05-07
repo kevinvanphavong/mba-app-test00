@@ -160,13 +160,19 @@ mba-app-test00/
 │   │   │   │   ├── MissionRow.tsx          # Ligne mission mobile
 │   │   │   │   └── CompetenceRow.tsx       # Ligne compétence mobile
 │   │   │   │
-│   │   │   └── editeur/                # Modales partagées (utilisées par /postes + /reglages/editeur)
-│   │   │       ├── ModalAddMission.tsx
-│   │   │       ├── ModalAddCompetence.tsx
-│   │   │       ├── ModalAddTutoriel.tsx
-│   │   │       ├── ModalConfirmDelete.tsx
-│   │   │       ├── TutorielList.tsx
-│   │   │       └── TutorielItem.tsx
+│   │   │   ├── editeur/                # Modales partagées (utilisées par /postes + /reglages/editeur)
+│   │   │   │   ├── ModalAddMission.tsx     # Inclut MediaUploader+Gallery en mode édition (entityType='mission')
+│   │   │   │   ├── ModalAddCompetence.tsx
+│   │   │   │   ├── ModalAddTutoriel.tsx    # Inclut MediaUploader+Gallery en mode édition (entityType='tutoriel')
+│   │   │   │   ├── ModalConfirmDelete.tsx
+│   │   │   │   ├── TutorielList.tsx
+│   │   │   │   └── TutorielItem.tsx
+│   │   │   │
+│   │   │   └── media/                  # Module Media — drag&drop, preview, suppression
+│   │   │       ├── MediaUploader.tsx       # Drag&drop ou clic, multi-fichier (états loading | error)
+│   │   │       ├── MediaGallery.tsx        # Grille responsive 2/3/4 cols (loading | error | empty)
+│   │   │       ├── MediaThumb.tsx          # Tuile preview (image presignée ou icône PDF)
+│   │   │       └── MediaLightbox.tsx       # Lightbox image plein écran
 │   │   │
 │   │   ├── hooks/                     # Custom hooks React Query
 │   │   │   ├── useAuth.ts             # Store Zustand auth
@@ -176,6 +182,7 @@ mba-app-test00/
 │   │   │   ├── useStaff.ts
 │   │   │   ├── useTutoriels.ts
 │   │   │   ├── useDashboard.ts
+│   │   │   ├── useMedias.ts           # useMedias / useUploadMedia / useDeleteMedia (module Media)
 │   │   │   └── useValidation.ts       # Validation hebdomadaire (queries + mutations)
 │   │   │
 │   │   ├── lib/
@@ -192,6 +199,7 @@ mba-app-test00/
 │   │   │
 │   │   └── types/                     # Types TypeScript (entités + DTOs)
 │   │       ├── index.ts
+│   │       ├── media.ts               # Types du module Media (Media, MediaEntityType, MediaUrlResponse)
 │   │       └── validation.ts          # Types du module Validation hebdomadaire
 │   │
 │   ├── tailwind.config.ts
@@ -203,7 +211,7 @@ mba-app-test00/
 │
 └── shiftly-api/                       # Symfony 8.0 — Backend
     ├── src/
-    │   ├── Entity/                    # 16 entités Doctrine
+    │   ├── Entity/                    # 17 entités Doctrine
     │   │   ├── Centre.php             # + champ actif (suspension)
     │   │   ├── User.php               # + ROLE_SUPERADMIN
     │   │   ├── Zone.php
@@ -222,12 +230,14 @@ mba-app-test00/
     │   │   ├── PlanningTemplateShift.php # Shifts du template (zone+user+dayOfWeek+horaires)
     │   │   ├── PlanningTemplateAbsence.php # Absences du template (user+dayOfWeek+type+motif)
     │   │   ├── AuditLog.php           # Trace des actions SuperAdmin (Phase 1)
-    │   │   └── CentreNote.php         # Notes internes SuperAdmin par centre (Phase 1)
+    │   │   ├── CentreNote.php         # Notes internes SuperAdmin par centre (Phase 1)
+    │   │   └── Media.php              # Média polymorphe (image/PDF) — entityType + entityId, stockage R2
     │   │
     │   ├── Controller/
     │   │   ├── DashboardController.php            # GET /api/dashboard/{centreId}
     │   │   ├── ValidationController.php           # 7 routes /api/pointages/validation/*
     │   │   ├── PlanningTemplateController.php     # CRUD + apply templates de semaine
+    │   │   ├── MediaController.php                # POST /api/media + GET /api/media/{id}/url + sub-resources /api/{mission|tutoriel}/{id}/medias
     │   │   ├── SuperAdminAuthController.php       # GET /api/superadmin/auth/me
     │   │   ├── SuperAdminDashboardController.php  # GET /api/superadmin/dashboard
     │   │   └── SuperAdminCentresController.php    # CRUD + impersonate + suspend
@@ -236,6 +246,8 @@ mba-app-test00/
     │   │   ├── ValidationHebdoService.php  # Agrégation pointages + alertes IDCC 1790
     │   │   ├── PlanningGuardService.php    # Empêche services à date < jour de référence
     │   │   ├── AuditLogService.php         # Centralise la création d'AuditLog
+    │   │   ├── R2StorageService.php        # Wrapper Cloudflare R2 (upload + presigned URL)
+    │   │   ├── MediaUploader.php           # Validation MIME/taille + push R2 + persist Media
     │   │   └── SentryApiService.php        # Appels API REST Sentry
     │   │
     │   ├── Repository/                # Un repository par entité
@@ -245,7 +257,10 @@ mba-app-test00/
     │   │   ├── CompletionListener.php             # Recalcul taux_completion (postPersist/postRemove)
     │   │   ├── CompletionPhotoCleanupListener.php # Supprime fichier photo sur disque (preRemove)
     │   │   ├── PlanningWeekDirtyListener.php
-    │   │   └── PostePreRemoveListener.php         # Garde-fou suppression Poste vs Pointage
+    │   │   ├── PostePreRemoveListener.php         # Garde-fou suppression Poste vs Pointage
+    │   │   ├── MediaR2CleanupListener.php         # postRemove Media → suppression du blob R2
+    │   │   ├── MissionMediaCleanupListener.php    # preRemove Mission → cascade suppression Media liés
+    │   │   └── TutorielMediaCleanupListener.php   # preRemove Tutoriel → cascade suppression Media liés
     │   │
     │   ├── Command/                   # Commandes Symfony Console
     │   │   ├── CleanupOrphanPointagesCommand.php          # pointage:cleanup-orphans
@@ -268,7 +283,8 @@ mba-app-test00/
     │
     ├── migrations/
     │   ├── Version20260319000001.php  # Migration initiale (12 tables)
-    │   └── Version20260422183255.php  # validation_hebdo + correction_pointage
+    │   ├── Version20260422183255.php  # validation_hebdo + correction_pointage
+    │   └── Version20260507120000.php  # table media (polymorphe mission/tutoriel/document)
     │
     ├── fixtures/                      # Données Alice (staff réel, zones, missions)
     │
@@ -440,6 +456,56 @@ Constante exposée : `ActiveDayResolver::NIGHT_SHIFT_HOUR = 5`. Timezone forcée
 ### Évolutions prévues
 
 V2 (non implémentée) : rendre le seuil configurable par centre via un champ `Centre.serviceRolloverHour`. La signature actuelle de `ActiveDayResolver` est déjà compatible (paramètre `$now` injectable, ajout futur d'un `?Centre $centre` direct).
+
+---
+
+## 5quinquies. Module Media — médias polymorphes (Cloudflare R2)
+
+Le module Media gère les fichiers (images JPEG/PNG/WebP, PDF) attachés à une entité parente. Il est polymorphe : la table `media` n'a pas de FK vers `mission` / `tutoriel`, la relation logique passe par `entity_type` + `entity_id`.
+
+### Stockage
+
+Les fichiers ne sont **jamais** stockés sur le disque Symfony. `App\Service\R2StorageService` pousse les blobs sur **Cloudflare R2** (clé : `{centreId}/media/{type}/{uuid}.{ext}`). Le front ne reçoit jamais l'URL R2 brute — uniquement des **URLs signées TTL 1h** émises par `GET /api/media/{id}/url`.
+
+### Endpoints
+
+| Méthode | Route | Accès | Rôle |
+|---|---|---|---|
+| `POST` | `/api/media` | multipart `file`, `entityType`, `entityId` | MANAGER |
+| `GET`  | `/api/media/{id}/url` | URL signée TTL 1h | Voter `MEDIA_VIEW` |
+| `DELETE` | `/api/media/{id}` | API Platform — voter `MEDIA_DELETE` | MANAGER |
+| `GET`  | `/api/missions/{id}/medias` | Liste des médias d'une mission | Auth user (même centre) |
+| `GET`  | `/api/tutoriels/{id}/medias` | Liste des médias d'un tutoriel | Auth user (même centre) |
+
+### Multi-tenancy & garde-fous
+
+- `MediaVoter` (UPLOAD / VIEW / DELETE) vérifie systématiquement que l'utilisateur appartient au même centre que l'entité parente.
+- Le listing par entité parente (`GET /api/{type}/{id}/medias`) renvoie 404 si le centre ne match pas — pas de fuite d'existence cross-tenant.
+- `GetCollection` est volontairement désactivé sur la ressource Media : pas de listing global possible.
+
+### Cleanup automatique
+
+- `MediaR2CleanupListener` (postRemove Media) → suppression du blob R2 dès qu'un Media est supprimé en base.
+- `MissionMediaCleanupListener` / `TutorielMediaCleanupListener` (preRemove) → cascade : suppression de tous les Media liés avant la suppression de la Mission/Tutoriel parent. Le listener R2 prend ensuite le relais pour purger les blobs.
+
+### Front
+
+| Fichier | Rôle |
+|---|---|
+| `components/media/MediaUploader.tsx` | Drag&drop + clic, multi-fichier — accepte JPEG/PNG/WebP/PDF |
+| `components/media/MediaGallery.tsx` | Grille responsive 2/3/4 cols, états `loading | error | empty` |
+| `components/media/MediaThumb.tsx` | Vignette (image presignée ou icône PDF) + bouton suppression manager |
+| `components/media/MediaLightbox.tsx` | Lightbox image plein écran |
+| `hooks/useMedias.ts` | `useMedias(type, id)` + `useUploadMedia()` + `useDeleteMedia()` (React Query) |
+| `types/media.ts` | `Media`, `MediaEntityType = 'mission' | 'tutoriel' | 'document'`, `MediaUrlResponse` |
+
+Les modales `ModalAddMission` et `ModalAddTutoriel` montent `MediaUploader` + `MediaGallery` **uniquement en mode édition** (l'entité parente doit déjà avoir un `id`).
+
+### Limites
+
+- Images : 5 MB max
+- PDF : 20 MB max
+- MIME revérifié serveur (jamais faire confiance au client)
 
 ---
 

@@ -20,6 +20,7 @@
 11. [Incident](#11-incident)
 12. [TaskCompletion](#12-taskcompletion) ← anciennement Completion
 13. [Données de fixtures](#13-données-de-fixtures)
+15. [Media](#15-media)
 
 ---
 
@@ -645,6 +646,48 @@ Créé automatiquement à chaque appel de `POST /api/planning/publish`.
 **Relations :**
 - `centre` → ManyToOne → Centre
 - `publishedBy` → ManyToOne → User
+
+---
+
+## 15. Media
+
+Média polymorphe (image ou PDF) attaché à une entité parente — mission, tutoriel, ou document futur — via le couple `entityType` + `entityId`. Pas de FK SQL vers les tables parentes : la cascade de suppression est gérée par les `EventListener` Doctrine.
+
+Les blobs sont stockés sur **Cloudflare R2** (jamais sur le disque Symfony). Le front reçoit uniquement des URLs signées TTL 1h via `GET /api/media/{id}/url`.
+
+| Champ | Type | Nullable | Notes |
+|---|---|---|---|
+| `id` | int | non | Auto-généré |
+| `centre` | Centre | non | FK multi-tenant — toujours résolu depuis l'entité parente à l'upload |
+| `entityType` | enum string(20) | non | `mission` \| `tutoriel` \| `document` (enum PHP `MediaEntityType`) |
+| `entityId` | int | non | ID de l'entité parente (pas de FK SQL) |
+| `filename` | string(255) | non | Nom de fichier original (sanitisé) |
+| `mimeType` | string(100) | non | MIME revérifié serveur (jamais faire confiance au client) |
+| `sizeBytes` | int | non | Taille en octets — 5 MB max images / 20 MB max PDF |
+| `storagePath` | string(500) | non | Clé R2 (ex : `1/media/mission/uuid.jpg`) — jamais exposée au front |
+| `uploadedBy` | User | non | Manager qui a uploadé — `ON DELETE CASCADE` |
+| `createdAt` | datetime_immutable | non | Horodatage upload |
+
+**Index :** `idx_media_entity (entity_type, entity_id, centre_id)` pour les sub-resources.
+
+**Endpoints :**
+- `POST /api/media` (multipart) → upload — MANAGER
+- `GET /api/media/{id}/url` → URL signée TTL 1h — voter `MEDIA_VIEW`
+- `DELETE /api/media/{id}` → suppression — voter `MEDIA_DELETE` (MANAGER)
+- `GET /api/missions/{id}/medias` → listing par mission
+- `GET /api/tutoriels/{id}/medias` → listing par tutoriel
+
+**Relations :**
+- `centre` → ManyToOne → Centre
+- `uploadedBy` → ManyToOne → User
+
+**Cleanup :**
+- `MediaR2CleanupListener` (postRemove) → purge le blob R2.
+- `MissionMediaCleanupListener` / `TutorielMediaCleanupListener` (preRemove sur l'entité parente) → cascade les Media liés.
+
+**Sécurité :**
+- `MediaVoter` (UPLOAD / VIEW / DELETE) vérifie que l'utilisateur appartient au même centre que l'entité parente.
+- `GetCollection` désactivé : pas de listing global possible (uniquement par sub-resource).
 
 ---
 
