@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect }                 from 'react'
+import MediaUploader from '@/components/media/MediaUploader'
+import MediaGallery  from '@/components/media/MediaGallery'
 import type { EditorTutoriel, TutorielFormData, TutoBlockForm } from '@/types/editeur'
 import type { EditorZone }                     from '@/types/editeur'
 
@@ -154,6 +156,17 @@ export default function ModalAddTutoriel({ open, editTutoriel, zones, onClose, o
             ))}
           </div>
         </div>
+
+        {/* Médias — uniquement en édition (tutoriel persisté) */}
+        {editTutoriel?.id && (
+          <div>
+            <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">Médias</p>
+            <div className="space-y-2">
+              <MediaGallery entityType="tutoriel" entityId={editTutoriel.id} />
+              <MediaUploader entityType="tutoriel" entityId={editTutoriel.id} />
+            </div>
+          </div>
+        )}
 
         <button
           onClick={handleSubmit}
