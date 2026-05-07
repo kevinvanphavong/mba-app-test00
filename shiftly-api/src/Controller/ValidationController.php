@@ -217,6 +217,28 @@ class ValidationController extends AbstractController
     }
 
     /**
+     * POST /api/pointages/validation/devalider/{userId}/{date}
+     * Dévalide la semaine d'un employé donné (supprime sa ValidationHebdo).
+     */
+    #[Route('/devalider/{userId}/{date}', name: 'api_validation_devalider_employe', methods: ['POST'])]
+    public function devaliderEmploye(int $userId, string $date): JsonResponse
+    {
+        /** @var User $manager */
+        $manager  = $this->getUser();
+        $centreId = $manager->getCentre()->getId();
+        $lundi    = $this->parseLundi($date);
+
+        $supprime = $this->validationService->devaliderEmploye($centreId, $userId, $lundi);
+
+        return $this->json([
+            'devalide' => $supprime,
+            'userId'   => $userId,
+            'semaine'  => $lundi->format('Y-m-d'),
+            'statut'   => 'EN_ATTENTE',
+        ]);
+    }
+
+    /**
      * POST /api/pointages/validation/correction
      * Applique une correction sur un pointage.
      * Body: { pointageId, champModifie, nouvelleValeur, motif?, pauseId? }

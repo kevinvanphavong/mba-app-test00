@@ -644,6 +644,25 @@ class ValidationHebdoService
     }
 
     /**
+     * Dévalide la semaine d'un employé donné en supprimant sa ValidationHebdo.
+     * Renvoie true si une ligne a été supprimée, false sinon (pas de validation
+     * existante pour cet employé sur cette semaine).
+     */
+    public function devaliderEmploye(int $centreId, int $userId, \DateTimeImmutable $lundi): bool
+    {
+        $validation = $this->validationRepo->findOneByUserAndSemaine($centreId, $userId, $lundi);
+
+        if ($validation === null) {
+            return false;
+        }
+
+        $this->em->remove($validation);
+        $this->em->flush();
+
+        return true;
+    }
+
+    /**
      * Applique une correction sur un pointage et trace la modification.
      *
      * Pour `pauseDebut` / `pauseFin`, $pauseId est obligatoire et la PointagePause

@@ -79,6 +79,19 @@ export function useValiderEmploye(date: string) {
   })
 }
 
+/** Dévalide les heures d'un employé pour la semaine (annule la validation). */
+export function useDevaliderEmploye(date: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (userId: number) =>
+      api.post(`/pointages/validation/devalider/${userId}/${date}`).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['validation'] })
+    },
+  })
+}
+
 /** Valide toute la semaine d'un coup. */
 export function useValiderSemaine(date: string) {
   const queryClient = useQueryClient()
