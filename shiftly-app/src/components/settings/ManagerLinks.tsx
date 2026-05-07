@@ -7,7 +7,6 @@ import { useAuthStore } from '@/store/authStore'
 const LINKS = [
   { href: '/postes',                 label: 'Postes & contenu',       sub: 'Zones, missions, compétences (par zone)' },
   { href: '/reglages/editeur',       label: 'Gestion des tutoriels',  sub: 'Tutoriels et formations internes'        },
-  { href: '/reglages/editeur-staff', label: 'Gestion du staff',       sub: 'Membres, rôles, tailles, activation'     },
   { href: '/reglages/incidents',     label: 'Gestion des incidents',  sub: 'Voir, modifier et clôturer les incidents'},
 ]
 
