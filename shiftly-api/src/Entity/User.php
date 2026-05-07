@@ -152,6 +152,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?string $codePointage = null;
 
+    /** Date d'embauche — sert au calcul d'ancienneté côté front. */
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?\DateTimeImmutable $dateEmbauche = null;
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: StaffCompetence::class, cascade: ['remove'])]
     private Collection $staffCompetences;
 
@@ -199,6 +204,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getCodePointage(): ?string { return $this->codePointage; }
     public function setCodePointage(?string $code): static { $this->codePointage = $code; return $this; }
+
+    public function getDateEmbauche(): ?\DateTimeImmutable { return $this->dateEmbauche; }
+    public function setDateEmbauche(?\DateTimeImmutable $d): static { $this->dateEmbauche = $d; return $this; }
 
     public function getStaffCompetences(): Collection { return $this->staffCompetences; }
     public function getTutoReads(): Collection { return $this->tutoReads; }
