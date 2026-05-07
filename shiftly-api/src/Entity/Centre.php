@@ -73,6 +73,19 @@ class Centre
     #[Groups(['centre:read', 'centre:write'])]
     private ?array $openingHours = null;
 
+    /** Tenue de service — affichée dans la fiche staff. Champs descriptifs libres. */
+    #[ORM\Column(length: 120, nullable: true)]
+    #[Groups(['centre:read', 'centre:write'])]
+    private ?string $tenueHaut = null;
+
+    #[ORM\Column(length: 120, nullable: true)]
+    #[Groups(['centre:read', 'centre:write'])]
+    private ?string $tenueBas = null;
+
+    #[ORM\Column(length: 120, nullable: true)]
+    #[Groups(['centre:read', 'centre:write'])]
+    private ?string $tenueChaussures = null;
+
     #[ORM\Column(options: ['default' => true])]
     #[Groups(['centre:read'])]
     private bool $actif = true;
@@ -113,6 +126,13 @@ class Centre
     public function setSiteWeb(?string $siteWeb): static { $this->siteWeb = $siteWeb; return $this; }
     public function getOpeningHours(): ?array { return $this->openingHours; }
     public function setOpeningHours(?array $openingHours): static { $this->openingHours = $openingHours; return $this; }
+
+    public function getTenueHaut(): ?string { return $this->tenueHaut; }
+    public function setTenueHaut(?string $t): static { $this->tenueHaut = $t; return $this; }
+    public function getTenueBas(): ?string { return $this->tenueBas; }
+    public function setTenueBas(?string $t): static { $this->tenueBas = $t; return $this; }
+    public function getTenueChaussures(): ?string { return $this->tenueChaussures; }
+    public function setTenueChaussures(?string $t): static { $this->tenueChaussures = $t; return $this; }
 
     public function getId(): ?int { return $this->id; }
     public function getNom(): ?string { return $this->nom; }
