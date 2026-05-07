@@ -11,10 +11,13 @@
 -- ============================================================
 
 CREATE TABLE centre (
-    id         INT AUTO_INCREMENT NOT NULL,
-    nom        VARCHAR(100)        NOT NULL,
-    slug       VARCHAR(120)        NOT NULL,
-    created_at DATETIME            NOT NULL,   -- DateTimeImmutable
+    id               INT AUTO_INCREMENT NOT NULL,
+    nom              VARCHAR(100)        NOT NULL,
+    slug             VARCHAR(120)        NOT NULL,
+    tenue_haut       VARCHAR(120)        DEFAULT NULL,  -- ex: "Polo Shiftly noir"
+    tenue_bas        VARCHAR(120)        DEFAULT NULL,
+    tenue_chaussures VARCHAR(120)        DEFAULT NULL,
+    created_at       DATETIME            NOT NULL,   -- DateTimeImmutable
     UNIQUE KEY uniq_slug (slug),
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -25,16 +28,17 @@ CREATE TABLE centre (
 -- ============================================================
 
 CREATE TABLE `user` (
-    id           INT AUTO_INCREMENT NOT NULL,
-    centre_id    INT          NOT NULL,
-    nom          VARCHAR(100) NOT NULL,
-    email        VARCHAR(180) NOT NULL,
-    password     VARCHAR(255) NOT NULL,          -- hashé via UserPasswordHasher
-    roles        JSON         NOT NULL,           -- ex: ["ROLE_USER", "ROLE_MANAGER"]
-    role         VARCHAR(20)  NOT NULL,           -- 'MANAGER' | 'EMPLOYE'
-    avatar_color VARCHAR(20)  DEFAULT NULL,       -- couleur hex déterministe
-    points       INT          NOT NULL DEFAULT 0, -- SUM des compétences validées
-    created_at   DATETIME     NOT NULL,
+    id            INT AUTO_INCREMENT NOT NULL,
+    centre_id     INT          NOT NULL,
+    nom           VARCHAR(100) NOT NULL,
+    email         VARCHAR(180) NOT NULL,
+    password      VARCHAR(255) NOT NULL,          -- hashé via UserPasswordHasher
+    roles         JSON         NOT NULL,           -- ex: ["ROLE_USER", "ROLE_MANAGER"]
+    role          VARCHAR(20)  NOT NULL,           -- 'MANAGER' | 'EMPLOYE'
+    avatar_color  VARCHAR(20)  DEFAULT NULL,       -- couleur hex déterministe
+    points        INT          NOT NULL DEFAULT 0, -- SUM des compétences validées
+    date_embauche DATE         DEFAULT NULL,       -- sert au calcul d'ancienneté côté front
+    created_at    DATETIME     NOT NULL,
     UNIQUE KEY uniq_email (email),
     INDEX idx_user_centre (centre_id),
     PRIMARY KEY (id),
@@ -491,6 +495,39 @@ CREATE TABLE centre_note (
     CONSTRAINT fk_centre_note_centre FOREIGN KEY (centre_id)           REFERENCES centre(id),
     CONSTRAINT fk_centre_note_user   FOREIGN KEY (super_admin_user_id) REFERENCES user(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLE : media
+-- Module Media — fichiers (images JPEG/PNG/WebP, PDF) attachés
+-- de manière polymorphe à une entité parente (mission, tutoriel,
+-- document à venir) via la combo (entity_type, entity_id).
+-- Stockage binaire sur Cloudflare R2 — la BDD ne stocke que la clé.
+-- entity_type : 'mission' | 'tutoriel' | 'document'
+-- ============================================================
+
+CREATE TABLE media (
+    id              INT AUTO_INCREMENT NOT NULL,
+    centre_id       INT          NOT NULL,
+    uploaded_by_id  INT          NOT NULL,
+    entity_type     VARCHAR(20)  NOT NULL,
+    entity_id       INT          NOT NULL,
+    filename        VARCHAR(255) NOT NULL,
+    mime_type       VARCHAR(100) NOT NULL,
+    size_bytes      INT          NOT NULL,
+    storage_path    VARCHAR(500) NOT NULL COMMENT 'Clé R2 — ex : "1/media/mission/uuid.jpg"',
+    created_at      DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    INDEX idx_media_entity (entity_type, entity_id, centre_id),
+    INDEX IDX_6A2CA10C463CD7C3 (centre_id),
+    INDEX IDX_6A2CA10CA2B28FE8 (uploaded_by_id),
+    PRIMARY KEY (id),
+    CONSTRAINT FK_media_centre FOREIGN KEY (centre_id)      REFERENCES centre (id),
+    CONSTRAINT FK_media_user   FOREIGN KEY (uploaded_by_id) REFERENCES `user` (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Pas de FK SQL vers mission/tutoriel : la relation est polymorphe.
+-- Le nettoyage des Media orphelins est géré côté PHP par
+-- MissionMediaCleanupListener / TutorielMediaCleanupListener (preRemove)
+-- qui suppriment aussi le binaire R2 via R2StorageService::delete().
 
 -- ============================================================
 -- NOTES MÉTIER
