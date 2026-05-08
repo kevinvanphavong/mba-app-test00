@@ -17,3 +17,7 @@
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+# Tout le stockage objets passe par Cloudflare R2 (cf. R2StorageService).
+# Si un dossier public/uploads/ est recréé localement, il ne doit pas être commité.
+/public/uploads/

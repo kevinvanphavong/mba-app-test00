@@ -6,8 +6,8 @@ use App\Entity\Completion;
 use App\Entity\Mission;
 use App\Entity\Poste;
 use App\Entity\User;
-use App\Service\FileUploadService;
 use App\Service\R2StorageService;
+use App\Service\Upload\CompletionPhotoUploader;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,9 +31,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CompletionController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly FileUploadService      $fileUploader,
-        private readonly R2StorageService       $r2,
+        private readonly EntityManagerInterface  $em,
+        private readonly CompletionPhotoUploader $photoUploader,
+        private readonly R2StorageService        $r2,
     ) {}
 
     #[Route('/api/completions/create', name: 'api_completion_create', methods: ['POST'], format: 'json')]
@@ -93,7 +93,7 @@ class CompletionController extends AbstractController
 
         // Upload + validation MIME/taille (lance une exception si KO)
         try {
-            $stored = $this->fileUploader->uploadCompletionPhoto($photo);
+            $stored = $this->photoUploader->upload($photo);
         } catch (\InvalidArgumentException $e) {
             throw new BadRequestHttpException($e->getMessage());
         } catch (\Throwable $e) {
