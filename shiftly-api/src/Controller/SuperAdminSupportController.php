@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\SupportAttachment;
 use App\Entity\SupportReply;
 use App\Entity\SupportTicket;
 use App\Entity\User;
@@ -87,10 +88,15 @@ class SuperAdminSupportController extends AbstractController
             ->setMessage($message)
             ->setInterne($interne);
 
-        // Attachments
+        // Attachments — toujours rattachés au centre du ticket parent
+        // (le super-admin n'a pas de centre propre)
         foreach ($request->files->get('attachments', []) as $file) {
             if ($file) {
-                $att = $this->uploader->uploadSupportAttachment($file, $superAdmin);
+                try {
+                    $att = $this->uploader->uploadSupportAttachment($file, $superAdmin, $ticket->getCentre());
+                } catch (\InvalidArgumentException $e) {
+                    return $this->json(['message' => $e->getMessage()], 400);
+                }
                 $att->setReply($reply);
                 $reply->getAttachments()->add($att);
             }
@@ -226,13 +232,18 @@ class SuperAdminSupportController extends AbstractController
                 'prenom' => $r->getAuteur()->getPrenom(),
                 'role'   => $r->getAuteur()->getRole(),
             ],
-            'attachments' => array_map(fn($a) => [
-                'id'       => $a->getId(),
-                'filename' => $a->getFilename(),
-                'url'      => '/' . $a->getStoredPath(),
-                'mimeType' => $a->getMimeType(),
-                'size'     => $a->getSize(),
-            ], $r->getAttachments()->toArray()),
+            'attachments' => array_map($this->serializeAttachment(...), $r->getAttachments()->toArray()),
+        ];
+    }
+
+    /** @return array<string, int|string|null> */
+    private function serializeAttachment(SupportAttachment $a): array
+    {
+        return [
+            'id'       => $a->getId(),
+            'filename' => $a->getFilename(),
+            'mimeType' => $a->getMimeType(),
+            'size'     => $a->getSize(),
         ];
     }
 
@@ -243,13 +254,7 @@ class SuperAdminSupportController extends AbstractController
         return [
             ...$this->serializeTicket($t),
             'message'     => $t->getMessage(),
-            'attachments' => array_map(fn($a) => [
-                'id'       => $a->getId(),
-                'filename' => $a->getFilename(),
-                'url'      => '/' . $a->getStoredPath(),
-                'mimeType' => $a->getMimeType(),
-                'size'     => $a->getSize(),
-            ], $t->getAttachments()->toArray()),
+            'attachments' => array_map($this->serializeAttachment(...), $t->getAttachments()->toArray()),
             'replies' => array_map(fn(SupportReply $r) => $this->serializeReply($r), $replies->toArray()),
         ];
     }

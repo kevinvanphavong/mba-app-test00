@@ -2,9 +2,9 @@
 
 namespace App\Service;
 
+use App\Entity\Centre;
 use App\Entity\SupportAttachment;
 use App\Entity\User;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Uid\Uuid;
 
@@ -23,17 +23,21 @@ class FileUploadService
     ];
 
     public function __construct(
-        private readonly string $projectDir,
         private readonly R2StorageService $r2,
     ) {}
 
     /**
-     * Upload un fichier et retourne une entité SupportAttachment prête à persister.
-     * Stocke dans public/uploads/support/{YYYY}/{MM}/{uuid}.{ext}
+     * Upload un fichier sur R2 sous la clé `support/{centreId}/{YYYY}/{MM}/{uuid}.{ext}`
+     * et retourne une entité SupportAttachment prête à persister.
+     *
+     * Le centre est passé explicitement car au moment de l'upload, le ticket
+     * peut ne pas encore avoir d'id (création), et un super-admin sans centre
+     * propre peut répondre à un ticket d'un autre centre — on prend toujours
+     * celui du ticket parent.
      *
      * @throws \InvalidArgumentException si MIME ou taille invalide
      */
-    public function uploadSupportAttachment(UploadedFile $file, User $uploadedBy): SupportAttachment
+    public function uploadSupportAttachment(UploadedFile $file, User $uploadedBy, Centre $centre): SupportAttachment
     {
         if ($file->getSize() > self::MAX_SIZE) {
             throw new \InvalidArgumentException('Fichier trop volumineux (max 5 MB)');
@@ -45,30 +49,23 @@ class FileUploadService
         }
 
         $now = new \DateTimeImmutable();
-        $year  = $now->format('Y');
-        $month = $now->format('m');
-
-        $relativeDir = "uploads/support/{$year}/{$month}";
-        $absoluteDir = $this->projectDir . '/public/' . $relativeDir;
-
-        if (!is_dir($absoluteDir) && !mkdir($absoluteDir, 0775, true) && !is_dir($absoluteDir)) {
-            throw new FileException("Impossible de créer le dossier d'upload");
-        }
-
         $ext = $file->guessExtension() ?: 'bin';
-        $storedName = bin2hex(random_bytes(12)) . '.' . $ext;
+        $key = sprintf(
+            'support/%d/%s/%s/%s.%s',
+            $centre->getId(),
+            $now->format('Y'),
+            $now->format('m'),
+            Uuid::v4()->toRfc4122(),
+            $ext,
+        );
 
-        try {
-            $file->move($absoluteDir, $storedName);
-        } catch (FileException $e) {
-            throw new FileException('Erreur lors du stockage du fichier : ' . $e->getMessage());
-        }
+        $this->r2->upload($key, $file, $mime);
 
         return (new SupportAttachment())
-            ->setFilename($file->getClientOriginalName() ?: $storedName)
-            ->setStoredPath($relativeDir . '/' . $storedName)
+            ->setFilename($file->getClientOriginalName() ?: basename($key))
+            ->setStoredPath($key)
             ->setMimeType($mime)
-            ->setSize($file->getSize() ?: filesize($absoluteDir . '/' . $storedName) ?: 0)
+            ->setSize($file->getSize() ?: 0)
             ->setUploadedBy($uploadedBy);
     }
 

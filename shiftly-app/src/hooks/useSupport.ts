@@ -6,6 +6,7 @@ import type {
   MyTicketSummary,
   MyTicketDetail,
   SupportNotifications,
+  SupportAttachmentUrl,
 } from '@/types/support'
 
 export function useMyTickets() {
@@ -59,6 +60,17 @@ export function useReplyToMyTicket() {
       qc.invalidateQueries({ queryKey: ['support', 'my-ticket', ticketId] })
       qc.invalidateQueries({ queryKey: ['support', 'my-tickets'] })
     },
+  })
+}
+
+/** URL signée R2 pour ouvrir un attachment (TTL 1h, refresh à 50min). */
+export function useSupportAttachmentUrl(attachmentId: number | null) {
+  return useQuery<SupportAttachmentUrl>({
+    queryKey: ['support', 'attachment-url', attachmentId],
+    queryFn:  () =>
+      api.get<SupportAttachmentUrl>(`/support/attachments/${attachmentId}/url`).then(r => r.data),
+    enabled:  !!attachmentId,
+    staleTime: 50 * 60 * 1000,
   })
 }
 
