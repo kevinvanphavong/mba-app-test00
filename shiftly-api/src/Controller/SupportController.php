@@ -2,15 +2,19 @@
 
 namespace App\Controller;
 
+use App\Entity\SupportAttachment;
 use App\Entity\SupportReply;
 use App\Entity\SupportTicket;
 use App\Entity\User;
 use App\Repository\SupportTicketRepository;
+use App\Security\Voter\SupportAttachmentVoter;
 use App\Service\FileUploadService;
+use App\Service\R2StorageService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -25,6 +29,7 @@ class SupportController extends AbstractController
         private readonly SupportTicketRepository $ticketRepo,
         private readonly EntityManagerInterface  $em,
         private readonly FileUploadService       $uploader,
+        private readonly R2StorageService        $r2,
     ) {}
 
     #[Route('/api/support', methods: ['POST'])]
@@ -53,10 +58,14 @@ class SupportController extends AbstractController
             ->setCategorie($categorie)
             ->setPriorite($priorite);
 
-        // Attachments
+        // Attachments — uploadés sur R2 sous la clé du centre du user
         foreach ($request->files->get('attachments', []) as $file) {
             if ($file) {
-                $att = $this->uploader->uploadSupportAttachment($file, $user);
+                try {
+                    $att = $this->uploader->uploadSupportAttachment($file, $user, $user->getCentre());
+                } catch (\InvalidArgumentException $e) {
+                    return $this->json(['message' => $e->getMessage()], 400);
+                }
                 $att->setTicket($ticket);
                 $ticket->getAttachments()->add($att);
             }
@@ -116,13 +125,7 @@ class SupportController extends AbstractController
             'statut'    => $ticket->getStatut(),
             'priorite'  => $ticket->getPriorite(),
             'createdAt' => $ticket->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-            'attachments' => array_map(fn($a) => [
-                'id'       => $a->getId(),
-                'filename' => $a->getFilename(),
-                'url'      => '/' . $a->getStoredPath(),
-                'mimeType' => $a->getMimeType(),
-                'size'     => $a->getSize(),
-            ], $ticket->getAttachments()->toArray()),
+            'attachments' => array_map($this->serializeAttachment(...), $ticket->getAttachments()->toArray()),
             'replies' => array_map(fn(SupportReply $r) => [
                 'id'        => $r->getId(),
                 'message'   => $r->getMessage(),
@@ -133,13 +136,7 @@ class SupportController extends AbstractController
                     'prenom' => $r->getAuteur()->getPrenom(),
                     'role'   => $r->getAuteur()->getRole(),
                 ],
-                'attachments' => array_map(fn($a) => [
-                    'id'       => $a->getId(),
-                    'filename' => $a->getFilename(),
-                    'url'      => '/' . $a->getStoredPath(),
-                    'mimeType' => $a->getMimeType(),
-                    'size'     => $a->getSize(),
-                ], $r->getAttachments()->toArray()),
+                'attachments' => array_map($this->serializeAttachment(...), $r->getAttachments()->toArray()),
             ], $replies),
         ]);
     }
@@ -167,7 +164,11 @@ class SupportController extends AbstractController
 
         foreach ($request->files->get('attachments', []) as $file) {
             if ($file) {
-                $att = $this->uploader->uploadSupportAttachment($file, $user);
+                try {
+                    $att = $this->uploader->uploadSupportAttachment($file, $user, $ticket->getCentre());
+                } catch (\InvalidArgumentException $e) {
+                    return $this->json(['message' => $e->getMessage()], 400);
+                }
                 $att->setReply($reply);
                 $reply->getAttachments()->add($att);
             }
@@ -206,6 +207,40 @@ class SupportController extends AbstractController
             'count'   => count($unreadTickets),
             'tickets' => array_slice($unreadTickets, 0, 5),
         ]);
+    }
+
+    /**
+     * Endpoint URL signée R2 pour ouvrir un attachment depuis le front.
+     * Voter SUPPORT_ATTACHMENT_VIEW : auteur ticket OU manager du même centre OU super-admin.
+     */
+    #[Route('/api/support/attachments/{id}/url', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function attachmentUrl(int $id): JsonResponse
+    {
+        $attachment = $this->em->find(SupportAttachment::class, $id);
+        if (!$attachment) {
+            return $this->json(['message' => 'Attachment introuvable'], 404);
+        }
+
+        $this->denyAccessUnlessGranted(SupportAttachmentVoter::VIEW, $attachment);
+
+        $ttl       = 3600;
+        $expiresAt = (new \DateTimeImmutable())->modify("+{$ttl} seconds");
+
+        return $this->json([
+            'url'       => $this->r2->presignedUrl($attachment->getStoredPath(), $ttl),
+            'expiresAt' => $expiresAt->format(\DateTimeInterface::ATOM),
+        ]);
+    }
+
+    /** @return array<string, int|string|null> */
+    private function serializeAttachment(SupportAttachment $a): array
+    {
+        return [
+            'id'       => $a->getId(),
+            'filename' => $a->getFilename(),
+            'mimeType' => $a->getMimeType(),
+            'size'     => $a->getSize(),
+        ];
     }
 
     private function hasUnreadReply(SupportTicket $t, User $user): bool

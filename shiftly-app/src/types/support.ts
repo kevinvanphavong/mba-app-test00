@@ -5,9 +5,14 @@ export type TicketCategorie = 'bug' | 'question' | 'feature_request' | 'facturat
 export interface SupportAttachment {
   id:       number
   filename: string
-  url:      string
   mimeType: string
   size:     number
+}
+
+/** Réponse de GET /api/support/attachments/{id}/url — URL signée TTL 1h. */
+export interface SupportAttachmentUrl {
+  url:       string
+  expiresAt: string
 }
 
 export interface TicketAuthor {
