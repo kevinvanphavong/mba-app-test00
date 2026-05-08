@@ -6,6 +6,7 @@ use App\Entity\SupportAttachment;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\Uid\Uuid;
 
 class FileUploadService
 {
@@ -21,7 +22,10 @@ class FileUploadService
         'image/jpeg', 'image/png', 'image/webp',
     ];
 
-    public function __construct(private string $projectDir) {}
+    public function __construct(
+        private readonly string $projectDir,
+        private readonly R2StorageService $r2,
+    ) {}
 
     /**
      * Upload un fichier et retourne une entité SupportAttachment prête à persister.
@@ -69,11 +73,11 @@ class FileUploadService
     }
 
     /**
-     * Upload une photo de preuve pour une Completion (validation mission).
-     * Stocke dans public/uploads/completion/{YYYY}/{MM}/{uuid}.{ext}.
+     * Upload une photo de preuve pour une Completion (validation mission)
+     * sur Cloudflare R2 sous la clé `completion/{YYYY}/{MM}/{uuid}.{ext}`.
      *
-     * Retourne ['storedPath' => 'uploads/completion/...', 'mime' => '...']
-     * que le controller persiste sur l'entité Completion.
+     * Retourne ['storedPath' => 'completion/...', 'mime' => '...'] —
+     * `storedPath` est la clé R2, persistée sur Completion.photoPath.
      *
      * @throws \InvalidArgumentException si MIME ou taille invalide
      */
@@ -88,66 +92,21 @@ class FileUploadService
             throw new \InvalidArgumentException("Format de photo non autorisé : {$mime}");
         }
 
-        $now   = new \DateTimeImmutable();
-        $year  = $now->format('Y');
-        $month = $now->format('m');
+        $now = new \DateTimeImmutable();
+        $ext = $file->guessExtension() ?: 'jpg';
+        $key = sprintf(
+            'completion/%s/%s/%s.%s',
+            $now->format('Y'),
+            $now->format('m'),
+            Uuid::v4()->toRfc4122(),
+            $ext,
+        );
 
-        $relativeDir = "uploads/completion/{$year}/{$month}";
-        $absoluteDir = $this->projectDir . '/public/' . $relativeDir;
-
-        if (!is_dir($absoluteDir) && !mkdir($absoluteDir, 0775, true) && !is_dir($absoluteDir)) {
-            throw new FileException("Impossible de créer le dossier d'upload");
-        }
-
-        $ext        = $file->guessExtension() ?: 'jpg';
-        $storedName = bin2hex(random_bytes(12)) . '.' . $ext;
-
-        try {
-            $file->move($absoluteDir, $storedName);
-        } catch (FileException $e) {
-            throw new FileException('Erreur lors du stockage de la photo : ' . $e->getMessage());
-        }
+        $this->r2->upload($key, $file, $mime);
 
         return [
-            'storedPath' => $relativeDir . '/' . $storedName,
+            'storedPath' => $key,
             'mime'       => $mime,
         ];
-    }
-
-    /**
-     * Retourne le chemin absolu d'une photo de completion sur disque,
-     * à partir du chemin relatif stocké en BDD.
-     */
-    public function getCompletionPhotoAbsolutePath(string $relativePath): string
-    {
-        return $this->projectDir . '/public/' . $relativePath;
-    }
-
-    /**
-     * Supprime physiquement une photo de completion sur disque.
-     *
-     * Silencieux si le fichier est déjà absent (idempotent).
-     * Loggue un warning via error_log() si l'unlink échoue (permissions, etc.)
-     * sans throw : l'appelant (listener Doctrine) ne doit pas casser la transaction.
-     *
-     * @return bool true si le fichier a été supprimé ou était déjà absent, false sur échec d'unlink.
-     */
-    public function deleteCompletionPhoto(string $relativePath): bool
-    {
-        $absolutePath = $this->getCompletionPhotoAbsolutePath($relativePath);
-
-        if (!is_file($absolutePath)) {
-            return true;
-        }
-
-        if (!@unlink($absolutePath)) {
-            error_log(sprintf(
-                '[FileUploadService] Échec suppression photo completion : %s',
-                $absolutePath
-            ));
-            return false;
-        }
-
-        return true;
     }
 }

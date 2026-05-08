@@ -7,11 +7,12 @@ use App\Entity\Mission;
 use App\Entity\Poste;
 use App\Entity\User;
 use App\Service\FileUploadService;
+use App\Service\R2StorageService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -24,7 +25,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  *
  *   POST /api/completions/create              JSON  { "posteId": 28, "missionId": 137 }
  *   POST /api/completions/create-with-photo   multipart (champs posteId, missionId + fichier "photo")
- *   GET  /api/completions/{id}/photo          retourne le binaire (auth + multi-tenant guard)
+ *   GET  /api/completions/{id}/photo          302 vers une URL signée R2 (TTL 1h, multi-tenant guard)
  */
 #[IsGranted('ROLE_USER')]
 class CompletionController extends AbstractController
@@ -32,6 +33,7 @@ class CompletionController extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly FileUploadService      $fileUploader,
+        private readonly R2StorageService       $r2,
     ) {}
 
     #[Route('/api/completions/create', name: 'api_completion_create', methods: ['POST'], format: 'json')]
@@ -94,6 +96,10 @@ class CompletionController extends AbstractController
             $stored = $this->fileUploader->uploadCompletionPhoto($photo);
         } catch (\InvalidArgumentException $e) {
             throw new BadRequestHttpException($e->getMessage());
+        } catch (\Throwable $e) {
+            // Échec R2 (credentials, réseau, bucket) — on log et on renvoie un message générique
+            error_log('[CompletionController] Upload photo failed: ' . $e->getMessage());
+            throw new BadRequestHttpException("Impossible de stocker la photo pour l'instant. Réessaye plus tard.");
         }
 
         $completion = new Completion();
@@ -123,8 +129,9 @@ class CompletionController extends AbstractController
     }
 
     /**
-     * Sert le binaire d'une photo de preuve.
+     * Renvoie un 302 vers une URL signée R2 (TTL 1h).
      * Auth obligatoire + le centre de la completion doit matcher celui de l'utilisateur.
+     * Le contrat front (`<AuthImage>`) est inchangé : il suit le redirect transparently.
      */
     #[Route('/api/completions/{id}/photo', name: 'api_completion_photo', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function servePhoto(int $id): Response
@@ -143,16 +150,12 @@ class CompletionController extends AbstractController
             throw $this->createAccessDeniedException('Accès refusé à cette photo.');
         }
 
-        $absolutePath = $this->fileUploader->getCompletionPhotoAbsolutePath($completion->getPhotoPath());
-        if (!is_file($absolutePath)) {
-            throw $this->createNotFoundException('Fichier photo introuvable sur disque.');
-        }
+        $signedUrl = $this->r2->presignedUrl($completion->getPhotoPath(), 3600);
 
-        $response = new BinaryFileResponse($absolutePath);
-        $response->headers->set('Content-Type', $completion->getPhotoMimeType() ?? 'image/jpeg');
-        // Cache privé 1h — la photo est immuable mais l'auth doit être revérifiée régulièrement
-        $response->headers->set('Cache-Control', 'private, max-age=3600');
-        return $response;
+        // Cache privé court : la photo est immuable mais l'auth doit être revérifiée
+        return new RedirectResponse($signedUrl, Response::HTTP_FOUND, [
+            'Cache-Control' => 'private, max-age=300, no-store',
+        ]);
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
