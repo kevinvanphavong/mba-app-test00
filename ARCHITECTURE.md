@@ -243,13 +243,17 @@ mba-app-test00/
     │   │
     │   ├── EventListener/             # Listeners Doctrine
     │   │   ├── CompletionListener.php             # Recalcul taux_completion (postPersist/postRemove)
-    │   │   ├── CompletionPhotoCleanupListener.php # Supprime fichier photo sur disque (preRemove)
+    │   │   ├── CompletionPhotoCleanupListener.php # Supprime le binaire R2 (preRemove)
+    │   │   ├── MediaR2CleanupListener.php         # Idem pour Media (preRemove)
+    │   │   ├── MissionMediaCleanupListener.php    # Cascade Media R2 sur Mission supprimée
+    │   │   ├── TutorielMediaCleanupListener.php   # Idem pour Tutoriel
+    │   │   ├── SupportAttachmentR2CleanupListener.php # Supprime le binaire R2 d'un attachment (preRemove)
     │   │   ├── PlanningWeekDirtyListener.php
     │   │   └── PostePreRemoveListener.php         # Garde-fou suppression Poste vs Pointage
     │   │
     │   ├── Command/                   # Commandes Symfony Console
     │   │   ├── CleanupOrphanPointagesCommand.php          # pointage:cleanup-orphans
-    │   │   └── CleanupOrphanCompletionPhotosCommand.php   # completion:cleanup-orphan-photos
+    │   │   └── PurgeOldCompletionPhotosCommand.php        # app:purge-old-completion-photos (rétention 90j)
     │   │
     │   ├── ApiResource/               # Décorateurs API Platform custom si besoin
     │   │
@@ -563,7 +567,21 @@ Page inactive : muted (#6b7280) + opacity-40
 
 ---
 
-## 12. Module Media — stockage Cloudflare R2
+## 12. Stockage objets — Cloudflare R2
+
+Tout le stockage de fichiers (images, PDF) passe par **Cloudflare R2** (S3-compatible). Plus aucun fichier n'est servi depuis le filesystem local — Railway = filesystem éphémère, et l'ancien système servait certains fichiers (SupportAttachment) sans contrôle d'accès.
+
+Trois flows aujourd'hui sur R2 :
+- **Module Media** (mission/tutoriel/document) — section ci-dessous
+- **Photos Completion** (validation mission) — clé `completion/{YYYY}/{MM}/{uuid}.{ext}`, servies via 302 vers URL signée par `GET /api/completions/{id}/photo`
+- **SupportAttachment** (pièces jointes ticket) — clé `support/{centreId}/{YYYY}/{MM}/{uuid}.{ext}`, ouvertes via `GET /api/support/attachments/{id}/url` (URL signée + voter `SUPPORT_ATTACHMENT_VIEW`)
+
+`App\Service\R2StorageService` est le seul point d'entrée pour parler à R2 (`upload`, `presignedUrl`, `delete`). Trois uploaders métier au-dessus :
+- `App\Service\MediaUploader` (module Media polymorphe)
+- `App\Service\Upload\CompletionPhotoUploader` (validation mission)
+- `App\Service\Upload\SupportAttachmentUploader` (tickets)
+
+### Module Media — détails
 
 Module générique pour attacher des images (JPEG/PNG/WebP) ou des PDF à n'importe quelle entité parente. Utilisé aujourd'hui par **Mission** et **Tutoriel**, conçu pour être étendu (HACCP, documents, etc.).
 
@@ -621,5 +639,9 @@ GET    /api/tutoriels/{id}/medias         liste les médias d'un tutoriel       
 ### Limitations connues
 
 - Pas de génération côté serveur de miniatures (Next.js `<Image>` peut s'en charger côté client si besoin).
-- Pas de purge automatique (à ajouter quand on aura un volume significatif).
 - CORS du bucket à configurer côté Cloudflare si `<img>` cross-origin pose souci en prod.
+
+### Rétention
+
+- **Photos Completion** : 90 jours via `app:purge-old-completion-photos` (à planifier en cron Railway, quotidien 03:00 UTC). Idempotente, batch 50.
+- **Module Media** + **SupportAttachment** : pas de purge automatique aujourd'hui — à ajouter si le volume devient significatif.

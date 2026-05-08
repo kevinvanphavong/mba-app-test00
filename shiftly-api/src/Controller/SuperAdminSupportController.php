@@ -9,7 +9,7 @@ use App\Entity\User;
 use App\Repository\SupportTicketRepository;
 use App\Repository\UserRepository;
 use App\Service\AuditLogService;
-use App\Service\FileUploadService;
+use App\Service\Upload\SupportAttachmentUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,11 +21,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SuperAdminSupportController extends AbstractController
 {
     public function __construct(
-        private readonly SupportTicketRepository $ticketRepo,
-        private readonly UserRepository          $userRepo,
-        private readonly EntityManagerInterface  $em,
-        private readonly AuditLogService         $auditLog,
-        private readonly FileUploadService       $uploader,
+        private readonly SupportTicketRepository    $ticketRepo,
+        private readonly UserRepository             $userRepo,
+        private readonly EntityManagerInterface     $em,
+        private readonly AuditLogService            $auditLog,
+        private readonly SupportAttachmentUploader  $uploader,
     ) {}
 
     #[Route('/api/superadmin/support/stats', methods: ['GET'])]
@@ -93,7 +93,7 @@ class SuperAdminSupportController extends AbstractController
         foreach ($request->files->get('attachments', []) as $file) {
             if ($file) {
                 try {
-                    $att = $this->uploader->uploadSupportAttachment($file, $superAdmin, $ticket->getCentre());
+                    $att = $this->uploader->upload($file, $superAdmin, $ticket->getCentre());
                 } catch (\InvalidArgumentException $e) {
                     return $this->json(['message' => $e->getMessage()], 400);
                 }

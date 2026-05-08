@@ -8,8 +8,8 @@ use App\Entity\SupportTicket;
 use App\Entity\User;
 use App\Repository\SupportTicketRepository;
 use App\Security\Voter\SupportAttachmentVoter;
-use App\Service\FileUploadService;
 use App\Service\R2StorageService;
+use App\Service\Upload\SupportAttachmentUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,10 +26,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SupportController extends AbstractController
 {
     public function __construct(
-        private readonly SupportTicketRepository $ticketRepo,
-        private readonly EntityManagerInterface  $em,
-        private readonly FileUploadService       $uploader,
-        private readonly R2StorageService        $r2,
+        private readonly SupportTicketRepository    $ticketRepo,
+        private readonly EntityManagerInterface     $em,
+        private readonly SupportAttachmentUploader  $uploader,
+        private readonly R2StorageService           $r2,
     ) {}
 
     #[Route('/api/support', methods: ['POST'])]
@@ -62,7 +62,7 @@ class SupportController extends AbstractController
         foreach ($request->files->get('attachments', []) as $file) {
             if ($file) {
                 try {
-                    $att = $this->uploader->uploadSupportAttachment($file, $user, $user->getCentre());
+                    $att = $this->uploader->upload($file, $user, $user->getCentre());
                 } catch (\InvalidArgumentException $e) {
                     return $this->json(['message' => $e->getMessage()], 400);
                 }
@@ -165,7 +165,7 @@ class SupportController extends AbstractController
         foreach ($request->files->get('attachments', []) as $file) {
             if ($file) {
                 try {
-                    $att = $this->uploader->uploadSupportAttachment($file, $user, $ticket->getCentre());
+                    $att = $this->uploader->upload($file, $user, $ticket->getCentre());
                 } catch (\InvalidArgumentException $e) {
                     return $this->json(['message' => $e->getMessage()], 400);
                 }
