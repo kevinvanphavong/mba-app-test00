@@ -1,7 +1,27 @@
 import type { Metadata } from 'next'
 import { Syne, DM_Sans } from 'next/font/google'
 import Providers from './Providers'
+import ThemeSync from '@/components/layout/ThemeSync'
 import './globals.css'
+
+// Anti-FOUC : pose data-theme sur <html> avant que React n'hydrate, en
+// lisant le state Zustand sérialisé sous la clé 'shiftly-theme' (persist middleware).
+const themeInitScript = `
+(function () {
+  try {
+    var raw = localStorage.getItem('shiftly-theme');
+    var theme = 'dark';
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      var stored = parsed && parsed.state && parsed.state.theme;
+      if (stored === 'dark' || stored === 'light' || stored === 'sand') theme = stored;
+    }
+    document.documentElement.setAttribute('data-theme', theme);
+  } catch (_) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+})();
+`
 
 const syne = Syne({
   subsets: ['latin'],
@@ -49,7 +69,10 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <ThemeSync />
+          {children}
+        </Providers>
       </body>
     </html>
   )
