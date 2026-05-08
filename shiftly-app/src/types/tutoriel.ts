@@ -9,10 +9,15 @@ export interface TutorielZone {
   couleur: string | null
 }
 
+/**
+ * Bloc d'un tutoriel — chaque variante peut référencer des Media inline
+ * via `mediaIds` (IDs de la table media, attachés au tutoriel parent).
+ * Cf. components/tutoriels/TutoBlockMedia.tsx pour le rendu.
+ */
 export type TutoBlock =
-  | { type: 'intro'; text: string }
-  | { type: 'step';  number: number; title: string; text: string }
-  | { type: 'tip';   text: string }
+  | { type: 'intro'; text: string;                                    mediaIds?: number[] }
+  | { type: 'step';  number: number; title: string; text: string;     mediaIds?: number[] }
+  | { type: 'tip';   text: string;                                    mediaIds?: number[] }
 
 /** Type brut retourné par l'API — zone est une entité nullable */
 export interface TutorielAPI {

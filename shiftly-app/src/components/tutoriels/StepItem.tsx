@@ -1,11 +1,14 @@
+import TutoBlockMedia from './TutoBlockMedia'
+
 interface StepItemProps {
-  number: number
-  title:  string
-  text:   string
+  number:    number
+  title:     string
+  text:      string
+  mediaIds?: number[]
 }
 
 /** Étape numérotée dans le contenu d'un tutoriel */
-export default function StepItem({ number, title, text }: StepItemProps) {
+export default function StepItem({ number, title, text, mediaIds }: StepItemProps) {
   return (
     <div className="flex gap-3">
       {/* Number bubble + vertical line */}
@@ -21,6 +24,7 @@ export default function StepItem({ number, title, text }: StepItemProps) {
       <div className="flex-1 pb-3">
         <p className="text-[13px] font-semibold text-text mb-1 leading-snug">{title}</p>
         <p className="text-[12px] text-muted leading-relaxed">{text}</p>
+        {mediaIds && mediaIds.length > 0 && <TutoBlockMedia mediaIds={mediaIds} />}
       </div>
     </div>
   )

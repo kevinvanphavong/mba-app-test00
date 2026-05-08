@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect }                 from 'react'
-import MediaUploader from '@/components/media/MediaUploader'
-import MediaGallery  from '@/components/media/MediaGallery'
+import { useState, useEffect, useRef, type ChangeEvent } from 'react'
+import { useUploadMedia, useDeleteMedia, useMediaUrl } from '@/hooks/useMedias'
+import { useToastStore } from '@/store/toastStore'
 import type { EditorTutoriel, TutorielFormData, TutoBlockForm } from '@/types/editeur'
 import type { EditorZone }                     from '@/types/editeur'
 
@@ -122,29 +122,13 @@ export default function ModalAddTutoriel({ open, editTutoriel, zones, onClose, o
           <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">Contenu</p>
           <div className="flex flex-col gap-2 mb-3">
             {blocs.map((bloc, i) => (
-              <div key={i} className="bg-surface2 border border-border rounded-[10px] p-3 flex flex-col gap-1.5">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-[10px] font-bold text-muted uppercase">
-                    {bloc.type === 'intro' ? '📝 Intro' : bloc.type === 'step' ? `⚙️ Étape ${(bloc as {number:number}).number}` : '💡 Astuce'}
-                  </span>
-                  <button onClick={() => removeBloc(i)} className="text-muted hover:text-red text-[13px]">×</button>
-                </div>
-                {bloc.type === 'step' && (
-                  <input
-                    value={(bloc as {title:string}).title}
-                    onChange={e => updateBloc(i, { title: e.target.value } as Partial<TutoBlockForm>)}
-                    placeholder="Titre de l'étape"
-                    className="w-full px-2 py-1.5 bg-surface border border-border rounded-[8px] text-[12px] text-text outline-none"
-                  />
-                )}
-                <textarea
-                  value={bloc.text}
-                  onChange={e => updateBloc(i, { text: e.target.value })}
-                  placeholder="Texte…"
-                  rows={2}
-                  className="w-full px-2 py-1.5 bg-surface border border-border rounded-[8px] text-[12px] text-text resize-none outline-none"
-                />
-              </div>
+              <BlocCard
+                key={i}
+                bloc={bloc}
+                tutorielId={editTutoriel?.id ?? null}
+                onUpdate={(patch) => updateBloc(i, patch)}
+                onRemove={() => removeBloc(i)}
+              />
             ))}
           </div>
           <div className="flex gap-2">
@@ -157,17 +141,6 @@ export default function ModalAddTutoriel({ open, editTutoriel, zones, onClose, o
           </div>
         </div>
 
-        {/* Médias — uniquement en édition (tutoriel persisté) */}
-        {editTutoriel?.id && (
-          <div>
-            <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">Médias</p>
-            <div className="space-y-2">
-              <MediaGallery entityType="tutoriel" entityId={editTutoriel.id} />
-              <MediaUploader entityType="tutoriel" entityId={editTutoriel.id} />
-            </div>
-          </div>
-        )}
-
         <button
           onClick={handleSubmit}
           disabled={!titre.trim()}
@@ -176,6 +149,143 @@ export default function ModalAddTutoriel({ open, editTutoriel, zones, onClose, o
           {editTutoriel ? 'Enregistrer' : 'Créer le tutoriel'}
         </button>
       </div>
+    </div>
+  )
+}
+
+// ─── Carte d'un bloc + uploader inline ────────────────────────────────────────
+
+interface BlocCardProps {
+  bloc:        TutoBlockForm
+  /** ID du tutoriel parent — null = pas encore persisté, on cache l'uploader */
+  tutorielId:  number | null
+  onUpdate:    (patch: Partial<TutoBlockForm>) => void
+  onRemove:    () => void
+}
+
+function BlocCard({ bloc, tutorielId, onUpdate, onRemove }: BlocCardProps) {
+  const inputRef    = useRef<HTMLInputElement>(null)
+  const upload      = useUploadMedia()
+  const deleteMedia = useDeleteMedia()
+  const showToast   = useToastStore(s => s.show)
+
+  const mediaIds = bloc.mediaIds ?? []
+
+  const onPickFiles = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (!tutorielId || !e.target.files) return
+    const files = Array.from(e.target.files)
+    const newIds: number[] = []
+    for (const file of files) {
+      try {
+        const m = await upload.mutateAsync({ file, entityType: 'tutoriel', entityId: tutorielId })
+        newIds.push(m.id)
+      } catch {
+        showToast('Échec upload', 'error')
+      }
+    }
+    if (newIds.length > 0) {
+      onUpdate({ mediaIds: [...mediaIds, ...newIds] } as Partial<TutoBlockForm>)
+      showToast(`${newIds.length} fichier${newIds.length > 1 ? 's' : ''} ajouté${newIds.length > 1 ? 's' : ''}`, 'success')
+    }
+    if (inputRef.current) inputRef.current.value = ''
+  }
+
+  const onRemoveMedia = async (mediaId: number) => {
+    if (!tutorielId) return
+    try {
+      await deleteMedia.mutateAsync({ mediaId, entityType: 'tutoriel', entityId: tutorielId })
+      onUpdate({ mediaIds: mediaIds.filter(id => id !== mediaId) } as Partial<TutoBlockForm>)
+    } catch {
+      showToast('Échec suppression', 'error')
+    }
+  }
+
+  const label =
+    bloc.type === 'intro' ? '📝 Intro'
+    : bloc.type === 'step' ? `⚙️ Étape ${(bloc as { number: number }).number}`
+    : '💡 Astuce'
+
+  return (
+    <div className="bg-surface2 border border-border rounded-[10px] p-3 flex flex-col gap-1.5">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] font-bold text-muted uppercase">{label}</span>
+        <button onClick={onRemove} className="text-muted hover:text-red text-[13px]">×</button>
+      </div>
+
+      {bloc.type === 'step' && (
+        <input
+          value={(bloc as { title: string }).title}
+          onChange={e => onUpdate({ title: e.target.value } as Partial<TutoBlockForm>)}
+          placeholder="Titre de l'étape"
+          className="w-full px-2 py-1.5 bg-surface border border-border rounded-[8px] text-[12px] text-text outline-none"
+        />
+      )}
+
+      <textarea
+        value={bloc.text}
+        onChange={e => onUpdate({ text: e.target.value })}
+        placeholder="Texte…"
+        rows={2}
+        className="w-full px-2 py-1.5 bg-surface border border-border rounded-[8px] text-[12px] text-text resize-none outline-none"
+      />
+
+      {/* Vignettes des médias attachés à ce bloc */}
+      {mediaIds.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-1">
+          {mediaIds.map(id => (
+            <BlocMediaThumb key={id} mediaId={id} onRemove={() => onRemoveMedia(id)} />
+          ))}
+        </div>
+      )}
+
+      {/* Bouton upload — masqué si tutoriel pas encore persisté */}
+      {tutorielId && (
+        <>
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            multiple
+            onChange={onPickFiles}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={upload.isPending}
+            className="self-start mt-1 inline-flex items-center gap-1 px-2 py-1 rounded-[6px] border border-border text-[10px] text-muted hover:border-accent/40 hover:text-accent transition-all disabled:opacity-40"
+          >
+            {upload.isPending ? '⏳ upload…' : '📷 Photo'}
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── Vignette d'un média dans le builder ──────────────────────────────────────
+
+function BlocMediaThumb({ mediaId, onRemove }: { mediaId: number; onRemove: () => void }) {
+  const { data, isLoading, isError } = useMediaUrl(mediaId)
+
+  return (
+    <div className="relative group w-14 h-14 rounded-md overflow-hidden border border-border bg-surface">
+      {isLoading && <div className="w-full h-full" />}
+      {isError && (
+        <div className="w-full h-full flex items-center justify-center text-[8px] text-red">erreur</div>
+      )}
+      {data && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={data.url} alt="" className="w-full h-full object-cover" />
+      )}
+      <button
+        type="button"
+        onClick={onRemove}
+        aria-label="Retirer"
+        className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-surface/90 border border-border text-red text-[10px] leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        ×
+      </button>
     </div>
   )
 }
