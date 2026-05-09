@@ -60,6 +60,12 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.
     && echo "opcache.max_accelerated_files=10000" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini \
     && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
+# Module Media — autorise uploads jusqu'à 25 MB côté PHP
+# (cohérent avec client_max_body_size de nginx + limites MediaUploader)
+RUN echo "upload_max_filesize = 25M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size = 25M"    >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit = 256M"    >> /usr/local/etc/php/conf.d/uploads.ini
+
 # Supervisor
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
