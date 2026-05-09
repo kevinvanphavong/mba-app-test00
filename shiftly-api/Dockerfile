@@ -26,6 +26,10 @@ WORKDIR /var/www/html
 
 ENV APP_ENV=prod
 ENV APP_DEBUG=0
+# Autorise les plugins Composer en root (build Docker)
+# Sans ça, le plugin symfony/runtime ne génère pas vendor/autoload_runtime.php
+# et bin/console explose avec "Symfony Runtime is missing".
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Dépendances Composer (couche cachée séparée)
 COPY composer.json composer.lock symfony.lock* ./
