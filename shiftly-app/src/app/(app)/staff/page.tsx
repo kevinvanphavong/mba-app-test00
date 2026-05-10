@@ -8,8 +8,6 @@
 
 import { useMemo, useState }       from 'react'
 import { motion }                  from 'framer-motion'
-import { format }                  from 'date-fns'
-import { fr }                      from 'date-fns/locale'
 import Topbar                      from '@/components/layout/Topbar'
 import MemberRow                   from '@/components/staff/MemberRow'
 import MemberPanel                 from '@/components/staff/MemberPanel'
@@ -70,7 +68,6 @@ export default function StaffPage() {
   )
 
   const topSubtitle = [user?.centre?.nom, `${activeMembers} membre${activeMembers > 1 ? 's' : ''}`].filter(Boolean).join(' · ')
-  const datePill    = format(new Date(), 'EEE. d MMM', { locale: fr })
 
   function handleToggle(id: number) {
     setExpandedId(prev => prev === id ? null : id)
@@ -126,23 +123,12 @@ export default function StaffPage() {
       <Topbar title="Staff" subtitle={`Roster, compétences & contrats — ${user?.centre?.nom ?? ''}`} />
 
       <div className="pt-4 px-4 pb-28 lg:px-7 lg:pb-10 space-y-4 mx-auto w-full">
-        {/* Date pill décorative */}
-        <div className="flex justify-end -mt-1">
-          <div className="px-3 py-1.5 rounded-[10px] border border-border bg-surface text-[11px] text-muted">
-            📅 {datePill}
-          </div>
-        </div>
-
         {/* Hero */}
-        <div className="rounded-[14px] border border-border bg-surface px-5 py-4 flex items-center justify-between flex-wrap gap-4 border-l-[3px] border-l-accent">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-[12px] flex items-center justify-center text-white text-[20px]"
-                 style={{ background: 'linear-gradient(135deg, var(--accent), var(--accent2))' }}>👥</div>
-            <div>
-              <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Staff</div>
-              <div className="font-syne font-extrabold text-[20px] leading-tight">Équipe {user?.centre?.nom ?? ''}</div>
-              <div className="text-[12px] text-muted">{isManager ? 'Vue manager' : 'Vue employé'} · {activeMembers} actif{activeMembers > 1 ? 's' : ''} · {presents} présent{presents > 1 ? 's' : ''} · {totalPts} pts cumulés</div>
-            </div>
+        <div className="rounded-[14px] border border-border border-t-2 border-t-accent bg-surface px-6 py-5 flex items-center justify-between flex-wrap gap-5">
+          <div className="flex flex-col gap-1 min-w-0">
+            <div className="text-[10px] font-bold uppercase tracking-[1.4px] text-muted">Staff</div>
+            <div className="font-syne font-extrabold text-[32px] leading-[1.05]">Équipe {user?.centre?.nom ?? ''}</div>
+            <div className="text-[13px] text-muted mt-1">{isManager ? 'Vue manager' : 'Vue employé'} · {activeMembers} actif{activeMembers > 1 ? 's' : ''} · {presents} présent{presents > 1 ? 's' : ''} · {totalPts} pts cumulés</div>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <Stat label="Membres" value={String(activeMembers)} />
@@ -150,40 +136,35 @@ export default function StaffPage() {
             <Stat label="Total pts" value={String(totalPts)} accent="accent" />
             {isManager && (
               <button onClick={() => { setEditTarget(null); setEditOpen(true) }}
-                      className="px-4 py-3 rounded-[12px] bg-accent text-white font-bold text-[13px] whitespace-nowrap hover:bg-accent2 transition-colors">
+                      className="px-5 py-3.5 rounded-[12px] bg-accent text-white font-bold text-[13px] whitespace-nowrap hover:bg-accent2 transition-colors">
                 + Ajouter un membre
               </button>
             )}
           </div>
         </div>
 
-        {/* Tabs + Search */}
+        {/* Filtres — hors de l'encart table */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex gap-1.5">
             {([
               { v: 'all', l: 'Tous' }, { v: 'MANAGER', l: 'Managers' }, { v: 'EMPLOYE', l: 'Membres' },
             ] as const).map(t => (
               <button key={t.v} onClick={() => setTab(t.v)}
-                      className={`px-3.5 py-1.5 rounded-[10px] text-[12px] font-semibold border transition-all ${
-                        tab === t.v ? 'bg-accent/10 border-accent/40 text-accent' : 'border-border text-muted hover:text-text'
-                      }`}>{t.l}</button>
+                      className={`staff-tab ${tab === t.v ? 'active' : ''}`}>{t.l}</button>
             ))}
           </div>
-          <div className="flex-1 min-w-[200px] flex items-center gap-2 px-3.5 py-2 rounded-[10px] border border-border bg-surface">
-            <span className="text-[13px] text-muted">🔍</span>
+          <div className="flex-1 min-w-[220px] flex items-center gap-2 px-3.5 py-2 rounded-[10px] border border-border bg-surface2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-muted flex-shrink-0">
+              <circle cx="11" cy="11" r="7" /><path d="m20 20-3-3" />
+            </svg>
             <input value={search} onChange={e => setSearch(e.target.value)}
                    placeholder="Rechercher un membre…"
                    className="flex-1 bg-transparent outline-none text-[13px] text-text placeholder:text-muted" />
           </div>
-          <span className="text-[12px] text-muted whitespace-nowrap">{sorted.length} résultat{sorted.length > 1 ? 's' : ''}</span>
+          <span className="text-[12px] text-muted whitespace-nowrap ml-auto">{sorted.length} résultat{sorted.length > 1 ? 's' : ''}</span>
         </div>
 
-        {/* Table headers (desktop) */}
-        <div className="staff-table-headers">
-          <div>Membre</div><div>Rôle</div><div>Zones maîtrisées</div><div>Niveau</div><div>Points</div><div>Tutoriels</div>
-        </div>
-
-        {/* Liste */}
+        {/* Encart table : headers + lignes uniquement */}
         {sorted.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-14 text-center">
             <span className="text-4xl mb-3">🔍</span>
@@ -191,7 +172,10 @@ export default function StaffPage() {
             <p className={ty.metaLg}>Modifie la recherche ou les filtres.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-0">
+          <div className="staff-table-card">
+            <div className="staff-table-headers">
+              <div>Membre</div><div>Rôle</div><div>Zones maîtrisées</div><div>Niveau</div><div>Points</div><div>Tutoriels</div>
+            </div>
             {sorted.map(member => {
               const isSelf     = myUserId === member.id
               const isExpanded = expandedId === member.id
@@ -241,9 +225,9 @@ export default function StaffPage() {
 function Stat({ label, value, accent }: { label: string; value: string; accent?: 'green' | 'accent' }) {
   const cls = accent === 'green' ? 'text-green' : accent === 'accent' ? 'text-accent' : 'text-text'
   return (
-    <div className="px-4 py-2 rounded-[12px] border border-border bg-surface2 text-center min-w-[88px]">
-      <div className="text-[9px] font-bold uppercase tracking-wider text-muted mb-1">{label}</div>
-      <div className={`font-syne font-extrabold text-[20px] leading-none ${cls}`}>{value}</div>
+    <div className="px-[18px] py-3 rounded-[12px] border border-border bg-surface2 text-center min-w-[100px]">
+      <div className="text-[9px] font-bold uppercase tracking-[1.4px] text-muted mb-1.5">{label}</div>
+      <div className={`font-syne font-extrabold text-[24px] leading-none ${cls}`}>{value}</div>
     </div>
   )
 }
