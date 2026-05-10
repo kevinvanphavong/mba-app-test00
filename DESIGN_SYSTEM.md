@@ -228,22 +228,38 @@ Checkbox: 20px w/h, rounded-md, border-2
 Priority dot: w-[6px] h-[6px] rounded-full (red/yellow/muted)
 ```
 
-### 5.7 Staff v2 — MemberRow + MemberPanel + SkillTag
+### 5.7 Staff v3 — Encart table + MemberRow + MemberPanel + SkillTag
 
 ```
+.staff-table-card
+  Encart unique englobant headers + lignes.
+  bg surface, border 1px var(--border), rounded-[14px], overflow:hidden.
+  Les filtres (tabs/search/results) sont rendus AU-DESSUS, pas dedans.
+
+.staff-tab (Tous / Managers / Membres)
+  Style ghost local au module : transparent au repos, surface2 + border + text actif.
+  padding 8/16, rounded-[10px], font 13/600.
+
 MemberRow (.staff-member-row)
-  display: grid; grid-template-columns: 2fr 100px 1.6fr 130px 120px 110px;
-  bg surface, border, rounded-[14px], gap-16, padding 14/16, mb-8.
-  .expanded → border rgba(249,115,22,0.30)
-  .is-self  → border-left 3px var(--accent), padding-left 13
-  Avatar : 40px rounded-[10px] gradient + wrapper 2px de la couleur user.
-  Cols : Identity · Role badge · Zones (chips colorées) · Level dots (4) · Points · Tutos
+  display: grid; grid-template-columns: 2fr 100px 1.6fr 140px 130px 120px;
+  padding: 16px 24px 16px 40px (chevron à 18px); border-bottom 1px var(--border).
+  Pas de border-radius / margin-bottom : la card parente gère le rendu.
+  ::before chevron ▸ — rotate 90° + accent quand .expanded.
+  Identité du "vous" : badge inline "Vous" — plus de border-left orange.
+  Avatar : 44px rounded-[12px] gradient (sans ring 2px).
+  .presence-dot : 12px absolu bottom/right -2px, green par défaut, muted si data-present="false",
+                  border 2px var(--surface).
+  Cols : Identity · Role badge · Zones (chips colorées) · Level dots (4×9px) · Points · Tutos
+  Points : Syne 22px, barre 70px×4px gradient accent→accent2.
+  Tutoriels : layout horizontal flex gap-2.5 (texte + barre 60px).
   Niveau : 4 paliers via calculerNiveau() — Débutant <30% / Intermédiaire 30-60% /
            Confirmé 60-90% / Avancé ≥90%
 
 MemberPanel (.staff-member-panel)
-  bg surface, border, no-top-border, rounded-bottom-14, mt -8 (chevauche row).
+  Pas de border / radius : intégré dans la card parente.
+  bg rgba(var(--bg-rgb), 0.5), padding 4px 24px 18px 40px.
   3 sections : SkillCardsByZone · info-row (3 cols) · actions-row.
+  Boutons sans emoji : "Modifier la fiche" / "Ajouter une compétence" / "Désactiver".
 
 SkillTag (motion.button)
   rounded-md px-2.5 py-1 text-[11px] font-semibold border.
@@ -254,7 +270,9 @@ SkillTag (motion.button)
 
 Mobile (< 980px)
   .staff-table-headers : display:none.
-  .staff-member-row : grid → 1 col, .col → flex-start.
+  .staff-member-row : grid → 1 col, .col → flex-start, padding 16px,
+                      ::before chevron disparaît (display:none).
+  .staff-member-panel : padding 4px 16px 18px.
   .skill-grid + .info-row : 1 col.
 ```
 

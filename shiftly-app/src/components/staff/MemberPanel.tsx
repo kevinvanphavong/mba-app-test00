@@ -89,16 +89,16 @@ export default function MemberPanel({
           <div className="font-syne font-extrabold text-[22px] text-text leading-none">
             {member.tutorielsLus} <span className="text-[12px] text-muted font-semibold">sur {meta.tutorielsTotal}</span>
           </div>
-          <div className="mt-2 h-1.5 rounded-full bg-surface overflow-hidden">
-            <div className="h-full rounded-full" style={{ width: `${tutoPct}%`, background: 'linear-gradient(90deg, var(--accent), var(--accent2))' }} />
+          <div className="mt-2.5 h-[5px] rounded-[3px] bg-surface overflow-hidden">
+            <div className="h-full rounded-[3px]" style={{ width: `${tutoPct}%`, background: 'linear-gradient(90deg, var(--accent), var(--accent2))' }} />
           </div>
         </div>
 
         <div className="info-card">
           <div className="panel-label">Tenue de service</div>
           {(meta.tenueHaut || meta.tenueBas || meta.tenueChaussures) ? (
-            <div className="flex items-start gap-2 text-[12px] text-text">
-              <div className="w-7 h-7 rounded-lg bg-surface border border-border flex items-center justify-center text-[14px] flex-shrink-0">👕</div>
+            <div className="flex items-center gap-2.5 text-[12px] text-text">
+              <div className="w-8 h-8 rounded-lg bg-surface border border-border flex items-center justify-center text-[16px] flex-shrink-0">👕</div>
               <div className="leading-snug">
                 {[meta.tenueHaut, meta.tenueBas, meta.tenueChaussures].filter(Boolean).join(' · ')}
               </div>
@@ -111,18 +111,18 @@ export default function MemberPanel({
 
       {/* Actions */}
       {(isManager || isSelf) && (
-        <div className="panel-section flex items-center justify-between flex-wrap gap-2">
+        <div className="panel-section flex items-center justify-between flex-wrap gap-2.5">
           <div className="flex gap-2 flex-wrap">
-            {isManager && <button onClick={onEdit} className="btn-staff-secondary">✎ Modifier la fiche</button>}
+            {isManager && <button onClick={onEdit} className="btn-staff-secondary">Modifier la fiche</button>}
             {isSelf && !isManager && (
-              <a href="/reglages" className="btn-staff-secondary inline-flex items-center">✎ Modifier mon profil</a>
+              <a href="/reglages" className="btn-staff-secondary inline-flex items-center">Modifier mon profil</a>
             )}
             {isManager && (
-              <button onClick={handleAddSkill} className="btn-staff-secondary">+ Ajouter une compétence</button>
+              <button onClick={handleAddSkill} className="btn-staff-secondary">Ajouter une compétence</button>
             )}
           </div>
           {isManager && member.actif && (
-            <button onClick={onDeactivate} className="btn-staff-danger">⊘ Désactiver</button>
+            <button onClick={onDeactivate} className="btn-staff-danger">Désactiver</button>
           )}
         </div>
       )}
