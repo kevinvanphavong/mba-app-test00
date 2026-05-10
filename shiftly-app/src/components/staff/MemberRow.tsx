@@ -21,12 +21,12 @@ interface Props {
 function ProgressColumn({ value, total, accentClass }: { value: number; total: number; accentClass: string }) {
   const pct = total > 0 ? Math.min(100, Math.round((value / total) * 100)) : 0
   return (
-    <>
+    <div className="flex items-center gap-2.5">
       <div className="text-[12px] text-text font-semibold">{value}/{total}</div>
       <div className="w-[60px] h-1 rounded-full bg-surface2 overflow-hidden">
         <div className={`h-full rounded-full ${accentClass}`} style={{ width: `${pct}%` }} />
       </div>
-    </>
+    </div>
   )
 }
 
@@ -53,27 +53,27 @@ export default function MemberRow({ member, meta, isSelf, isExpanded, onToggle }
       onClick={() => onToggle(member.id)}
       className={[
         'staff-member-row cursor-pointer select-none',
-        isExpanded ? 'expanded' : '', isSelf ? 'is-self' : '',
+        isExpanded ? 'expanded' : '',
         !member.actif ? 'opacity-50' : '',
       ].join(' ')}
     >
       {/* Col Membre */}
-      <div className="col flex items-center gap-3 min-w-0">
-        <div className="p-[2px] rounded-[12px] flex-shrink-0" style={{ background: member.avatarColor }}>
-          <div className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white font-extrabold text-[11px] tracking-wider"
+      <div className="col flex items-center gap-3.5 min-w-0">
+        <div className="relative flex-shrink-0">
+          <div className="w-11 h-11 rounded-[12px] flex items-center justify-center text-white font-extrabold text-[13px] tracking-[0.4px]"
                style={{ background: gradient }}>{initials}</div>
+          <span className="presence-dot" data-present={member.isPresent} />
         </div>
         <div className="flex flex-col min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[13px] font-bold leading-tight">
+            <span className="text-[14px] font-bold leading-[1.2]">
               {member.prenom ? `${member.prenom} ${member.nom}` : member.nom}
             </span>
             {isSelf && <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[5px] bg-accent/15 text-accent border border-accent/30">Vous</span>}
             {!member.actif && <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-[5px] bg-surface2 text-muted border border-border">Inactif</span>}
-            <span className={`expand-marker text-[10px] text-accent transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
           </div>
           {(member.typeContrat || member.heuresHebdo != null) && (
-            <span className="text-[10px] text-muted mt-0.5">
+            <span className="text-[11px] text-muted mt-[3px]">
               {member.typeContrat ?? '—'}{member.heuresHebdo != null && ` · ${member.heuresHebdo}h`}
             </span>
           )}
@@ -101,28 +101,28 @@ export default function MemberRow({ member, meta, isSelf, isExpanded, onToggle }
       </div>
 
       {/* Col Niveau */}
-      <div className="col flex items-center gap-2">
-        <div className="flex gap-[3px]">
+      <div className="col flex items-center gap-2.5">
+        <div className="flex gap-1">
           {[1, 2, 3, 4].map(i => (
-            <span key={i} className="w-2 h-2 rounded-full"
-              style={{ background: i <= niveau.palier ? 'var(--accent)' : 'var(--surface2)' }} />
+            <span key={i} className="w-[9px] h-[9px] rounded-full"
+              style={{ background: i <= niveau.palier ? 'var(--accent)' : 'var(--surface3)' }} />
           ))}
         </div>
-        <span className="text-[11px] text-muted">{niveau.label}</span>
+        <span className="text-[12px] text-muted font-medium">{niveau.label}</span>
       </div>
 
       {/* Col Points */}
-      <div className="col flex flex-col gap-1">
-        <div className="font-syne font-extrabold text-accent text-[18px] leading-none">
-          {member.points}<span className="text-[10px] font-bold text-muted ml-1">pts</span>
+      <div className="col flex flex-col items-start gap-1.5">
+        <div className="font-syne font-extrabold text-accent text-[22px] leading-none">
+          {member.points}<span className="text-[11px] font-bold text-muted ml-[3px]">pts</span>
         </div>
-        <div className="w-[60px] h-1 rounded-full bg-surface2 overflow-hidden">
-          <div className="h-full rounded-full" style={{ width: `${pointsPct}%`, background: 'linear-gradient(90deg, var(--accent), var(--accent2))' }} />
+        <div className="w-[70px] h-1 rounded-[2px] bg-surface2 overflow-hidden">
+          <div className="h-full rounded-[2px]" style={{ width: `${pointsPct}%`, background: 'linear-gradient(90deg, var(--accent), var(--accent2))' }} />
         </div>
       </div>
 
       {/* Col Tutoriels */}
-      <div className="col flex flex-col gap-1">
+      <div className="col">
         <ProgressColumn value={member.tutorielsLus} total={meta.tutorielsTotal} accentClass="bg-accent" />
       </div>
     </motion.div>
