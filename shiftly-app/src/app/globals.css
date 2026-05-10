@@ -576,68 +576,134 @@ input:focus { border-color: var(--accent); }
 .validation-mobile-modal-sheet    { position: relative; background: var(--surface); border-top: 1px solid var(--border); border-radius: 20px 20px 0 0; max-height: 90dvh; display: flex; flex-direction: column; overflow: hidden; }
 .validation-mobile-modal-handle   { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 10px auto 0; }
 
-/* ─── Staff v2 ──────────────────────────────────────────────────────────────── */
+/* ─── Staff v3 ──────────────────────────────────────────────────────────────── */
+
+/* Tabs ghost — local à /staff (Tous / Managers / Membres) */
+.staff-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.staff-tab:hover { color: var(--text); }
+.staff-tab.active {
+  background: var(--surface2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+/* Encart table : contient uniquement headers + lignes */
+.staff-table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
 
 .staff-table-headers {
   display: grid;
-  grid-template-columns: minmax(200px, 2fr) 100px minmax(180px, 1.6fr) 130px 120px 110px;
+  grid-template-columns: minmax(220px, 2fr) 100px minmax(200px, 1.6fr) 140px 130px 120px;
   gap: 16px;
-  padding: 0 16px 8px;
+  padding: 14px 24px 14px 40px;
+  background: var(--surface2);
   border-bottom: 1px solid var(--border);
-  margin-bottom: 8px;
-  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px;
   color: var(--muted);
 }
 
 .staff-member-row {
   display: grid;
-  grid-template-columns: minmax(200px, 2fr) 100px minmax(180px, 1.6fr) 130px 120px 110px;
+  grid-template-columns: minmax(220px, 2fr) 100px minmax(200px, 1.6fr) 140px 130px 120px;
   gap: 16px; align-items: center;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-  padding: 14px 16px; margin-bottom: 8px;
-  transition: border-color 0.15s;
+  padding: 16px 24px 16px 40px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
 }
-.staff-member-row.expanded { border-color: rgba(249, 115, 22, 0.30); }
-.staff-member-row.is-self  { border-left: 3px solid var(--accent); padding-left: 13px; }
+.staff-member-row:last-child { border-bottom: none; }
+.staff-member-row:hover { background: rgba(var(--surface2-rgb), 0.3); }
+
+/* Chevron expand à gauche (rendu via pseudo-élément, propre à la card) */
+.staff-member-row::before {
+  content: '▸';
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 10px;
+  transition: transform 0.2s, color 0.15s;
+}
+.staff-member-row:hover::before { color: var(--text); }
+.staff-member-row.expanded::before {
+  transform: translateY(-50%) rotate(90deg);
+  color: var(--accent);
+}
+
+/* Dot de présence sur l'avatar */
+.presence-dot {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 2px solid var(--surface);
+}
+.presence-dot[data-present="false"] { background: var(--muted); }
 
 .staff-member-panel {
-  background: var(--surface); border: 1px solid var(--border); border-top: none;
-  border-radius: 0 0 14px 14px;
-  margin-top: -8px; margin-bottom: 8px;
-  padding: 8px 16px 16px;
+  background: rgba(var(--bg-rgb), 0.5);
+  padding: 4px 24px 18px 40px;
+  border-bottom: 1px solid var(--border);
 }
-.panel-section + .panel-section { margin-top: 14px; }
+.staff-member-row.expanded { border-bottom: none; }
+.staff-member-panel:last-child { border-bottom: none; }
+
+.panel-section + .panel-section { margin-top: 16px; }
 .panel-label {
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
-  color: var(--muted); margin-bottom: 8px;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px;
+  color: var(--muted); margin-bottom: 10px;
 }
 
-.skill-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.skill-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
-.skill-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.skill-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.skill-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.skill-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
 
-.info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.info-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.info-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.info-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
 
 .btn-staff-secondary {
   background: var(--surface2); border: 1px solid var(--border); color: var(--text);
-  padding: 9px 14px; border-radius: 10px;
+  padding: 10px 16px; border-radius: 10px;
   font-size: 12px; font-weight: 600; cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
 }
 .btn-staff-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
 .btn-staff-danger {
-  background: transparent; border: 1px solid rgba(239, 68, 68, 0.40); color: var(--red);
-  padding: 9px 14px; border-radius: 10px;
+  background: transparent; border: 1px solid rgba(var(--red-rgb), 0.40); color: var(--red);
+  padding: 10px 16px; border-radius: 10px;
   font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s;
 }
-.btn-staff-danger:hover { background: rgba(239, 68, 68, 0.10); }
+.btn-staff-danger:hover { background: rgba(var(--red-rgb), 0.10); }
 
 @media (max-width: 980px) {
   .staff-table-headers { display: none; }
-  .staff-member-row { grid-template-columns: 1fr; gap: 12px; }
+  .staff-member-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+  .staff-member-row::before { display: none; }
   .staff-member-row .col { justify-content: flex-start; }
+  .staff-member-panel { padding: 4px 16px 18px; }
   .skill-grid { grid-template-columns: 1fr; }
   .info-row   { grid-template-columns: 1fr; }
 }
