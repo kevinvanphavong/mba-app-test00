@@ -235,8 +235,11 @@ export default function PlanningManagerView() {
           </div>
         </div>
 
-        {/* ── Toolbar : zones (info) + boutons existants ──────────────────── */}
-        <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between">
+        {/* ── Toolbar : zones (info) + boutons existants ────────────────────
+             DOM order = zones d'abord (tab order logique), puis boutons.
+             flex-col-reverse pour < desktop → boutons visuellement au-dessus,
+             zones en-dessous. desktop:flex-row remet en ligne (zones gauche / boutons droite). */}
+        <div className="flex flex-col-reverse gap-3 desktop:flex-row desktop:items-center desktop:justify-between">
           {/* Légende zones — info uniquement, pas de filtre */}
           {zones.length > 0 && (
             <div className="flex items-center gap-3 flex-wrap">
