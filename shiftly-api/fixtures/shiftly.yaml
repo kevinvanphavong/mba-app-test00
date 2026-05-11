@@ -14,6 +14,17 @@ App\Entity\Centre:
     tenueHaut:       "Polo Shiftly noir"
     tenueBas:        "Pantalon noir"
     tenueChaussures: "Chaussures noires fermées"
+    # Horaires d'ouverture FGC — semaine type validée par Kévin (2026-05-12).
+    # Convention : "fermeture" stocké brut en HH:MM. Si fermeture < ouverture,
+    # la fermeture est sur le lendemain (géré par PlanningService).
+    openingHours:
+      lundi:    { ouvert: true,  ouverture: "17:00", fermeture: "23:00" }
+      mardi:    { ouvert: true,  ouverture: "17:00", fermeture: "23:00" }
+      mercredi: { ouvert: true,  ouverture: "14:00", fermeture: "23:00" }
+      jeudi:    { ouvert: true,  ouverture: "14:00", fermeture: "00:00" }
+      vendredi: { ouvert: true,  ouverture: "14:00", fermeture: "01:00" }
+      samedi:   { ouvert: true,  ouverture: "14:00", fermeture: "02:00" }
+      dimanche: { ouvert: true,  ouverture: "14:00", fermeture: "22:00" }
 
 # ─── Zones ───────────────────────────────────────────────────────────────────
 App\Entity\Zone:
