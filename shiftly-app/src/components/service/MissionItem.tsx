@@ -14,6 +14,9 @@ interface MissionItemProps {
   onCapturePhoto?: (mission: ServiceMission) => void
   /** Callback pour ouvrir la lightbox plein écran d'une preuve photo. */
   onOpenPhoto?: (completionId: number) => void
+  /** Appelé quand l'user veut DÉCOCHER une mission requiresPhoto déjà validée.
+   *  Le parent affiche un modal de confirmation avant de réellement décocher. */
+  onConfirmUncheck?: (mission: ServiceMission) => void
 }
 
 const CATEGORIE_BADGE: Record<string, { label: string; cls: string }> = {
@@ -36,6 +39,7 @@ export default function MissionItem({
   onToggle,
   onCapturePhoto,
   onOpenPhoto,
+  onConfirmUncheck,
 }: MissionItemProps) {
   const cat   = CATEGORIE_BADGE[mission.categorie]
   const prio  = PRIORITE_CONFIG[mission.priorite] ?? PRIORITE_CONFIG['ne_pas_oublier']
@@ -43,12 +47,18 @@ export default function MissionItem({
     ? getInitials(mission.completedBy.nom, mission.completedBy.prenom)
     : null
 
-  // Si la mission demande une photo et n'est pas encore validée → ouvre la modal capture
-  // au lieu du toggle direct. Le décochage (déjà completed) reste un toggle classique.
+  // 3 branches :
+  //  - requiresPhoto + !completed → modal capture (création de preuve)
+  //  - requiresPhoto + completed  → modal confirmation décochage (évite perte accidentelle de la preuve)
+  //  - sinon                       → toggle direct
   function handleClick() {
     if (loading) return
     if (mission.requiresPhoto && !completed) {
       onCapturePhoto?.(mission)
+      return
+    }
+    if (mission.requiresPhoto && completed) {
+      onConfirmUncheck?.(mission)
       return
     }
     onToggle(mission.id, completed)
@@ -148,7 +158,7 @@ export default function MissionItem({
               onOpenPhoto?.(mission.completionId)
             }
           }}
-          className="w-[28px] h-[28px] rounded-[6px] overflow-hidden flex-shrink-0 border border-border bg-surface cursor-pointer"
+          className="w-[44px] h-[44px] tablet:w-[36px] tablet:h-[36px] rounded-[8px] overflow-hidden flex-shrink-0 border border-border bg-surface cursor-pointer"
           title="Voir la preuve photo (cliquer pour agrandir)"
         >
           <AuthImage
