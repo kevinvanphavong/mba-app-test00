@@ -27,17 +27,17 @@ const STATUT_COLOR: Record<string, string> = {
 
 /**
  * Dérive les classes de la grille zones selon le viewport et le nombre de zones.
- *  - mobile (<md)   : 1 col
- *  - tablette (md)  : 2 col
- *  - desktop (lg)   : 1 zone → 1 col, 2/4 zones → 2 col, 3 ou 5+ zones → 3 col
+ *  - mobile (< 500px)  : 1 col
+ *  - tablet (500–899)  : 2 col
+ *  - desktop (≥ 900px) : 1 zone → 1 col, 2/4 zones → 2 col, 3 ou 5+ zones → 3 col
  */
 function getZonesGridClass(count: number): string {
   if (count <= 0) return ''
-  let lg: string
-  if (count === 1)                    lg = 'lg:grid-cols-1'
-  else if (count === 2 || count === 4) lg = 'lg:grid-cols-2'
-  else                                 lg = 'lg:grid-cols-3'
-  return `grid grid-cols-1 md:grid-cols-2 ${lg} gap-3`
+  let desktopCols: string
+  if (count === 1)                    desktopCols = 'desktop:grid-cols-1'
+  else if (count === 2 || count === 4) desktopCols = 'desktop:grid-cols-2'
+  else                                 desktopCols = 'desktop:grid-cols-3'
+  return `grid grid-cols-1 tablet:grid-cols-2 ${desktopCols} gap-3`
 }
 
 /** Nom du manager pour la ligne « Prénom(s) (Manager responsable) ». */
@@ -105,12 +105,12 @@ export default function HeroService({ data }: HeroServiceProps) {
         {/* ── Bloc principal : info gauche + cercle droite ──────────── */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
-            <h2 className="font-syne font-extrabold text-text capitalize text-[24px] md:text-[28px] leading-tight truncate">
+            <h2 className="font-syne font-extrabold text-text capitalize text-[24px] tablet:text-[28px] leading-tight truncate">
               {dayLabel}
             </h2>
 
             {today.heureDebut && today.heureFin ? (
-              <div className={`${ty.kpi} lg:text-[30px] mt-1`}>
+              <div className={`${ty.kpi} desktop:text-[30px] mt-1`}>
                 {today.heureDebut}
                 <span className="text-muted font-normal text-[16px] mx-1.5">→</span>
                 {today.heureFin}

@@ -161,7 +161,7 @@ export default function ValidationPage() {
     <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
       <Topbar title={topTitle} subtitle={topSubtitle} />
 
-      <div className="flex-1 p-4 md:p-6 mx-auto w-full">
+      <div className="flex-1 p-4 tablet:p-6 mx-auto w-full">
 
         {/* Boutons d'action — le titre vient désormais du Topbar */}
         <div className="flex items-center justify-end mb-5 flex-wrap gap-3">
@@ -242,7 +242,7 @@ export default function ValidationPage() {
         <AnimatePresence>
           {selectedUserId && detailEmploye && (
             <motion.div
-              className="validation-mobile-modal lg:hidden"
+              className="validation-mobile-modal desktop:hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -290,11 +290,11 @@ export default function ValidationPage() {
         </AnimatePresence>
 
         {/* Section basse : Détail + Résumé + Alertes */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="grid grid-cols-1 desktop:grid-cols-2 gap-5">
 
           {/* Panneau détail employé — desktop uniquement */}
           <div
-            className="hidden lg:block rounded-[14px] overflow-hidden"
+            className="hidden desktop:block rounded-[14px] overflow-hidden"
             style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
           >
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
@@ -324,7 +324,7 @@ export default function ValidationPage() {
           </div>
 
           {/* Résumé + Alertes — pleine largeur mobile, colonne droite desktop */}
-          <div className="lg:col-start-2 flex flex-col gap-5">
+          <div className="desktop:col-start-2 flex flex-col gap-5">
 
             {/* Résumé semaine */}
             <div

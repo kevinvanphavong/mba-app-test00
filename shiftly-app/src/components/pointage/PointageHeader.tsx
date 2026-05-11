@@ -49,7 +49,7 @@ export default function PointageHeader({ data, onCloturerClick }: Props) {
       variants={fadeUpVariants}
       initial="hidden"
       animate="show"
-      className="flex items-start justify-between gap-4 p-4 md:p-6"
+      className="flex items-start justify-between gap-4 p-4 tablet:p-6"
     >
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">

@@ -37,7 +37,7 @@ function shiftWeek(ws: string, delta: number): string {
  *  lg+  : auto-size avec un min-width pour rester lisible. */
 function KpiBox({ label, value, accent }: { label: string; value: string; accent: string }) {
   return (
-    <div className="flex-1 lg:flex-initial lg:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] bg-[var(--surface2)] px-4 py-2.5">
+    <div className="flex-1 desktop:flex-initial desktop:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] bg-[var(--surface2)] px-4 py-2.5">
       <span className="text-[10px] uppercase tracking-wider text-[var(--muted)] font-syne font-bold">{label}</span>
       <span className="text-[20px] font-syne font-extrabold mt-0.5 leading-none" style={{ color: accent }}>{value}</span>
     </div>
@@ -182,14 +182,14 @@ export default function PlanningManagerView() {
         onReportIncident={canReport ? openReportIncident : undefined}
       />
 
-      <div className="flex flex-col gap-4 p-6 md:px-6 pb-24 md:pb-8">
+      <div className="flex flex-col gap-4 p-6 tablet:px-6 pb-24 tablet:pb-8">
 
         {/* ── Carte "Planning hebdomadaire" ───────────────────────────────── */}
-        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[14px] p-5 md:p-6 accent-bar relative overflow-hidden">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[14px] p-5 tablet:p-6 accent-bar relative overflow-hidden">
+          <div className="flex flex-col gap-4 desktop:flex-row desktop:items-center desktop:justify-between desktop:gap-6">
 
             {/* Bloc gauche : label + titre + chevrons + sous-titre */}
-            <div className="min-w-0 w-full lg:flex-1">
+            <div className="min-w-0 w-full desktop:flex-1">
               <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-[var(--muted)] mb-2">
                 Planning hebdomadaire
               </p>
@@ -199,7 +199,7 @@ export default function PlanningManagerView() {
                   className="shrink-0 w-9 h-9 flex items-center justify-center rounded-[10px] border border-[var(--border)] bg-[var(--surface2)] text-[var(--muted)] hover:text-[var(--text)] hover:border-[var(--accent)] transition-colors"
                   aria-label="Semaine précédente"
                 >‹</button>
-                <h2 className="min-w-0 truncate font-syne font-extrabold text-[22px] md:text-[28px] text-[var(--text)] leading-tight capitalize">
+                <h2 className="min-w-0 truncate font-syne font-extrabold text-[22px] tablet:text-[28px] text-[var(--text)] leading-tight capitalize">
                   {innerTitle}
                 </h2>
                 <button
@@ -208,7 +208,7 @@ export default function PlanningManagerView() {
                   aria-label="Semaine suivante"
                 >›</button>
               </div>
-              <p className="text-[12px] md:text-[13px] text-[var(--muted)] mt-2">
+              <p className="text-[12px] tablet:text-[13px] text-[var(--muted)] mt-2">
                 {[user?.centre?.nom, `${nbCreneaux} créneaux planifiés`, `${nbMembres} membres`].filter(Boolean).join(' · ')}
               </p>
               {badgeState === 'PUBLIE_DIRTY' && publishedAt && (
@@ -221,8 +221,8 @@ export default function PlanningManagerView() {
             {/* Bloc droite : badge statut + 3 KPIs
                 < lg : sous le bloc semaine, chaque cellule prend une part égale (flex-1) → remplit la largeur
                 lg+ : auto-size sur la droite, alignées au centre vertical */}
-            <div className="flex items-stretch gap-2 md:gap-3 w-full lg:w-auto">
-              <div className={`flex-1 lg:flex-initial lg:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] px-4 py-2.5 ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
+            <div className="flex items-stretch gap-2 tablet:gap-3 w-full desktop:w-auto">
+              <div className={`flex-1 desktop:flex-initial desktop:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] px-4 py-2.5 ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
                 <span className="text-[10px] uppercase tracking-wider opacity-70 font-syne font-bold">Statut</span>
                 <span className="text-[12px] font-bold uppercase mt-0.5 leading-tight text-center">{badge.label}</span>
               </div>
@@ -234,7 +234,7 @@ export default function PlanningManagerView() {
         </div>
 
         {/* ── Toolbar : zones (info) + boutons existants ──────────────────── */}
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between">
           {/* Légende zones — info uniquement, pas de filtre */}
           {zones.length > 0 && (
             <div className="flex items-center gap-3 flex-wrap">
@@ -252,7 +252,7 @@ export default function PlanningManagerView() {
             {statut === 'PUBLIE' && (
               <button
                 onClick={() => setStaffPreviewOpen(true)}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] md:text-[13px] transition-colors ${
+                className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] tablet:text-[13px] transition-colors ${
                   badgeState === 'PUBLIE_DIRTY'
                     ? 'border-[var(--yellow)] bg-[rgba(234,179,8,0.10)] text-[var(--yellow)] hover:bg-[rgba(234,179,8,0.16)]'
                     : 'border-[var(--border)] bg-[var(--surface2)] text-[var(--text)] hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]'
@@ -263,13 +263,13 @@ export default function PlanningManagerView() {
             )}
             <button
               onClick={() => exportPdf(displayWeekStart)}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] md:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] tablet:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
             >
               📥 Export PDF
             </button>
             <button
               onClick={() => setShowSnapshots(v => !v)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] md:text-[13px] transition-colors ${
+              className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2 text-[12px] tablet:text-[13px] transition-colors ${
                 showSnapshots
                   ? 'border-[var(--accent)] bg-[rgba(249,115,22,0.08)] text-[var(--accent)]'
                   : 'border-[var(--border)] bg-[var(--surface2)] text-[var(--text)] hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]'
@@ -279,26 +279,26 @@ export default function PlanningManagerView() {
             </button>
             <button
               onClick={() => duplicateWeek.mutate({ sourceWeekStart: displayWeekStart, targetWeekStart: shiftWeek(displayWeekStart, 1) })}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] md:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] tablet:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
             >
               📋 Dupliquer semaine
             </button>
             <button
               onClick={() => setTemplatesOpen(true)}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] md:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] tablet:text-[13px] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:bg-[rgba(249,115,22,0.08)]"
             >
               📦 Templates
             </button>
             <button
               onClick={handleClearWeek}
               disabled={clearWeek.isPending}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] md:text-[13px] text-[var(--red)] transition-colors hover:border-[var(--red)] hover:bg-[rgba(239,68,68,0.08)] disabled:opacity-50"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface2)] px-3 py-2 text-[12px] tablet:text-[13px] text-[var(--red)] transition-colors hover:border-[var(--red)] hover:bg-[rgba(239,68,68,0.08)] disabled:opacity-50"
             >
               {clearWeek.isPending ? '…' : '🧹 Vider la semaine'}
             </button>
             <button
               onClick={() => setPublishOpen(true)}
-              className="shrink-0 rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[12px] md:text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+              className="shrink-0 rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] px-4 py-2 text-[12px] tablet:text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
             >
               {ctaLabel}
             </button>

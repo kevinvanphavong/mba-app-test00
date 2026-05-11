@@ -81,7 +81,7 @@ export default function StaffPreviewModal({ open, onClose, weekStart }: Props) {
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-center pb-1 pt-3 md:hidden">
+            <div className="flex justify-center pb-1 pt-3 tablet:hidden">
               <div className="h-1 w-9 rounded-full bg-[var(--border)]" />
             </div>
 

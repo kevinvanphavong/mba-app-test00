@@ -24,7 +24,7 @@ export default function TutoBlockMedia({ mediaIds }: Props) {
 
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+      <div className="grid grid-cols-2 tablet:grid-cols-3 gap-2 mt-2">
         {mediaIds.map((id) => (
           <BlockMediaTile key={id} mediaId={id} onOpenImage={setOpenMedia} />
         ))}

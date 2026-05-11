@@ -19,12 +19,12 @@ function fmt(d: string) {
 /** Barre de navigation semaine — centrée, sans actions (celles-ci sont dans le header) */
 export default function WeekNavigator({ weekStart, weekEnd, weekNumber, onPrev, onNext, onToday }: WeekNavigatorProps) {
   return (
-    <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-4 py-2 md:px-6 md:py-3">
+    <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-4 py-2 tablet:px-6 tablet:py-3">
       {/* Placeholder gauche pour équilibrage */}
       <div className="w-20" />
 
       {/* Navigation centrée */}
-      <div className="flex items-center gap-3 md:gap-4">
+      <div className="flex items-center gap-3 tablet:gap-4">
         <button
           onClick={onPrev}
           className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface2)] text-[var(--text)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)]"
@@ -32,8 +32,8 @@ export default function WeekNavigator({ weekStart, weekEnd, weekNumber, onPrev, 
         >←</button>
 
         <div className="text-center">
-          <p className="font-syne text-[13px] font-bold text-[var(--text)] md:text-[15px]">Semaine {weekNumber}</p>
-          <p className="text-[11px] text-[var(--muted)] md:text-[13px]">{fmt(weekStart)} — {fmt(weekEnd)}</p>
+          <p className="font-syne text-[13px] font-bold text-[var(--text)] tablet:text-[15px]">Semaine {weekNumber}</p>
+          <p className="text-[11px] text-[var(--muted)] tablet:text-[13px]">{fmt(weekStart)} — {fmt(weekEnd)}</p>
         </div>
 
         <button

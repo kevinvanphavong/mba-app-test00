@@ -71,7 +71,7 @@ export default function PostesDesktopView({
   }
 
   return (
-    <div className="hidden lg:flex flex-col gap-4">
+    <div className="hidden desktop:flex flex-col gap-4">
       {/* Carousel zones */}
       <ZoneTabsCarousel
         zones={zones}

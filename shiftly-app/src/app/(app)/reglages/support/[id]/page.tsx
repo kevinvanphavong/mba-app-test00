@@ -41,7 +41,7 @@ export default function MyTicketDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-5 lg:p-8">
+    <div className="max-w-3xl mx-auto p-5 desktop:p-8">
       <Link href="/reglages/support" className="text-[12px] text-muted hover:text-accent">← Retour au support</Link>
 
       <div className="mt-3 mb-5">

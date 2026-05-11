@@ -69,12 +69,12 @@ export default function SnapshotPanel({ weekStart, open, onClose }: SnapshotPane
             onClick={(e) => e.stopPropagation()}
           >
             {/* Handle mobile */}
-            <div className="flex justify-center pb-1 pt-3 md:hidden">
+            <div className="flex justify-center pb-1 pt-3 tablet:hidden">
               <div className="h-1 w-9 rounded-full bg-[var(--border)]" />
             </div>
 
             {/* En-tête */}
-            <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-5 py-3 md:py-4">
+            <div className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-5 py-3 tablet:py-4">
               <div className="min-w-0">
                 <h2 className="font-syne text-[15px] font-bold text-[var(--text)]">
                   🗄️ Historique des publications
@@ -93,7 +93,7 @@ export default function SnapshotPanel({ weekStart, open, onClose }: SnapshotPane
             </div>
 
             {/* Contenu scrollable */}
-            <div className="max-h-[70vh] overflow-y-auto md:max-h-[60vh]">
+            <div className="max-h-[70vh] overflow-y-auto tablet:max-h-[60vh]">
               {isLoading && (
                 <div className="flex items-center justify-center py-8">
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />

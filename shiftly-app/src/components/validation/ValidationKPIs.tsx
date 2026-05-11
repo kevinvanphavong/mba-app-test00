@@ -79,7 +79,7 @@ export default function ValidationKPIs({ kpis }: Props) {
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 tablet:grid-cols-3 desktop:grid-cols-5">
       {kpiItems.map((kpi, i) => (
         <motion.div
           key={kpi.label}

@@ -184,7 +184,7 @@ export default function PointagePage() {
               variants={listVariants}
               initial="hidden"
               animate="show"
-              className="flex flex-col gap-2 px-4 md:px-6"
+              className="flex flex-col gap-2 px-4 tablet:px-6"
             >
               {pointageLoading || !now
                 ? <p className="text-xs text-center py-4" style={{ color: 'var(--muted)' }}>Chargement…</p>

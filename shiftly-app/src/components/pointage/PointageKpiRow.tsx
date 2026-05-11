@@ -52,7 +52,7 @@ export default function PointageKpiRow({ stats, pointages }: Props) {
       variants={listVariants}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-2 gap-2 px-4 md:grid-cols-5 md:px-6"
+      className="grid grid-cols-2 gap-2 px-4 tablet:grid-cols-5 tablet:px-6"
     >
       <KpiCard
         value={stats.presents}

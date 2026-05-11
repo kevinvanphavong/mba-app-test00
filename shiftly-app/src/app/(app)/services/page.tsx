@@ -51,7 +51,7 @@ export default function ServicesPage() {
       <Topbar title="Services" subtitle={isLoading || isError ? centreName : subtitle} />
 
       {/* ── Mobile ───────────────────────────────────────────────────────── */}
-      <div className="lg:hidden">
+      <div className="desktop:hidden">
         {!centreId || isLoading ? (
           <MobileSkeleton />
         ) : isError ? (
@@ -68,7 +68,7 @@ export default function ServicesPage() {
       </div>
 
       {/* ── Desktop ──────────────────────────────────────────────────────── */}
-      <div className="hidden lg:block">
+      <div className="hidden desktop:block">
         <ServicesDesktopView
           services={services}
           centreName={centreName}
@@ -97,7 +97,7 @@ export default function ServicesPage() {
 
 function MobileSkeleton() {
   return (
-    <div className="mx-auto px-5 py-6 lg:max-w-2xl">
+    <div className="mx-auto px-5 py-6 desktop:max-w-2xl">
       <div className="flex items-start justify-between mb-5">
         <div>
           <div className="h-5 w-28 bg-surface2 rounded-lg animate-pulse" />
@@ -115,7 +115,7 @@ function MobileSkeleton() {
 
 function MobileError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="mx-auto px-5 py-6 lg:max-w-2xl">
+    <div className="mx-auto px-5 py-6 desktop:max-w-2xl">
       <div className="bg-surface border border-red/20 rounded-[18px] p-8 text-center">
         <p className="text-[28px] mb-2">⚠️</p>
         <p className={`${ty.cardTitleMd} text-red font-bold`}>Erreur de chargement</p>

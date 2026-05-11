@@ -122,7 +122,7 @@ export default function StaffPage() {
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
       <Topbar title="Staff" subtitle={`Roster, compétences & contrats — ${user?.centre?.nom ?? ''}`} />
 
-      <div className="pt-4 px-4 pb-28 lg:px-7 lg:pb-10 space-y-4 mx-auto w-full">
+      <div className="pt-4 px-4 pb-28 desktop:px-7 desktop:pb-10 space-y-4 mx-auto w-full">
         {/* Hero */}
         <div className="rounded-[14px] border border-border border-t-2 border-t-accent bg-surface px-6 py-5 flex items-center justify-between flex-wrap gap-5">
           <div className="flex flex-col gap-1 min-w-0">

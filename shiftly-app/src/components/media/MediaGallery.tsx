@@ -46,7 +46,7 @@ export default function MediaGallery({ entityType, entityId }: Props) {
         variants={listVariants}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"
+        className="grid grid-cols-2 tablet:grid-cols-3 desktop:grid-cols-4 gap-2"
       >
         {medias.map((m) => (
           <motion.div key={m.id} variants={listItemVariants}>

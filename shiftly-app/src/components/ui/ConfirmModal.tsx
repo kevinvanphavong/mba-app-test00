@@ -51,14 +51,14 @@ export default function ConfirmModal({
             role="dialog"
             aria-modal="true"
             aria-labelledby="confirm-modal-title"
-            className="fixed inset-x-0 bottom-0 z-[60] rounded-t-[24px] border-t border-[var(--border)] bg-[var(--surface)] md:inset-auto md:left-1/2 md:top-1/2 md:max-w-md md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-[20px]"
+            className="fixed inset-x-0 bottom-0 z-[60] rounded-t-[24px] border-t border-[var(--border)] bg-[var(--surface)] tablet:inset-auto tablet:left-1/2 tablet:top-1/2 tablet:max-w-md tablet:-translate-x-1/2 tablet:-translate-y-1/2 tablet:rounded-[20px]"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}
             variants={sheetVariants}
             initial="closed"
             animate="open"
             exit="exit"
           >
-            <div className="flex justify-center pb-1 pt-3 md:hidden">
+            <div className="flex justify-center pb-1 pt-3 tablet:hidden">
               <div className="h-1 w-9 rounded-full bg-[var(--border)]" />
             </div>
 

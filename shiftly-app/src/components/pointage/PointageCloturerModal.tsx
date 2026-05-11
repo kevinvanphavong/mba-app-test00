@@ -19,7 +19,7 @@ export default function PointageCloturerModal({ stats, onConfirm, onCancel, isLo
     <motion.div
       variants={backdropVariants}
       initial="closed" animate="open" exit="exit"
-      className="fixed inset-0 z-50 flex items-end justify-center p-4 md:items-center"
+      className="fixed inset-0 z-50 flex items-end justify-center p-4 tablet:items-center"
       style={{ background: 'rgba(0,0,0,0.7)' }}
       onClick={onCancel}
     >

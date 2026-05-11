@@ -23,7 +23,7 @@ export default function KPIGrid({ data }: KPIGridProps) {
     : 0
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 desktop:grid-cols-4 gap-3">
       {/* 1 — Tâches du jour */}
       <StatCard
         icon="✅"

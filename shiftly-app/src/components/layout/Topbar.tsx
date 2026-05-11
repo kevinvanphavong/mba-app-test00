@@ -35,21 +35,21 @@ export default function Topbar({ title, subtitle, onReportIncident }: TopbarProp
   const sub      = subtitle ?? centreName
 
   return (
-    <header className="flex items-center justify-between gap-3 bg-surface border-b border-border px-5 py-4 lg:px-7 lg:py-5">
+    <header className="flex items-center justify-between gap-3 bg-surface border-b border-border px-5 py-4 desktop:px-7 desktop:py-5">
       {/* Bloc titre */}
       <div className="min-w-0 flex-1">
-        <h1 className="font-syne font-extrabold text-[20px] lg:text-[26px] text-text leading-tight truncate">
+        <h1 className="font-syne font-extrabold text-[20px] desktop:text-[26px] text-text leading-tight truncate">
           {heading}
         </h1>
-        <p className="text-[12px] lg:text-[13px] text-muted mt-0.5 truncate">
+        <p className="text-[12px] desktop:text-[13px] text-muted mt-0.5 truncate">
           {sub}
         </p>
       </div>
 
       {/* Bloc actions */}
-      <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+      <div className="flex items-center gap-2 desktop:gap-3 flex-shrink-0">
         {/* Pastille date — masquée sur très petits écrans pour gagner de la place */}
-        <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px] bg-surface2 border border-border text-[12px] font-semibold text-text">
+        <div className="hidden tablet:flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px] bg-surface2 border border-border text-[12px] font-semibold text-text">
           <span aria-hidden>📅</span>
           <span>{dayShortCap}</span>
         </div>
@@ -58,12 +58,12 @@ export default function Topbar({ title, subtitle, onReportIncident }: TopbarProp
         {onReportIncident && (
           <button
             onClick={onReportIncident}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] bg-accent text-white text-[12px] lg:text-[13px] font-syne font-bold hover:bg-accent/90 active:scale-[0.97] transition-all shadow-lg shadow-accent/20"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-[12px] bg-accent text-white text-[12px] desktop:text-[13px] font-syne font-bold hover:bg-accent/90 active:scale-[0.97] transition-all shadow-lg shadow-accent/20"
             title="Signaler un incident"
           >
             <span aria-hidden className="text-[14px] leading-none">+</span>
-            <span className="hidden md:inline">Signaler un incident</span>
-            <span className="md:hidden">Incident</span>
+            <span className="hidden tablet:inline">Signaler un incident</span>
+            <span className="tablet:hidden">Incident</span>
           </button>
         )}
 

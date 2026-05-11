@@ -69,7 +69,7 @@ export default function PointageAlertPanel({ pointages, now }: Props) {
       variants={listVariants}
       initial="hidden"
       animate="show"
-      className="flex flex-col gap-2 px-4 md:px-6"
+      className="flex flex-col gap-2 px-4 tablet:px-6"
     >
       <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: 'var(--muted)' }}>
         Alertes

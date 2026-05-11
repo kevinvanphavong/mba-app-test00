@@ -90,7 +90,7 @@ export default function DashboardPage() {
           onReportIncident={canReport ? openReportIncident : undefined}
         />
 
-        <div className="pt-5 px-5 pb-8 lg:px-7 space-y-4">
+        <div className="pt-5 px-5 pb-8 desktop:px-7 space-y-4">
 
           {isLoading && (
             <div className="space-y-4 animate-pulse">
@@ -121,7 +121,7 @@ export default function DashboardPage() {
                 }}
               />
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 desktop:grid-cols-2 gap-4">
                 <IncidentsList
                   data={data.incidents}
                   userRole="MANAGER"

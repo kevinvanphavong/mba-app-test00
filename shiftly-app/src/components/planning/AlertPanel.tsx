@@ -32,7 +32,7 @@ const LABEL: Record<string, string> = {
 
 function AlerteItem({ alerte }: { alerte: PlanningAlerte }) {
   return (
-    <motion.li variants={listItemVariants} className="flex items-start gap-3 px-4 py-3.5 md:px-5">
+    <motion.li variants={listItemVariants} className="flex items-start gap-3 px-4 py-3.5 tablet:px-5">
       <span className="mt-0.5 shrink-0 text-base leading-none">
         {ICONE[alerte.severite] ?? '⚪'}
       </span>

@@ -48,7 +48,7 @@ export default function IncidentModalShell({
           {/* Bottom sheet */}
           <motion.div
             key="sheet"
-            className={`fixed bottom-16 lg:bottom-0 inset-x-0 z-[60] bg-surface rounded-t-[24px] shadow-2xl ${maxH} flex flex-col`}
+            className={`fixed bottom-16 desktop:bottom-0 inset-x-0 z-[60] bg-surface rounded-t-[24px] shadow-2xl ${maxH} flex flex-col`}
             variants={sheetVariants}
             initial="closed" animate="open" exit="exit"
           >

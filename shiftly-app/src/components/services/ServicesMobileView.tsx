@@ -35,7 +35,7 @@ export default function ServicesMobileView({
   // Empty state
   if (services.length === 0) {
     return (
-      <div className="mx-auto px-5 py-6 lg:max-w-2xl">
+      <div className="mx-auto px-5 py-6 desktop:max-w-2xl">
         {isManager && (
           <div className="flex items-center justify-end mb-5">
             <button
@@ -67,7 +67,7 @@ export default function ServicesMobileView({
   }
 
   return (
-    <div className="mx-auto px-5 py-6 lg:max-w-2xl pb-28">
+    <div className="mx-auto px-5 py-6 desktop:max-w-2xl pb-28">
       {isManager && (
         <div className="flex items-center justify-end mb-5">
           <button

@@ -87,7 +87,7 @@ export default function EditeurTutorielsPage() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="mx-auto px-4 pb-24 lg:max-w-2xl">
+    <div className="mx-auto px-4 pb-24 desktop:max-w-2xl">
       <div className="py-4 flex justify-between items-center">
         <button
           onClick={() => router.back()}

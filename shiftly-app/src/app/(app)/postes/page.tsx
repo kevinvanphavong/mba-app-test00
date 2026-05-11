@@ -106,7 +106,7 @@ export default function PostesPage() {
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
       <Topbar title="Postes" subtitle={subtitle} />
 
-      <div className="pt-6 px-4 pb-28 lg:px-7 lg:pb-10 lg:max-w-[1400px] lg:mx-auto space-y-4">
+      <div className="pt-6 px-4 pb-28 desktop:px-7 desktop:pb-10 desktop:max-w-[1400px] desktop:mx-auto space-y-4">
 
         {/* Loading */}
         {isLoading && (
@@ -136,7 +136,7 @@ export default function PostesPage() {
         {!isLoading && !isError && activeZone && (
           <>
             {/* ── Vue mobile/tablette : pills + PosteCard empilé ─────────── */}
-            <div className="lg:hidden">
+            <div className="desktop:hidden">
               <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none mb-4">
                 {zones.map(zone => {
                   const isActive = activeZone.id === zone.id

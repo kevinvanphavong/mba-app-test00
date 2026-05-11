@@ -93,12 +93,12 @@ export default function TemplatesModal({ open, onClose, currentWeekStart }: Temp
       {open && (
         <motion.div
           variants={backdropVariants} initial="hidden" animate="visible" exit="hidden"
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 md:items-center"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 tablet:items-center"
           onClick={onClose}
         >
           <motion.div
             variants={sheetVariants} initial="hidden" animate="visible" exit="hidden"
-            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl bg-[var(--surface)] p-5 md:rounded-2xl"
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl bg-[var(--surface)] p-5 tablet:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="font-syne text-lg font-bold text-[var(--text)]">Templates de planning</h2>

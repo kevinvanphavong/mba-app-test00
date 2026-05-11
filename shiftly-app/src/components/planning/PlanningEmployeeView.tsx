@@ -64,7 +64,7 @@ export default function PlanningEmployeeView() {
         variants={listVariants}
         initial="hidden"
         animate="show"
-        className="flex flex-col gap-4 overflow-auto p-4 md:p-6"
+        className="flex flex-col gap-4 overflow-auto p-4 tablet:p-6"
       >
         {weeks.map(week => (
           <WeekCard key={week.weekStart} week={week} />

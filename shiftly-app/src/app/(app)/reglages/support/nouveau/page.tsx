@@ -36,7 +36,7 @@ export default function NewTicketPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-5 lg:p-8">
+    <div className="max-w-2xl mx-auto p-5 desktop:p-8">
       <Link href="/reglages/support" className="text-[12px] text-muted hover:text-accent">← Retour au support</Link>
 
       <h1 className="font-syne font-extrabold text-[24px] mt-3 mb-6">Nouvelle demande</h1>

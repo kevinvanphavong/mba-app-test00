@@ -67,7 +67,7 @@ export default function HorairesPage() {
   if (!isManager) return null
 
   return (
-    <div className="mx-auto px-5 py-6 lg:max-w-2xl">
+    <div className="mx-auto px-5 py-6 desktop:max-w-2xl">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Link

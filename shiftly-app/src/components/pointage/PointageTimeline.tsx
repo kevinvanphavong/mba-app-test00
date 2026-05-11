@@ -99,7 +99,7 @@ export default function PointageTimeline({ pointages }: Props) {
       variants={listVariants}
       initial="hidden"
       animate="show"
-      className="flex flex-col gap-0 px-4 md:px-6"
+      className="flex flex-col gap-0 px-4 tablet:px-6"
     >
       {events.map((ev, i) => (
         <motion.div key={i} variants={listItemVariants} className="flex gap-3 py-2">
