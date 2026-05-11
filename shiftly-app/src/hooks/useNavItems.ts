@@ -2,20 +2,14 @@
 
 import { usePathname } from 'next/navigation'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
-import {
-  DESKTOP_NAV_ITEMS,
-  MOBILE_NAV_ITEMS,
-  filterNavByRole,
-  type NavItem,
-} from '@/lib/navigation'
+import { ALL_NAV_ITEMS, filterNavByRole, type NavItem } from '@/lib/navigation'
 
 export type NavItemWithActive = NavItem & { active: boolean }
 
 function withActive(items: NavItem[], pathname: string): NavItemWithActive[] {
   // Un item est candidat s'il matche le pathname (exact ou préfixe).
   // On ne garde actif QUE le match le plus long pour éviter qu'un item parent
-  // (ex: /pointage) reste actif quand un enfant plus spécifique l'est aussi
-  // (ex: /pointage/validation).
+  // reste actif quand un enfant plus spécifique l'est aussi.
   const longestMatch = items
     .filter(item =>
       pathname === item.href ||
@@ -26,14 +20,12 @@ function withActive(items: NavItem[], pathname: string): NavItemWithActive[] {
   return items.map(item => ({ ...item, active: item.href === longestMatch }))
 }
 
-export function useDesktopNavItems(): NavItemWithActive[] {
+/**
+ * Hook unique pour les items de navigation (Sidebar desktop + MobileDrawer).
+ * Depuis la refonte burger menu, drawer et sidebar partagent les mêmes items.
+ */
+export function useNavItems(): NavItemWithActive[] {
   const { user } = useCurrentUser()
   const pathname = usePathname()
-  return withActive(filterNavByRole(DESKTOP_NAV_ITEMS, user?.role ?? 'EMPLOYE'), pathname)
-}
-
-export function useMobileNavItems(): NavItemWithActive[] {
-  const { user } = useCurrentUser()
-  const pathname = usePathname()
-  return withActive(filterNavByRole(MOBILE_NAV_ITEMS, user?.role ?? 'EMPLOYE'), pathname)
+  return withActive(filterNavByRole(ALL_NAV_ITEMS, user?.role ?? 'EMPLOYE'), pathname)
 }
