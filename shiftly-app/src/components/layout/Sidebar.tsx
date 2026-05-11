@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { cn } from '@/lib/cn'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
-import { useDesktopNavItems } from '@/hooks/useNavItems'
+import { useNavItems } from '@/hooks/useNavItems'
 import { ty } from '@/lib/typography'
 import ThemeSwitcher from '@/components/layout/ThemeSwitcher'
 
@@ -19,7 +19,7 @@ function formatRole(role: string): string {
 
 export default function Sidebar() {
   const { user } = useCurrentUser()
-  const navItems = useDesktopNavItems()
+  const navItems = useNavItems()
 
   if (!user) return null
 
@@ -28,7 +28,7 @@ export default function Sidebar() {
   const roleLabel = formatRole(user.role)
 
   return (
-    <aside className="hidden lg:flex flex-col w-[220px] min-w-[220px] bg-surface border-r border-border px-3 py-6">
+    <aside className="hidden desktop:flex flex-col w-[220px] min-w-[220px] bg-surface border-r border-border px-3 py-6">
       {/* Logo */}
       <div className="px-3 mb-7">
         <div className="font-syne font-extrabold text-[20px] leading-none">
