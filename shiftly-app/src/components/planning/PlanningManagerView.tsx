@@ -33,11 +33,12 @@ function shiftWeek(ws: string, delta: number): string {
 }
 
 /** Mini-carte KPI affichée à droite du bloc "Planning hebdomadaire".
- *  < lg : flex-1 (4 cellules de largeur égale qui remplissent la carte).
- *  lg+  : auto-size avec un min-width pour rester lisible. */
+ *  - mobile : intégrée à un grid 2x2 (largeur gérée par le parent)
+ *  - tablet : flex-wrap (cellules min-w-[80px], passent sur 2 lignes si serrées)
+ *  - desktop : ligne unique, auto-size avec min-width pour rester lisible */
 function KpiBox({ label, value, accent }: { label: string; value: string; accent: string }) {
   return (
-    <div className="flex-1 desktop:flex-initial desktop:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] bg-[var(--surface2)] px-4 py-2.5">
+    <div className="min-w-0 tablet:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] bg-[var(--surface2)] px-4 py-2.5">
       <span className="text-[10px] uppercase tracking-wider text-[var(--muted)] font-syne font-bold">{label}</span>
       <span className="text-[20px] font-syne font-extrabold mt-0.5 leading-none" style={{ color: accent }}>{value}</span>
     </div>
@@ -219,10 +220,11 @@ export default function PlanningManagerView() {
             </div>
 
             {/* Bloc droite : badge statut + 3 KPIs
-                < lg : sous le bloc semaine, chaque cellule prend une part égale (flex-1) → remplit la largeur
-                lg+ : auto-size sur la droite, alignées au centre vertical */}
-            <div className="flex items-stretch gap-2 tablet:gap-3 w-full desktop:w-auto">
-              <div className={`flex-1 desktop:flex-initial desktop:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] px-4 py-2.5 ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
+                mobile  : grid 2x2 (Statut/Heures sur 1ère ligne, Membres/Trous sur 2ème)
+                tablet  : flex-wrap (peuvent passer sur 2 lignes si la carte est serrée)
+                desktop : ligne unique, auto-size aligné à droite */}
+            <div className="grid grid-cols-2 gap-2 tablet:flex tablet:flex-wrap tablet:gap-3 desktop:flex-nowrap w-full desktop:w-auto">
+              <div className={`min-w-0 tablet:min-w-[80px] flex flex-col items-center justify-center rounded-[12px] border border-[var(--border)] px-4 py-2.5 ${badge.cls} ${badge.pulse ? 'animate-pulse' : ''}`}>
                 <span className="text-[10px] uppercase tracking-wider opacity-70 font-syne font-bold">Statut</span>
                 <span className="text-[12px] font-bold uppercase mt-0.5 leading-tight text-center">{badge.label}</span>
               </div>
