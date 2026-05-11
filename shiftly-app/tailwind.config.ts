@@ -35,6 +35,13 @@ const config: Config = {
   // Active le swap de thème via attribut data-theme sur <html>
   darkMode: ['class', '[data-theme="dark"]'],
   theme: {
+    // ─── Breakpoints — override total ──────────────────────────────────────────
+    // Shiftly utilise 3 devices : mobile < 500px, tablet 500–899px, desktop ≥ 900px.
+    // Pas d'alias sm/md/lg/xl : tout le code consomme `tablet:` et `desktop:`.
+    screens: {
+      tablet:  '500px',
+      desktop: '900px',
+    },
     extend: {
       fontFamily: {
         syne: ['var(--font-syne)', 'sans-serif'],
