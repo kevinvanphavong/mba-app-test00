@@ -152,7 +152,17 @@ colors: {
 - 3 colonnes : `grid-cols-3`
 - Calendar + List : `grid-cols-[1fr_1.1fr]`
 
-**Layout mobile :** max-width 390px, padding 20px, bottom-nav fixed
+**Breakpoints (override Tailwind total) :**
+
+| Token | Valeur | Usage |
+|---|---|---|
+| `mobile` (implicite) | < 500px | base, sans préfixe |
+| `tablet:` | ≥ 500px | adaptation 2-col, header burger toujours présent |
+| `desktop:` | ≥ 900px | Sidebar latérale, header burger masqué |
+
+Aucun `sm:` / `md:` / `lg:` / `xl:` ne subsiste dans `src/`.
+
+**Layout < desktop :** Header sticky 56px (logo + nom centre + burger) → ouvre `MobileDrawer` (slide depuis la gauche, backdrop, fermeture backdrop/Escape/item).
 
 ---
 
@@ -443,7 +453,7 @@ app/
 ├── (auth)/
 │   └── login/page.tsx
 ├── (app)/
-│   ├── layout.tsx          ← sidebar desktop + bottom nav mobile
+│   ├── layout.tsx          ← Sidebar desktop + Header burger (< desktop) + MobileDrawer
 │   ├── dashboard/page.tsx  ← Manager only
 │   ├── service/page.tsx    ← Service du Jour
 │   ├── services/page.tsx   ← Planning (Manager only)
@@ -580,11 +590,11 @@ du dashboard, refondue en V2 avec quatre régions empilées :
 
    | Viewport | Layout |
    |---|---|
-   | mobile (`< md`)        | `grid-cols-1` |
-   | tablette (`md`, ≥ 768) | `grid-cols-2` |
-   | desktop (`lg`, ≥ 1200) — 1 zone        | `grid-cols-1` |
-   | desktop — 2 ou 4 zones                  | `grid-cols-2` |
-   | desktop — 3 ou 5+ zones                 | `grid-cols-3` |
+   | mobile (< 500px)               | `grid-cols-1` |
+   | tablet (≥ 500px)               | `tablet:grid-cols-2` |
+   | desktop (≥ 900px) — 1 zone     | `desktop:grid-cols-1` |
+   | desktop — 2 ou 4 zones         | `desktop:grid-cols-2` |
+   | desktop — 3 ou 5+ zones        | `desktop:grid-cols-3` |
 
    Chaque carte : dot couleur zone + nom + `pct%` (couleur zone) + barre
    1.5px (couleur zone) + ligne `completed/total mission(s)`.

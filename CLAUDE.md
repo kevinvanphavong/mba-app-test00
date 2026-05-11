@@ -149,15 +149,25 @@ Le JWT embarque `centre_id` pour filtrer automatiquement toutes les requêtes AP
 
 ## Navigation par device
 
+Trois devices Shiftly (override Tailwind dans `tailwind.config.ts`) :
+
 ```
-Mobile < 768px  : Bottom tab bar (5 items) + TopBar fixe
-Tablette 768px+ : Sidebar fixe 220px
-Desktop 1200px+ : Sidebar fixe 240px
+Mobile  < 500px      : Header sticky 56px + bouton burger → MobileDrawer
+Tablet  500–899px    : idem mobile (burger + drawer)
+Desktop ≥ 900px      : Sidebar latérale fixe 220px (le Header burger disparaît)
 ```
 
-Bottom nav mobile (ordre fixe) :
-- MANAGER : `Dashboard · Services · Service · Postes · Staff · Tutoriels · Réglages`
-- EMPLOYE : `Service · Postes · Staff · Tutoriels · Réglages`
+Préfixes Tailwind autorisés : **uniquement** `tablet:` et `desktop:`.
+Aucun `sm:` / `md:` / `lg:` / `xl:` ne doit subsister dans `src/` (override total des screens).
+
+Composants layout :
+- `Sidebar` (`hidden desktop:flex`) — visible ≥ 900px
+- `Header` (`desktop:hidden`) — visible < 900px, contient le bouton burger
+- `MobileDrawer` — drawer latéral ouvert par le burger, mêmes items que la Sidebar
+
+Items de navigation (un seul hook `useNavItems`) :
+- MANAGER : `Dashboard · Planning · Service · Services · Pointage · Validation hebdo · Postes · Staff · Tutoriels · Réglages`
+- EMPLOYE : `Planning · Service · Postes · Staff · Tutoriels · Réglages`
 
 ---
 

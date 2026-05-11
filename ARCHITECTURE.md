@@ -44,7 +44,7 @@ mba-app-test00/
 │   │   │   │       └── page.tsx
 │   │   │   │
 │   │   │   ├── (app)/                 # Routes protégées (vérification JWT)
-│   │   │   │   ├── layout.tsx         # Layout principal (Sidebar + BottomNav + Providers)
+│   │   │   │   ├── layout.tsx         # Layout principal (Sidebar desktop + Header burger + MobileDrawer)
 │   │   │   │   ├── dashboard/
 │   │   │   │   │   └── page.tsx       # Manager uniquement
 │   │   │   │   ├── service/
@@ -91,9 +91,10 @@ mba-app-test00/
 │   │   │   │   └── StatCard.tsx       # Carte KPI dashboard
 │   │   │   │
 │   │   │   ├── layout/
-│   │   │   │   ├── Sidebar.tsx        # Sidebar desktop/tablette (220–240px)
-│   │   │   │   ├── BottomNav.tsx      # Navigation mobile (5 items)
-│   │   │   │   └── TopBar.tsx         # Barre top mobile
+│   │   │   │   ├── Sidebar.tsx        # Sidebar desktop ≥ 900px (220px)
+│   │   │   │   ├── Header.tsx         # Header burger < 900px (sticky 56px)
+│   │   │   │   ├── MobileDrawer.tsx   # Drawer latéral ouvert par le burger
+│   │   │   │   └── Topbar.tsx         # Barre top de page (intra-écran)
 │   │   │   │
 │   │   │   ├── auth/
 │   │   │   │   └── LoginForm.tsx
