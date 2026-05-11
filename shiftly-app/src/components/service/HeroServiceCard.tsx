@@ -73,9 +73,9 @@ export default function HeroServiceCard({
           {/* Horaires */}
           <div className="mt-2.5 flex items-baseline gap-2">
             <span className={ty.meta}>Horaires</span>
-            <div className={`${ty.kpi} text-[22px] leading-none`}>
+            <div className={`${ty.kpi} text-[18px] tablet:text-[22px] leading-none`}>
               {service.heureDebut}
-              <span className="text-muted font-normal text-[14px] mx-1.5">→</span>
+              <span className="text-muted font-normal text-[12px] tablet:text-[14px] mx-1.5">→</span>
               {service.heureFin}
             </div>
           </div>
