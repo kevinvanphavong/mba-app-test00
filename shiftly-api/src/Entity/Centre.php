@@ -102,9 +102,28 @@ class Centre
 
     public function __construct()
     {
-        $this->users     = new ArrayCollection();
-        $this->zones     = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
+        $this->users         = new ArrayCollection();
+        $this->zones         = new ArrayCollection();
+        $this->createdAt     = new \DateTimeImmutable();
+        $this->openingHours  = self::defaultOpeningHours();
+    }
+
+    /**
+     * Squelette d'horaires d'ouverture : 7 jours fermés.
+     * Garantit qu'un centre fraîchement créé via API Platform ou en code
+     * n'a jamais `openingHours` à null (cause récurrente d'erreurs côté
+     * planning / création de service quand la donnée manque).
+     *
+     * @return array<string, array{ouvert: bool, ouverture: ?string, fermeture: ?string}>
+     */
+    public static function defaultOpeningHours(): array
+    {
+        $jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
+        $out = [];
+        foreach ($jours as $jour) {
+            $out[$jour] = ['ouvert' => false, 'ouverture' => null, 'fermeture' => null];
+        }
+        return $out;
     }
 
     #[ORM\PrePersist]
