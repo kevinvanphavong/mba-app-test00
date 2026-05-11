@@ -177,7 +177,7 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
           {/* Cellule top-left : sticky vertical (parent) + horizontal (left:0) → reste en haut à gauche au scroll combiné.
               z-index 6 > 5 (header jours) > 4 (col employé) pour garantir l'ordre d'empilement. */}
           <div
-            className="flex w-[200px] shrink-0 items-center border-r border-[var(--border)] bg-[var(--surface)] px-4 py-2"
+            className="flex w-[140px] tablet:w-[200px] shrink-0 items-center border-r border-[var(--border)] bg-[var(--surface)] px-4 py-2"
             style={{ position: 'sticky', left: 0, zIndex: 6 }}
           >
             <span className="text-[12px] font-bold uppercase tracking-widest text-[var(--muted)]">Employés</span>

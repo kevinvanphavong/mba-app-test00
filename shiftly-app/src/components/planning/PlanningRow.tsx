@@ -122,9 +122,9 @@ export default function PlanningRow({
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }}
       className="group flex border-b border-[var(--border)]"
     >
-      {/* Colonne employé — sticky */}
+      {/* Colonne employé — sticky horizontal + compacte en mobile (140px) */}
       <div
-        className="flex w-[200px] shrink-0 items-center gap-2 border-r border-[var(--border)] bg-[var(--surface)] px-4 py-2"
+        className="flex w-[140px] tablet:w-[200px] shrink-0 items-center gap-2 border-r border-[var(--border)] bg-[var(--surface)] px-4 py-2"
         style={{ position: 'sticky', left: 0, zIndex: 4 }}
       >
         {/* Poignée de tri */}
@@ -147,14 +147,16 @@ export default function PlanningRow({
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13px] font-semibold text-[var(--text)]">
-            {employee.prenom ?? employee.nom}
+            {employee.prenom
+              ? `${employee.prenom} ${employee.nom.charAt(0).toUpperCase()}.`
+              : employee.nom}
           </p>
           {employee.typeContrat && (
-            <p className="truncate text-[11px] text-[var(--muted)]">{employee.typeContrat}</p>
+            <p className="hidden tablet:block truncate text-[11px] text-[var(--muted)]">{employee.typeContrat}</p>
           )}
         </div>
         {employee.heuresHebdo !== null && employee.heuresHebdo > 0 && (
-          <div className="flex shrink-0 flex-col items-end">
+          <div className="hidden tablet:flex shrink-0 flex-col items-end">
             <span className="font-syne text-[14px] font-bold" style={{ color: ecartColor }}>
               {formatHours(employee.totalHeures)}
             </span>
