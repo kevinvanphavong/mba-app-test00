@@ -9,6 +9,7 @@ import ZoneCard                 from '@/components/service/ZoneCard'
 import ModalMissionPonctuelle   from '@/components/service/ModalMissionPonctuelle'
 import ModalAssignerStaff       from '@/components/service/ModalAssignerStaff'
 import MissionPhotoCaptureModal from '@/components/service/MissionPhotoCaptureModal'
+import ModalConfirmUncheckPhoto from '@/components/service/ModalConfirmUncheckPhoto'
 import PhotoLightbox            from '@/components/shared/PhotoLightbox'
 import { useServiceToday }      from '@/hooks/useService'
 import { useDeletePoste }       from '@/hooks/useService'
@@ -43,6 +44,8 @@ export default function ServicePage() {
   const [photoTarget,    setPhotoTarget]    = useState<{ mission: ServiceMission; posteId: number } | null>(null)
   // Lightbox : src de la photo (path API relative) en cours de visualisation
   const [lightboxSrc,    setLightboxSrc]    = useState<string | null>(null)
+  // Confirmation décochage d'une mission requiresPhoto déjà validée
+  const [uncheckTarget,  setUncheckTarget]  = useState<{ mission: ServiceMission; zoneId: number } | null>(null)
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const toggleCompletion = useToggleCompletion()
@@ -195,6 +198,7 @@ export default function ServicePage() {
               onRemoveStaff={userRole === 'MANAGER' ? posteId => deletePoste.mutate(posteId) : undefined}
               onCapturePhoto={(mission, posteId) => setPhotoTarget({ mission, posteId })}
               onOpenPhoto={(completionId) => setLightboxSrc(`/completions/${completionId}/photo`)}
+              onConfirmUncheck={(mission, zoneId) => setUncheckTarget({ mission, zoneId })}
             />
           ))}
 
@@ -232,6 +236,19 @@ export default function ServicePage() {
         mission={photoTarget?.mission ?? null}
         posteId={photoTarget?.posteId ?? 0}
         onClose={() => setPhotoTarget(null)}
+      />
+
+      <ModalConfirmUncheckPhoto
+        open={uncheckTarget !== null}
+        mission={uncheckTarget?.mission ?? null}
+        isLoading={uncheckTarget !== null && loadingMissions.has(uncheckTarget.mission.id)}
+        onCancel={() => setUncheckTarget(null)}
+        onConfirm={() => {
+          if (!uncheckTarget) return
+          // Décochage = currentlyCompleted=true → handleToggle DELETE la completion + photo associée
+          handleToggle(uncheckTarget.mission.id, true, uncheckTarget.zoneId)
+          setUncheckTarget(null)
+        }}
       />
 
       <PhotoLightbox
