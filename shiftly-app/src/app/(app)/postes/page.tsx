@@ -4,7 +4,7 @@ import { useState }       from 'react'
 import { motion }         from 'framer-motion'
 import { fadeUpVariants } from '@/lib/animations'
 import { ty }             from '@/lib/typography'
-import { useZones, useCreateZone } from '@/hooks/useZones'
+import { useZones, useCreateZone, useUpdateZone, useDeleteZone } from '@/hooks/useZones'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import {
   useCreateEditeurMission, useUpdateEditeurMission, useDeleteEditeurMission,
@@ -45,10 +45,13 @@ export default function PostesPage() {
   const [editComp,    setEditComp]    = useState<EditorCompetence | null>(null)
 
   const [showAddZone, setShowAddZone] = useState(false)
+  // Edit zone : si !== null, ModalAddZone s'ouvre en mode édition sur cette zone.
+  const [editZone,    setEditZone]    = useState<Zone | null>(null)
 
   const [confirmDelete, setConfirmDelete] = useState<
     | { type: 'mission';    item: EditorMission }
     | { type: 'competence'; item: EditorCompetence }
+    | { type: 'zone';       item: Zone }
     | null
   >(null)
 
@@ -60,6 +63,8 @@ export default function PostesPage() {
   const updateComp    = useUpdateCompetence()
   const deleteComp    = useDeleteCompetence()
   const createZone    = useCreateZone()
+  const updateZone    = useUpdateZone()
+  const deleteZone    = useDeleteZone()
 
   // Liste actuelle des missions de la zone active (pour calculer l'ordre à la création)
   const { data: zoneMissions = [] } = useEditeurMissions(activeZone?.id)
@@ -93,16 +98,32 @@ export default function PostesPage() {
   }
 
   function handleSaveZone(data: ZoneFormData) {
-    createZone.mutate(
-      { nom: data.nom, couleur: data.couleur, ordre: zones.length },
-      { onSuccess: () => setShowAddZone(false) },
-    )
+    if (editZone) {
+      updateZone.mutate(
+        { id: editZone.id, nom: data.nom, couleur: data.couleur },
+        { onSuccess: () => { setShowAddZone(false); setEditZone(null) } },
+      )
+    } else {
+      createZone.mutate(
+        { nom: data.nom, couleur: data.couleur, ordre: zones.length },
+        { onSuccess: () => setShowAddZone(false) },
+      )
+    }
   }
 
   function handleConfirmDelete() {
     if (!confirmDelete) return
     if (confirmDelete.type === 'mission')   deleteMission.mutate(confirmDelete.item.id)
     if (confirmDelete.type === 'competence') deleteComp.mutate(confirmDelete.item.id)
+    if (confirmDelete.type === 'zone') {
+      const zoneId = confirmDelete.item.id
+      deleteZone.mutate(zoneId, {
+        onSuccess: () => {
+          // Si on supprime la zone active, retombe sur la première zone restante
+          if (activeZone?.id === zoneId) setSelectedZone(null)
+        },
+      })
+    }
     setConfirmDelete(null)
   }
 
@@ -172,14 +193,38 @@ export default function PostesPage() {
                   )
                 })}
                 {isManager && (
-                  <button
-                    onClick={() => setShowAddZone(true)}
-                    className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                               text-[12px] font-semibold text-muted hover:text-accent
-                               border border-dashed border-border hover:border-accent transition-colors"
-                  >
-                    <span className="text-[13px] leading-none">+</span> Zone
-                  </button>
+                  <>
+                    <button
+                      onClick={() => { setEditZone(null); setShowAddZone(true) }}
+                      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                                 text-[12px] font-semibold text-muted hover:text-accent
+                                 border border-dashed border-border hover:border-accent transition-colors"
+                    >
+                      <span className="text-[13px] leading-none">+</span> Zone
+                    </button>
+                    {activeZone && (
+                      <>
+                        <button
+                          onClick={() => { setEditZone(activeZone); setShowAddZone(true) }}
+                          title={`Modifier la zone ${activeZone.nom}`}
+                          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                                     text-[12px] font-semibold text-muted hover:text-accent
+                                     border border-border hover:border-accent transition-colors"
+                        >
+                          ✎ Modifier
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete({ type: 'zone', item: activeZone })}
+                          title={`Supprimer la zone ${activeZone.nom}`}
+                          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                                     text-[12px] font-semibold text-red hover:bg-red/10
+                                     border border-red/30 hover:border-red transition-colors"
+                        >
+                          🗑 Supprimer
+                        </button>
+                      </>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -199,15 +244,37 @@ export default function PostesPage() {
             {/* Visible pour tous : manager (CRUD) + employé (lecture seule). */}
             <div className="hidden tablet:block">
               {isManager && (
-                <div className="flex justify-end mb-3">
+                <div className="flex justify-end gap-2 mb-3">
                   <button
-                    onClick={() => setShowAddZone(true)}
+                    onClick={() => { setEditZone(null); setShowAddZone(true) }}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px]
                                border border-dashed border-border text-[12px] font-semibold
                                text-muted hover:text-accent hover:border-accent transition-colors"
                   >
                     <span className="text-[13px] leading-none">+</span> Créer une zone
                   </button>
+                  {activeZone && (
+                    <>
+                      <button
+                        onClick={() => { setEditZone(activeZone); setShowAddZone(true) }}
+                        title={`Modifier la zone ${activeZone.nom}`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px]
+                                   border border-border text-[12px] font-semibold
+                                   text-muted hover:text-accent hover:border-accent transition-colors"
+                      >
+                        ✎ Modifier
+                      </button>
+                      <button
+                        onClick={() => setConfirmDelete({ type: 'zone', item: activeZone })}
+                        title={`Supprimer la zone ${activeZone.nom}`}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px]
+                                   border border-red/30 text-[12px] font-semibold
+                                   text-red hover:bg-red/10 hover:border-red transition-colors"
+                      >
+                        🗑 Supprimer
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
               <PostesDesktopView
@@ -262,6 +329,7 @@ export default function PostesPage() {
               nom={
                 confirmDelete?.type === 'mission'    ? confirmDelete.item.texte :
                 confirmDelete?.type === 'competence' ? confirmDelete.item.nom :
+                confirmDelete?.type === 'zone'       ? confirmDelete.item.nom :
                 ''
               }
               onClose={() => setConfirmDelete(null)}
@@ -270,13 +338,18 @@ export default function PostesPage() {
           </>
         )}
 
-        {/* Modale création de zone — manager uniquement, indépendante de l'activeZone */}
+        {/* Modale création / édition de zone — manager uniquement.
+            editZone === null → mode création ; sinon mode édition de la zone sélectionnée. */}
         {isManager && (
           <ModalAddZone
             open={showAddZone}
-            editZone={null}
+            editZone={
+              editZone
+                ? { id: editZone.id, nom: editZone.nom, couleur: editZone.couleur ?? '#6b7280', ordre: editZone.ordre }
+                : null
+            }
             zones={zones.map(z => ({ id: z.id, nom: z.nom, couleur: z.couleur ?? '#6b7280', ordre: z.ordre }))}
-            onClose={() => setShowAddZone(false)}
+            onClose={() => { setShowAddZone(false); setEditZone(null) }}
             onSave={handleSaveZone}
           />
         )}

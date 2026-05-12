@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
@@ -28,6 +29,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security:           "is_granted('ROLE_USER')"),
         new Post(security:          "is_granted('ROLE_MANAGER')"),
         new Put(security:           "is_granted('ROLE_MANAGER')"),
+        new Patch(security:         "is_granted('ROLE_MANAGER')"),
         new Delete(security:        "is_granted('ROLE_MANAGER')"),
     ]
 )]
