@@ -34,7 +34,8 @@ export interface Mission {
   id: number
   zone: Zone
   texte: string
-  categorie: 'OUVERTURE' | 'PENDANT' | 'MENAGE' | 'FERMETURE'
+  // Slug texte libre — catalogue MissionCategorie côté centre, lookup runtime
+  categorie: string
   frequence: 'FIXE' | 'PONCTUELLE'
   priorite: 'vitale' | 'important' | 'ne_pas_oublier'
   description?: string

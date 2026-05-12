@@ -1,11 +1,13 @@
 export type EditorTab = 'zones' | 'missions' | 'competences' | 'tutoriels'
 
-/** Correspond à Mission::CAT_* côté backend */
-export type MissionCategorie =
-  | 'OUVERTURE'
-  | 'PENDANT'
-  | 'MENAGE'
-  | 'FERMETURE'
+/**
+ * Slug texte de la catégorie d'une mission. Aliases string depuis le refactor
+ * MissionCategorie (catalogue admin par centre) — le label/couleur/icône sont
+ * lookupés au runtime via useMissionCategories(). Les 4 valeurs historiques
+ * ('OUVERTURE' / 'PENDANT' / 'MENAGE' / 'FERMETURE') restent du contenu valide
+ * mais ne sont plus contraintes par l'enum TS.
+ */
+export type MissionCategorie = string
 
 /** Correspond à Mission::FREQ_* côté backend */
 export type MissionFrequence = 'FIXE' | 'PONCTUELLE'
@@ -100,13 +102,6 @@ export type TutoBlockForm =
   | { type: 'tip';   text: string;                                mediaIds?: number[] }
 
 // ── Labels d'affichage ─────────────────────────────────────────────────────
-
-export const MISSION_CAT_LABELS: Record<MissionCategorie, string> = {
-  OUVERTURE: 'Ouverture',
-  PENDANT:   'Pendant',
-  MENAGE:    'Ménage',
-  FERMETURE: 'Fermeture',
-}
 
 export const MISSION_FREQ_LABELS: Record<MissionFrequence, string> = {
   FIXE:       'Fixe',

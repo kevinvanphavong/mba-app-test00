@@ -1,6 +1,11 @@
 // ─── Service du Jour — types ──────────────────────────────────────────────────
 
-export type MissionCategorie = 'OUVERTURE' | 'PENDANT' | 'MENAGE' | 'FERMETURE'
+/**
+ * Slug texte de catégorie. Aliasé en string depuis le refactor catalogue admin
+ * MissionCategorie ; le rendu (couleur/icône/label) passe par lookup runtime
+ * via useMissionCategories().
+ */
+export type MissionCategorie = string
 export type MissionFrequence = 'FIXE' | 'PONCTUELLE'
 export type MissionPriorite  = 'vitale' | 'important' | 'ne_pas_oublier'
 export type ServiceStatut    = 'PLANIFIE' | 'EN_COURS' | 'TERMINE'

@@ -23,7 +23,9 @@ export function useMissions(zoneId: number | null | undefined) {
 
 interface CreateMissionPayload {
   texte:          string
-  categorie:      'OUVERTURE' | 'PENDANT' | 'MENAGE' | 'FERMETURE'
+  // Slug texte libre, validé contre le catalogue MissionCategorie du centre
+  // côté UI seulement (le back accepte n'importe quel slug).
+  categorie:      string
   frequence:      'FIXE' | 'PONCTUELLE'
   priorite:       'vitale' | 'important' | 'ne_pas_oublier'
   ordre?:         number
