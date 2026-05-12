@@ -30,8 +30,13 @@ export default function PosteCard({
 }: Props) {
   const router = useRouter()
 
-  const { data: missions    = [], isLoading: lm, isError: em } = useEditeurMissions(zone.id)
+  const { data: missionsRaw = [], isLoading: lm, isError: em } = useEditeurMissions(zone.id)
   const { data: competences = [], isLoading: lc, isError: ec } = useEditeurCompetences(zone.id)
+
+  // Tri local par `ordre` croissant — vue mobile en liste flat (toutes catégories
+  // mélangées) : on garantit que l'ordre suit `ordre` indépendamment de ce que
+  // renvoie le backend.
+  const missions = [...missionsRaw].sort((a, b) => a.ordre - b.ordre)
 
   // ─── Section générique avec états loading / error / empty ─────────────────
   function Section({
