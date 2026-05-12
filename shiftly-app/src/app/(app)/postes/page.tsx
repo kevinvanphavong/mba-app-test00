@@ -4,7 +4,7 @@ import { useState }       from 'react'
 import { motion }         from 'framer-motion'
 import { fadeUpVariants } from '@/lib/animations'
 import { ty }             from '@/lib/typography'
-import { useZones }       from '@/hooks/useZones'
+import { useZones, useCreateZone } from '@/hooks/useZones'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import {
   useCreateEditeurMission, useUpdateEditeurMission, useDeleteEditeurMission,
@@ -16,11 +16,12 @@ import PosteCard          from '@/components/postes/PosteCard'
 import PostesDesktopView  from '@/components/postes/PostesDesktopView'
 import ModalAddMission    from '@/components/editeur/ModalAddMission'
 import ModalAddCompetence from '@/components/editeur/ModalAddCompetence'
+import ModalAddZone       from '@/components/editeur/ModalAddZone'
 import ModalConfirmDelete from '@/components/editeur/ModalConfirmDelete'
 import type { Zone } from '@/types/index'
 import type {
   EditorMission, EditorCompetence,
-  MissionFormData, MissionCategorie, CompetenceFormData,
+  MissionFormData, MissionCategorie, CompetenceFormData, ZoneFormData,
 } from '@/types/editeur'
 
 // ─── Page Postes — gestion zones / missions / compétences (manager) ──────────
@@ -43,6 +44,8 @@ export default function PostesPage() {
   const [showAddComp, setShowAddComp] = useState(false)
   const [editComp,    setEditComp]    = useState<EditorCompetence | null>(null)
 
+  const [showAddZone, setShowAddZone] = useState(false)
+
   const [confirmDelete, setConfirmDelete] = useState<
     | { type: 'mission';    item: EditorMission }
     | { type: 'competence'; item: EditorCompetence }
@@ -56,6 +59,7 @@ export default function PostesPage() {
   const createComp    = useCreateCompetence()
   const updateComp    = useUpdateCompetence()
   const deleteComp    = useDeleteCompetence()
+  const createZone    = useCreateZone()
 
   // Liste actuelle des missions de la zone active (pour calculer l'ordre à la création)
   const { data: zoneMissions = [] } = useEditeurMissions(activeZone?.id)
@@ -86,6 +90,13 @@ export default function PostesPage() {
     if (editComp) updateComp.mutate({ id: editComp.id, ...data })
     else          createComp.mutate(data)
     setShowAddComp(false); setEditComp(null)
+  }
+
+  function handleSaveZone(data: ZoneFormData) {
+    createZone.mutate(
+      { nom: data.nom, couleur: data.couleur, ordre: zones.length },
+      { onSuccess: () => setShowAddZone(false) },
+    )
   }
 
   function handleConfirmDelete() {
@@ -135,8 +146,8 @@ export default function PostesPage() {
         {/* Contenu principal */}
         {!isLoading && !isError && activeZone && (
           <>
-            {/* ── Vue mobile/tablette : pills + PosteCard empilé ─────────── */}
-            <div className="desktop:hidden">
+            {/* ── Vue mobile uniquement (< tablet 500px) : pills + PosteCard empilé ── */}
+            <div className="tablet:hidden">
               <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none mb-4">
                 {zones.map(zone => {
                   const isActive = activeZone.id === zone.id
@@ -160,6 +171,16 @@ export default function PostesPage() {
                     </button>
                   )
                 })}
+                {isManager && (
+                  <button
+                    onClick={() => setShowAddZone(true)}
+                    className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                               text-[12px] font-semibold text-muted hover:text-accent
+                               border border-dashed border-border hover:border-accent transition-colors"
+                  >
+                    <span className="text-[13px] leading-none">+</span> Zone
+                  </button>
+                )}
               </div>
 
               <PosteCard
@@ -174,20 +195,34 @@ export default function PostesPage() {
               />
             </div>
 
-            {/* ── Vue desktop : carousel + plateau 4 colonnes ────────────── */}
+            {/* ── Vue tablet+ : carousel + MissionsBoard (2 cols tablet, 4 cols desktop) ── */}
             {/* Visible pour tous : manager (CRUD) + employé (lecture seule). */}
-            <PostesDesktopView
-              zones={zones}
-              activeZone={activeZone}
-              manager={isManager}
-              onSelectZone={setSelectedZone}
-              onAddMission={isManager ? openAddMission : undefined}
-              onEditMission={isManager ? openEditMission : undefined}
-              onDeleteMission={isManager ? (m) => setConfirmDelete({ type: 'mission', item: m }) : undefined}
-              onAddCompetence={isManager ? () => { setEditComp(null); setShowAddComp(true) } : undefined}
-              onEditCompetence={isManager ? (c) => { setEditComp(c); setShowAddComp(true) } : undefined}
-              onDeleteCompetence={isManager ? (c) => setConfirmDelete({ type: 'competence', item: c }) : undefined}
-            />
+            <div className="hidden tablet:block">
+              {isManager && (
+                <div className="flex justify-end mb-3">
+                  <button
+                    onClick={() => setShowAddZone(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px]
+                               border border-dashed border-border text-[12px] font-semibold
+                               text-muted hover:text-accent hover:border-accent transition-colors"
+                  >
+                    <span className="text-[13px] leading-none">+</span> Créer une zone
+                  </button>
+                </div>
+              )}
+              <PostesDesktopView
+                zones={zones}
+                activeZone={activeZone}
+                manager={isManager}
+                onSelectZone={setSelectedZone}
+                onAddMission={isManager ? openAddMission : undefined}
+                onEditMission={isManager ? openEditMission : undefined}
+                onDeleteMission={isManager ? (m) => setConfirmDelete({ type: 'mission', item: m }) : undefined}
+                onAddCompetence={isManager ? () => { setEditComp(null); setShowAddComp(true) } : undefined}
+                onEditCompetence={isManager ? (c) => { setEditComp(c); setShowAddComp(true) } : undefined}
+                onDeleteCompetence={isManager ? (c) => setConfirmDelete({ type: 'competence', item: c }) : undefined}
+              />
+            </div>
           </>
         )}
 
@@ -233,6 +268,17 @@ export default function PostesPage() {
               onConfirm={handleConfirmDelete}
             />
           </>
+        )}
+
+        {/* Modale création de zone — manager uniquement, indépendante de l'activeZone */}
+        {isManager && (
+          <ModalAddZone
+            open={showAddZone}
+            editZone={null}
+            zones={zones.map(z => ({ id: z.id, nom: z.nom, couleur: z.couleur ?? '#6b7280', ordre: z.ordre }))}
+            onClose={() => setShowAddZone(false)}
+            onSave={handleSaveZone}
+          />
         )}
       </div>
     </motion.div>
