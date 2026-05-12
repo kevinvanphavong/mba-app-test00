@@ -1,5 +1,13 @@
 'use client'
 
+/**
+ * PostesDesktopView — Vue carousel + MissionsBoard 4 cats.
+ *
+ * Active dès **tablet** (≥ 500px) malgré son nom (conservé pour stabilité des
+ * imports). MissionsBoard rend 2 colonnes en tablet (2×2), 4 colonnes en
+ * desktop (1 ligne).
+ */
+
 import { useMemo, useState } from 'react'
 import ZoneTabsCarousel from './ZoneTabsCarousel'
 import MissionsBoard    from './MissionsBoard'
@@ -71,7 +79,7 @@ export default function PostesDesktopView({
   }
 
   return (
-    <div className="hidden desktop:flex flex-col gap-4">
+    <div className="hidden tablet:flex flex-col gap-4">
       {/* Carousel zones */}
       <ZoneTabsCarousel
         zones={zones}
