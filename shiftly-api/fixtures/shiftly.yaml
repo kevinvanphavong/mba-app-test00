@@ -2,7 +2,11 @@
 #  Shiftly — Fixtures terrain
 #  Centre : Family Games Center — Blois
 #  Staff  : 12 membres (3 managers, 9 employés)
-#  Missions : 98 (Accueil ×44, Bar ×38, Salle ×16)
+#  Zones  : 4 (Accueil, Bar, Salle, Manager)
+#  Missions : 80 (20 par zone × 4 zones, réparties en 5 par catégorie : OUVERTURE/PENDANT/MENAGE/FERMETURE)
+#  Compétences : 20 (5 par zone)
+#  Tutoriels   : 20 (5 par zone)
+#  Planning   : 2 semaines à venir (S1 = 2026-05-18 → 24, S2 = 2026-05-25 → 31)
 #  Mot de passe : shiftly2026
 # ═══════════════════════════════════════════════════════════
 
@@ -14,9 +18,6 @@ App\Entity\Centre:
     tenueHaut:       "Polo Shiftly noir"
     tenueBas:        "Pantalon noir"
     tenueChaussures: "Chaussures noires fermées"
-    # Horaires d'ouverture FGC — semaine type validée par Kévin (2026-05-12).
-    # Convention : "fermeture" stocké brut en HH:MM. Si fermeture < ouverture,
-    # la fermeture est sur le lendemain (géré par PlanningService).
     openingHours:
       lundi:    { ouvert: true,  ouverture: "17:00", fermeture: "23:00" }
       mardi:    { ouvert: true,  ouverture: "17:00", fermeture: "23:00" }
@@ -46,1513 +47,1493 @@ App\Entity\Zone:
     couleur: "#22c55e"
     ordre:   3
 
-  zone_cuisine:
+  zone_manager:
     centre:  "@centre_fgc"
-    nom:     "Cuisine"
+    nom:     "Manager"
     couleur: "#f97316"
     ordre:   4
 
 # ─── Staff ───────────────────────────────────────────────────────────────────
 App\Entity\User:
   user_kevin:
-    centre:      "@centre_fgc"
-    nom:         "Vong"
-    prenom:      "Kevin"
-    email:       "kevin@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "MANAGER"
-    codePointage: "0000"
-    avatarColor: "#f97316"
-    points:      165
-    actif:       true
-    tailleHaut:  "2 polo manches longues, 1 sweat"
-    heuresHebdo: 39
-    typeContrat: "CDI"
-    dateEmbauche: <(new \DateTimeImmutable('-4 years'))>
+    centre:        "@centre_fgc"
+    nom:           "Vong"
+    prenom:        "Kevin"
+    email:         "kevin@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "MANAGER"
+    codePointage:  "0000"
+    avatarColor:   "#f97316"
+    points:        165
+    actif:         true
+    tailleHaut:    "2 polo manches longues, 1 sweat"
+    heuresHebdo:   39
+    typeContrat:   "CDI"
+    dateEmbauche:  <(new \DateTimeImmutable('-4 years'))>
 
   user_megane:
-    centre:      "@centre_fgc"
-    nom:         "Goueffon"
-    prenom:      "Mégane"
-    email:       "megane@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "MANAGER"
-    codePointage: "0000"
-    avatarColor: "#ec4899"
-    points:      90
-    actif:       true
-    heuresHebdo: 39
-    typeContrat: "CDI"
-    dateEmbauche: <(new \DateTimeImmutable('-3 years'))>
+    centre:        "@centre_fgc"
+    nom:           "Goueffon"
+    prenom:        "Mégane"
+    email:         "megane@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "MANAGER"
+    codePointage:  "0000"
+    avatarColor:   "#ec4899"
+    points:        90
+    actif:         true
+    heuresHebdo:   39
+    typeContrat:   "CDI"
+    dateEmbauche:  <(new \DateTimeImmutable('-3 years'))>
 
   user_micka:
-    centre:      "@centre_fgc"
-    nom:         "Ferreira"
-    prenom:      "Mickael"
-    email:       "micka@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "MANAGER"
-    codePointage: "0000"
-    avatarColor: "#8b5cf6"
-    points:      140
-    actif:       true
-    heuresHebdo: 39
-    typeContrat: "CDI"
-    dateEmbauche: <(new \DateTimeImmutable('-2 years -3 months'))>
+    centre:        "@centre_fgc"
+    nom:           "Ferreira"
+    prenom:        "Mickael"
+    email:         "micka@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "MANAGER"
+    codePointage:  "0000"
+    avatarColor:   "#8b5cf6"
+    points:        140
+    actif:         true
+    heuresHebdo:   39
+    typeContrat:   "CDI"
+    dateEmbauche:  <(new \DateTimeImmutable('-2 years -3 months'))>
 
   user_erwan:
-    centre:      "@centre_fgc"
-    nom:         "Vallée"
-    prenom:      "Erwan"
-    email:       "erwan@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "EMPLOYE"
-    codePointage: "0000"
-    avatarColor: "#22c55e"
-    points:      105
-    actif:       true
-    tailleHaut:  "2 tshirts, 1 polo manches courtes"
-    heuresHebdo: 39
-    typeContrat: "CDI"
-    dateEmbauche: <(new \DateTimeImmutable('-1 year -8 months'))>
+    centre:        "@centre_fgc"
+    nom:           "Vallée"
+    prenom:        "Erwan"
+    email:         "erwan@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "EMPLOYE"
+    codePointage:  "0000"
+    avatarColor:   "#22c55e"
+    points:        105
+    actif:         true
+    tailleHaut:    "2 tshirts, 1 polo manches courtes"
+    heuresHebdo:   39
+    typeContrat:   "CDI"
+    dateEmbauche:  <(new \DateTimeImmutable('-1 year -8 months'))>
 
   user_patou:
-    centre:      "@centre_fgc"
-    nom:         "Veron"
-    prenom:      "Patrice"
-    email:       "patou@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "EMPLOYE"
-    codePointage: "0000"
-    avatarColor: "#f59e0b"
-    points:      80
-    actif:       true
-    tailleHaut:  "1 veste sans manche"
-    heuresHebdo: 35
-    typeContrat: "CDI"
-    dateEmbauche: <(new \DateTimeImmutable('-3 years -6 months'))>
+    centre:        "@centre_fgc"
+    nom:           "Veron"
+    prenom:        "Patrice"
+    email:         "patou@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "EMPLOYE"
+    codePointage:  "0000"
+    avatarColor:   "#f59e0b"
+    points:        80
+    actif:         true
+    tailleHaut:    "1 veste sans manche"
+    heuresHebdo:   35
+    typeContrat:   "CDI"
+    dateEmbauche:  <(new \DateTimeImmutable('-3 years -6 months'))>
 
   user_pol:
-    centre:      "@centre_fgc"
-    nom:         "Degrassi"
-    prenom:      "Pôl"
-    email:       "pol@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "EMPLOYE"
-    codePointage: "0000"
-    avatarColor: "#0ea5e9"
-    points:      70
-    actif:       true
-    tailleHaut:  "1 polo manches longues (new)"
-    heuresHebdo: 35
-    typeContrat: "CDI"
-    dateEmbauche: <(new \DateTimeImmutable('-9 months'))>
+    centre:        "@centre_fgc"
+    nom:           "Degrassi"
+    prenom:        "Pôl"
+    email:         "pol@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "EMPLOYE"
+    codePointage:  "0000"
+    avatarColor:   "#0ea5e9"
+    points:        70
+    actif:         true
+    tailleHaut:    "1 polo manches longues (new)"
+    heuresHebdo:   35
+    typeContrat:   "CDI"
+    dateEmbauche:  <(new \DateTimeImmutable('-9 months'))>
 
   user_cynthia:
-    centre:      "@centre_fgc"
-    nom:         "Quari"
-    prenom:      "Cynthia"
-    email:       "cynthia@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "EMPLOYE"
-    codePointage: "0000"
-    avatarColor: "#14b8a6"
-    points:      95
-    actif:       true
-    tailleHaut:  "2 t-shirts, 2 polaires manches longues"
-    heuresHebdo: 35
-    typeContrat: "CDI"
-    dateEmbauche: <(new \DateTimeImmutable('-2 years -1 month'))>
+    centre:        "@centre_fgc"
+    nom:           "Quari"
+    prenom:        "Cynthia"
+    email:         "cynthia@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "EMPLOYE"
+    codePointage:  "0000"
+    avatarColor:   "#14b8a6"
+    points:        95
+    actif:         true
+    tailleHaut:    "2 t-shirts, 2 polaires manches longues"
+    heuresHebdo:   35
+    typeContrat:   "CDI"
+    dateEmbauche:  <(new \DateTimeImmutable('-2 years -1 month'))>
 
   user_gabin:
-    centre:      "@centre_fgc"
-    nom:         "Rossignol"
-    prenom:      "Gabin"
-    email:       "gabin@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "EMPLOYE"
-    codePointage: "0000"
-    avatarColor: "#a855f7"
-    points:      75
-    actif:       true
-    tailleHaut:  "1 polo manches longues + 2 polos"
-    heuresHebdo: 25
-    typeContrat: "CDI"
-    dateEmbauche: <(new \DateTimeImmutable('-1 year -2 months'))>
+    centre:        "@centre_fgc"
+    nom:           "Rossignol"
+    prenom:        "Gabin"
+    email:         "gabin@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "EMPLOYE"
+    codePointage:  "0000"
+    avatarColor:   "#a855f7"
+    points:        75
+    actif:         true
+    tailleHaut:    "1 polo manches longues + 2 polos"
+    heuresHebdo:   25
+    typeContrat:   "CDI"
+    dateEmbauche:  <(new \DateTimeImmutable('-1 year -2 months'))>
 
   user_aya:
-    centre:      "@centre_fgc"
-    nom:         "Nata"
-    prenom:      "Aya"
-    email:       "aya@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "EMPLOYE"
-    codePointage: "0000"
-    avatarColor: "#6366f1"
-    points:      45
-    actif:       true
-    heuresHebdo: 15
-    typeContrat: "CDD"
-    dateEmbauche: <(new \DateTimeImmutable('-5 months'))>
+    centre:        "@centre_fgc"
+    nom:           "Nata"
+    prenom:        "Aya"
+    email:         "aya@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "EMPLOYE"
+    codePointage:  "0000"
+    avatarColor:   "#6366f1"
+    points:        45
+    actif:         true
+    heuresHebdo:   15
+    typeContrat:   "CDD"
+    dateEmbauche:  <(new \DateTimeImmutable('-5 months'))>
 
   user_securite:
-    centre:      "@centre_fgc"
-    nom:         "Debdoug"
-    prenom:      "Mohcine"
-    email:       "securite@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "EMPLOYE"
-    codePointage: "0000"
-    avatarColor: "#475569"
-    points:      0
-    actif:       true
-    tailleHaut:  "Badge"
-    heuresHebdo: 0
-    typeContrat: "EXTRA"
-    dateEmbauche: <(new \DateTimeImmutable('-1 year -4 months'))>
+    centre:        "@centre_fgc"
+    nom:           "Debdoug"
+    prenom:        "Mohcine"
+    email:         "securite@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "EMPLOYE"
+    codePointage:  "0000"
+    avatarColor:   "#475569"
+    points:        0
+    actif:         true
+    tailleHaut:    "Badge"
+    heuresHebdo:   0
+    typeContrat:   "EXTRA"
+    dateEmbauche:  <(new \DateTimeImmutable('-1 year -4 months'))>
 
   user_hiba:
-    centre:      "@centre_fgc"
-    nom:         "Nata"
-    prenom:      "Hiba"
-    email:       "hiba@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "EMPLOYE"
-    codePointage: "0000"
-    avatarColor: "#ef4444"
-    points:      45
-    actif:       true
-    heuresHebdo: 15
-    typeContrat: "EXTRA"
-    dateEmbauche: <(new \DateTimeImmutable('-3 months'))>
+    centre:        "@centre_fgc"
+    nom:           "Nata"
+    prenom:        "Hiba"
+    email:         "hiba@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "EMPLOYE"
+    codePointage:  "0000"
+    avatarColor:   "#ef4444"
+    points:        45
+    actif:         true
+    heuresHebdo:   15
+    typeContrat:   "EXTRA"
+    dateEmbauche:  <(new \DateTimeImmutable('-3 months'))>
 
   user_daniela:
-    centre:      "@centre_fgc"
-    nom:         "Nata"
-    prenom:      "Daniela"
-    email:       "daniela@bowlingcentral.fr"
-    password:    "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
-    roles:       []
-    role:        "EMPLOYE"
-    codePointage: "0000"
-    avatarColor: "#f472b6"
-    points:      60
-    actif:       true
-    heuresHebdo: 15
-    typeContrat: "EXTRA"
-    dateEmbauche: <(new \DateTimeImmutable('-2 months'))>
+    centre:        "@centre_fgc"
+    nom:           "Nata"
+    prenom:        "Daniela"
+    email:         "daniela@bowlingcentral.fr"
+    password:      "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles:         []
+    role:          "EMPLOYE"
+    codePointage:  "0000"
+    avatarColor:   "#f472b6"
+    points:        60
+    actif:         true
+    heuresHebdo:   15
+    typeContrat:   "EXTRA"
+    dateEmbauche:  <(new \DateTimeImmutable('-2 months'))>
 
-# ─── Missions Accueil (44) ───────────────────────────────────────────────────
+# ─── Missions (80 = 4 zones × 4 catégories × 5) ──────────────────────────────
 App\Entity\Mission:
-  # OUVERTURE
+
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ Zone ACCUEIL — 20 missions                              │
+  # └─────────────────────────────────────────────────────────┘
+
+  # ── ACCUEIL · OUVERTURE (5) ──
   m_acc_ouv_1:
     zone: "@zone_accueil"
-    texte: "Être en tenue à l'heure"
+    texte: "Allumer ordinateur de caisse et écrans clients"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "vitale"
+    priorite:  "vitale"
     ordre: 1
   m_acc_ouv_2:
     zone: "@zone_accueil"
-    texte: "Allumer ordinateurs, logiciels et TPE"
+    texte: "Vérifier le fond de caisse de l'accueil"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "vitale"
+    priorite:  "vitale"
     ordre: 2
+    requiresPhoto: true
   m_acc_ouv_3:
     zone: "@zone_accueil"
-    texte: "Vérifier le matériel d'accueil (rouleaux CB + imprimantes)"
+    texte: "Allumer enseigne extérieure et signalétique LED"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "important"
+    priorite:  "important"
     ordre: 3
   m_acc_ouv_4:
     zone: "@zone_accueil"
-    texte: "Allumer les lumières extérieures des box karaokés"
+    texte: "Préparer les bracelets / tickets de la journée"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "important"
+    priorite:  "important"
     ordre: 4
   m_acc_ouv_5:
     zone: "@zone_accueil"
-    texte: "Vérifier derrière les PC et imprimantes (propreté / câbles)"
+    texte: "Tester téléphone fixe et bornes de réservation"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "ne_pas_oublier"
+    priorite:  "ne_pas_oublier"
     ordre: 5
-  m_acc_ouv_6:
-    zone: "@zone_accueil"
-    texte: "Nettoyer la poussière du comptoir d'accueil"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 6
-  m_acc_ouv_7:
-    zone: "@zone_accueil"
-    texte: "Nettoyer la poussière des chevalets d'annonce"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 7
 
-  # PENDANT
+  # ── ACCUEIL · PENDANT (5) ──
   m_acc_pend_1:
     zone: "@zone_accueil"
-    texte: "Vérifier les toilettes après chaque pause"
+    texte: "Accueillir et orienter chaque client à l'entrée"
     categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 1
+    priorite:  "vitale"
+    ordre: 10
   m_acc_pend_2:
     zone: "@zone_accueil"
-    texte: "Si anniversaires demain : préparer matériel (feuille bar, médailles, invitations, jetons)"
+    texte: "Encaisser les ventes et émettre les tickets"
     categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 2
+    priorite:  "vitale"
+    ordre: 11
   m_acc_pend_3:
     zone: "@zone_accueil"
-    texte: "Vérifier propreté des toilettes et quantité de papier (3 fois/jour)"
+    texte: "Gérer les réservations entrantes (téléphone, web)"
     categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 3
+    priorite:  "important"
+    ordre: 12
   m_acc_pend_4:
     zone: "@zone_accueil"
-    texte: "Enregistrer les clients (bowling / billards / karaoké / VR)"
+    texte: "Proposer les offres et cartes de fidélité"
     categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 4
+    priorite:  "ne_pas_oublier"
+    ordre: 13
   m_acc_pend_5:
     zone: "@zone_accueil"
-    texte: "Vérifier l'état des sur-chaussures (qualité / usure)"
+    texte: "Tenir à jour le planning d'occupation des pistes / arènes"
     categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "important"
-    ordre: 5
-  m_acc_pend_6:
-    zone: "@zone_accueil"
-    texte: "Vérifier quantité de médailles (environ 10 par couleur)"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 6
-  m_acc_pend_7:
-    zone: "@zone_accueil"
-    texte: "Vérifier quantité de chaussettes (environ 2 par taille)"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 7
-  m_acc_pend_8:
-    zone: "@zone_accueil"
-    texte: "Vérifier quantité de sur-chaussures"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 8
-  m_acc_pend_9:
-    zone: "@zone_accueil"
-    texte: "Vérifier l'état des casiers blancs"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 9
-  m_acc_pend_10:
-    zone: "@zone_accueil"
-    texte: "Vérifier quantité de jetons pour la machine Rio Carnival"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 10
-  m_acc_pend_11:
-    zone: "@zone_accueil"
-    texte: "Ranger les chaussures de bas en haut (5 à 6 fois/jour)"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 11
-  m_acc_pend_12:
-    zone: "@zone_accueil"
-    texte: "Vérifier les embouts des cannes de billard et remplacer si besoin"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 12
+    priorite:  "important"
+    ordre: 14
 
-  # MENAGE
+  # ── ACCUEIL · MENAGE (5) ──
   m_acc_men_1:
     zone: "@zone_accueil"
-    texte: "Nettoyer les vitres de l'entrée et de l'accueil"
+    texte: "Nettoyer le comptoir et la vitre du comptoir"
     categorie: "MENAGE"
     frequence: "FIXE"
-    priorite: "important"
-    ordre: 1
+    priorite:  "important"
+    ordre: 20
   m_acc_men_2:
     zone: "@zone_accueil"
-    texte: "Nettoyer les bornes d'enregistrement (support pied)"
+    texte: "Passer la serpillière dans le hall d'entrée"
     categorie: "MENAGE"
     frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 2
+    priorite:  "important"
+    ordre: 21
   m_acc_men_3:
     zone: "@zone_accueil"
-    texte: "Nettoyer la machine à barbe à papa (mercredi et dimanche)"
+    texte: "Vider les corbeilles à l'accueil"
     categorie: "MENAGE"
     frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 3
+    priorite:  "ne_pas_oublier"
+    ordre: 22
   m_acc_men_4:
     zone: "@zone_accueil"
-    texte: "Nettoyer l'intérieur des casiers blancs"
+    texte: "Désinfecter clavier, douchette et terminal CB"
     categorie: "MENAGE"
     frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 4
+    priorite:  "important"
+    ordre: 23
   m_acc_men_5:
     zone: "@zone_accueil"
-    texte: "Dépoussiérer l'écran de surveillance à l'entrée"
+    texte: "Nettoyer les toilettes clients à l'entrée"
     categorie: "MENAGE"
     frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 5
-  m_acc_men_6:
-    zone: "@zone_accueil"
-    texte: "Dépoussiérer les écrans de la liste d'attente"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 6
-  m_acc_men_7:
-    zone: "@zone_accueil"
-    texte: "Nettoyer les distributeurs de gel hydro-alcoolique"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 7
-  m_acc_men_8:
-    zone: "@zone_accueil"
-    texte: "Nettoyer les barrières à l'entrée (zone lumières, panneaux publicitaires)"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 8
-  m_acc_men_9:
-    zone: "@zone_accueil"
-    texte: "Dépoussiérer les écrans de l'accueil"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 9
-  m_acc_men_10:
-    zone: "@zone_accueil"
-    texte: "Nettoyer l'intérieur des meubles à chaussures"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 10
-  m_acc_men_11:
-    zone: "@zone_accueil"
-    texte: "Nettoyer la poussière sur les statues Iron Man et Spider Man"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 11
-  m_acc_men_12:
-    zone: "@zone_accueil"
-    texte: "Nettoyer la poussière et les écrans des jeux de Réalité Virtuelle"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 12
-  m_acc_men_13:
-    zone: "@zone_accueil"
-    texte: "Nettoyer la poussière des meubles à chaussures"
-    categorie: "MENAGE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 13
+    priorite:  "vitale"
+    ordre: 24
 
-  # FERMETURE
+  # ── ACCUEIL · FERMETURE (5) ──
   m_acc_ferm_1:
     zone: "@zone_accueil"
-    texte: "Vider les poubelles de l'accueil"
+    texte: "Clôturer la caisse et faire le rapport Z"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 1
+    priorite:  "vitale"
+    ordre: 30
+    requiresPhoto: true
   m_acc_ferm_2:
     zone: "@zone_accueil"
-    texte: "Mettre à propre le comptoir, ranger le matériel et mettre les TPE en charge"
+    texte: "Compter le fond de caisse et verrouiller le coffre"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 2
+    priorite:  "vitale"
+    ordre: 31
+    requiresPhoto: true
   m_acc_ferm_3:
     zone: "@zone_accueil"
-    texte: "Ranger les chaussures dans les casiers"
+    texte: "Éteindre enseigne et signalétique extérieure"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 3
+    priorite:  "important"
+    ordre: 32
   m_acc_ferm_4:
     zone: "@zone_accueil"
-    texte: "Balayer le sol d'entrée, jeter les mégots et vider les poubelles (entrée)"
+    texte: "Ranger les bracelets / tickets non utilisés"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 4
+    priorite:  "ne_pas_oublier"
+    ordre: 33
   m_acc_ferm_5:
     zone: "@zone_accueil"
-    texte: "Passer l'aspirateur autour de l'accueil, de l'entrée et de la zone chaussures"
+    texte: "Éteindre ordinateurs et écrans clients"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 5
-  m_acc_ferm_6:
-    zone: "@zone_accueil"
-    texte: "Nettoyer les toilettes (fin de service)"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 6
-  m_acc_ferm_7:
-    zone: "@zone_accueil"
-    texte: "Dépointer puis se changer (fin de service)"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 7
-  m_acc_ferm_8:
-    zone: "@zone_accueil"
-    texte: "Vérifier que les casiers blancs sont bien vides (fin de service)"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 8
-  m_acc_ferm_9:
-    zone: "@zone_accueil"
-    texte: "Éteindre la climatisation et les télés des pistes et de l'accueil"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 9
-  m_acc_ferm_10:
-    zone: "@zone_accueil"
-    texte: "Éteindre les jeux de la zone d'arcade"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 10
-  m_acc_ferm_11:
-    zone: "@zone_accueil"
-    texte: "Éteindre les box de karaokés"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 11
-  m_acc_ferm_12:
-    zone: "@zone_accueil"
-    texte: "Éteindre les jeux VR et passer l'aspirateur si besoin"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 12
+    priorite:  "important"
+    ordre: 34
 
-# ─── Missions Bar (38) ───────────────────────────────────────────────────────
-  # OUVERTURE
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ Zone BAR — 20 missions                                  │
+  # └─────────────────────────────────────────────────────────┘
+
+  # ── BAR · OUVERTURE (5) ──
   m_bar_ouv_1:
     zone: "@zone_bar"
-    texte: "Être en tenue à l'heure et pointer son heure d'arrivée"
+    texte: "Allumer la machine à café et la tireuse à bière"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "vitale"
+    priorite:  "vitale"
     ordre: 1
   m_bar_ouv_2:
     zone: "@zone_bar"
-    texte: "Vérifier mise en place snacks (crêpes, gaufres, brioche, pistache, pizza, hot dog, croque, frites)"
+    texte: "Vérifier températures frigos (relevé HACCP)"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "vitale"
+    priorite:  "vitale"
     ordre: 2
+    requiresPhoto: true
   m_bar_ouv_3:
     zone: "@zone_bar"
-    texte: "Relever les températures des congélateurs (début de service)"
+    texte: "Réapprovisionner les frigos en boissons"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "vitale"
+    priorite:  "important"
     ordre: 3
   m_bar_ouv_4:
     zone: "@zone_bar"
-    texte: "Vérifier et changer si besoin les fûts de bière"
+    texte: "Mettre en place glaçons, citrons, sirops"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "vitale"
+    priorite:  "important"
     ordre: 4
   m_bar_ouv_5:
     zone: "@zone_bar"
-    texte: "Allumer la machine à café et vérifier le niveau de lait"
+    texte: "Préparer les verres et accessoires de service"
     categorie: "OUVERTURE"
     frequence: "FIXE"
-    priorite: "vitale"
+    priorite:  "ne_pas_oublier"
     ordre: 5
-  m_bar_ouv_6:
-    zone: "@zone_bar"
-    texte: "Contrôler le stock des réfrigérateurs et compléter si nécessaire (dont jus)"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 6
-  m_bar_ouv_7:
-    zone: "@zone_bar"
-    texte: "Inspecter la cave du bar et réapprovisionner si besoin (rotation FIFO)"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 7
-  m_bar_ouv_8:
-    zone: "@zone_bar"
-    texte: "Vérifier mise en place citron et feuille de menthe"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 8
-  m_bar_ouv_9:
-    zone: "@zone_bar"
-    texte: "Vérifier et remplir si besoin (sucre poudre, sucre glace, chocolat, ketchup, moutarde)"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 9
-  m_bar_ouv_10:
-    zone: "@zone_bar"
-    texte: "Allumer le four"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 10
-  m_bar_ouv_11:
-    zone: "@zone_bar"
-    texte: "Mettre en service la machine à glace pilée"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 11
-  m_bar_ouv_12:
-    zone: "@zone_bar"
-    texte: "Remplir les bacs à glaçons"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 12
-  m_bar_ouv_13:
-    zone: "@zone_bar"
-    texte: "Mettre en marche le lave-verre"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 13
-  m_bar_ouv_14:
-    zone: "@zone_bar"
-    texte: "Recharger la machine à cocktails (bouteilles de jus pleines)"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 14
-  m_bar_ouv_15:
-    zone: "@zone_bar"
-    texte: "Activer l'éclairage du bar"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 15
 
-  # PENDANT
+  # ── BAR · PENDANT (5) ──
   m_bar_pend_1:
     zone: "@zone_bar"
-    texte: "Mercredi/jeudi : s'assurer que les snacks sont approvisionnés (gaufres, crêpes, brioches, pizzas, croque, hot dogs, frites)"
+    texte: "Servir les commandes boissons et snacks"
     categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 1
+    priorite:  "vitale"
+    ordre: 10
   m_bar_pend_2:
     zone: "@zone_bar"
-    texte: "Mercredi/jeudi : vérifier mise en place (saucissons, chocolat, ketchup, moutarde)"
+    texte: "Encaisser les consommations au bar"
     categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "important"
-    ordre: 2
+    priorite:  "vitale"
+    ordre: 11
+  m_bar_pend_3:
+    zone: "@zone_bar"
+    texte: "Réassortir les frigos pendant le service"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 12
+  m_bar_pend_4:
+    zone: "@zone_bar"
+    texte: "Vider et débarrasser les bouteilles vides régulièrement"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite:  "ne_pas_oublier"
+    ordre: 13
+  m_bar_pend_5:
+    zone: "@zone_bar"
+    texte: "Vérifier dates DLC sur les snacks ouverts"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 14
 
-  # FERMETURE
+  # ── BAR · MENAGE (5) ──
+  m_bar_men_1:
+    zone: "@zone_bar"
+    texte: "Nettoyer le plan de travail du bar"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 20
+  m_bar_men_2:
+    zone: "@zone_bar"
+    texte: "Détartrer la machine à café (cycle complet)"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 21
+  m_bar_men_3:
+    zone: "@zone_bar"
+    texte: "Nettoyer les becs verseurs et le rinceur de la tireuse"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 22
+  m_bar_men_4:
+    zone: "@zone_bar"
+    texte: "Vider le bac récupérateur d'eau / égouttoir"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 23
+  m_bar_men_5:
+    zone: "@zone_bar"
+    texte: "Désinfecter zone snacks et présentoirs"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 24
+
+  # ── BAR · FERMETURE (5) ──
   m_bar_ferm_1:
     zone: "@zone_bar"
-    texte: "Terminer les dernières tournées de verres à laver"
+    texte: "Fermer caisse bar et reporter recette à l'accueil"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 1
+    priorite:  "vitale"
+    ordre: 30
+    requiresPhoto: true
   m_bar_ferm_2:
     zone: "@zone_bar"
-    texte: "Remplir le frigo pour le lendemain"
+    texte: "Vider et nettoyer la tireuse à bière"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 2
+    priorite:  "vitale"
+    ordre: 31
   m_bar_ferm_3:
     zone: "@zone_bar"
-    texte: "Balayer et passer la serpillière dans le bar et la zone d'accueil"
+    texte: "Éteindre machine à café et purger la chaudière"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 3
+    priorite:  "important"
+    ordre: 32
   m_bar_ferm_4:
     zone: "@zone_bar"
-    texte: "Nettoyer pompe à bière et intérieur"
+    texte: "Vérifier fermeture des frigos et températures (relevé HACCP)"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 4
+    priorite:  "vitale"
+    ordre: 33
+    requiresPhoto: true
   m_bar_ferm_5:
     zone: "@zone_bar"
-    texte: "Mettre le lait au réfrigérateur"
+    texte: "Sortir poubelles et bouteilles consignées"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
+    priorite:  "ne_pas_oublier"
+    ordre: 34
+
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ Zone SALLE — 20 missions                                │
+  # └─────────────────────────────────────────────────────────┘
+
+  # ── SALLE · OUVERTURE (5) ──
+  m_sal_ouv_1:
+    zone: "@zone_salle"
+    texte: "Allumer pistes / arènes / consoles VR"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 1
+  m_sal_ouv_2:
+    zone: "@zone_salle"
+    texte: "Vérifier le bon fonctionnement de chaque attraction"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 2
+    requiresPhoto: true
+  m_sal_ouv_3:
+    zone: "@zone_salle"
+    texte: "Ranger les chaussures de bowling par taille"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 3
+  m_sal_ouv_4:
+    zone: "@zone_salle"
+    texte: "Disposer les tabourets / canapés autour des pistes"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "ne_pas_oublier"
+    ordre: 4
+  m_sal_ouv_5:
+    zone: "@zone_salle"
+    texte: "Allumer ambiance lumière et son de la salle"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "important"
     ordre: 5
-  m_bar_ferm_6:
-    zone: "@zone_bar"
-    texte: "Nettoyage et remplissage de la machine à cocktails"
-    categorie: "FERMETURE"
+
+  # ── SALLE · PENDANT (5) ──
+  m_sal_pend_1:
+    zone: "@zone_salle"
+    texte: "Lancer et superviser les parties (bowling / laser / VR)"
+    categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 6
-  m_bar_ferm_7:
-    zone: "@zone_bar"
-    texte: "Nettoyer la cuisine (plan de travail, four, micro-ondes, ustensiles)"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 7
-  m_bar_ferm_8:
-    zone: "@zone_bar"
-    texte: "Fermer le bar avec autorisation responsable (1h avant la fin)"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 8
-  m_bar_ferm_9:
-    zone: "@zone_bar"
-    texte: "Balai + serpillière (cuisine)"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 9
-  m_bar_ferm_10:
-    zone: "@zone_bar"
-    texte: "Prévoir des sacs de glaçons pour le lendemain si nécessaire"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
+    priorite:  "vitale"
     ordre: 10
-  m_bar_ferm_11:
-    zone: "@zone_bar"
-    texte: "Vider les bacs à glaçons (fin de service)"
-    categorie: "FERMETURE"
+  m_sal_pend_2:
+    zone: "@zone_salle"
+    texte: "Distribuer et récupérer les chaussures de bowling"
+    categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "important"
+    priorite:  "important"
     ordre: 11
-  m_bar_ferm_12:
-    zone: "@zone_bar"
-    texte: "Nettoyer la machine pression pour boissons softs"
-    categorie: "FERMETURE"
+  m_sal_pend_3:
+    zone: "@zone_salle"
+    texte: "Désinfecter chaussures / équipements entre chaque utilisation"
+    categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "important"
+    priorite:  "vitale"
     ordre: 12
-  m_bar_ferm_13:
-    zone: "@zone_bar"
-    texte: "Éteindre la lumière des frigos et le lave-verre (à la fin)"
-    categorie: "FERMETURE"
+  m_sal_pend_4:
+    zone: "@zone_salle"
+    texte: "Débarrasser les tables des pistes après chaque partie"
+    categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "important"
+    priorite:  "important"
     ordre: 13
-  m_bar_ferm_14:
-    zone: "@zone_bar"
-    texte: "Retirer et nettoyer la grille de la machine à café"
-    categorie: "FERMETURE"
+  m_sal_pend_5:
+    zone: "@zone_salle"
+    texte: "Intervenir en cas de bug machine / quille bloquée"
+    categorie: "PENDANT"
     frequence: "FIXE"
-    priorite: "important"
+    priorite:  "vitale"
     ordre: 14
-  m_bar_ferm_15:
-    zone: "@zone_bar"
-    texte: "Éteindre le four (fin de service)"
-    categorie: "FERMETURE"
+
+  # ── SALLE · MENAGE (5) ──
+  m_sal_men_1:
+    zone: "@zone_salle"
+    texte: "Aspirer les pistes et leur abord direct"
+    categorie: "MENAGE"
     frequence: "FIXE"
-    priorite: "important"
-    ordre: 15
-  m_bar_ferm_16:
-    zone: "@zone_bar"
-    texte: "Lancer nettoyage machine à café avec capsules de nettoyage"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 16
-  m_bar_ferm_17:
-    zone: "@zone_bar"
-    texte: "Éteindre la machine à café"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 17
-  m_bar_ferm_18:
-    zone: "@zone_bar"
-    texte: "Réduire le chauffage (fin de service)"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 18
-  m_bar_ferm_19:
-    zone: "@zone_bar"
-    texte: "Nettoyer le bac à marc du levier puis le remettre"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 19
-  m_bar_ferm_20:
-    zone: "@zone_bar"
-    texte: "Vider et nettoyer le bac à capsules de la machine à café"
-    categorie: "FERMETURE"
-    frequence: "FIXE"
-    priorite: "important"
+    priorite:  "important"
     ordre: 20
-  m_bar_ferm_21:
-    zone: "@zone_bar"
-    texte: "Nettoyer le bas de la machine à café (eau chaude + brosse)"
-    categorie: "FERMETURE"
+  m_sal_men_2:
+    zone: "@zone_salle"
+    texte: "Nettoyer les tables et tabourets de la salle"
+    categorie: "MENAGE"
     frequence: "FIXE"
-    priorite: "ne_pas_oublier"
+    priorite:  "important"
     ordre: 21
+  m_sal_men_3:
+    zone: "@zone_salle"
+    texte: "Désinfecter casques VR et gilets laser"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 22
+    requiresPhoto: true
+  m_sal_men_4:
+    zone: "@zone_salle"
+    texte: "Vider les corbeilles côté salle"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "ne_pas_oublier"
+    ordre: 23
+  m_sal_men_5:
+    zone: "@zone_salle"
+    texte: "Passer la serpillière dans les allées"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 24
 
-# ─── Missions Salle (16) ─────────────────────────────────────────────────────
-  # OUVERTURE
-  m_salle_ouv_1:
+  # ── SALLE · FERMETURE (5) ──
+  m_sal_ferm_1:
     zone: "@zone_salle"
-    texte: "Être en tenue à l'heure et pointer son heure d'arrivée"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 1
-  m_salle_ouv_2:
-    zone: "@zone_salle"
-    texte: "Vérifier fonctionnement des tablettes jusqu'au paiement"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 2
-  m_salle_ouv_3:
-    zone: "@zone_salle"
-    texte: "Vérifier propreté de la salle et des tables"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 3
-  m_salle_ouv_4:
-    zone: "@zone_salle"
-    texte: "Récupérer et vérifier son fond de caisse (25€)"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 4
-  m_salle_ouv_5:
-    zone: "@zone_salle"
-    texte: "Récupérer son matériel de poste (TPE + montre + limonadier)"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 5
-  m_salle_ouv_6:
-    zone: "@zone_salle"
-    texte: "Vérifier la propreté de l'entrée client"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 6
-  m_salle_ouv_7:
-    zone: "@zone_salle"
-    texte: "Aligner tables, banquettes, fauteuils et poufs"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 7
-  m_salle_ouv_8:
-    zone: "@zone_salle"
-    texte: "Nettoyer les écrans des tablettes des pistes et billards"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 8
-  m_salle_ouv_9:
-    zone: "@zone_salle"
-    texte: "Nettoyer les vitres des jeux d'arcades"
-    categorie: "OUVERTURE"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 9
-
-  # PENDANT
-  m_salle_pend_1:
-    zone: "@zone_salle"
-    texte: "Vérifier la propreté des toilettes avant chaque pause"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 1
-  m_salle_pend_2:
-    zone: "@zone_salle"
-    texte: "Proposer au moins une fois des boissons à chaque client"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 2
-  m_salle_pend_3:
-    zone: "@zone_salle"
-    texte: "Vérifier les bornes de gel et remplir si besoin"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 3
-  m_salle_pend_4:
-    zone: "@zone_salle"
-    texte: "Vérifier / nettoyer / dépoussiérer les zones (arcade, fléchettes, machines à lots, machines, billards, micro-ondes libre-service)"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "important"
-    ordre: 4
-  m_salle_pend_5:
-    zone: "@zone_salle"
-    texte: "Nettoyer les bornes de désinfection chaussures clients"
-    categorie: "PENDANT"
-    frequence: "FIXE"
-    priorite: "ne_pas_oublier"
-    ordre: 5
-
-  # FERMETURE
-  m_salle_ferm_1:
-    zone: "@zone_salle"
-    texte: "Mardi/vendredi (1h avant fin) : rassembler les poubelles (bar, accueil, arcades, pistes)"
+    texte: "Éteindre toutes les attractions (pistes, arènes, VR)"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 1
-  m_salle_ferm_2:
+    priorite:  "vitale"
+    ordre: 30
+  m_sal_ferm_2:
     zone: "@zone_salle"
-    texte: "Mardi/vendredi : nettoyer toutes les tables en salle et pistes (produit nettoyant)"
+    texte: "Ranger toutes les chaussures de bowling à leur place"
     categorie: "FERMETURE"
     frequence: "FIXE"
-    priorite: "vitale"
-    ordre: 2
+    priorite:  "important"
+    ordre: 31
+  m_sal_ferm_3:
+    zone: "@zone_salle"
+    texte: "Faire le tour de salle pour récupérer objets oubliés"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 32
+  m_sal_ferm_4:
+    zone: "@zone_salle"
+    texte: "Éteindre lumière d'ambiance et système son"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite:  "ne_pas_oublier"
+    ordre: 33
+  m_sal_ferm_5:
+    zone: "@zone_salle"
+    texte: "Vérifier que toutes les portes côté salle sont fermées"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 34
 
-# ─── Compétences ─────────────────────────────────────────────────────────────
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ Zone MANAGER — 20 missions                              │
+  # └─────────────────────────────────────────────────────────┘
+
+  # ── MANAGER · OUVERTURE (5) ──
+  m_mgr_ouv_1:
+    zone: "@zone_manager"
+    texte: "Déverrouiller le centre et désactiver l'alarme"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 1
+  m_mgr_ouv_2:
+    zone: "@zone_manager"
+    texte: "Vérifier la présence et le pointage de l'équipe"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 2
+  m_mgr_ouv_3:
+    zone: "@zone_manager"
+    texte: "Briefer l'équipe sur la journée (events, réservations, alertes)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 3
+  m_mgr_ouv_4:
+    zone: "@zone_manager"
+    texte: "Vérifier le bon fonctionnement des caisses (accueil + bar)"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 4
+  m_mgr_ouv_5:
+    zone: "@zone_manager"
+    texte: "Consulter les retours / incidents de la veille"
+    categorie: "OUVERTURE"
+    frequence: "FIXE"
+    priorite:  "ne_pas_oublier"
+    ordre: 5
+
+  # ── MANAGER · PENDANT (5) ──
+  m_mgr_pend_1:
+    zone: "@zone_manager"
+    texte: "Superviser l'équipe et fluidifier l'activité"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 10
+  m_mgr_pend_2:
+    zone: "@zone_manager"
+    texte: "Gérer les incidents clients (réclamations, remboursements)"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 11
+  m_mgr_pend_3:
+    zone: "@zone_manager"
+    texte: "Valider les pauses repas et les rotations équipe"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 12
+  m_mgr_pend_4:
+    zone: "@zone_manager"
+    texte: "Coordonner les anniversaires et events de groupe"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 13
+  m_mgr_pend_5:
+    zone: "@zone_manager"
+    texte: "Surveiller les caméras et la sécurité du centre"
+    categorie: "PENDANT"
+    frequence: "FIXE"
+    priorite:  "ne_pas_oublier"
+    ordre: 14
+
+  # ── MANAGER · MENAGE (5) ──
+  m_mgr_men_1:
+    zone: "@zone_manager"
+    texte: "Vérifier l'état général de propreté du centre (tour complet)"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 20
+  m_mgr_men_2:
+    zone: "@zone_manager"
+    texte: "Contrôler que le plan de nettoyage HACCP est à jour"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 21
+    requiresPhoto: true
+  m_mgr_men_3:
+    zone: "@zone_manager"
+    texte: "Vérifier la propreté des sanitaires clients en milieu de service"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 22
+  m_mgr_men_4:
+    zone: "@zone_manager"
+    texte: "Réapprovisionner produits d'entretien si rupture"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "ne_pas_oublier"
+    ordre: 23
+  m_mgr_men_5:
+    zone: "@zone_manager"
+    texte: "Auditer les relevés de température HACCP (bar / cuisine)"
+    categorie: "MENAGE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 24
+
+  # ── MANAGER · FERMETURE (5) ──
+  m_mgr_ferm_1:
+    zone: "@zone_manager"
+    texte: "Clôturer la journée caisse globale (cumul accueil + bar)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 30
+    requiresPhoto: true
+  m_mgr_ferm_2:
+    zone: "@zone_manager"
+    texte: "Valider les heures pointées de l'équipe pour la journée"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 31
+  m_mgr_ferm_3:
+    zone: "@zone_manager"
+    texte: "Faire le tour de fermeture (issues, alarmes, lumières)"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 32
+    requiresPhoto: true
+  m_mgr_ferm_4:
+    zone: "@zone_manager"
+    texte: "Enclencher l'alarme et verrouiller l'entrée principale"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite:  "vitale"
+    ordre: 33
+  m_mgr_ferm_5:
+    zone: "@zone_manager"
+    texte: "Reporter les incidents notables du jour dans Shiftly"
+    categorie: "FERMETURE"
+    frequence: "FIXE"
+    priorite:  "important"
+    ordre: 34
+
+# ─── Compétences (20 = 4 zones × 5) ──────────────────────────────────────────
 App\Entity\Competence:
-  comp_acc_1:
-    zone:       "@zone_accueil"
-    nom:        "Maîtrise du logiciel de réservation"
-    points:     30
-    difficulte: "avancee"
-  comp_acc_2:
-    zone:       "@zone_accueil"
-    nom:        "Gestion des groupes et attribution des pistes"
-    points:     15
-    difficulte: "simple"
-  comp_acc_3:
-    zone:       "@zone_accueil"
-    nom:        "Encaissement et gestion de caisse"
-    points:     25
-    difficulte: "avancee"
 
-  comp_bar_1:
-    zone:       "@zone_bar"
-    nom:        "Préparation des cocktails signature (sans alcool)"
-    points:     25
-    difficulte: "avancee"
-  comp_bar_2:
-    zone:       "@zone_bar"
-    nom:        "Gestion des stocks bar et commandes fournisseurs"
-    points:     40
-    difficulte: "experimente"
-  comp_bar_3:
-    zone:       "@zone_bar"
-    nom:        "Service rapide en flux tendu"
-    points:     20
-    difficulte: "simple"
+  # Accueil
+  comp_acc_1: { zone: "@zone_accueil", nom: "Caisse & encaissement",       points: 10, difficulte: "simple",      description: "Utiliser la caisse, encaisser CB/espèces, faire un rapport Z." }
+  comp_acc_2: { zone: "@zone_accueil", nom: "Réservations téléphone/web",  points: 10, difficulte: "simple",      description: "Prendre une résa, vérifier dispo, confirmer au client." }
+  comp_acc_3: { zone: "@zone_accueil", nom: "Cartes fidélité & promos",    points: 10, difficulte: "simple",      description: "Créer une carte fidélité, appliquer une promo, gérer un code." }
+  comp_acc_4: { zone: "@zone_accueil", nom: "Anniversaires & events",      points: 15, difficulte: "avancee",     description: "Coordonner un anniversaire enfant ou un event groupe." }
+  comp_acc_5: { zone: "@zone_accueil", nom: "Litige client de comptoir",   points: 20, difficulte: "experimente", description: "Désamorcer une réclamation, faire un remboursement." }
 
-  comp_salle_1:
-    zone:       "@zone_salle"
-    nom:        "Entretien courant des pistes (huilage)"
-    points:     10
-    difficulte: "simple"
-  comp_salle_2:
-    zone:       "@zone_salle"
-    nom:        "Diagnostic et résolution des pannes scoring"
-    points:     50
-    difficulte: "experimente"
-  comp_salle_3:
-    zone:       "@zone_salle"
-    nom:        "Maintenance préventive des machines de quillage"
-    points:     35
-    difficulte: "avancee"
+  # Bar
+  comp_bar_1: { zone: "@zone_bar", nom: "Tirage pression",            points: 10, difficulte: "simple",      description: "Tirer une bière correctement, mousse, propreté du verre." }
+  comp_bar_2: { zone: "@zone_bar", nom: "Cocktails & boissons sucrées", points: 15, difficulte: "avancee",  description: "Préparer cocktails maison et boissons à thème." }
+  comp_bar_3: { zone: "@zone_bar", nom: "Caisse bar",                 points: 10, difficulte: "simple",      description: "Encaisser au bar, ouvrir/fermer la caisse bar." }
+  comp_bar_4: { zone: "@zone_bar", nom: "HACCP & relevés température", points: 15, difficulte: "avancee",   description: "Faire le relevé HACCP, gérer les DLC et la chaîne du froid." }
+  comp_bar_5: { zone: "@zone_bar", nom: "Inventaire bar",             points: 20, difficulte: "experimente", description: "Inventaire complet (boissons, snacks, consommables)." }
 
-# ─── StaffCompétences (41) ───────────────────────────────────────────────────
+  # Salle
+  comp_sal_1: { zone: "@zone_salle", nom: "Service piste bowling",      points: 10, difficulte: "simple",      description: "Lancer une partie, gérer le score, dépanner une piste." }
+  comp_sal_2: { zone: "@zone_salle", nom: "Service laser game",         points: 15, difficulte: "avancee",     description: "Briefer les équipes, lancer une partie laser, debug arène." }
+  comp_sal_3: { zone: "@zone_salle", nom: "Service VR",                 points: 15, difficulte: "avancee",     description: "Casquer, lancer et superviser une session VR." }
+  comp_sal_4: { zone: "@zone_salle", nom: "Mise en place salle",        points: 10, difficulte: "simple",      description: "Préparer tables, tabourets, signalétique avant ouverture." }
+  comp_sal_5: { zone: "@zone_salle", nom: "Désinfection équipements",   points: 10, difficulte: "simple",      description: "Désinfecter chaussures bowling, casques VR, gilets laser." }
+
+  # Manager
+  comp_mgr_1: { zone: "@zone_manager", nom: "Clôture caisse globale",    points: 25, difficulte: "experimente", description: "Clôturer la journée, faire la dépose banque, scellés." }
+  comp_mgr_2: { zone: "@zone_manager", nom: "Planning & validation heures", points: 25, difficulte: "experimente", description: "Construire un planning, valider les heures pointées." }
+  comp_mgr_3: { zone: "@zone_manager", nom: "Gestion d'incidents",       points: 20, difficulte: "avancee",     description: "Prendre en charge un incident client ou matériel critique." }
+  comp_mgr_4: { zone: "@zone_manager", nom: "Brief équipe",              points: 15, difficulte: "avancee",     description: "Faire un brief équipe clair en début de service." }
+  comp_mgr_5: { zone: "@zone_manager", nom: "Audit HACCP",               points: 20, difficulte: "avancee",     description: "Auditer la conformité HACCP : relevés, plan nettoyage, DLC." }
+
+# ─── StaffCompetence (compétences acquises par l'équipe) ─────────────────────
 App\Entity\StaffCompetence:
-  # Kévin — manager polyvalent (7)
-  sc_k1:
-    user:       "@user_kevin"
-    competence: "@comp_acc_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>"
-  sc_k2:
-    user:       "@user_kevin"
-    competence: "@comp_acc_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-09-15'))>"
-  sc_k3:
-    user:       "@user_kevin"
-    competence: "@comp_acc_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>"
-  sc_k4:
-    user:       "@user_kevin"
-    competence: "@comp_bar_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-10-15'))>"
-  sc_k5:
-    user:       "@user_kevin"
-    competence: "@comp_bar_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-11-01'))>"
-  sc_k6:
-    user:       "@user_kevin"
-    competence: "@comp_bar_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-11-15'))>"
-  sc_k7:
-    user:       "@user_kevin"
-    competence: "@comp_salle_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>"
+  # Kevin (manager senior) : toutes compétences sauf Manager·Audit HACCP (en cours)
+  sc_kevin_acc_1: { user: "@user_kevin", competence: "@comp_acc_1", acquiredAt: <(new \DateTimeImmutable('-3 years'))> }
+  sc_kevin_acc_2: { user: "@user_kevin", competence: "@comp_acc_2", acquiredAt: <(new \DateTimeImmutable('-3 years'))> }
+  sc_kevin_acc_3: { user: "@user_kevin", competence: "@comp_acc_3", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_kevin_acc_4: { user: "@user_kevin", competence: "@comp_acc_4", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_kevin_acc_5: { user: "@user_kevin", competence: "@comp_acc_5", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_kevin_bar_1: { user: "@user_kevin", competence: "@comp_bar_1", acquiredAt: <(new \DateTimeImmutable('-3 years'))> }
+  sc_kevin_bar_2: { user: "@user_kevin", competence: "@comp_bar_2", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_kevin_bar_3: { user: "@user_kevin", competence: "@comp_bar_3", acquiredAt: <(new \DateTimeImmutable('-3 years'))> }
+  sc_kevin_bar_4: { user: "@user_kevin", competence: "@comp_bar_4", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_kevin_sal_1: { user: "@user_kevin", competence: "@comp_sal_1", acquiredAt: <(new \DateTimeImmutable('-3 years'))> }
+  sc_kevin_sal_2: { user: "@user_kevin", competence: "@comp_sal_2", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_kevin_sal_3: { user: "@user_kevin", competence: "@comp_sal_3", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_kevin_sal_4: { user: "@user_kevin", competence: "@comp_sal_4", acquiredAt: <(new \DateTimeImmutable('-3 years'))> }
+  sc_kevin_sal_5: { user: "@user_kevin", competence: "@comp_sal_5", acquiredAt: <(new \DateTimeImmutable('-3 years'))> }
+  sc_kevin_mgr_1: { user: "@user_kevin", competence: "@comp_mgr_1", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_kevin_mgr_2: { user: "@user_kevin", competence: "@comp_mgr_2", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_kevin_mgr_3: { user: "@user_kevin", competence: "@comp_mgr_3", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_kevin_mgr_4: { user: "@user_kevin", competence: "@comp_mgr_4", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
 
-  # Mégane — manager accueil/bar (4)
-  sc_m1:
-    user:       "@user_megane"
-    competence: "@comp_acc_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>"
-  sc_m2:
-    user:       "@user_megane"
-    competence: "@comp_acc_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-10-15'))>"
-  sc_m3:
-    user:       "@user_megane"
-    competence: "@comp_acc_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-11-01'))>"
-  sc_m4:
-    user:       "@user_megane"
-    competence: "@comp_bar_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-12-15'))>"
+  # Mégane (manager confirmée)
+  sc_megane_acc_1: { user: "@user_megane", competence: "@comp_acc_1", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_megane_acc_2: { user: "@user_megane", competence: "@comp_acc_2", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_megane_acc_3: { user: "@user_megane", competence: "@comp_acc_3", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_megane_bar_1: { user: "@user_megane", competence: "@comp_bar_1", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_megane_bar_3: { user: "@user_megane", competence: "@comp_bar_3", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_megane_sal_1: { user: "@user_megane", competence: "@comp_sal_1", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_megane_sal_2: { user: "@user_megane", competence: "@comp_sal_2", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_megane_mgr_1: { user: "@user_megane", competence: "@comp_mgr_1", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_megane_mgr_2: { user: "@user_megane", competence: "@comp_mgr_2", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_megane_mgr_4: { user: "@user_megane", competence: "@comp_mgr_4", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
 
-  # Micka — manager bar/accueil (6)
-  sc_mc1:
-    user:       "@user_micka"
-    competence: "@comp_bar_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>"
-  sc_mc2:
-    user:       "@user_micka"
-    competence: "@comp_bar_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-09-15'))>"
-  sc_mc3:
-    user:       "@user_micka"
-    competence: "@comp_bar_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-10-01'))>"
-  sc_mc4:
-    user:       "@user_micka"
-    competence: "@comp_acc_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-10-15'))>"
-  sc_mc5:
-    user:       "@user_micka"
-    competence: "@comp_acc_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-11-01'))>"
-  sc_mc6:
-    user:       "@user_micka"
-    competence: "@comp_salle_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>"
+  # Micka (manager)
+  sc_micka_acc_1: { user: "@user_micka", competence: "@comp_acc_1", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_micka_acc_2: { user: "@user_micka", competence: "@comp_acc_2", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_micka_bar_1: { user: "@user_micka", competence: "@comp_bar_1", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_micka_bar_4: { user: "@user_micka", competence: "@comp_bar_4", acquiredAt: <(new \DateTimeImmutable('-6 months'))> }
+  sc_micka_sal_1: { user: "@user_micka", competence: "@comp_sal_1", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_micka_sal_2: { user: "@user_micka", competence: "@comp_sal_2", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_micka_sal_3: { user: "@user_micka", competence: "@comp_sal_3", acquiredAt: <(new \DateTimeImmutable('-8 months'))> }
+  sc_micka_mgr_1: { user: "@user_micka", competence: "@comp_mgr_1", acquiredAt: <(new \DateTimeImmutable('-6 months'))> }
+  sc_micka_mgr_3: { user: "@user_micka", competence: "@comp_mgr_3", acquiredAt: <(new \DateTimeImmutable('-3 months'))> }
 
-  # Erwan — polyvalent en progression (4)
-  sc_e1:
-    user:       "@user_erwan"
-    competence: "@comp_acc_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>"
-  sc_e2:
-    user:       "@user_erwan"
-    competence: "@comp_acc_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-03-01'))>"
-  sc_e3:
-    user:       "@user_erwan"
-    competence: "@comp_salle_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-03-05'))>"
-  sc_e4:
-    user:       "@user_erwan"
-    competence: "@comp_salle_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-04-01'))>"
+  # Erwan (Bar)
+  sc_erwan_bar_1: { user: "@user_erwan", competence: "@comp_bar_1", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_erwan_bar_2: { user: "@user_erwan", competence: "@comp_bar_2", acquiredAt: <(new \DateTimeImmutable('-8 months'))> }
+  sc_erwan_bar_3: { user: "@user_erwan", competence: "@comp_bar_3", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_erwan_bar_4: { user: "@user_erwan", competence: "@comp_bar_4", acquiredAt: <(new \DateTimeImmutable('-6 months'))> }
+  sc_erwan_sal_1: { user: "@user_erwan", competence: "@comp_sal_1", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_erwan_sal_5: { user: "@user_erwan", competence: "@comp_sal_5", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
 
-  # Patou — accueil confirmé (4)
-  sc_p1:
-    user:       "@user_patou"
-    competence: "@comp_acc_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-01-10'))>"
-  sc_p2:
-    user:       "@user_patou"
-    competence: "@comp_acc_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-01-05'))>"
-  sc_p3:
-    user:       "@user_patou"
-    competence: "@comp_acc_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>"
-  sc_p4:
-    user:       "@user_patou"
-    competence: "@comp_salle_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-15'))>"
+  # Patou (Accueil)
+  sc_patou_acc_1: { user: "@user_patou", competence: "@comp_acc_1", acquiredAt: <(new \DateTimeImmutable('-3 years'))> }
+  sc_patou_acc_2: { user: "@user_patou", competence: "@comp_acc_2", acquiredAt: <(new \DateTimeImmutable('-3 years'))> }
+  sc_patou_acc_3: { user: "@user_patou", competence: "@comp_acc_3", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_patou_acc_4: { user: "@user_patou", competence: "@comp_acc_4", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_patou_sal_4: { user: "@user_patou", competence: "@comp_sal_4", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
 
-  # Pôl — accueil en montée (3)
-  sc_po1:
-    user:       "@user_pol"
-    competence: "@comp_acc_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-01-15'))>"
-  sc_po2:
-    user:       "@user_pol"
-    competence: "@comp_acc_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>"
-  sc_po3:
-    user:       "@user_pol"
-    competence: "@comp_acc_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-03-01'))>"
+  # Pol (Salle)
+  sc_pol_sal_1: { user: "@user_pol", competence: "@comp_sal_1", acquiredAt: <(new \DateTimeImmutable('-6 months'))> }
+  sc_pol_sal_2: { user: "@user_pol", competence: "@comp_sal_2", acquiredAt: <(new \DateTimeImmutable('-4 months'))> }
+  sc_pol_sal_4: { user: "@user_pol", competence: "@comp_sal_4", acquiredAt: <(new \DateTimeImmutable('-6 months'))> }
+  sc_pol_sal_5: { user: "@user_pol", competence: "@comp_sal_5", acquiredAt: <(new \DateTimeImmutable('-6 months'))> }
+  sc_pol_bar_1: { user: "@user_pol", competence: "@comp_bar_1", acquiredAt: <(new \DateTimeImmutable('-3 months'))> }
 
-  # Cynthia — bar confirmée (4)
-  sc_cy1:
-    user:       "@user_cynthia"
-    competence: "@comp_bar_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-11-01'))>"
-  sc_cy2:
-    user:       "@user_cynthia"
-    competence: "@comp_bar_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-01-15'))>"
-  sc_cy3:
-    user:       "@user_cynthia"
-    competence: "@comp_bar_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>"
-  sc_cy4:
-    user:       "@user_cynthia"
-    competence: "@comp_salle_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-01'))>"
+  # Cynthia (Accueil + Bar partiel)
+  sc_cynthia_acc_1: { user: "@user_cynthia", competence: "@comp_acc_1", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_cynthia_acc_2: { user: "@user_cynthia", competence: "@comp_acc_2", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_cynthia_acc_3: { user: "@user_cynthia", competence: "@comp_acc_3", acquiredAt: <(new \DateTimeImmutable('-2 years'))> }
+  sc_cynthia_acc_4: { user: "@user_cynthia", competence: "@comp_acc_4", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_cynthia_bar_1: { user: "@user_cynthia", competence: "@comp_bar_1", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_cynthia_bar_3: { user: "@user_cynthia", competence: "@comp_bar_3", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
 
-  # Gabin — bar expérimenté (3)
-  sc_g1:
-    user:       "@user_gabin"
-    competence: "@comp_bar_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>"
-  sc_g2:
-    user:       "@user_gabin"
-    competence: "@comp_bar_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-01-20'))>"
-  sc_g3:
-    user:       "@user_gabin"
-    competence: "@comp_salle_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-10'))>"
+  # Gabin (Bar + Salle partiel)
+  sc_gabin_bar_1: { user: "@user_gabin", competence: "@comp_bar_1", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_gabin_bar_3: { user: "@user_gabin", competence: "@comp_bar_3", acquiredAt: <(new \DateTimeImmutable('-10 months'))> }
+  sc_gabin_sal_1: { user: "@user_gabin", competence: "@comp_sal_1", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
+  sc_gabin_sal_5: { user: "@user_gabin", competence: "@comp_sal_5", acquiredAt: <(new \DateTimeImmutable('-1 year'))> }
 
-  # Aya — bar (2)
-  sc_a1:
-    user:       "@user_aya"
-    competence: "@comp_bar_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-15'))>"
-  sc_a2:
-    user:       "@user_aya"
-    competence: "@comp_bar_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-02-20'))>"
+  # Aya (Salle débutante)
+  sc_aya_sal_1: { user: "@user_aya", competence: "@comp_sal_1", acquiredAt: <(new \DateTimeImmutable('-4 months'))> }
+  sc_aya_sal_5: { user: "@user_aya", competence: "@comp_sal_5", acquiredAt: <(new \DateTimeImmutable('-4 months'))> }
 
-  # Hiba — bar débutante (2)
-  sc_h1:
-    user:       "@user_hiba"
-    competence: "@comp_bar_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-03-10'))>"
-  sc_h2:
-    user:       "@user_hiba"
-    competence: "@comp_bar_3"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-03-20'))>"
+  # Hiba (Bar débutante)
+  sc_hiba_bar_1: { user: "@user_hiba", competence: "@comp_bar_1", acquiredAt: <(new \DateTimeImmutable('-2 months'))> }
+  sc_hiba_bar_3: { user: "@user_hiba", competence: "@comp_bar_3", acquiredAt: <(new \DateTimeImmutable('-2 months'))> }
 
-  # Daniela — salle (2)
-  sc_d1:
-    user:       "@user_daniela"
-    competence: "@comp_salle_1"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-03-01'))>"
-  sc_d2:
-    user:       "@user_daniela"
-    competence: "@comp_salle_2"
-    acquiredAt: "<(new \\DateTimeImmutable('2026-04-01'))>"
+  # Daniela (Salle débutante)
+  sc_daniela_sal_1: { user: "@user_daniela", competence: "@comp_sal_1", acquiredAt: <(new \DateTimeImmutable('-1 month'))> }
+  sc_daniela_sal_5: { user: "@user_daniela", competence: "@comp_sal_5", acquiredAt: <(new \DateTimeImmutable('-1 month'))> }
 
-# ─── Services (8) ────────────────────────────────────────────────────────────
-App\Entity\Service:
-  svc_j8:
-    centre:         "@centre_fgc"
-    date:           "<(new \\DateTimeImmutable((new \\DateTime('-8 days'))->format('Y-m-d')))>"
-    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:         "TERMINE"
-    tauxCompletion: 91.0
-
-  svc_j4:
-    centre:         "@centre_fgc"
-    date:           "<(new \\DateTimeImmutable((new \\DateTime('-4 days'))->format('Y-m-d')))>"
-    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:         "TERMINE"
-    tauxCompletion: 88.0
-
-  svc_j3:
-    centre:         "@centre_fgc"
-    date:           "<(new \\DateTimeImmutable((new \\DateTime('-3 days'))->format('Y-m-d')))>"
-    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:         "TERMINE"
-    tauxCompletion: 94.0
-    note:           "Soirée chargée, piste 4 en panne en fin de service. Réparation prévue lundi."
-
-  svc_j2:
-    centre:         "@centre_fgc"
-    date:           "<(new \\DateTimeImmutable((new \\DateTime('-2 days'))->format('Y-m-d')))>"
-    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:         "TERMINE"
-    tauxCompletion: 87.0
-    note:           "RAS. Bon service, équipe au complet."
-
-  svc_today:
-    centre:         "@centre_fgc"
-    date:           "<(new \\DateTimeImmutable('today'))>"
-    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:         "EN_COURS"
-    tauxCompletion: 0.0
-    note:           "Vérifier stock bière avant 18h, livraison annulée hier."
-
-  svc_j1:
-    centre:         "@centre_fgc"
-    date:           "<(new \\DateTimeImmutable((new \\DateTime('+1 day'))->format('Y-m-d')))>"
-    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:         "PLANIFIE"
-    tauxCompletion: 0.0
-
-  svc_j2p:
-    centre:         "@centre_fgc"
-    date:           "<(new \\DateTimeImmutable((new \\DateTime('+2 days'))->format('Y-m-d')))>"
-    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:         "PLANIFIE"
-    tauxCompletion: 0.0
-
-  svc_j3p:
-    centre:         "@centre_fgc"
-    date:           "<(new \\DateTimeImmutable((new \\DateTime('+3 days'))->format('Y-m-d')))>"
-    heureDebut:     "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:       "<(new \\DateTimeImmutable('23:00:00'))>"
-    statut:         "PLANIFIE"
-    tauxCompletion: 0.0
-
-# ─── Postes (14) ─────────────────────────────────────────────────────────────
-App\Entity\Poste:
-  # Aujourd'hui EN_COURS (6)
-  poste_today_acc_kevin:
-    service:      "@svc_today"
-    zone:         "@zone_accueil"
-    user:         "@user_kevin"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_today_acc_patou:
-    service:      "@svc_today"
-    zone:         "@zone_accueil"
-    user:         "@user_patou"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_today_salle_erwan:
-    service:      "@svc_today"
-    zone:         "@zone_salle"
-    user:         "@user_erwan"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_today_bar_gabin:
-    service:      "@svc_today"
-    zone:         "@zone_bar"
-    user:         "@user_gabin"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_today_bar_cynthia:
-    service:      "@svc_today"
-    zone:         "@zone_bar"
-    user:         "@user_cynthia"
-    heureDebut:   "<(new \\DateTimeImmutable('14:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 0
-
-  poste_today_salle_aya:
-    service:      "@svc_today"
-    zone:         "@zone_salle"
-    user:         "@user_aya"
-    heureDebut:   "<(new \\DateTimeImmutable('14:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 0
-
-  # J-2 TERMINE (5)
-  poste_j2_acc_micka:
-    service:      "@svc_j2"
-    zone:         "@zone_accueil"
-    user:         "@user_micka"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_j2_acc_pol:
-    service:      "@svc_j2"
-    zone:         "@zone_accueil"
-    user:         "@user_pol"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_j2_bar_hiba:
-    service:      "@svc_j2"
-    zone:         "@zone_bar"
-    user:         "@user_hiba"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_j2_salle_daniela:
-    service:      "@svc_j2"
-    zone:         "@zone_salle"
-    user:         "@user_daniela"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_j2_salle_erwan:
-    service:      "@svc_j2"
-    zone:         "@zone_salle"
-    user:         "@user_erwan"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('18:00:00'))>"
-    pauseMinutes: 0
-
-  # J-4 TERMINE (3)
-  poste_j4_acc_kevin:
-    service:      "@svc_j4"
-    zone:         "@zone_accueil"
-    user:         "@user_kevin"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_j4_bar_gabin:
-    service:      "@svc_j4"
-    zone:         "@zone_bar"
-    user:         "@user_gabin"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-  poste_j4_salle_patou:
-    service:      "@svc_j4"
-    zone:         "@zone_salle"
-    user:         "@user_patou"
-    heureDebut:   "<(new \\DateTimeImmutable('10:00:00'))>"
-    heureFin:     "<(new \\DateTimeImmutable('23:00:00'))>"
-    pauseMinutes: 30
-
-# ─── Completions (service du jour — ouverture faite) ─────────────────────────
-App\Entity\Completion:
-  # Accueil — ouverture partielle (Kevin + Patou)
-  c1:  { poste: "@poste_today_acc_kevin",  mission: "@m_acc_ouv_1",  user: "@user_kevin" }
-  c2:  { poste: "@poste_today_acc_kevin",  mission: "@m_acc_ouv_2",  user: "@user_kevin" }
-  c3:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_ouv_3",  user: "@user_patou" }
-  c4:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_ouv_4",  user: "@user_patou" }
-  c5:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_ouv_6",  user: "@user_patou" }
-  c6:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_pend_3", user: "@user_patou" }
-  c7:  { poste: "@poste_today_acc_patou",  mission: "@m_acc_pend_4", user: "@user_patou" }
-
-  # Bar — ouverture partielle (Gabin + Cynthia)
-  c8:  { poste: "@poste_today_bar_gabin",   mission: "@m_bar_ouv_1",  user: "@user_gabin" }
-  c9:  { poste: "@poste_today_bar_gabin",   mission: "@m_bar_ouv_3",  user: "@user_gabin" }
-  c10: { poste: "@poste_today_bar_gabin",   mission: "@m_bar_ouv_4",  user: "@user_gabin" }
-  c11: { poste: "@poste_today_bar_gabin",   mission: "@m_bar_ouv_5",  user: "@user_gabin" }
-  c12: { poste: "@poste_today_bar_cynthia", mission: "@m_bar_ouv_10", user: "@user_cynthia" }
-
-  # Salle — ouverture partielle (Erwan + Aya)
-  c13: { poste: "@poste_today_salle_erwan", mission: "@m_salle_ouv_1", user: "@user_erwan" }
-  c14: { poste: "@poste_today_salle_aya",   mission: "@m_salle_ouv_3", user: "@user_aya" }
-  c15: { poste: "@poste_today_salle_aya",   mission: "@m_salle_ouv_5", user: "@user_aya" }
-
-# ─── Incidents (4) ───────────────────────────────────────────────────────────
-App\Entity\Incident:
-  inc_1:
-    centre:         "@centre_fgc"
-    service:        "@svc_j3"
-    titre:          "Panne piste n°4 — retour boules bloqué, mécanisme coincé"
-    severite:       "haute"
-    statut:         "EN_COURS"
-    user:           "@user_kevin"
-    zone:           "@zone_salle"
-    staffImpliques: ["@user_kevin", "@user_megane", "@user_erwan"]
-
-  inc_2:
-    centre:         "@centre_fgc"
-    service:        "@svc_j2"
-    titre:          "Climatisation salle — bruit anormal depuis 18h, vibrations sur la grille nord"
-    severite:       "moyenne"
-    statut:         "OUVERT"
-    user:           "@user_micka"
-    zone:           "@zone_salle"
-    staffImpliques: ["@user_micka", "@user_pol"]
-
-  inc_3:
-    centre:         "@centre_fgc"
-    service:        "@svc_j3"
-    titre:          "Machine à cocktails — fuite au niveau du joint inférieur, serviettes posées en attendant"
-    severite:       "haute"
-    statut:         "RESOLU"
-    user:           "@user_megane"
-    zone:           "@zone_bar"
-    staffImpliques: ["@user_megane", "@user_gabin", "@user_cynthia", "@user_hiba"]
-
-  inc_4:
-    centre:         "@centre_fgc"
-    service:        "@svc_j4"
-    titre:          "Client ivre refusé à l'entrée, intervention sécurité requise"
-    severite:       "moyenne"
-    statut:         "RESOLU"
-    user:           "@user_kevin"
-    zone:           "@zone_accueil"
-    staffImpliques: ["@user_kevin", "@user_securite", "@user_patou"]
-
-# ─── Tutoriels ───────────────────────────────────────────────────────────────
+# ─── Tutoriels (20 = 4 zones × 5) ────────────────────────────────────────────
 App\Entity\Tutoriel:
-  tuto_reservation:
-    centre:  "@centre_fgc"
-    titre:   "Prise en main du logiciel de réservation"
-    zone:    "@zone_accueil"
-    niveau:  "debutant"
-    dureMin: 15
-    contenu:
-      - { type: "intro", text: "Ce tutoriel guide les nouveaux membres à travers les étapes essentielles du logiciel de réservation." }
-      - { type: "step", number: 1, title: "Se connecter", text: "Ouvrez le navigateur, allez sur l'interface admin. Utilisez vos identifiants fournis par le manager." }
-      - { type: "step", number: 2, title: "Créer une réservation", text: "Cliquez sur 'Nouvelle réservation', sélectionnez date, heure et nombre de joueurs." }
-      - { type: "step", number: 3, title: "Attribuer une piste", text: "Le système propose une piste disponible. Vous pouvez la modifier si nécessaire." }
-      - { type: "tip", text: "En cas de conflit de réservation, privilégiez toujours le client sur place." }
 
-  tuto_cocktails:
-    centre:  "@centre_fgc"
-    titre:   "Préparer les cocktails signature maison"
-    zone:    "@zone_bar"
-    niveau:  "intermediaire"
-    dureMin: 20
-    contenu:
-      - { type: "intro", text: "Les cocktails maison sont la signature de l'établissement. Voici les recettes et techniques de service." }
-      - { type: "step", number: 1, title: "Ingrédients", text: "Récupérez les ingrédients dans le frigo sous le comptoir. Vérifiez toujours les dates." }
-      - { type: "step", number: 2, title: "Préparation", text: "Utilisez le shaker pour les cocktails frappés. 3 glaçons minimum, secouer 10 secondes." }
-      - { type: "step", number: 3, title: "Service", text: "Verser dans le verre approprié, garnir avec la tranche de citron ou la cerise selon la recette." }
-      - { type: "tip", text: "Proposez systématiquement la version sans alcool à tout le groupe." }
-
-  tuto_caisse:
-    centre:  "@centre_fgc"
-    titre:   "Procédure de clôture de caisse"
-    zone:    "@zone_accueil"
-    niveau:  "avance"
-    dureMin: 25
-    contenu:
-      - { type: "intro", text: "La clôture de caisse est une étape critique. Toute erreur doit être signalée au manager." }
-      - { type: "step", number: 1, title: "Imprimer le Z", text: "Depuis le logiciel de caisse, imprimez le rapport Z de fin de journée." }
-      - { type: "step", number: 2, title: "Compter les espèces", text: "Comptez les billets et pièces par coupures. Notez le total sur la fiche de caisse." }
-      - { type: "step", number: 3, title: "Rapprocher les totaux", text: "Comparez le total espèces + CB avec le Z. Écart > 5€ : appel manager obligatoire." }
-      - { type: "tip", text: "Ne jamais laisser la caisse ouverte sans surveillance, même 30 secondes." }
-
-  tuto_incidents:
-    centre:  "@centre_fgc"
-    titre:   "Signaler et gérer un incident"
-    zone:    ~
-    niveau:  "debutant"
+  # Accueil
+  tuto_acc_1:
+    centre: "@centre_fgc"
+    zone:   "@zone_accueil"
+    titre:  "Faire l'ouverture de la caisse"
+    niveau: "debutant"
+    dureMin: 5
+    contenu: [{ type: "text", value: "Allume l'ordinateur, lance le logiciel de caisse, saisis le fond de caisse remis le matin." }]
+  tuto_acc_2:
+    centre: "@centre_fgc"
+    zone:   "@zone_accueil"
+    titre:  "Encaisser une vente (CB, espèces)"
+    niveau: "debutant"
+    dureMin: 7
+    contenu: [{ type: "text", value: "Scanne le bracelet, ajoute les options, choisis CB ou espèces, imprime le ticket." }]
+  tuto_acc_3:
+    centre: "@centre_fgc"
+    zone:   "@zone_accueil"
+    titre:  "Prendre une réservation par téléphone"
+    niveau: "debutant"
+    dureMin: 6
+    contenu: [{ type: "text", value: "Demande nombre de personnes, créneau, activités souhaitées. Confirme par mail/SMS." }]
+  tuto_acc_4:
+    centre: "@centre_fgc"
+    zone:   "@zone_accueil"
+    titre:  "Organiser un anniversaire enfant"
+    niveau: "intermediaire"
+    dureMin: 12
+    contenu: [{ type: "text", value: "Formule, nombre d'enfants, gâteau, déco, créneau bowling/laser. Coordonne avec la salle." }]
+  tuto_acc_5:
+    centre: "@centre_fgc"
+    zone:   "@zone_accueil"
+    titre:  "Clôturer la caisse en fin de service"
+    niveau: "intermediaire"
     dureMin: 10
-    contenu:
-      - { type: "intro", text: "Tout incident doit être signalé immédiatement dans l'application Shiftly, même mineur." }
-      - { type: "step", number: 1, title: "Ouvrir Shiftly", text: "Dans l'app, allez sur 'Service du Jour' → bouton orange '+ Signaler un incident'." }
-      - { type: "step", number: 2, title: "Remplir le formulaire", text: "Décrivez clairement l'incident, choisissez la sévérité et la zone concernée." }
-      - { type: "step", number: 3, title: "Prévenir le manager", text: "Pour les incidents 'haute' sévérité, prévenez oralement le manager en plus du signalement app." }
-      - { type: "tip", text: "Un incident signalé rapidement = résolution 3 fois plus rapide en moyenne." }
+    contenu: [{ type: "text", value: "Rapport Z, compte le fond de caisse, met la dépose en coffre, scelle l'enveloppe." }]
 
-# ─── TutoReads (10) ──────────────────────────────────────────────────────────
+  # Bar
+  tuto_bar_1:
+    centre: "@centre_fgc"
+    zone:   "@zone_bar"
+    titre:  "Tirer une pression correctement"
+    niveau: "debutant"
+    dureMin: 6
+    contenu: [{ type: "text", value: "Verre incliné, tire la pression à 45°, laisse retomber la mousse, sers à la bonne température." }]
+  tuto_bar_2:
+    centre: "@centre_fgc"
+    zone:   "@zone_bar"
+    titre:  "Préparer les cocktails de la carte FGC"
+    niveau: "intermediaire"
+    dureMin: 15
+    contenu: [{ type: "text", value: "Mojito, Spritz, Sex on the Beach : dosage et présentation maison." }]
+  tuto_bar_3:
+    centre: "@centre_fgc"
+    zone:   "@zone_bar"
+    titre:  "Faire le relevé HACCP des frigos"
+    niveau: "intermediaire"
+    dureMin: 8
+    contenu: [{ type: "text", value: "Relève la T° de chaque frigo, signale toute valeur >3°C ou <-1°C, signe le registre." }]
+  tuto_bar_4:
+    centre: "@centre_fgc"
+    zone:   "@zone_bar"
+    titre:  "Nettoyer la tireuse à bière (fin de service)"
+    niveau: "debutant"
+    dureMin: 7
+    contenu: [{ type: "text", value: "Branche le rinceur, fais un cycle eau, démonte le bec, brosse, remonte sec." }]
+  tuto_bar_5:
+    centre: "@centre_fgc"
+    zone:   "@zone_bar"
+    titre:  "Faire l'inventaire bar de fin de mois"
+    niveau: "avance"
+    dureMin: 25
+    contenu: [{ type: "text", value: "Compte tous les fûts, bouteilles ouvertes (au cl près), snacks. Saisis dans le tableau partagé." }]
+
+  # Salle
+  tuto_sal_1:
+    centre: "@centre_fgc"
+    zone:   "@zone_salle"
+    titre:  "Lancer une partie de bowling"
+    niveau: "debutant"
+    dureMin: 5
+    contenu: [{ type: "text", value: "Saisis le nombre de joueurs, leurs prénoms, lance la partie depuis la console centrale." }]
+  tuto_sal_2:
+    centre: "@centre_fgc"
+    zone:   "@zone_salle"
+    titre:  "Briefer une équipe avant une partie laser"
+    niveau: "intermediaire"
+    dureMin: 8
+    contenu: [{ type: "text", value: "Règles, gilets, durée, zones interdites, signal de fin. Mets l'ambiance." }]
+  tuto_sal_3:
+    centre: "@centre_fgc"
+    zone:   "@zone_salle"
+    titre:  "Lancer une session VR"
+    niveau: "intermediaire"
+    dureMin: 10
+    contenu: [{ type: "text", value: "Configure les casques, désinfecte, briefe sur le confort, lance le jeu choisi." }]
+  tuto_sal_4:
+    centre: "@centre_fgc"
+    zone:   "@zone_salle"
+    titre:  "Désinfecter chaussures et équipements"
+    niveau: "debutant"
+    dureMin: 4
+    contenu: [{ type: "text", value: "Spray désinfectant intérieur chaussures, casques VR essuyés au chiffon microfibre." }]
+  tuto_sal_5:
+    centre: "@centre_fgc"
+    zone:   "@zone_salle"
+    titre:  "Débloquer une quille / piste bowling"
+    niveau: "intermediaire"
+    dureMin: 6
+    contenu: [{ type: "text", value: "Identifie le défaut, reset la piste depuis la console, si bloqué appelle un manager." }]
+
+  # Manager
+  tuto_mgr_1:
+    centre: "@centre_fgc"
+    zone:   "@zone_manager"
+    titre:  "Faire le brief équipe d'ouverture"
+    niveau: "intermediaire"
+    dureMin: 8
+    contenu: [{ type: "text", value: "Annonce les events de la journée, les réservations chargées, les points d'attention." }]
+  tuto_mgr_2:
+    centre: "@centre_fgc"
+    zone:   "@zone_manager"
+    titre:  "Construire un planning hebdomadaire"
+    niveau: "avance"
+    dureMin: 30
+    contenu: [{ type: "text", value: "Démarre depuis un template, ajuste les besoins par zone, respecte les contrats CDI/CDD/EXTRA." }]
+  tuto_mgr_3:
+    centre: "@centre_fgc"
+    zone:   "@zone_manager"
+    titre:  "Valider les heures pointées de la semaine"
+    niveau: "avance"
+    dureMin: 15
+    contenu: [{ type: "text", value: "Compare planning prévu vs pointé, valide ou corrige, signe la fiche pour la paie." }]
+  tuto_mgr_4:
+    centre: "@centre_fgc"
+    zone:   "@zone_manager"
+    titre:  "Gérer un incident client critique"
+    niveau: "avance"
+    dureMin: 12
+    contenu: [{ type: "text", value: "Écoute, isole, fais un geste commercial proportionné, consigne dans Shiftly." }]
+  tuto_mgr_5:
+    centre: "@centre_fgc"
+    zone:   "@zone_manager"
+    titre:  "Clôturer la journée comptable"
+    niveau: "avance"
+    dureMin: 20
+    contenu: [{ type: "text", value: "Cumul caisses accueil + bar, dépose banque, scellés, rapport au siège." }]
+
+# ─── TutoRead (qui a lu quoi) ────────────────────────────────────────────────
 App\Entity\TutoRead:
-  tr_patou_1:
-    user:     "@user_patou"
-    tutoriel: "@tuto_reservation"
-  tr_patou_2:
-    user:     "@user_patou"
-    tutoriel: "@tuto_caisse"
-  tr_gabin_1:
-    user:     "@user_gabin"
-    tutoriel: "@tuto_cocktails"
-  tr_erwan_1:
-    user:     "@user_erwan"
-    tutoriel: "@tuto_incidents"
-  tr_erwan_2:
-    user:     "@user_erwan"
-    tutoriel: "@tuto_reservation"
-  tr_aya_1:
-    user:     "@user_aya"
-    tutoriel: "@tuto_cocktails"
-  tr_aya_2:
-    user:     "@user_aya"
-    tutoriel: "@tuto_incidents"
-  tr_kevin_1:
-    user:     "@user_kevin"
-    tutoriel: "@tuto_incidents"
-  tr_cynthia_1:
-    user:     "@user_cynthia"
-    tutoriel: "@tuto_cocktails"
-  tr_pol_1:
-    user:     "@user_pol"
-    tutoriel: "@tuto_reservation"
+  tr_kevin_acc_1:  { user: "@user_kevin", tutoriel: "@tuto_acc_1", readAt: <(new \DateTimeImmutable('-2 years'))> }
+  tr_kevin_acc_5:  { user: "@user_kevin", tutoriel: "@tuto_acc_5", readAt: <(new \DateTimeImmutable('-2 years'))> }
+  tr_kevin_bar_3:  { user: "@user_kevin", tutoriel: "@tuto_bar_3", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_kevin_mgr_2:  { user: "@user_kevin", tutoriel: "@tuto_mgr_2", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_kevin_mgr_5:  { user: "@user_kevin", tutoriel: "@tuto_mgr_5", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_megane_acc_1: { user: "@user_megane", tutoriel: "@tuto_acc_1", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_megane_acc_2: { user: "@user_megane", tutoriel: "@tuto_acc_2", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_megane_mgr_1: { user: "@user_megane", tutoriel: "@tuto_mgr_1", readAt: <(new \DateTimeImmutable('-6 months'))> }
+  tr_micka_bar_1:  { user: "@user_micka", tutoriel: "@tuto_bar_1", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_micka_sal_3:  { user: "@user_micka", tutoriel: "@tuto_sal_3", readAt: <(new \DateTimeImmutable('-8 months'))> }
+  tr_micka_mgr_4:  { user: "@user_micka", tutoriel: "@tuto_mgr_4", readAt: <(new \DateTimeImmutable('-3 months'))> }
+  tr_erwan_bar_1:  { user: "@user_erwan", tutoriel: "@tuto_bar_1", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_erwan_bar_2:  { user: "@user_erwan", tutoriel: "@tuto_bar_2", readAt: <(new \DateTimeImmutable('-8 months'))> }
+  tr_erwan_bar_3:  { user: "@user_erwan", tutoriel: "@tuto_bar_3", readAt: <(new \DateTimeImmutable('-6 months'))> }
+  tr_erwan_bar_4:  { user: "@user_erwan", tutoriel: "@tuto_bar_4", readAt: <(new \DateTimeImmutable('-6 months'))> }
+  tr_patou_acc_1:  { user: "@user_patou", tutoriel: "@tuto_acc_1", readAt: <(new \DateTimeImmutable('-3 years'))> }
+  tr_patou_acc_2:  { user: "@user_patou", tutoriel: "@tuto_acc_2", readAt: <(new \DateTimeImmutable('-3 years'))> }
+  tr_patou_acc_3:  { user: "@user_patou", tutoriel: "@tuto_acc_3", readAt: <(new \DateTimeImmutable('-2 years'))> }
+  tr_patou_acc_4:  { user: "@user_patou", tutoriel: "@tuto_acc_4", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_patou_acc_5:  { user: "@user_patou", tutoriel: "@tuto_acc_5", readAt: <(new \DateTimeImmutable('-2 years'))> }
+  tr_pol_sal_1:    { user: "@user_pol", tutoriel: "@tuto_sal_1", readAt: <(new \DateTimeImmutable('-6 months'))> }
+  tr_pol_sal_4:    { user: "@user_pol", tutoriel: "@tuto_sal_4", readAt: <(new \DateTimeImmutable('-6 months'))> }
+  tr_pol_sal_5:    { user: "@user_pol", tutoriel: "@tuto_sal_5", readAt: <(new \DateTimeImmutable('-4 months'))> }
+  tr_cynthia_acc_1: { user: "@user_cynthia", tutoriel: "@tuto_acc_1", readAt: <(new \DateTimeImmutable('-2 years'))> }
+  tr_cynthia_acc_2: { user: "@user_cynthia", tutoriel: "@tuto_acc_2", readAt: <(new \DateTimeImmutable('-2 years'))> }
+  tr_cynthia_acc_4: { user: "@user_cynthia", tutoriel: "@tuto_acc_4", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_gabin_bar_1:  { user: "@user_gabin", tutoriel: "@tuto_bar_1", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_gabin_sal_1:  { user: "@user_gabin", tutoriel: "@tuto_sal_1", readAt: <(new \DateTimeImmutable('-1 year'))> }
+  tr_aya_sal_1:    { user: "@user_aya", tutoriel: "@tuto_sal_1", readAt: <(new \DateTimeImmutable('-4 months'))> }
+  tr_aya_sal_4:    { user: "@user_aya", tutoriel: "@tuto_sal_4", readAt: <(new \DateTimeImmutable('-4 months'))> }
+  tr_hiba_bar_1:   { user: "@user_hiba", tutoriel: "@tuto_bar_1", readAt: <(new \DateTimeImmutable('-2 months'))> }
+  tr_daniela_sal_1: { user: "@user_daniela", tutoriel: "@tuto_sal_1", readAt: <(new \DateTimeImmutable('-1 month'))> }
+  tr_daniela_sal_4: { user: "@user_daniela", tutoriel: "@tuto_sal_4", readAt: <(new \DateTimeImmutable('-1 month'))> }
 
-# ─── Planning Weeks (2) ──────────────────────────────────────────────────────
+# ─── PlanningWeek (2 semaines à venir, BROUILLON) ────────────────────────────
 App\Entity\PlanningWeek:
-  pw_last:
-    centre:      "@centre_fgc"
-    weekStart:   "<(new \\DateTimeImmutable('monday last week'))>"
-    statut:      "PUBLIE"
-    publishedAt: "<(new \\DateTimeImmutable('monday last week 09:30:00'))>"
-    publishedBy: "@user_kevin"
-    note:        "Semaine standard — pas de remarques particulières."
+  pw_s1:
+    centre:    "@centre_fgc"
+    weekStart: <(new \DateTimeImmutable('2026-05-18'))>
+    statut:    "BROUILLON"
+  pw_s2:
+    centre:    "@centre_fgc"
+    weekStart: <(new \DateTimeImmutable('2026-05-25'))>
+    statut:    "BROUILLON"
 
-  pw_current:
-    centre:      "@centre_fgc"
-    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
-    statut:      "PUBLIE"
-    publishedAt: "<(new \\DateTimeImmutable('monday this week 08:45:00'))>"
-    publishedBy: "@user_megane"
+# ─── Services (14 = 2 sem × 7 jours, statut PLANIFIE — semaines futures) ─────
+# Heures issues des openingHours du centre.
+App\Entity\Service:
 
+  # Semaine 1 (2026-05-18 → 2026-05-24)
+  svc_s1_lun: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-18'))>, heureDebut: <(new \DateTimeImmutable('2026-05-18 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-18 23:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s1_mar: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-19'))>, heureDebut: <(new \DateTimeImmutable('2026-05-19 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-19 23:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s1_mer: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-20'))>, heureDebut: <(new \DateTimeImmutable('2026-05-20 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-20 23:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s1_jeu: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-21'))>, heureDebut: <(new \DateTimeImmutable('2026-05-21 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 00:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s1_ven: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-22'))>, heureDebut: <(new \DateTimeImmutable('2026-05-22 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-23 01:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s1_sam: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-23'))>, heureDebut: <(new \DateTimeImmutable('2026-05-23 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 02:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s1_dim: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-24'))>, heureDebut: <(new \DateTimeImmutable('2026-05-24 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 22:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+
+  # Semaine 2 (2026-05-25 → 2026-05-31)
+  svc_s2_lun: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-25'))>, heureDebut: <(new \DateTimeImmutable('2026-05-25 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-25 23:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s2_mar: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-26'))>, heureDebut: <(new \DateTimeImmutable('2026-05-26 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-26 23:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s2_mer: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-27'))>, heureDebut: <(new \DateTimeImmutable('2026-05-27 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-27 23:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s2_jeu: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-28'))>, heureDebut: <(new \DateTimeImmutable('2026-05-28 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 00:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s2_ven: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-29'))>, heureDebut: <(new \DateTimeImmutable('2026-05-29 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-30 01:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s2_sam: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-30'))>, heureDebut: <(new \DateTimeImmutable('2026-05-30 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 02:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+  svc_s2_dim: { centre: "@centre_fgc", date: <(new \DateTimeImmutable('2026-05-31'))>, heureDebut: <(new \DateTimeImmutable('2026-05-31 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 22:00:00'))>, statut: "PLANIFIE", tauxCompletion: 0.0 }
+
+# ─── Postes (assignations user × zone × service) ─────────────────────────────
+# Rotation type appliquée identique sur S1 et S2.
+# Notation : pYj_role_user = poste, Yj = jour de la semaine S1, S2 = idem
+App\Entity\Poste:
+
+  # ┌──── Lundi (17-23, 6h ouvert) ────┐
+  # S1
+  p_s1_lun_mgr_megane: { service: "@svc_s1_lun", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-18 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-18 23:00:00'))> }
+  p_s1_lun_acc_patou:  { service: "@svc_s1_lun", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-18 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-18 23:00:00'))> }
+  p_s1_lun_acc_cynthia: { service: "@svc_s1_lun", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-18 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-18 23:00:00'))> }
+  # S2
+  p_s2_lun_mgr_megane: { service: "@svc_s2_lun", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-25 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-25 23:00:00'))> }
+  p_s2_lun_acc_patou:  { service: "@svc_s2_lun", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-25 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-25 23:00:00'))> }
+  p_s2_lun_acc_cynthia: { service: "@svc_s2_lun", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-25 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-25 23:00:00'))> }
+
+  # ┌──── Mardi (17-23, 6h ouvert) ────┐
+  # S1
+  p_s1_mar_mgr_megane: { service: "@svc_s1_mar", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-19 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-19 23:00:00'))> }
+  p_s1_mar_mgr_micka:  { service: "@svc_s1_mar", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-19 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-19 23:00:00'))> }
+  p_s1_mar_bar_erwan:  { service: "@svc_s1_mar", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-19 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-19 23:00:00'))> }
+  p_s1_mar_sal_pol:    { service: "@svc_s1_mar", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-19 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-19 23:00:00'))> }
+  # S2
+  p_s2_mar_mgr_megane: { service: "@svc_s2_mar", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-26 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-26 23:00:00'))> }
+  p_s2_mar_mgr_micka:  { service: "@svc_s2_mar", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-26 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-26 23:00:00'))> }
+  p_s2_mar_bar_erwan:  { service: "@svc_s2_mar", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-26 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-26 23:00:00'))> }
+  p_s2_mar_sal_pol:    { service: "@svc_s2_mar", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-26 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-26 23:00:00'))> }
+
+  # ┌──── Mercredi (14-23, 9h ouvert) ────┐
+  # S1
+  p_s1_mer_mgr_kevin:  { service: "@svc_s1_mer", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-20 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-20 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_mer_mgr_megane: { service: "@svc_s1_mer", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-20 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-20 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_mer_acc_patou:  { service: "@svc_s1_mer", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-20 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-20 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_mer_acc_cynthia: { service: "@svc_s1_mer", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-20 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-20 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_mer_bar_erwan:  { service: "@svc_s1_mer", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-20 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-20 21:00:00'))> }
+  p_s1_mer_bar_gabin:  { service: "@svc_s1_mer", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-20 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-20 22:00:00'))> }
+  # S2
+  p_s2_mer_mgr_kevin:  { service: "@svc_s2_mer", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-27 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-27 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_mer_mgr_megane: { service: "@svc_s2_mer", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-27 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-27 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_mer_acc_patou:  { service: "@svc_s2_mer", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-27 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-27 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_mer_acc_cynthia: { service: "@svc_s2_mer", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-27 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-27 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_mer_bar_erwan:  { service: "@svc_s2_mer", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-27 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-27 21:00:00'))> }
+  p_s2_mer_bar_gabin:  { service: "@svc_s2_mer", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-27 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-27 22:00:00'))> }
+
+  # ┌──── Jeudi (14-00, 10h ouvert) ────┐
+  # S1
+  p_s1_jeu_mgr_kevin:  { service: "@svc_s1_jeu", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-21 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-21 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_jeu_mgr_micka:  { service: "@svc_s1_jeu", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-21 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-21 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_jeu_acc_patou:  { service: "@svc_s1_jeu", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-21 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-21 21:00:00'))> }
+  p_s1_jeu_acc_cynthia: { service: "@svc_s1_jeu", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-21 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-21 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_jeu_bar_erwan:  { service: "@svc_s1_jeu", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-21 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-21 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_jeu_bar_gabin:  { service: "@svc_s1_jeu", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-21 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-21 22:00:00'))> }
+  p_s1_jeu_sal_pol:    { service: "@svc_s1_jeu", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-21 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-21 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_jeu_sal_hiba:   { service: "@svc_s1_jeu", zone: "@zone_salle",   user: "@user_hiba",   heureDebut: <(new \DateTimeImmutable('2026-05-21 19:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 00:00:00'))> }
+  # S2
+  p_s2_jeu_mgr_kevin:  { service: "@svc_s2_jeu", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-28 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-28 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_jeu_mgr_micka:  { service: "@svc_s2_jeu", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-28 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-28 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_jeu_acc_patou:  { service: "@svc_s2_jeu", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-28 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-28 21:00:00'))> }
+  p_s2_jeu_acc_cynthia: { service: "@svc_s2_jeu", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-28 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-28 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_jeu_bar_erwan:  { service: "@svc_s2_jeu", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-28 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-28 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_jeu_bar_gabin:  { service: "@svc_s2_jeu", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-28 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-28 22:00:00'))> }
+  p_s2_jeu_sal_pol:    { service: "@svc_s2_jeu", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-28 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-28 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_jeu_sal_hiba:   { service: "@svc_s2_jeu", zone: "@zone_salle",   user: "@user_hiba",   heureDebut: <(new \DateTimeImmutable('2026-05-28 19:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 00:00:00'))> }
+
+  # ┌──── Vendredi (14-01, 11h ouvert) ────┐
+  # S1
+  p_s1_ven_mgr_kevin:  { service: "@svc_s1_ven", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-22 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_ven_mgr_micka:  { service: "@svc_s1_ven", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-22 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_ven_acc_cynthia: { service: "@svc_s1_ven", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-22 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 23:00:00'))> }
+  p_s1_ven_acc_patou:  { service: "@svc_s1_ven", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-22 16:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 22:00:00'))> }
+  p_s1_ven_bar_erwan:  { service: "@svc_s1_ven", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-22 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_ven_bar_gabin:  { service: "@svc_s1_ven", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-22 18:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 23:00:00'))> }
+  p_s1_ven_bar_daniela: { service: "@svc_s1_ven", zone: "@zone_bar",     user: "@user_daniela", heureDebut: <(new \DateTimeImmutable('2026-05-22 19:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-23 00:00:00'))> }
+  p_s1_ven_sal_pol:    { service: "@svc_s1_ven", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-22 16:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 23:00:00'))> }
+  p_s1_ven_sal_aya:    { service: "@svc_s1_ven", zone: "@zone_salle",   user: "@user_aya",    heureDebut: <(new \DateTimeImmutable('2026-05-22 18:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-22 23:00:00'))> }
+  # S2
+  p_s2_ven_mgr_kevin:  { service: "@svc_s2_ven", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-29 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_ven_mgr_micka:  { service: "@svc_s2_ven", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-29 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_ven_acc_cynthia: { service: "@svc_s2_ven", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-29 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 23:00:00'))> }
+  p_s2_ven_acc_patou:  { service: "@svc_s2_ven", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-29 16:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 22:00:00'))> }
+  p_s2_ven_bar_erwan:  { service: "@svc_s2_ven", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-29 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_ven_bar_gabin:  { service: "@svc_s2_ven", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-29 18:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 23:00:00'))> }
+  p_s2_ven_bar_daniela: { service: "@svc_s2_ven", zone: "@zone_bar",     user: "@user_daniela", heureDebut: <(new \DateTimeImmutable('2026-05-29 19:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-30 00:00:00'))> }
+  p_s2_ven_sal_pol:    { service: "@svc_s2_ven", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-29 16:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 23:00:00'))> }
+  p_s2_ven_sal_aya:    { service: "@svc_s2_ven", zone: "@zone_salle",   user: "@user_aya",    heureDebut: <(new \DateTimeImmutable('2026-05-29 18:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-29 23:00:00'))> }
+
+  # ┌──── Samedi (14-02, 12h ouvert, plus chargé) ────┐
+  # S1
+  p_s1_sam_mgr_kevin:  { service: "@svc_s1_sam", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-23 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-23 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_sam_mgr_megane: { service: "@svc_s1_sam", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-23 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-23 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_sam_mgr_micka:  { service: "@svc_s1_sam", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-23 18:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 02:00:00'))>, pauseMinutes: 30 }
+  p_s1_sam_acc_patou:  { service: "@svc_s1_sam", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-23 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-23 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_sam_bar_erwan:  { service: "@svc_s1_sam", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-23 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-23 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_sam_bar_gabin:  { service: "@svc_s1_sam", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-23 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-23 22:00:00'))> }
+  p_s1_sam_bar_hiba:   { service: "@svc_s1_sam", zone: "@zone_bar",     user: "@user_hiba",   heureDebut: <(new \DateTimeImmutable('2026-05-23 19:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 00:00:00'))> }
+  p_s1_sam_sal_pol:    { service: "@svc_s1_sam", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-23 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 00:00:00'))> }
+  p_s1_sam_sal_daniela: { service: "@svc_s1_sam", zone: "@zone_salle",   user: "@user_daniela", heureDebut: <(new \DateTimeImmutable('2026-05-23 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-23 22:00:00'))> }
+  p_s1_sam_sal_aya:    { service: "@svc_s1_sam", zone: "@zone_salle",   user: "@user_aya",    heureDebut: <(new \DateTimeImmutable('2026-05-23 18:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-23 23:00:00'))> }
+  p_s1_sam_sal_mohcine: { service: "@svc_s1_sam", zone: "@zone_salle",   user: "@user_securite", heureDebut: <(new \DateTimeImmutable('2026-05-23 22:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 02:00:00'))> }
+  # S2
+  p_s2_sam_mgr_kevin:  { service: "@svc_s2_sam", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-30 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-30 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_sam_mgr_megane: { service: "@svc_s2_sam", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-30 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-30 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_sam_mgr_micka:  { service: "@svc_s2_sam", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-30 18:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 02:00:00'))>, pauseMinutes: 30 }
+  p_s2_sam_acc_patou:  { service: "@svc_s2_sam", zone: "@zone_accueil", user: "@user_patou",  heureDebut: <(new \DateTimeImmutable('2026-05-30 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-30 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_sam_bar_erwan:  { service: "@svc_s2_sam", zone: "@zone_bar",     user: "@user_erwan",  heureDebut: <(new \DateTimeImmutable('2026-05-30 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-30 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_sam_bar_gabin:  { service: "@svc_s2_sam", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-30 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-30 22:00:00'))> }
+  p_s2_sam_bar_hiba:   { service: "@svc_s2_sam", zone: "@zone_bar",     user: "@user_hiba",   heureDebut: <(new \DateTimeImmutable('2026-05-30 19:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 00:00:00'))> }
+  p_s2_sam_sal_pol:    { service: "@svc_s2_sam", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-30 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 00:00:00'))> }
+  p_s2_sam_sal_daniela: { service: "@svc_s2_sam", zone: "@zone_salle",   user: "@user_daniela", heureDebut: <(new \DateTimeImmutable('2026-05-30 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-30 22:00:00'))> }
+  p_s2_sam_sal_aya:    { service: "@svc_s2_sam", zone: "@zone_salle",   user: "@user_aya",    heureDebut: <(new \DateTimeImmutable('2026-05-30 18:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-30 23:00:00'))> }
+  p_s2_sam_sal_mohcine: { service: "@svc_s2_sam", zone: "@zone_salle",   user: "@user_securite", heureDebut: <(new \DateTimeImmutable('2026-05-30 22:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 02:00:00'))> }
+
+  # ┌──── Dimanche (14-22, 8h ouvert) ────┐
+  # S1
+  p_s1_dim_mgr_kevin:  { service: "@svc_s1_dim", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-24 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_dim_mgr_megane: { service: "@svc_s1_dim", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-24 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 22:00:00'))>, pauseMinutes: 30 }
+  p_s1_dim_mgr_micka:  { service: "@svc_s1_dim", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-24 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 21:00:00'))> }
+  p_s1_dim_acc_cynthia: { service: "@svc_s1_dim", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-24 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 21:00:00'))> }
+  p_s1_dim_bar_gabin:  { service: "@svc_s1_dim", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-24 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 22:00:00'))> }
+  p_s1_dim_sal_pol:    { service: "@svc_s1_dim", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-24 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 21:00:00'))> }
+  p_s1_dim_sal_aya:    { service: "@svc_s1_dim", zone: "@zone_salle",   user: "@user_aya",    heureDebut: <(new \DateTimeImmutable('2026-05-24 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 22:00:00'))> }
+  p_s1_dim_sal_hiba:   { service: "@svc_s1_dim", zone: "@zone_salle",   user: "@user_hiba",   heureDebut: <(new \DateTimeImmutable('2026-05-24 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 22:00:00'))> }
+  p_s1_dim_sal_daniela: { service: "@svc_s1_dim", zone: "@zone_salle",   user: "@user_daniela", heureDebut: <(new \DateTimeImmutable('2026-05-24 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-24 22:00:00'))> }
+  # S2
+  p_s2_dim_mgr_kevin:  { service: "@svc_s2_dim", zone: "@zone_manager", user: "@user_kevin",  heureDebut: <(new \DateTimeImmutable('2026-05-31 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_dim_mgr_megane: { service: "@svc_s2_dim", zone: "@zone_manager", user: "@user_megane", heureDebut: <(new \DateTimeImmutable('2026-05-31 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 22:00:00'))>, pauseMinutes: 30 }
+  p_s2_dim_mgr_micka:  { service: "@svc_s2_dim", zone: "@zone_manager", user: "@user_micka",  heureDebut: <(new \DateTimeImmutable('2026-05-31 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 21:00:00'))> }
+  p_s2_dim_acc_cynthia: { service: "@svc_s2_dim", zone: "@zone_accueil", user: "@user_cynthia", heureDebut: <(new \DateTimeImmutable('2026-05-31 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 21:00:00'))> }
+  p_s2_dim_bar_gabin:  { service: "@svc_s2_dim", zone: "@zone_bar",     user: "@user_gabin",  heureDebut: <(new \DateTimeImmutable('2026-05-31 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 22:00:00'))> }
+  p_s2_dim_sal_pol:    { service: "@svc_s2_dim", zone: "@zone_salle",   user: "@user_pol",    heureDebut: <(new \DateTimeImmutable('2026-05-31 14:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 21:00:00'))> }
+  p_s2_dim_sal_aya:    { service: "@svc_s2_dim", zone: "@zone_salle",   user: "@user_aya",    heureDebut: <(new \DateTimeImmutable('2026-05-31 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 22:00:00'))> }
+  p_s2_dim_sal_hiba:   { service: "@svc_s2_dim", zone: "@zone_salle",   user: "@user_hiba",   heureDebut: <(new \DateTimeImmutable('2026-05-31 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 22:00:00'))> }
+  p_s2_dim_sal_daniela: { service: "@svc_s2_dim", zone: "@zone_salle",   user: "@user_daniela", heureDebut: <(new \DateTimeImmutable('2026-05-31 17:00:00'))>, heureFin: <(new \DateTimeImmutable('2026-05-31 22:00:00'))> }
+
+# ─── Absences (jours de repos hebdo) ─────────────────────────────────────────
+# 2 jours de repos hebdo par CDI principal. EXTRA et sécu sans repos formalisé.
+App\Entity\Absence:
+
+  # Kevin off Lun + Mar (S1 + S2)
+  abs_kevin_s1_lun: { centre: "@centre_fgc", user: "@user_kevin", date: <(new \DateTimeImmutable('2026-05-18'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_kevin_s1_mar: { centre: "@centre_fgc", user: "@user_kevin", date: <(new \DateTimeImmutable('2026-05-19'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_kevin_s2_lun: { centre: "@centre_fgc", user: "@user_kevin", date: <(new \DateTimeImmutable('2026-05-25'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_kevin_s2_mar: { centre: "@centre_fgc", user: "@user_kevin", date: <(new \DateTimeImmutable('2026-05-26'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+
+  # Mégane off Jeu + Ven
+  abs_megane_s1_jeu: { centre: "@centre_fgc", user: "@user_megane", date: <(new \DateTimeImmutable('2026-05-21'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_megane_s1_ven: { centre: "@centre_fgc", user: "@user_megane", date: <(new \DateTimeImmutable('2026-05-22'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_megane_s2_jeu: { centre: "@centre_fgc", user: "@user_megane", date: <(new \DateTimeImmutable('2026-05-28'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_megane_s2_ven: { centre: "@centre_fgc", user: "@user_megane", date: <(new \DateTimeImmutable('2026-05-29'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+
+  # Micka off Lun + Mer
+  abs_micka_s1_lun: { centre: "@centre_fgc", user: "@user_micka", date: <(new \DateTimeImmutable('2026-05-18'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_micka_s1_mer: { centre: "@centre_fgc", user: "@user_micka", date: <(new \DateTimeImmutable('2026-05-20'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_micka_s2_lun: { centre: "@centre_fgc", user: "@user_micka", date: <(new \DateTimeImmutable('2026-05-25'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_micka_s2_mer: { centre: "@centre_fgc", user: "@user_micka", date: <(new \DateTimeImmutable('2026-05-27'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+
+  # Erwan off Lun + Dim
+  abs_erwan_s1_lun: { centre: "@centre_fgc", user: "@user_erwan", date: <(new \DateTimeImmutable('2026-05-18'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_erwan_s1_dim: { centre: "@centre_fgc", user: "@user_erwan", date: <(new \DateTimeImmutable('2026-05-24'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_erwan_s2_lun: { centre: "@centre_fgc", user: "@user_erwan", date: <(new \DateTimeImmutable('2026-05-25'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_erwan_s2_dim: { centre: "@centre_fgc", user: "@user_erwan", date: <(new \DateTimeImmutable('2026-05-31'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+
+  # Patou off Mar + Dim
+  abs_patou_s1_mar: { centre: "@centre_fgc", user: "@user_patou", date: <(new \DateTimeImmutable('2026-05-19'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_patou_s1_dim: { centre: "@centre_fgc", user: "@user_patou", date: <(new \DateTimeImmutable('2026-05-24'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_patou_s2_mar: { centre: "@centre_fgc", user: "@user_patou", date: <(new \DateTimeImmutable('2026-05-26'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_patou_s2_dim: { centre: "@centre_fgc", user: "@user_patou", date: <(new \DateTimeImmutable('2026-05-31'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+
+  # Pol off Lun + Mer
+  abs_pol_s1_lun: { centre: "@centre_fgc", user: "@user_pol", date: <(new \DateTimeImmutable('2026-05-18'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_pol_s1_mer: { centre: "@centre_fgc", user: "@user_pol", date: <(new \DateTimeImmutable('2026-05-20'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_pol_s2_lun: { centre: "@centre_fgc", user: "@user_pol", date: <(new \DateTimeImmutable('2026-05-25'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_pol_s2_mer: { centre: "@centre_fgc", user: "@user_pol", date: <(new \DateTimeImmutable('2026-05-27'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+
+  # Cynthia off Mar + Sam
+  abs_cynthia_s1_mar: { centre: "@centre_fgc", user: "@user_cynthia", date: <(new \DateTimeImmutable('2026-05-19'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_cynthia_s1_sam: { centre: "@centre_fgc", user: "@user_cynthia", date: <(new \DateTimeImmutable('2026-05-23'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_cynthia_s2_mar: { centre: "@centre_fgc", user: "@user_cynthia", date: <(new \DateTimeImmutable('2026-05-26'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_cynthia_s2_sam: { centre: "@centre_fgc", user: "@user_cynthia", date: <(new \DateTimeImmutable('2026-05-30'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+
+  # Gabin off Lun + Mar
+  abs_gabin_s1_lun: { centre: "@centre_fgc", user: "@user_gabin", date: <(new \DateTimeImmutable('2026-05-18'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_gabin_s1_mar: { centre: "@centre_fgc", user: "@user_gabin", date: <(new \DateTimeImmutable('2026-05-19'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_gabin_s2_lun: { centre: "@centre_fgc", user: "@user_gabin", date: <(new \DateTimeImmutable('2026-05-25'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+  abs_gabin_s2_mar: { centre: "@centre_fgc", user: "@user_gabin", date: <(new \DateTimeImmutable('2026-05-26'))>, type: "REPOS", motif: "Repos hebdomadaire" }
+
+# ─── Pointages (statut PREVU pour shifts à venir, dérivés des Postes) ────────
+# 1 pointage par Poste — pas d'heureArrivee/Depart tant que l'employé n'a pas clock-in.
+# Permet à la page /pointage d'afficher tout de suite l'équipe attendue pour la journée.
+App\Entity\Pointage:
+
+  # Semaine 1 — Lundi
+  pt_s1_lun_megane:  { centre: "@centre_fgc", service: "@svc_s1_lun", poste: "@p_s1_lun_mgr_megane",  user: "@user_megane",  statut: "PREVU" }
+  pt_s1_lun_patou:   { centre: "@centre_fgc", service: "@svc_s1_lun", poste: "@p_s1_lun_acc_patou",   user: "@user_patou",   statut: "PREVU" }
+  pt_s1_lun_cynthia: { centre: "@centre_fgc", service: "@svc_s1_lun", poste: "@p_s1_lun_acc_cynthia", user: "@user_cynthia", statut: "PREVU" }
+
+  # Semaine 1 — Mardi
+  pt_s1_mar_megane: { centre: "@centre_fgc", service: "@svc_s1_mar", poste: "@p_s1_mar_mgr_megane", user: "@user_megane", statut: "PREVU" }
+  pt_s1_mar_micka:  { centre: "@centre_fgc", service: "@svc_s1_mar", poste: "@p_s1_mar_mgr_micka",  user: "@user_micka",  statut: "PREVU" }
+  pt_s1_mar_erwan:  { centre: "@centre_fgc", service: "@svc_s1_mar", poste: "@p_s1_mar_bar_erwan",  user: "@user_erwan",  statut: "PREVU" }
+  pt_s1_mar_pol:    { centre: "@centre_fgc", service: "@svc_s1_mar", poste: "@p_s1_mar_sal_pol",    user: "@user_pol",    statut: "PREVU" }
+
+  # Semaine 1 — Mercredi
+  pt_s1_mer_kevin:   { centre: "@centre_fgc", service: "@svc_s1_mer", poste: "@p_s1_mer_mgr_kevin",   user: "@user_kevin",   statut: "PREVU" }
+  pt_s1_mer_megane:  { centre: "@centre_fgc", service: "@svc_s1_mer", poste: "@p_s1_mer_mgr_megane",  user: "@user_megane",  statut: "PREVU" }
+  pt_s1_mer_patou:   { centre: "@centre_fgc", service: "@svc_s1_mer", poste: "@p_s1_mer_acc_patou",   user: "@user_patou",   statut: "PREVU" }
+  pt_s1_mer_cynthia: { centre: "@centre_fgc", service: "@svc_s1_mer", poste: "@p_s1_mer_acc_cynthia", user: "@user_cynthia", statut: "PREVU" }
+  pt_s1_mer_erwan:   { centre: "@centre_fgc", service: "@svc_s1_mer", poste: "@p_s1_mer_bar_erwan",   user: "@user_erwan",   statut: "PREVU" }
+  pt_s1_mer_gabin:   { centre: "@centre_fgc", service: "@svc_s1_mer", poste: "@p_s1_mer_bar_gabin",   user: "@user_gabin",   statut: "PREVU" }
+
+  # Semaine 1 — Jeudi
+  pt_s1_jeu_kevin:   { centre: "@centre_fgc", service: "@svc_s1_jeu", poste: "@p_s1_jeu_mgr_kevin",   user: "@user_kevin",   statut: "PREVU" }
+  pt_s1_jeu_micka:   { centre: "@centre_fgc", service: "@svc_s1_jeu", poste: "@p_s1_jeu_mgr_micka",   user: "@user_micka",   statut: "PREVU" }
+  pt_s1_jeu_patou:   { centre: "@centre_fgc", service: "@svc_s1_jeu", poste: "@p_s1_jeu_acc_patou",   user: "@user_patou",   statut: "PREVU" }
+  pt_s1_jeu_cynthia: { centre: "@centre_fgc", service: "@svc_s1_jeu", poste: "@p_s1_jeu_acc_cynthia", user: "@user_cynthia", statut: "PREVU" }
+  pt_s1_jeu_erwan:   { centre: "@centre_fgc", service: "@svc_s1_jeu", poste: "@p_s1_jeu_bar_erwan",   user: "@user_erwan",   statut: "PREVU" }
+  pt_s1_jeu_gabin:   { centre: "@centre_fgc", service: "@svc_s1_jeu", poste: "@p_s1_jeu_bar_gabin",   user: "@user_gabin",   statut: "PREVU" }
+  pt_s1_jeu_pol:     { centre: "@centre_fgc", service: "@svc_s1_jeu", poste: "@p_s1_jeu_sal_pol",     user: "@user_pol",     statut: "PREVU" }
+  pt_s1_jeu_hiba:    { centre: "@centre_fgc", service: "@svc_s1_jeu", poste: "@p_s1_jeu_sal_hiba",    user: "@user_hiba",    statut: "PREVU" }
+
+  # Semaine 1 — Vendredi
+  pt_s1_ven_kevin:    { centre: "@centre_fgc", service: "@svc_s1_ven", poste: "@p_s1_ven_mgr_kevin",    user: "@user_kevin",    statut: "PREVU" }
+  pt_s1_ven_micka:    { centre: "@centre_fgc", service: "@svc_s1_ven", poste: "@p_s1_ven_mgr_micka",    user: "@user_micka",    statut: "PREVU" }
+  pt_s1_ven_cynthia:  { centre: "@centre_fgc", service: "@svc_s1_ven", poste: "@p_s1_ven_acc_cynthia",  user: "@user_cynthia",  statut: "PREVU" }
+  pt_s1_ven_patou:    { centre: "@centre_fgc", service: "@svc_s1_ven", poste: "@p_s1_ven_acc_patou",    user: "@user_patou",    statut: "PREVU" }
+  pt_s1_ven_erwan:    { centre: "@centre_fgc", service: "@svc_s1_ven", poste: "@p_s1_ven_bar_erwan",    user: "@user_erwan",    statut: "PREVU" }
+  pt_s1_ven_gabin:    { centre: "@centre_fgc", service: "@svc_s1_ven", poste: "@p_s1_ven_bar_gabin",    user: "@user_gabin",    statut: "PREVU" }
+  pt_s1_ven_daniela:  { centre: "@centre_fgc", service: "@svc_s1_ven", poste: "@p_s1_ven_bar_daniela",  user: "@user_daniela",  statut: "PREVU" }
+  pt_s1_ven_pol:      { centre: "@centre_fgc", service: "@svc_s1_ven", poste: "@p_s1_ven_sal_pol",      user: "@user_pol",      statut: "PREVU" }
+  pt_s1_ven_aya:      { centre: "@centre_fgc", service: "@svc_s1_ven", poste: "@p_s1_ven_sal_aya",      user: "@user_aya",      statut: "PREVU" }
+
+  # Semaine 1 — Samedi
+  pt_s1_sam_kevin:    { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_mgr_kevin",    user: "@user_kevin",    statut: "PREVU" }
+  pt_s1_sam_megane:   { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_mgr_megane",   user: "@user_megane",   statut: "PREVU" }
+  pt_s1_sam_micka:    { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_mgr_micka",    user: "@user_micka",    statut: "PREVU" }
+  pt_s1_sam_patou:    { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_acc_patou",    user: "@user_patou",    statut: "PREVU" }
+  pt_s1_sam_erwan:    { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_bar_erwan",    user: "@user_erwan",    statut: "PREVU" }
+  pt_s1_sam_gabin:    { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_bar_gabin",    user: "@user_gabin",    statut: "PREVU" }
+  pt_s1_sam_hiba:     { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_bar_hiba",     user: "@user_hiba",     statut: "PREVU" }
+  pt_s1_sam_pol:      { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_sal_pol",      user: "@user_pol",      statut: "PREVU" }
+  pt_s1_sam_daniela:  { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_sal_daniela",  user: "@user_daniela",  statut: "PREVU" }
+  pt_s1_sam_aya:      { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_sal_aya",      user: "@user_aya",      statut: "PREVU" }
+  pt_s1_sam_mohcine:  { centre: "@centre_fgc", service: "@svc_s1_sam", poste: "@p_s1_sam_sal_mohcine",  user: "@user_securite", statut: "PREVU" }
+
+  # Semaine 1 — Dimanche
+  pt_s1_dim_kevin:    { centre: "@centre_fgc", service: "@svc_s1_dim", poste: "@p_s1_dim_mgr_kevin",    user: "@user_kevin",    statut: "PREVU" }
+  pt_s1_dim_megane:   { centre: "@centre_fgc", service: "@svc_s1_dim", poste: "@p_s1_dim_mgr_megane",   user: "@user_megane",   statut: "PREVU" }
+  pt_s1_dim_micka:    { centre: "@centre_fgc", service: "@svc_s1_dim", poste: "@p_s1_dim_mgr_micka",    user: "@user_micka",    statut: "PREVU" }
+  pt_s1_dim_cynthia:  { centre: "@centre_fgc", service: "@svc_s1_dim", poste: "@p_s1_dim_acc_cynthia",  user: "@user_cynthia",  statut: "PREVU" }
+  pt_s1_dim_gabin:    { centre: "@centre_fgc", service: "@svc_s1_dim", poste: "@p_s1_dim_bar_gabin",    user: "@user_gabin",    statut: "PREVU" }
+  pt_s1_dim_pol:      { centre: "@centre_fgc", service: "@svc_s1_dim", poste: "@p_s1_dim_sal_pol",      user: "@user_pol",      statut: "PREVU" }
+  pt_s1_dim_aya:      { centre: "@centre_fgc", service: "@svc_s1_dim", poste: "@p_s1_dim_sal_aya",      user: "@user_aya",      statut: "PREVU" }
+  pt_s1_dim_hiba:     { centre: "@centre_fgc", service: "@svc_s1_dim", poste: "@p_s1_dim_sal_hiba",     user: "@user_hiba",     statut: "PREVU" }
+  pt_s1_dim_daniela:  { centre: "@centre_fgc", service: "@svc_s1_dim", poste: "@p_s1_dim_sal_daniela",  user: "@user_daniela",  statut: "PREVU" }
+
+  # Semaine 2 — Lundi
+  pt_s2_lun_megane:  { centre: "@centre_fgc", service: "@svc_s2_lun", poste: "@p_s2_lun_mgr_megane",  user: "@user_megane",  statut: "PREVU" }
+  pt_s2_lun_patou:   { centre: "@centre_fgc", service: "@svc_s2_lun", poste: "@p_s2_lun_acc_patou",   user: "@user_patou",   statut: "PREVU" }
+  pt_s2_lun_cynthia: { centre: "@centre_fgc", service: "@svc_s2_lun", poste: "@p_s2_lun_acc_cynthia", user: "@user_cynthia", statut: "PREVU" }
+
+  # Semaine 2 — Mardi
+  pt_s2_mar_megane: { centre: "@centre_fgc", service: "@svc_s2_mar", poste: "@p_s2_mar_mgr_megane", user: "@user_megane", statut: "PREVU" }
+  pt_s2_mar_micka:  { centre: "@centre_fgc", service: "@svc_s2_mar", poste: "@p_s2_mar_mgr_micka",  user: "@user_micka",  statut: "PREVU" }
+  pt_s2_mar_erwan:  { centre: "@centre_fgc", service: "@svc_s2_mar", poste: "@p_s2_mar_bar_erwan",  user: "@user_erwan",  statut: "PREVU" }
+  pt_s2_mar_pol:    { centre: "@centre_fgc", service: "@svc_s2_mar", poste: "@p_s2_mar_sal_pol",    user: "@user_pol",    statut: "PREVU" }
+
+  # Semaine 2 — Mercredi
+  pt_s2_mer_kevin:   { centre: "@centre_fgc", service: "@svc_s2_mer", poste: "@p_s2_mer_mgr_kevin",   user: "@user_kevin",   statut: "PREVU" }
+  pt_s2_mer_megane:  { centre: "@centre_fgc", service: "@svc_s2_mer", poste: "@p_s2_mer_mgr_megane",  user: "@user_megane",  statut: "PREVU" }
+  pt_s2_mer_patou:   { centre: "@centre_fgc", service: "@svc_s2_mer", poste: "@p_s2_mer_acc_patou",   user: "@user_patou",   statut: "PREVU" }
+  pt_s2_mer_cynthia: { centre: "@centre_fgc", service: "@svc_s2_mer", poste: "@p_s2_mer_acc_cynthia", user: "@user_cynthia", statut: "PREVU" }
+  pt_s2_mer_erwan:   { centre: "@centre_fgc", service: "@svc_s2_mer", poste: "@p_s2_mer_bar_erwan",   user: "@user_erwan",   statut: "PREVU" }
+  pt_s2_mer_gabin:   { centre: "@centre_fgc", service: "@svc_s2_mer", poste: "@p_s2_mer_bar_gabin",   user: "@user_gabin",   statut: "PREVU" }
+
+  # Semaine 2 — Jeudi
+  pt_s2_jeu_kevin:   { centre: "@centre_fgc", service: "@svc_s2_jeu", poste: "@p_s2_jeu_mgr_kevin",   user: "@user_kevin",   statut: "PREVU" }
+  pt_s2_jeu_micka:   { centre: "@centre_fgc", service: "@svc_s2_jeu", poste: "@p_s2_jeu_mgr_micka",   user: "@user_micka",   statut: "PREVU" }
+  pt_s2_jeu_patou:   { centre: "@centre_fgc", service: "@svc_s2_jeu", poste: "@p_s2_jeu_acc_patou",   user: "@user_patou",   statut: "PREVU" }
+  pt_s2_jeu_cynthia: { centre: "@centre_fgc", service: "@svc_s2_jeu", poste: "@p_s2_jeu_acc_cynthia", user: "@user_cynthia", statut: "PREVU" }
+  pt_s2_jeu_erwan:   { centre: "@centre_fgc", service: "@svc_s2_jeu", poste: "@p_s2_jeu_bar_erwan",   user: "@user_erwan",   statut: "PREVU" }
+  pt_s2_jeu_gabin:   { centre: "@centre_fgc", service: "@svc_s2_jeu", poste: "@p_s2_jeu_bar_gabin",   user: "@user_gabin",   statut: "PREVU" }
+  pt_s2_jeu_pol:     { centre: "@centre_fgc", service: "@svc_s2_jeu", poste: "@p_s2_jeu_sal_pol",     user: "@user_pol",     statut: "PREVU" }
+  pt_s2_jeu_hiba:    { centre: "@centre_fgc", service: "@svc_s2_jeu", poste: "@p_s2_jeu_sal_hiba",    user: "@user_hiba",    statut: "PREVU" }
+
+  # Semaine 2 — Vendredi
+  pt_s2_ven_kevin:    { centre: "@centre_fgc", service: "@svc_s2_ven", poste: "@p_s2_ven_mgr_kevin",    user: "@user_kevin",    statut: "PREVU" }
+  pt_s2_ven_micka:    { centre: "@centre_fgc", service: "@svc_s2_ven", poste: "@p_s2_ven_mgr_micka",    user: "@user_micka",    statut: "PREVU" }
+  pt_s2_ven_cynthia:  { centre: "@centre_fgc", service: "@svc_s2_ven", poste: "@p_s2_ven_acc_cynthia",  user: "@user_cynthia",  statut: "PREVU" }
+  pt_s2_ven_patou:    { centre: "@centre_fgc", service: "@svc_s2_ven", poste: "@p_s2_ven_acc_patou",    user: "@user_patou",    statut: "PREVU" }
+  pt_s2_ven_erwan:    { centre: "@centre_fgc", service: "@svc_s2_ven", poste: "@p_s2_ven_bar_erwan",    user: "@user_erwan",    statut: "PREVU" }
+  pt_s2_ven_gabin:    { centre: "@centre_fgc", service: "@svc_s2_ven", poste: "@p_s2_ven_bar_gabin",    user: "@user_gabin",    statut: "PREVU" }
+  pt_s2_ven_daniela:  { centre: "@centre_fgc", service: "@svc_s2_ven", poste: "@p_s2_ven_bar_daniela",  user: "@user_daniela",  statut: "PREVU" }
+  pt_s2_ven_pol:      { centre: "@centre_fgc", service: "@svc_s2_ven", poste: "@p_s2_ven_sal_pol",      user: "@user_pol",      statut: "PREVU" }
+  pt_s2_ven_aya:      { centre: "@centre_fgc", service: "@svc_s2_ven", poste: "@p_s2_ven_sal_aya",      user: "@user_aya",      statut: "PREVU" }
+
+  # Semaine 2 — Samedi
+  pt_s2_sam_kevin:    { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_mgr_kevin",    user: "@user_kevin",    statut: "PREVU" }
+  pt_s2_sam_megane:   { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_mgr_megane",   user: "@user_megane",   statut: "PREVU" }
+  pt_s2_sam_micka:    { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_mgr_micka",    user: "@user_micka",    statut: "PREVU" }
+  pt_s2_sam_patou:    { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_acc_patou",    user: "@user_patou",    statut: "PREVU" }
+  pt_s2_sam_erwan:    { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_bar_erwan",    user: "@user_erwan",    statut: "PREVU" }
+  pt_s2_sam_gabin:    { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_bar_gabin",    user: "@user_gabin",    statut: "PREVU" }
+  pt_s2_sam_hiba:     { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_bar_hiba",     user: "@user_hiba",     statut: "PREVU" }
+  pt_s2_sam_pol:      { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_sal_pol",      user: "@user_pol",      statut: "PREVU" }
+  pt_s2_sam_daniela:  { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_sal_daniela",  user: "@user_daniela",  statut: "PREVU" }
+  pt_s2_sam_aya:      { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_sal_aya",      user: "@user_aya",      statut: "PREVU" }
+  pt_s2_sam_mohcine:  { centre: "@centre_fgc", service: "@svc_s2_sam", poste: "@p_s2_sam_sal_mohcine",  user: "@user_securite", statut: "PREVU" }
+
+  # Semaine 2 — Dimanche
+  pt_s2_dim_kevin:    { centre: "@centre_fgc", service: "@svc_s2_dim", poste: "@p_s2_dim_mgr_kevin",    user: "@user_kevin",    statut: "PREVU" }
+  pt_s2_dim_megane:   { centre: "@centre_fgc", service: "@svc_s2_dim", poste: "@p_s2_dim_mgr_megane",   user: "@user_megane",   statut: "PREVU" }
+  pt_s2_dim_micka:    { centre: "@centre_fgc", service: "@svc_s2_dim", poste: "@p_s2_dim_mgr_micka",    user: "@user_micka",    statut: "PREVU" }
+  pt_s2_dim_cynthia:  { centre: "@centre_fgc", service: "@svc_s2_dim", poste: "@p_s2_dim_acc_cynthia",  user: "@user_cynthia",  statut: "PREVU" }
+  pt_s2_dim_gabin:    { centre: "@centre_fgc", service: "@svc_s2_dim", poste: "@p_s2_dim_bar_gabin",    user: "@user_gabin",    statut: "PREVU" }
+  pt_s2_dim_pol:      { centre: "@centre_fgc", service: "@svc_s2_dim", poste: "@p_s2_dim_sal_pol",      user: "@user_pol",      statut: "PREVU" }
+  pt_s2_dim_aya:      { centre: "@centre_fgc", service: "@svc_s2_dim", poste: "@p_s2_dim_sal_aya",      user: "@user_aya",      statut: "PREVU" }
+  pt_s2_dim_hiba:     { centre: "@centre_fgc", service: "@svc_s2_dim", poste: "@p_s2_dim_sal_hiba",     user: "@user_hiba",     statut: "PREVU" }
+  pt_s2_dim_daniela:  { centre: "@centre_fgc", service: "@svc_s2_dim", poste: "@p_s2_dim_sal_daniela",  user: "@user_daniela",  statut: "PREVU" }
