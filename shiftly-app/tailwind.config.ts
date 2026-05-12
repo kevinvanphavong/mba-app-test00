@@ -38,9 +38,12 @@ const config: Config = {
     // ─── Breakpoints — override total ──────────────────────────────────────────
     // Shiftly utilise 3 devices : mobile < 500px, tablet 500–899px, desktop ≥ 900px.
     // Pas d'alias sm/md/lg/xl : tout le code consomme `tablet:` et `desktop:`.
+    // `wide` (≥ 1400px) est un breakpoint complémentaire utilisé uniquement
+    // pour les grilles très denses (ex: MissionsBoard 4 catégories côte-à-côte).
     screens: {
       tablet:  '500px',
       desktop: '900px',
+      wide:    '1400px',
     },
     extend: {
       fontFamily: {

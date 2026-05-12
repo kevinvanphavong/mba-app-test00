@@ -73,12 +73,14 @@ export default function MissionsBoard({
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      {/* Grille catégories : 2 cols tablet (2x2), 4 cols desktop (1 ligne).
+      {/* Grille catégories : 2 cols jusqu'à 1400px (grid 2×2), 4 cols ≥ 1400px (1 ligne).
+          Le breakpoint custom `wide` (1400px) est défini dans tailwind.config.ts —
+          en-dessous, 4 colonnes côte-à-côte sont trop serrées pour rester lisibles.
           Bordures via arbitrary selectors Tailwind :
-            - tablet (4 items en grid 2×2) : border-r partout sauf cols pairs (right edge),
+            - < wide (4 items en grid 2×2) : border-r partout sauf cols pairs (right edge),
               border-b partout sauf les 2 derniers (bottom row)
-            - desktop (1 ligne) : reset border-b, restaure border-r sur col 2, retire sur le 4e */}
-      <div className="grid grid-cols-2 desktop:grid-cols-4 gap-0">
+            - ≥ wide (1 ligne) : reset border-b, restaure border-r sur col 2, retire sur le 4e */}
+      <div className="grid grid-cols-2 wide:grid-cols-4 gap-0">
         {COLUMNS.map((col) => {
           const items = grouped[col.key]
           return (
@@ -87,9 +89,9 @@ export default function MissionsBoard({
               className="p-4 flex flex-col gap-2 border-r border-b border-border
                          [&:nth-child(2n)]:border-r-0
                          [&:nth-child(n+3)]:border-b-0
-                         desktop:border-b-0
-                         desktop:[&:nth-child(2n)]:border-r
-                         desktop:[&:nth-child(4n)]:border-r-0"
+                         wide:border-b-0
+                         wide:[&:nth-child(2n)]:border-r
+                         wide:[&:nth-child(4n)]:border-r-0"
             >
               <div className="font-syne text-[11px] font-bold uppercase tracking-[1.2px] text-muted mb-1">
                 {col.icon} {col.label} · {items.length}
