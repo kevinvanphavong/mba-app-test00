@@ -25,18 +25,22 @@ export default function ModalConfirmUncheckPhoto({
   return (
     <AnimatePresence>
       {open && mission && (
-        <>
+        <div
+          className="fixed inset-0 z-[55] flex items-end justify-center tablet:items-center tablet:p-4"
+        >
           <motion.div
-            className="fixed inset-0 z-[55] bg-black/60"
+            className="absolute inset-0 bg-black/60"
             variants={backdropVariants}
             initial="closed" animate="open" exit="exit"
             onClick={isLoading ? undefined : onCancel}
           />
+          {/* Centrage via flex parent → pas de translate-x/-y → pas de conflit avec
+              le transform inline injecté par Framer Motion (sheetVariants). */}
           <motion.div
             role="dialog"
             aria-modal="true"
             aria-labelledby="uncheck-photo-title"
-            className="fixed inset-x-0 bottom-0 z-[60] rounded-t-[24px] border-t border-[var(--border)] bg-[var(--surface)] tablet:inset-auto tablet:left-1/2 tablet:top-1/2 tablet:max-w-md tablet:-translate-x-1/2 tablet:-translate-y-1/2 tablet:rounded-[20px]"
+            className="relative z-[60] w-full rounded-t-[24px] border-t border-[var(--border)] bg-[var(--surface)] tablet:w-auto tablet:max-w-md tablet:rounded-[20px] tablet:border"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}
             variants={sheetVariants}
             initial="closed" animate="open" exit="exit"
@@ -45,7 +49,7 @@ export default function ModalConfirmUncheckPhoto({
               <div className="h-1 w-9 rounded-full bg-[var(--border)]" />
             </div>
 
-            <div className="px-5 pb-4 pt-2">
+            <div className="p-5">
               <h2 id="uncheck-photo-title" className="font-syne text-[16px] font-bold text-[var(--text)]">
                 Décocher la mission&nbsp;?
               </h2>
@@ -89,7 +93,7 @@ export default function ModalConfirmUncheckPhoto({
               </div>
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   )
