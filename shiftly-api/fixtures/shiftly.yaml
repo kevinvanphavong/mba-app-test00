@@ -265,14 +265,14 @@ App\Entity\Mission:
   m_acc_ouv_1:
     zone: "@zone_accueil"
     texte: "Allumer ordinateur de caisse et écrans clients"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 1
   m_acc_ouv_2:
     zone: "@zone_accueil"
     texte: "Vérifier le fond de caisse de l'accueil"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 2
@@ -280,21 +280,21 @@ App\Entity\Mission:
   m_acc_ouv_3:
     zone: "@zone_accueil"
     texte: "Allumer enseigne extérieure et signalétique LED"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 3
   m_acc_ouv_4:
     zone: "@zone_accueil"
     texte: "Préparer les bracelets / tickets de la journée"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 4
   m_acc_ouv_5:
     zone: "@zone_accueil"
     texte: "Tester téléphone fixe et bornes de réservation"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 5
@@ -303,35 +303,35 @@ App\Entity\Mission:
   m_acc_pend_1:
     zone: "@zone_accueil"
     texte: "Accueillir et orienter chaque client à l'entrée"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 10
   m_acc_pend_2:
     zone: "@zone_accueil"
     texte: "Encaisser les ventes et émettre les tickets"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 11
   m_acc_pend_3:
     zone: "@zone_accueil"
     texte: "Gérer les réservations entrantes (téléphone, web)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 12
   m_acc_pend_4:
     zone: "@zone_accueil"
     texte: "Proposer les offres et cartes de fidélité"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 13
   m_acc_pend_5:
     zone: "@zone_accueil"
     texte: "Tenir à jour le planning d'occupation des pistes / arènes"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 14
@@ -340,35 +340,35 @@ App\Entity\Mission:
   m_acc_men_1:
     zone: "@zone_accueil"
     texte: "Nettoyer le comptoir et la vitre du comptoir"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 20
   m_acc_men_2:
     zone: "@zone_accueil"
     texte: "Passer la serpillière dans le hall d'entrée"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 21
   m_acc_men_3:
     zone: "@zone_accueil"
     texte: "Vider les corbeilles à l'accueil"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 22
   m_acc_men_4:
     zone: "@zone_accueil"
     texte: "Désinfecter clavier, douchette et terminal CB"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 23
   m_acc_men_5:
     zone: "@zone_accueil"
     texte: "Nettoyer les toilettes clients à l'entrée"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 24
@@ -377,7 +377,7 @@ App\Entity\Mission:
   m_acc_ferm_1:
     zone: "@zone_accueil"
     texte: "Clôturer la caisse et faire le rapport Z"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 30
@@ -385,7 +385,7 @@ App\Entity\Mission:
   m_acc_ferm_2:
     zone: "@zone_accueil"
     texte: "Compter le fond de caisse et verrouiller le coffre"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 31
@@ -393,21 +393,21 @@ App\Entity\Mission:
   m_acc_ferm_3:
     zone: "@zone_accueil"
     texte: "Éteindre enseigne et signalétique extérieure"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 32
   m_acc_ferm_4:
     zone: "@zone_accueil"
     texte: "Ranger les bracelets / tickets non utilisés"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 33
   m_acc_ferm_5:
     zone: "@zone_accueil"
     texte: "Éteindre ordinateurs et écrans clients"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 34
@@ -420,14 +420,14 @@ App\Entity\Mission:
   m_bar_ouv_1:
     zone: "@zone_bar"
     texte: "Allumer la machine à café et la tireuse à bière"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 1
   m_bar_ouv_2:
     zone: "@zone_bar"
     texte: "Vérifier températures frigos (relevé HACCP)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 2
@@ -435,21 +435,21 @@ App\Entity\Mission:
   m_bar_ouv_3:
     zone: "@zone_bar"
     texte: "Réapprovisionner les frigos en boissons"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 3
   m_bar_ouv_4:
     zone: "@zone_bar"
     texte: "Mettre en place glaçons, citrons, sirops"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 4
   m_bar_ouv_5:
     zone: "@zone_bar"
     texte: "Préparer les verres et accessoires de service"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 5
@@ -458,35 +458,35 @@ App\Entity\Mission:
   m_bar_pend_1:
     zone: "@zone_bar"
     texte: "Servir les commandes boissons et snacks"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 10
   m_bar_pend_2:
     zone: "@zone_bar"
     texte: "Encaisser les consommations au bar"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 11
   m_bar_pend_3:
     zone: "@zone_bar"
     texte: "Réassortir les frigos pendant le service"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 12
   m_bar_pend_4:
     zone: "@zone_bar"
     texte: "Vider et débarrasser les bouteilles vides régulièrement"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 13
   m_bar_pend_5:
     zone: "@zone_bar"
     texte: "Vérifier dates DLC sur les snacks ouverts"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 14
@@ -495,35 +495,35 @@ App\Entity\Mission:
   m_bar_men_1:
     zone: "@zone_bar"
     texte: "Nettoyer le plan de travail du bar"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 20
   m_bar_men_2:
     zone: "@zone_bar"
     texte: "Détartrer la machine à café (cycle complet)"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 21
   m_bar_men_3:
     zone: "@zone_bar"
     texte: "Nettoyer les becs verseurs et le rinceur de la tireuse"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 22
   m_bar_men_4:
     zone: "@zone_bar"
     texte: "Vider le bac récupérateur d'eau / égouttoir"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 23
   m_bar_men_5:
     zone: "@zone_bar"
     texte: "Désinfecter zone snacks et présentoirs"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 24
@@ -532,7 +532,7 @@ App\Entity\Mission:
   m_bar_ferm_1:
     zone: "@zone_bar"
     texte: "Fermer caisse bar et reporter recette à l'accueil"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 30
@@ -540,21 +540,21 @@ App\Entity\Mission:
   m_bar_ferm_2:
     zone: "@zone_bar"
     texte: "Vider et nettoyer la tireuse à bière"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 31
   m_bar_ferm_3:
     zone: "@zone_bar"
     texte: "Éteindre machine à café et purger la chaudière"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 32
   m_bar_ferm_4:
     zone: "@zone_bar"
     texte: "Vérifier fermeture des frigos et températures (relevé HACCP)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 33
@@ -562,7 +562,7 @@ App\Entity\Mission:
   m_bar_ferm_5:
     zone: "@zone_bar"
     texte: "Sortir poubelles et bouteilles consignées"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 34
@@ -575,14 +575,14 @@ App\Entity\Mission:
   m_sal_ouv_1:
     zone: "@zone_salle"
     texte: "Allumer pistes / arènes / consoles VR"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 1
   m_sal_ouv_2:
     zone: "@zone_salle"
     texte: "Vérifier le bon fonctionnement de chaque attraction"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 2
@@ -590,21 +590,21 @@ App\Entity\Mission:
   m_sal_ouv_3:
     zone: "@zone_salle"
     texte: "Ranger les chaussures de bowling par taille"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 3
   m_sal_ouv_4:
     zone: "@zone_salle"
     texte: "Disposer les tabourets / canapés autour des pistes"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 4
   m_sal_ouv_5:
     zone: "@zone_salle"
     texte: "Allumer ambiance lumière et son de la salle"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 5
@@ -613,35 +613,35 @@ App\Entity\Mission:
   m_sal_pend_1:
     zone: "@zone_salle"
     texte: "Lancer et superviser les parties (bowling / laser / VR)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 10
   m_sal_pend_2:
     zone: "@zone_salle"
     texte: "Distribuer et récupérer les chaussures de bowling"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 11
   m_sal_pend_3:
     zone: "@zone_salle"
     texte: "Désinfecter chaussures / équipements entre chaque utilisation"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 12
   m_sal_pend_4:
     zone: "@zone_salle"
     texte: "Débarrasser les tables des pistes après chaque partie"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 13
   m_sal_pend_5:
     zone: "@zone_salle"
     texte: "Intervenir en cas de bug machine / quille bloquée"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 14
@@ -650,21 +650,21 @@ App\Entity\Mission:
   m_sal_men_1:
     zone: "@zone_salle"
     texte: "Aspirer les pistes et leur abord direct"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 20
   m_sal_men_2:
     zone: "@zone_salle"
     texte: "Nettoyer les tables et tabourets de la salle"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 21
   m_sal_men_3:
     zone: "@zone_salle"
     texte: "Désinfecter casques VR et gilets laser"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 22
@@ -672,14 +672,14 @@ App\Entity\Mission:
   m_sal_men_4:
     zone: "@zone_salle"
     texte: "Vider les corbeilles côté salle"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 23
   m_sal_men_5:
     zone: "@zone_salle"
     texte: "Passer la serpillière dans les allées"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 24
@@ -688,35 +688,35 @@ App\Entity\Mission:
   m_sal_ferm_1:
     zone: "@zone_salle"
     texte: "Éteindre toutes les attractions (pistes, arènes, VR)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 30
   m_sal_ferm_2:
     zone: "@zone_salle"
     texte: "Ranger toutes les chaussures de bowling à leur place"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 31
   m_sal_ferm_3:
     zone: "@zone_salle"
     texte: "Faire le tour de salle pour récupérer objets oubliés"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 32
   m_sal_ferm_4:
     zone: "@zone_salle"
     texte: "Éteindre lumière d'ambiance et système son"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 33
   m_sal_ferm_5:
     zone: "@zone_salle"
     texte: "Vérifier que toutes les portes côté salle sont fermées"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 34
@@ -729,35 +729,35 @@ App\Entity\Mission:
   m_mgr_ouv_1:
     zone: "@zone_manager"
     texte: "Déverrouiller le centre et désactiver l'alarme"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 1
   m_mgr_ouv_2:
     zone: "@zone_manager"
     texte: "Vérifier la présence et le pointage de l'équipe"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 2
   m_mgr_ouv_3:
     zone: "@zone_manager"
     texte: "Briefer l'équipe sur la journée (events, réservations, alertes)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 3
   m_mgr_ouv_4:
     zone: "@zone_manager"
     texte: "Vérifier le bon fonctionnement des caisses (accueil + bar)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 4
   m_mgr_ouv_5:
     zone: "@zone_manager"
     texte: "Consulter les retours / incidents de la veille"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 5
@@ -766,35 +766,35 @@ App\Entity\Mission:
   m_mgr_pend_1:
     zone: "@zone_manager"
     texte: "Superviser l'équipe et fluidifier l'activité"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 10
   m_mgr_pend_2:
     zone: "@zone_manager"
     texte: "Gérer les incidents clients (réclamations, remboursements)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 11
   m_mgr_pend_3:
     zone: "@zone_manager"
     texte: "Valider les pauses repas et les rotations équipe"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 12
   m_mgr_pend_4:
     zone: "@zone_manager"
     texte: "Coordonner les anniversaires et events de groupe"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 13
   m_mgr_pend_5:
     zone: "@zone_manager"
     texte: "Surveiller les caméras et la sécurité du centre"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 14
@@ -803,14 +803,14 @@ App\Entity\Mission:
   m_mgr_men_1:
     zone: "@zone_manager"
     texte: "Vérifier l'état général de propreté du centre (tour complet)"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 20
   m_mgr_men_2:
     zone: "@zone_manager"
     texte: "Contrôler que le plan de nettoyage HACCP est à jour"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 21
@@ -818,21 +818,21 @@ App\Entity\Mission:
   m_mgr_men_3:
     zone: "@zone_manager"
     texte: "Vérifier la propreté des sanitaires clients en milieu de service"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 22
   m_mgr_men_4:
     zone: "@zone_manager"
     texte: "Réapprovisionner produits d'entretien si rupture"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "ne_pas_oublier"
     ordre: 23
   m_mgr_men_5:
     zone: "@zone_manager"
     texte: "Auditer les relevés de température HACCP (bar / cuisine)"
-    categorie: "MENAGE"
+    categorie: "Ménage"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 24
@@ -841,7 +841,7 @@ App\Entity\Mission:
   m_mgr_ferm_1:
     zone: "@zone_manager"
     texte: "Clôturer la journée caisse globale (cumul accueil + bar)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 30
@@ -849,14 +849,14 @@ App\Entity\Mission:
   m_mgr_ferm_2:
     zone: "@zone_manager"
     texte: "Valider les heures pointées de l'équipe pour la journée"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 31
   m_mgr_ferm_3:
     zone: "@zone_manager"
     texte: "Faire le tour de fermeture (issues, alarmes, lumières)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 32
@@ -864,14 +864,14 @@ App\Entity\Mission:
   m_mgr_ferm_4:
     zone: "@zone_manager"
     texte: "Enclencher l'alarme et verrouiller l'entrée principale"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "vitale"
     ordre: 33
   m_mgr_ferm_5:
     zone: "@zone_manager"
     texte: "Reporter les incidents notables du jour dans Shiftly"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite:  "important"
     ordre: 34

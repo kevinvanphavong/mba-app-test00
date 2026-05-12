@@ -121,27 +121,27 @@ App\Entity\User:
     typeContrat: "EXTRA"
 
 App\Entity\Mission:
-  m_ot_prod_ouv_1: { zone: "@zone_ot_production", texte: "Allumer planchas, friteuses et machine à paninis", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ot_prod_ouv_2: { zone: "@zone_ot_production", texte: "Relever températures frigos et chambres froides (HACCP)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_ot_prod_ouv_3: { zone: "@zone_ot_production", texte: "Contrôler DLC viandes, sauces et frites fraîches", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
-  m_ot_prod_ouv_4: { zone: "@zone_ot_production", texte: "Mise en place postes : viandes, sauces, fromages, garnitures", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 4 }
-  m_ot_prod_pend_1: { zone: "@zone_ot_production", texte: "Assembler tacos selon commande (M/L/XL/Géant + choix viandes)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ot_prod_pend_2: { zone: "@zone_ot_production", texte: "Surveiller cuisson viandes et frites (temps réglementaire)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_ot_prod_pend_3: { zone: "@zone_ot_production", texte: "Presser chaque tacos à la machine panini avant service", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
-  m_ot_prod_pend_4: { zone: "@zone_ot_production", texte: "Nettoyer plans entre chaque rush et réapprovisionner", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
-  m_ot_prod_ferm_1: { zone: "@zone_ot_production", texte: "Filtrer huile friteuse et nettoyer planchas", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ot_prod_ferm_2: { zone: "@zone_ot_production", texte: "Étiqueter et stocker viandes restantes (DLC ouverture)", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_ot_prod_ferm_3: { zone: "@zone_ot_production", texte: "Nettoyage complet production (surfaces, sol, machine panini)", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_ot_prod_ouv_1: { zone: "@zone_ot_production", texte: "Allumer planchas, friteuses et machine à paninis", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_prod_ouv_2: { zone: "@zone_ot_production", texte: "Relever températures frigos et chambres froides (HACCP)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_prod_ouv_3: { zone: "@zone_ot_production", texte: "Contrôler DLC viandes, sauces et frites fraîches", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_ot_prod_ouv_4: { zone: "@zone_ot_production", texte: "Mise en place postes : viandes, sauces, fromages, garnitures", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_ot_prod_pend_1: { zone: "@zone_ot_production", texte: "Assembler tacos selon commande (M/L/XL/Géant + choix viandes)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_prod_pend_2: { zone: "@zone_ot_production", texte: "Surveiller cuisson viandes et frites (temps réglementaire)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_prod_pend_3: { zone: "@zone_ot_production", texte: "Presser chaque tacos à la machine panini avant service", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_ot_prod_pend_4: { zone: "@zone_ot_production", texte: "Nettoyer plans entre chaque rush et réapprovisionner", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_ot_prod_ferm_1: { zone: "@zone_ot_production", texte: "Filtrer huile friteuse et nettoyer planchas", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_prod_ferm_2: { zone: "@zone_ot_production", texte: "Étiqueter et stocker viandes restantes (DLC ouverture)", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_prod_ferm_3: { zone: "@zone_ot_production", texte: "Nettoyage complet production (surfaces, sol, machine panini)", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 3 }
 
-  m_ot_caisse_ouv_1: { zone: "@zone_ot_caisse", texte: "Allumer caisse, borne, TPE et vérifier fond de caisse", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ot_caisse_pend_1: { zone: "@zone_ot_caisse", texte: "Prendre commande, encaisser, transmettre ticket production", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ot_caisse_pend_2: { zone: "@zone_ot_caisse", texte: "Gérer commandes Uber Eats / Deliveroo (tablette partenaires)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_ot_caisse_ferm_1: { zone: "@zone_ot_caisse", texte: "Clôturer caisse, Z, coffre + stats livraisons", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_caisse_ouv_1: { zone: "@zone_ot_caisse", texte: "Allumer caisse, borne, TPE et vérifier fond de caisse", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_caisse_pend_1: { zone: "@zone_ot_caisse", texte: "Prendre commande, encaisser, transmettre ticket production", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_caisse_pend_2: { zone: "@zone_ot_caisse", texte: "Gérer commandes Uber Eats / Deliveroo (tablette partenaires)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_caisse_ferm_1: { zone: "@zone_ot_caisse", texte: "Clôturer caisse, Z, coffre + stats livraisons", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
-  m_ot_salle_ouv_1: { zone: "@zone_ot_salle", texte: "Installer tables, vérifier vitres et sol salle", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ot_salle_pend_1: { zone: "@zone_ot_salle", texte: "Débarrasser et désinfecter tables après départ client", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ot_salle_pend_2: { zone: "@zone_ot_salle", texte: "Passage toilettes toutes les 30 min (feuille)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_ot_salle_ferm_1: { zone: "@zone_ot_salle", texte: "Nettoyage complet salle + toilettes", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_salle_ouv_1: { zone: "@zone_ot_salle", texte: "Installer tables, vérifier vitres et sol salle", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_salle_pend_1: { zone: "@zone_ot_salle", texte: "Débarrasser et désinfecter tables après départ client", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ot_salle_pend_2: { zone: "@zone_ot_salle", texte: "Passage toilettes toutes les 30 min (feuille)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ot_salle_ferm_1: { zone: "@zone_ot_salle", texte: "Nettoyage complet salle + toilettes", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
 App\Entity\Competence:
   comp_ot_prod_1: { zone: "@zone_ot_production", nom: "Assemblage tacos rapide (rush midi/soir)", points: 25, difficulte: "avancee" }

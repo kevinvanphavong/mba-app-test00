@@ -166,196 +166,196 @@ App\Entity\Mission:
   m_kx_bout_ouv_1:
     zone: "@zone_kx_boutique"
     texte: "Allumer la devanture, vitrine lumineuse et éclairage boutique"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_kx_bout_ouv_2:
     zone: "@zone_kx_boutique"
     texte: "Mettre à jour l'affichage 'Drop du moment' (panneau vitrine + stories Insta)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_kx_bout_ouv_3:
     zone: "@zone_kx_boutique"
     texte: "Vérifier la présentation des modèles (propres, bien disposés par taille)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3
   m_kx_bout_ouv_4:
     zone: "@zone_kx_boutique"
     texte: "Contrôler le stock des modèles phares en vitrine (tailles et coloris disponibles)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 4
   m_kx_bout_pend_1:
     zone: "@zone_kx_boutique"
     texte: "Conseiller les clients et présenter les nouveautés et collaborations"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_kx_bout_pend_2:
     zone: "@zone_kx_boutique"
     texte: "Gérer les réservations de paires (carnet + téléphone)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 2
   m_kx_bout_pend_3:
     zone: "@zone_kx_boutique"
     texte: "Ranger les modèles d'essayage et nettoyer les cabines après passage client"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3
   m_kx_bout_pend_4:
     zone: "@zone_kx_boutique"
     texte: "Réassortir les rayons et vérifier les étiquettes prix"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "ne_pas_oublier"
     ordre: 4
   m_kx_bout_ferm_1:
     zone: "@zone_kx_boutique"
     texte: "Ranger les modèles d'expo et sécuriser les paires en vitrine"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_kx_bout_ferm_2:
     zone: "@zone_kx_boutique"
     texte: "Faire l'inventaire rapide des modèles vendus dans la journée"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_kx_bout_ferm_3:
     zone: "@zone_kx_boutique"
     texte: "Éteindre la devanture et fermer la vitrine à clé"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 3
   m_kx_bout_ferm_4:
     zone: "@zone_kx_boutique"
     texte: "Mettre à jour le stock sur l'outil en ligne (ventes du jour)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 4
   m_kx_bt_ouv_1:
     zone: "@zone_kx_bubbletea"
     texte: "Lancer la cuisson des perles de tapioca (boba noires, 45 min de cuisson)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_kx_bt_ouv_2:
     zone: "@zone_kx_bubbletea"
     texte: "Mettre en place les sirops, laits végétaux et bases de thé"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_kx_bt_ouv_3:
     zone: "@zone_kx_bubbletea"
     texte: "Vérifier les DLC des ingrédients et températures du réfrigérateur"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3
   m_kx_bt_pend_1:
     zone: "@zone_kx_bubbletea"
     texte: "Préparer chaque commande bubble tea selon la fiche recette (shaker 30 sec)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_kx_bt_pend_2:
     zone: "@zone_kx_bubbletea"
     texte: "Maintenir les boba à température (eau sucrée chaude, changer toutes les 2h)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_kx_bt_pend_3:
     zone: "@zone_kx_bubbletea"
     texte: "Nettoyer les shakers entre chaque commande et entretenir la zone"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3
   m_kx_bt_ferm_1:
     zone: "@zone_kx_bubbletea"
     texte: "Jeter les boba restantes (ne jamais les conserver au-delà de la fermeture)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_kx_bt_ferm_2:
     zone: "@zone_kx_bubbletea"
     texte: "Nettoyer les shakers, pompes à sirop et machine à thé"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_kx_bt_ferm_3:
     zone: "@zone_kx_bubbletea"
     texte: "Ranger les sirops et laits au réfrigérateur (bien refermer)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3
   m_kx_bar_ouv_1:
     zone: "@zone_kx_bar"
     texte: "Allumer la caisse, vérifier le fond de caisse (50€) et les TPE"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_kx_bar_ouv_2:
     zone: "@zone_kx_bar"
     texte: "Préparer les boissons chaudes du bar (cafés, thés) et vérifier le stock"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 2
   m_kx_bar_pend_1:
     zone: "@zone_kx_bar"
     texte: "Encaisser toutes les ventes boutique et bubble tea (CB + espèces)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_kx_bar_pend_2:
     zone: "@zone_kx_bar"
     texte: "Préparer les commandes bar (café, thé, softs) et maintenir le comptoir propre"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 2
   m_kx_bar_ferm_1:
     zone: "@zone_kx_bar"
     texte: "Clôturer la caisse et remettre le fond + recette au manager"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_kx_bar_ferm_2:
     zone: "@zone_kx_bar"
     texte: "Nettoyer et désinfecter le comptoir bar"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_kx_bar_ferm_3:
     zone: "@zone_kx_bar"
     texte: "Vider les poubelles et passer la serpillière derrière le comptoir"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3

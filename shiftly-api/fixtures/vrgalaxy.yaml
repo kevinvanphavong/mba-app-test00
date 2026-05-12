@@ -149,31 +149,31 @@ App\Entity\User:
     typeContrat: "EXTRA"
 
 App\Entity\Mission:
-  m_vr_acc_ouv_1:  { zone: "@zone_vr_accueil", texte: "Ouvrir la caisse, vérifier TPE et fond de caisse (100€)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_vr_acc_ouv_2:  { zone: "@zone_vr_accueil", texte: "Imprimer planning des sessions VR réservées du jour", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_vr_acc_ouv_3:  { zone: "@zone_vr_accueil", texte: "Vérifier affichage vidéo promos et propreté du hall", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
-  m_vr_acc_pend_1: { zone: "@zone_vr_accueil", texte: "Accueillir, encaisser, faire signer les décharges (mineurs)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_vr_acc_pend_2: { zone: "@zone_vr_accueil", texte: "Gérer le flux de rotation entre sessions (15 min entre groupes)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_vr_acc_ferm_1: { zone: "@zone_vr_accueil", texte: "Clôture caisse, impression Z, coffre-fort", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_vr_acc_ferm_2: { zone: "@zone_vr_accueil", texte: "Nettoyer comptoir et ranger décharges de la journée", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_vr_acc_ouv_1:  { zone: "@zone_vr_accueil", texte: "Ouvrir la caisse, vérifier TPE et fond de caisse (100€)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_acc_ouv_2:  { zone: "@zone_vr_accueil", texte: "Imprimer planning des sessions VR réservées du jour", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_acc_ouv_3:  { zone: "@zone_vr_accueil", texte: "Vérifier affichage vidéo promos et propreté du hall", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_vr_acc_pend_1: { zone: "@zone_vr_accueil", texte: "Accueillir, encaisser, faire signer les décharges (mineurs)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_acc_pend_2: { zone: "@zone_vr_accueil", texte: "Gérer le flux de rotation entre sessions (15 min entre groupes)", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_vr_acc_ferm_1: { zone: "@zone_vr_accueil", texte: "Clôture caisse, impression Z, coffre-fort", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_acc_ferm_2: { zone: "@zone_vr_accueil", texte: "Nettoyer comptoir et ranger décharges de la journée", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
 
-  m_vr_sal_ouv_1:  { zone: "@zone_vr_salles", texte: "Allumer les 4 stations VR et lancer le launcher de jeux", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_vr_sal_ouv_2:  { zone: "@zone_vr_salles", texte: "Vérifier casques, contrôleurs et charge des batteries", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_vr_sal_ouv_3:  { zone: "@zone_vr_salles", texte: "Désinfecter casques et mousses (lingettes spécifiques)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
-  m_vr_sal_ouv_4:  { zone: "@zone_vr_salles", texte: "Contrôler câbles de plafond (aucun emmêlement) et marquage au sol", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 4 }
-  m_vr_sal_pend_1: { zone: "@zone_vr_salles", texte: "Briefer chaque joueur sur l'usage du casque et bouton pause", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_vr_sal_pend_2: { zone: "@zone_vr_salles", texte: "Surveiller les joueurs en direct (nausées, chutes, sorties de zone)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_vr_sal_pend_3: { zone: "@zone_vr_salles", texte: "Désinfecter mousses de casque entre chaque session", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
-  m_vr_sal_pend_4: { zone: "@zone_vr_salles", texte: "Relancer le jeu suivant et afficher le score de l'équipe précédente", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
-  m_vr_sal_ferm_1: { zone: "@zone_vr_salles", texte: "Ranger casques et manettes sur racks de charge", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_vr_sal_ferm_2: { zone: "@zone_vr_salles", texte: "Éteindre PCs, écrans et lancer mise à jour logicielle", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_vr_sal_ferm_3: { zone: "@zone_vr_salles", texte: "Aspirer les zones de jeu et désinfecter sol de marquage", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_vr_sal_ouv_1:  { zone: "@zone_vr_salles", texte: "Allumer les 4 stations VR et lancer le launcher de jeux", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_sal_ouv_2:  { zone: "@zone_vr_salles", texte: "Vérifier casques, contrôleurs et charge des batteries", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_sal_ouv_3:  { zone: "@zone_vr_salles", texte: "Désinfecter casques et mousses (lingettes spécifiques)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_vr_sal_ouv_4:  { zone: "@zone_vr_salles", texte: "Contrôler câbles de plafond (aucun emmêlement) et marquage au sol", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_vr_sal_pend_1: { zone: "@zone_vr_salles", texte: "Briefer chaque joueur sur l'usage du casque et bouton pause", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_sal_pend_2: { zone: "@zone_vr_salles", texte: "Surveiller les joueurs en direct (nausées, chutes, sorties de zone)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_sal_pend_3: { zone: "@zone_vr_salles", texte: "Désinfecter mousses de casque entre chaque session", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_vr_sal_pend_4: { zone: "@zone_vr_salles", texte: "Relancer le jeu suivant et afficher le score de l'équipe précédente", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_vr_sal_ferm_1: { zone: "@zone_vr_salles", texte: "Ranger casques et manettes sur racks de charge", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_sal_ferm_2: { zone: "@zone_vr_salles", texte: "Éteindre PCs, écrans et lancer mise à jour logicielle", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_sal_ferm_3: { zone: "@zone_vr_salles", texte: "Aspirer les zones de jeu et désinfecter sol de marquage", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 3 }
 
-  m_vr_snk_ouv_1:  { zone: "@zone_vr_snacking", texte: "Mise en route micro-ondes et four à paninis / croques", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_vr_snk_ouv_2:  { zone: "@zone_vr_snacking", texte: "Contrôler DLC snacking et remplir le frigo softs", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_vr_snk_pend_1: { zone: "@zone_vr_snacking", texte: "Servir les commandes (entre deux sessions, rush court 15 min)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_vr_snk_pend_2: { zone: "@zone_vr_snacking", texte: "Nettoyer plan de travail entre chaque commande", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_vr_snk_ferm_1: { zone: "@zone_vr_snacking", texte: "Éteindre fours, ranger produits frais, nettoyer plan", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_snk_ouv_1:  { zone: "@zone_vr_snacking", texte: "Mise en route micro-ondes et four à paninis / croques", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_snk_ouv_2:  { zone: "@zone_vr_snacking", texte: "Contrôler DLC snacking et remplir le frigo softs", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_vr_snk_pend_1: { zone: "@zone_vr_snacking", texte: "Servir les commandes (entre deux sessions, rush court 15 min)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_vr_snk_pend_2: { zone: "@zone_vr_snacking", texte: "Nettoyer plan de travail entre chaque commande", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_vr_snk_ferm_1: { zone: "@zone_vr_snacking", texte: "Éteindre fours, ranger produits frais, nettoyer plan", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
 App\Entity\Competence:
   comp_vr_acc_1:  { zone: "@zone_vr_accueil",  nom: "Gestion des sessions VR et rotations",          points: 20, difficulte: "avancee" }

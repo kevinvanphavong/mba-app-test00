@@ -168,36 +168,36 @@ App\Entity\User:
     typeContrat: "EXTRA"
 
 App\Entity\Mission:
-  m_sp_acc_ouv_1:  { zone: "@zone_sp_accueil", texte: "Caisse, TPE, fond 150€ et impression planning sessions", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_acc_ouv_2:  { zone: "@zone_sp_accueil", texte: "Vérifier stock de combinaisons et casques (tailles enfants / adultes)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_sp_acc_ouv_3:  { zone: "@zone_sp_accueil", texte: "Contrôler vestiaires, cabines et casiers consignes", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
-  m_sp_acc_pend_1: { zone: "@zone_sp_accueil", texte: "Accueillir, encaisser, faire signer décharges et briefer les pilotes", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_acc_pend_2: { zone: "@zone_sp_accueil", texte: "Remettre combinaisons / casques / charlottes hygiène à chaque pilote", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_sp_acc_ferm_1: { zone: "@zone_sp_accueil", texte: "Clôture caisse, récupération combinaisons, mise en machine charlottes", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_acc_ferm_2: { zone: "@zone_sp_accueil", texte: "Ranger casques par taille sur les racks ventilés", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_sp_acc_ouv_1:  { zone: "@zone_sp_accueil", texte: "Caisse, TPE, fond 150€ et impression planning sessions", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_acc_ouv_2:  { zone: "@zone_sp_accueil", texte: "Vérifier stock de combinaisons et casques (tailles enfants / adultes)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_acc_ouv_3:  { zone: "@zone_sp_accueil", texte: "Contrôler vestiaires, cabines et casiers consignes", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_sp_acc_pend_1: { zone: "@zone_sp_accueil", texte: "Accueillir, encaisser, faire signer décharges et briefer les pilotes", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_acc_pend_2: { zone: "@zone_sp_accueil", texte: "Remettre combinaisons / casques / charlottes hygiène à chaque pilote", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_acc_ferm_1: { zone: "@zone_sp_accueil", texte: "Clôture caisse, récupération combinaisons, mise en machine charlottes", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_acc_ferm_2: { zone: "@zone_sp_accueil", texte: "Ranger casques par taille sur les racks ventilés", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
 
-  m_sp_pst_ouv_1: { zone: "@zone_sp_piste", texte: "Contrôle visuel des 14 karts (pneus, freins, ceintures)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_pst_ouv_2: { zone: "@zone_sp_piste", texte: "Plein d'essence des karts et vérification jauges", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_sp_pst_ouv_3: { zone: "@zone_sp_piste", texte: "Contrôle des pneus sur piste (obstacles, poussière) et balayage", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
-  m_sp_pst_ouv_4: { zone: "@zone_sp_piste", texte: "Tester le chronométrage et l'affichage des temps", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 4 }
-  m_sp_pst_pend_1: { zone: "@zone_sp_piste", texte: "Briefing piste : drapeaux, règles, dépassements", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_pst_pend_2: { zone: "@zone_sp_piste", texte: "Surveiller session en direct et sanctionner les comportements à risque", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_sp_pst_pend_3: { zone: "@zone_sp_piste", texte: "Relevage kart en cas de sortie de piste ou tête-à-queue", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
-  m_sp_pst_pend_4: { zone: "@zone_sp_piste", texte: "Imprimer et distribuer les classements en fin de session", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
-  m_sp_pst_ferm_1: { zone: "@zone_sp_piste", texte: "Ramener tous les karts au parc et couper le contact", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_pst_ferm_2: { zone: "@zone_sp_piste", texte: "Balayage complet de la piste et retrait des pneus déplacés", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_sp_pst_ouv_1: { zone: "@zone_sp_piste", texte: "Contrôle visuel des 14 karts (pneus, freins, ceintures)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_pst_ouv_2: { zone: "@zone_sp_piste", texte: "Plein d'essence des karts et vérification jauges", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_pst_ouv_3: { zone: "@zone_sp_piste", texte: "Contrôle des pneus sur piste (obstacles, poussière) et balayage", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_sp_pst_ouv_4: { zone: "@zone_sp_piste", texte: "Tester le chronométrage et l'affichage des temps", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_sp_pst_pend_1: { zone: "@zone_sp_piste", texte: "Briefing piste : drapeaux, règles, dépassements", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_pst_pend_2: { zone: "@zone_sp_piste", texte: "Surveiller session en direct et sanctionner les comportements à risque", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_pst_pend_3: { zone: "@zone_sp_piste", texte: "Relevage kart en cas de sortie de piste ou tête-à-queue", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_sp_pst_pend_4: { zone: "@zone_sp_piste", texte: "Imprimer et distribuer les classements en fin de session", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_sp_pst_ferm_1: { zone: "@zone_sp_piste", texte: "Ramener tous les karts au parc et couper le contact", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_pst_ferm_2: { zone: "@zone_sp_piste", texte: "Balayage complet de la piste et retrait des pneus déplacés", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
 
-  m_sp_at_ouv_1:  { zone: "@zone_sp_atelier", texte: "Contrôle niveaux moteur (huile, essence) sur chaque kart", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_at_pend_1: { zone: "@zone_sp_atelier", texte: "Intervenir rapidement en cas de panne kart en course", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_at_pend_2: { zone: "@zone_sp_atelier", texte: "Rotation des karts avec les karts de réserve si besoin", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_sp_at_ferm_1: { zone: "@zone_sp_atelier", texte: "Maintenance préventive soir : serrage roues, contrôle chaîne", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_at_ferm_2: { zone: "@zone_sp_atelier", texte: "Ranger outils et consigner anomalies dans le cahier atelier", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_sp_at_ouv_1:  { zone: "@zone_sp_atelier", texte: "Contrôle niveaux moteur (huile, essence) sur chaque kart", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_at_pend_1: { zone: "@zone_sp_atelier", texte: "Intervenir rapidement en cas de panne kart en course", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_at_pend_2: { zone: "@zone_sp_atelier", texte: "Rotation des karts avec les karts de réserve si besoin", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_sp_at_ferm_1: { zone: "@zone_sp_atelier", texte: "Maintenance préventive soir : serrage roues, contrôle chaîne", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_at_ferm_2: { zone: "@zone_sp_atelier", texte: "Ranger outils et consigner anomalies dans le cahier atelier", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
 
-  m_sp_bar_ouv_1:  { zone: "@zone_sp_bar", texte: "Mise en route cuisine (friteuse, plancha) et préparation plats du jour", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_bar_ouv_2:  { zone: "@zone_sp_bar", texte: "Vérifier stocks boissons et relever températures frigos (HACCP)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_sp_bar_pend_1: { zone: "@zone_sp_bar", texte: "Service clients (boissons, burgers, pizzas, anniversaires enfants)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_sp_bar_pend_2: { zone: "@zone_sp_bar", texte: "Gérer formules anniversaires (gâteaux, bougies, mise en place table)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_sp_bar_ferm_1: { zone: "@zone_sp_bar", texte: "Nettoyer cuisine, ranger chambre froide, clôture caisse bar", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_bar_ouv_1:  { zone: "@zone_sp_bar", texte: "Mise en route cuisine (friteuse, plancha) et préparation plats du jour", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_bar_ouv_2:  { zone: "@zone_sp_bar", texte: "Vérifier stocks boissons et relever températures frigos (HACCP)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_sp_bar_pend_1: { zone: "@zone_sp_bar", texte: "Service clients (boissons, burgers, pizzas, anniversaires enfants)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_sp_bar_pend_2: { zone: "@zone_sp_bar", texte: "Gérer formules anniversaires (gâteaux, bougies, mise en place table)", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_sp_bar_ferm_1: { zone: "@zone_sp_bar", texte: "Nettoyer cuisine, ranger chambre froide, clôture caisse bar", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
 App\Entity\Competence:
   comp_sp_acc_1: { zone: "@zone_sp_accueil", nom: "Gestion des décharges et briefing pilotes",       points: 20, difficulte: "avancee" }

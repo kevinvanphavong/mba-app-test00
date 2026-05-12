@@ -107,25 +107,25 @@ App\Entity\User:
     typeContrat: "EXTRA"
 
 App\Entity\Mission:
-  m_es_acc_ouv_1: { zone: "@zone_es_accueil", texte: "Caisse, planning des réservations des 4 salles du jour", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_es_acc_ouv_2: { zone: "@zone_es_accueil", texte: "Préparer les photos polaroid de fin de partie (tampon date)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_es_acc_pend_1: { zone: "@zone_es_accueil", texte: "Accueillir, encaisser, placer en salle d'attente thématisée", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_es_acc_pend_2: { zone: "@zone_es_accueil", texte: "Prendre photo souvenir à la fin de chaque partie", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_es_acc_ferm_1: { zone: "@zone_es_accueil", texte: "Clôture caisse et mise à jour classements en ligne", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_acc_ouv_1: { zone: "@zone_es_accueil", texte: "Caisse, planning des réservations des 4 salles du jour", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_acc_ouv_2: { zone: "@zone_es_accueil", texte: "Préparer les photos polaroid de fin de partie (tampon date)", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_es_acc_pend_1: { zone: "@zone_es_accueil", texte: "Accueillir, encaisser, placer en salle d'attente thématisée", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_acc_pend_2: { zone: "@zone_es_accueil", texte: "Prendre photo souvenir à la fin de chaque partie", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_es_acc_ferm_1: { zone: "@zone_es_accueil", texte: "Clôture caisse et mise à jour classements en ligne", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
-  m_es_sal_ouv_1: { zone: "@zone_es_salles", texte: "Réinitialiser chaque salle (3 scénarios) selon la checklist", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_es_sal_ouv_2: { zone: "@zone_es_salles", texte: "Tester chaque énigme interactive et les automatismes (serrures électro, UV, effets)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_es_sal_ouv_3: { zone: "@zone_es_salles", texte: "Vérifier l'ambiance sonore et l'éclairage scénique de chaque salle", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
-  m_es_sal_pend_1: { zone: "@zone_es_salles", texte: "Game Master : briefer, piloter la salle via la régie et donner les indices", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_es_sal_pend_2: { zone: "@zone_es_salles", texte: "Surveiller caméras en direct et anticiper les blocages joueurs", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_es_sal_pend_3: { zone: "@zone_es_salles", texte: "Débriefer les joueurs après la partie (temps, énigmes, anecdotes)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 3 }
-  m_es_sal_pend_4: { zone: "@zone_es_salles", texte: "Reset complet de la salle (15 min) entre chaque groupe", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 4 }
-  m_es_sal_ferm_1: { zone: "@zone_es_salles", texte: "Vérifier que toutes les salles sont reset pour le lendemain", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_es_sal_ferm_2: { zone: "@zone_es_salles", texte: "Éteindre la régie, les effets et sécuriser les portes électriques", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_es_sal_ouv_1: { zone: "@zone_es_salles", texte: "Réinitialiser chaque salle (3 scénarios) selon la checklist", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_sal_ouv_2: { zone: "@zone_es_salles", texte: "Tester chaque énigme interactive et les automatismes (serrures électro, UV, effets)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_es_sal_ouv_3: { zone: "@zone_es_salles", texte: "Vérifier l'ambiance sonore et l'éclairage scénique de chaque salle", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_es_sal_pend_1: { zone: "@zone_es_salles", texte: "Game Master : briefer, piloter la salle via la régie et donner les indices", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_sal_pend_2: { zone: "@zone_es_salles", texte: "Surveiller caméras en direct et anticiper les blocages joueurs", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_es_sal_pend_3: { zone: "@zone_es_salles", texte: "Débriefer les joueurs après la partie (temps, énigmes, anecdotes)", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_es_sal_pend_4: { zone: "@zone_es_salles", texte: "Reset complet de la salle (15 min) entre chaque groupe", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 4 }
+  m_es_sal_ferm_1: { zone: "@zone_es_salles", texte: "Vérifier que toutes les salles sont reset pour le lendemain", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_sal_ferm_2: { zone: "@zone_es_salles", texte: "Éteindre la régie, les effets et sécuriser les portes électriques", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
 
-  m_es_bar_ouv_1: { zone: "@zone_es_bar", texte: "Mise en route machine café, préparer softs et snacking léger", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_es_bar_pend_1: { zone: "@zone_es_bar", texte: "Servir les groupes en attente et après partie (ambiance lounge)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_es_bar_ferm_1: { zone: "@zone_es_bar", texte: "Nettoyer bar, vider machine café, clôturer caisse bar", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_bar_ouv_1: { zone: "@zone_es_bar", texte: "Mise en route machine café, préparer softs et snacking léger", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_bar_pend_1: { zone: "@zone_es_bar", texte: "Servir les groupes en attente et après partie (ambiance lounge)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_es_bar_ferm_1: { zone: "@zone_es_bar", texte: "Nettoyer bar, vider machine café, clôturer caisse bar", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
 App\Entity\Competence:
   comp_es_sal_1: { zone: "@zone_es_salles",  nom: "Game Mastering (pilotage scénario et indices)", points: 40, difficulte: "experimente" }

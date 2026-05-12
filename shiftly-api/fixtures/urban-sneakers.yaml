@@ -108,25 +108,25 @@ App\Entity\User:
     typeContrat: "CDD"
 
 App\Entity\Mission:
-  m_ur_bout_ouv_1: { zone: "@zone_ur_boutique", texte: "Allumer vitrine + éclairage rayons sneakers et streetwear", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ur_bout_ouv_2: { zone: "@zone_ur_boutique", texte: "Mise en scène du drop du jour (modèles phares en avant)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_ur_bout_ouv_3: { zone: "@zone_ur_boutique", texte: "Vérifier stocks tailles et état des paires d'expo", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
-  m_ur_bout_pend_1: { zone: "@zone_ur_boutique", texte: "Accueil client, conseils sneakers et streetwear", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ur_bout_pend_2: { zone: "@zone_ur_boutique", texte: "Nettoyer cabines d'essayage après chaque passage", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_ur_bout_pend_3: { zone: "@zone_ur_boutique", texte: "Réassort continu rayons vêtements et capsules", categorie: "PENDANT", frequence: "FIXE", priorite: "ne_pas_oublier", ordre: 3 }
-  m_ur_bout_ferm_1: { zone: "@zone_ur_boutique", texte: "Ranger modèles d'expo, sécuriser les paires en vitrine", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ur_bout_ferm_2: { zone: "@zone_ur_boutique", texte: "Inventaire rapide des ventes du jour + maj stock en ligne", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ur_bout_ouv_1: { zone: "@zone_ur_boutique", texte: "Allumer vitrine + éclairage rayons sneakers et streetwear", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_bout_ouv_2: { zone: "@zone_ur_boutique", texte: "Mise en scène du drop du jour (modèles phares en avant)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ur_bout_ouv_3: { zone: "@zone_ur_boutique", texte: "Vérifier stocks tailles et état des paires d'expo", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_ur_bout_pend_1: { zone: "@zone_ur_boutique", texte: "Accueil client, conseils sneakers et streetwear", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_bout_pend_2: { zone: "@zone_ur_boutique", texte: "Nettoyer cabines d'essayage après chaque passage", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_ur_bout_pend_3: { zone: "@zone_ur_boutique", texte: "Réassort continu rayons vêtements et capsules", categorie: "Pendant", frequence: "FIXE", priorite: "ne_pas_oublier", ordre: 3 }
+  m_ur_bout_ferm_1: { zone: "@zone_ur_boutique", texte: "Ranger modèles d'expo, sécuriser les paires en vitrine", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_bout_ferm_2: { zone: "@zone_ur_boutique", texte: "Inventaire rapide des ventes du jour + maj stock en ligne", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
 
-  m_ur_coffee_ouv_1: { zone: "@zone_ur_coffee", texte: "Mise en route machine espresso, préparer laits et sirops", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ur_coffee_ouv_2: { zone: "@zone_ur_coffee", texte: "Contrôle DLC pâtisseries, viennoiseries et boissons froides", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_ur_coffee_pend_1: { zone: "@zone_ur_coffee", texte: "Servir cafés, matchas, boissons spéciales selon recette", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ur_coffee_pend_2: { zone: "@zone_ur_coffee", texte: "Nettoyer comptoir et ranger tasses entre chaque client", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_ur_coffee_ferm_1: { zone: "@zone_ur_coffee", texte: "Nettoyer machine espresso (cycle complet) et ranger laits", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_coffee_ouv_1: { zone: "@zone_ur_coffee", texte: "Mise en route machine espresso, préparer laits et sirops", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_coffee_ouv_2: { zone: "@zone_ur_coffee", texte: "Contrôle DLC pâtisseries, viennoiseries et boissons froides", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_ur_coffee_pend_1: { zone: "@zone_ur_coffee", texte: "Servir cafés, matchas, boissons spéciales selon recette", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_coffee_pend_2: { zone: "@zone_ur_coffee", texte: "Nettoyer comptoir et ranger tasses entre chaque client", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_ur_coffee_ferm_1: { zone: "@zone_ur_coffee", texte: "Nettoyer machine espresso (cycle complet) et ranger laits", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
-  m_ur_caisse_ouv_1: { zone: "@zone_ur_caisse", texte: "Ouvrir caisse, vérifier TPE et fond de caisse (100€)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ur_caisse_pend_1: { zone: "@zone_ur_caisse", texte: "Encaissement et fidélisation (carte Urban Club)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_ur_caisse_pend_2: { zone: "@zone_ur_caisse", texte: "Gérer les réservations de paires (carnet + téléphone)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_ur_caisse_ferm_1: { zone: "@zone_ur_caisse", texte: "Clôture caisse, impression Z, remise au coffre", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_caisse_ouv_1: { zone: "@zone_ur_caisse", texte: "Ouvrir caisse, vérifier TPE et fond de caisse (100€)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_caisse_pend_1: { zone: "@zone_ur_caisse", texte: "Encaissement et fidélisation (carte Urban Club)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_ur_caisse_pend_2: { zone: "@zone_ur_caisse", texte: "Gérer les réservations de paires (carnet + téléphone)", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_ur_caisse_ferm_1: { zone: "@zone_ur_caisse", texte: "Clôture caisse, impression Z, remise au coffre", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
 App\Entity\Competence:
   comp_ur_bout_1: { zone: "@zone_ur_boutique", nom: "Expertise sneakers (collaborations, raretés, authentification)", points: 30, difficulte: "avancee" }

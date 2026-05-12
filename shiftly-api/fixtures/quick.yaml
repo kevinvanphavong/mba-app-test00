@@ -260,350 +260,350 @@ App\Entity\Mission:
   m_q_prod_ouv_1:
     zone: "@zone_q_production"
     texte: "Être en tenue et pointer son heure d'arrivée"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_prod_ouv_2:
     zone: "@zone_q_production"
     texte: "Allumer et préchauffer les grils et friteuses (montée en température 15 min)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_prod_ouv_3:
     zone: "@zone_q_production"
     texte: "Vérifier les températures des enceintes réfrigérées (HACCP)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 3
   m_q_prod_ouv_4:
     zone: "@zone_q_production"
     texte: "Contrôler les DLC des matières premières (viande, pain, crudités)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 4
   m_q_prod_ouv_5:
     zone: "@zone_q_production"
     texte: "Préparer et vérifier les sauces maison (quantités pour le service)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 5
   m_q_prod_ouv_6:
     zone: "@zone_q_production"
     texte: "Mettre en place les emballages, papiers et boîtes selon le plan de rangement"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 6
   m_q_prod_ouv_7:
     zone: "@zone_q_production"
     texte: "Remplir les bacs à pain et vérifier stock de petits pains"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "ne_pas_oublier"
     ordre: 7
   m_q_prod_pend_1:
     zone: "@zone_q_production"
     texte: "Cuire les steaks au gril selon les commandes (temps de cuisson réglementaire)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_prod_pend_2:
     zone: "@zone_q_production"
     texte: "Respecter les temps de vie produits chauds (max 10 min en holding)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_prod_pend_3:
     zone: "@zone_q_production"
     texte: "Relever les températures friteuses et grils toutes les 2h (feuille HACCP)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 3
   m_q_prod_pend_4:
     zone: "@zone_q_production"
     texte: "Réapprovisionner la chaîne de production en continu"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 4
   m_q_prod_pend_5:
     zone: "@zone_q_production"
     texte: "Nettoyer les surfaces de travail entre chaque rush"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 5
   m_q_prod_ferm_1:
     zone: "@zone_q_production"
     texte: "Éteindre les grils après le dernier service (protocole dégraissage)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_prod_ferm_2:
     zone: "@zone_q_production"
     texte: "Filtrer et changer l'huile des friteuses si nécessaire"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_prod_ferm_3:
     zone: "@zone_q_production"
     texte: "Ranger les matières premières restantes en chambre froide (étiquetage date)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 3
   m_q_prod_ferm_4:
     zone: "@zone_q_production"
     texte: "Relever les températures de fin de service (feuille HACCP)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 4
   m_q_prod_ferm_5:
     zone: "@zone_q_production"
     texte: "Nettoyer le gril, les friteuses et toutes les surfaces de production"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 5
   m_q_prod_ferm_6:
     zone: "@zone_q_production"
     texte: "Passer la serpillière en production et dans la zone de préparation"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 6
   m_q_caisse_ouv_1:
     zone: "@zone_q_caisse"
     texte: "Allumer les caisses, les bornes de commande et les TPE"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_caisse_ouv_2:
     zone: "@zone_q_caisse"
     texte: "Vérifier le fond de caisse et signer la feuille de prise en charge"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_caisse_ouv_3:
     zone: "@zone_q_caisse"
     texte: "Vérifier propreté du comptoir d'accueil et de l'affichage menu"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3
   m_q_caisse_ouv_4:
     zone: "@zone_q_caisse"
     texte: "Contrôler la disponibilité des produits avec la production avant ouverture"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 4
   m_q_caisse_pend_1:
     zone: "@zone_q_caisse"
     texte: "Accueillir les clients avec le sourire et annoncer les promotions du moment"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_caisse_pend_2:
     zone: "@zone_q_caisse"
     texte: "Servir les plateaux avec rapidité et vérifier la conformité des commandes"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_caisse_pend_3:
     zone: "@zone_q_caisse"
     texte: "Gérer les files d'attente et orienter les clients vers les bornes si nécessaire"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3
   m_q_caisse_pend_4:
     zone: "@zone_q_caisse"
     texte: "Traiter les réclamations et anomalies de commande calmement"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 4
   m_q_caisse_ferm_1:
     zone: "@zone_q_caisse"
     texte: "Clôturer les caisses et remettre le fond de caisse au responsable"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_caisse_ferm_2:
     zone: "@zone_q_caisse"
     texte: "Imprimer et signer le rapport Z de caisse"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_caisse_ferm_3:
     zone: "@zone_q_caisse"
     texte: "Nettoyer et désinfecter le comptoir d'accueil et les bornes de commande"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 3
   m_q_caisse_ferm_4:
     zone: "@zone_q_caisse"
     texte: "Éteindre les caisses et mettre les TPE en charge"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 4
   m_q_salle_ouv_1:
     zone: "@zone_q_salle"
     texte: "Installer et aligner les tables et chaises de la salle"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_salle_ouv_2:
     zone: "@zone_q_salle"
     texte: "Vérifier la propreté de la salle et nettoyer les vitres d'entrée"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_salle_ouv_3:
     zone: "@zone_q_salle"
     texte: "Vérifier l'état des toilettes et faire le premier passage nettoyage"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 3
   m_q_salle_pend_1:
     zone: "@zone_q_salle"
     texte: "Débarrasser et nettoyer les tables dès que les clients partent"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_salle_pend_2:
     zone: "@zone_q_salle"
     texte: "Vérifier les toilettes toutes les 30 minutes (feuille de passage)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_salle_pend_3:
     zone: "@zone_q_salle"
     texte: "Vider les poubelles de salle dès qu'elles sont à moitié pleines"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3
   m_q_salle_pend_4:
     zone: "@zone_q_salle"
     texte: "Réapprovisionner les serviettes, ketchup et moutarde sur les tables"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "ne_pas_oublier"
     ordre: 4
   m_q_salle_ferm_1:
     zone: "@zone_q_salle"
     texte: "Débarrasser et nettoyer toutes les tables et plateaux de salle"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_salle_ferm_2:
     zone: "@zone_q_salle"
     texte: "Balayer et passer la serpillière sur toute la surface de la salle"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_salle_ferm_3:
     zone: "@zone_q_salle"
     texte: "Nettoyage final des toilettes et vérifier consommables (savon, papier)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 3
   m_q_drive_ouv_1:
     zone: "@zone_q_drive"
     texte: "Vérifier le fonctionnement de l'interphone et de l'écran d'affichage drive"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_drive_ouv_2:
     zone: "@zone_q_drive"
     texte: "Préparer la zone d'emballage drive (sacs, serviettes, sachets de sauce)"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_drive_ouv_3:
     zone: "@zone_q_drive"
     texte: "Tester la connexion de caisse drive et valider la synchronisation menu"
-    categorie: "OUVERTURE"
+    categorie: "Ouverture"
     frequence: "FIXE"
     priorite: "important"
     ordre: 3
   m_q_drive_pend_1:
     zone: "@zone_q_drive"
     texte: "Répondre aux commandes drive en moins de 10 secondes (objectif <3 min total)"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_drive_pend_2:
     zone: "@zone_q_drive"
     texte: "Préparer et vérifier chaque sac drive avant remise au client"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_drive_pend_3:
     zone: "@zone_q_drive"
     texte: "Encaisser les clients drive (CB + espèces) sans erreur"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 3
   m_q_drive_pend_4:
     zone: "@zone_q_drive"
     texte: "Signaler immédiatement toute panne interphone ou affichage au manager"
-    categorie: "PENDANT"
+    categorie: "Pendant"
     frequence: "FIXE"
     priorite: "important"
     ordre: 4
   m_q_drive_ferm_1:
     zone: "@zone_q_drive"
     texte: "Clôturer la caisse drive et remettre le fond de caisse"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 1
   m_q_drive_ferm_2:
     zone: "@zone_q_drive"
     texte: "Éteindre l'interphone, les écrans drive et nettoyer la zone de remise"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "vitale"
     ordre: 2
   m_q_drive_ferm_3:
     zone: "@zone_q_drive"
     texte: "Nettoyer la voie drive (ramasser les déchets clients)"
-    categorie: "FERMETURE"
+    categorie: "Fermeture"
     frequence: "FIXE"
     priorite: "ne_pas_oublier"
     ordre: 3

@@ -196,35 +196,35 @@ App\Entity\User:
     typeContrat: "EXTRA"
 
 App\Entity\Mission:
-  m_bk_prod_ouv_1: { zone: "@zone_bk_production", texte: "Pointer et être en tenue complète (casquette, tablier)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_prod_ouv_2: { zone: "@zone_bk_production", texte: "Allumer grils Whopper et friteuses — préchauffage 20 min", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_bk_prod_ouv_3: { zone: "@zone_bk_production", texte: "Relever températures frigos et chambres froides (feuille HACCP)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
-  m_bk_prod_ouv_4: { zone: "@zone_bk_production", texte: "Contrôler DLC viandes, pains, crudités et sauces", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 4 }
-  m_bk_prod_ouv_5: { zone: "@zone_bk_production", texte: "Préparer postes burgers avec les quantités flash standards", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 5 }
-  m_bk_prod_pend_1: { zone: "@zone_bk_production", texte: "Assembler les burgers selon fiche recette (pas d'improvisation)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_prod_pend_2: { zone: "@zone_bk_production", texte: "Respecter temps de vie produits chauds (max 10 min holding)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_bk_prod_pend_3: { zone: "@zone_bk_production", texte: "Relever températures toutes les 2h et consigner sur feuille", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
-  m_bk_prod_pend_4: { zone: "@zone_bk_production", texte: "Réapprovisionner la chaîne en continu (viandes, pains)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
-  m_bk_prod_ferm_1: { zone: "@zone_bk_production", texte: "Filtrer huile friteuses, dégraisser grils Whopper", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_prod_ferm_2: { zone: "@zone_bk_production", texte: "Étiqueter et stocker matières premières restantes (DLC ouverture)", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_bk_prod_ferm_3: { zone: "@zone_bk_production", texte: "Nettoyer complet production (surfaces, sols, hottes)", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_bk_prod_ouv_1: { zone: "@zone_bk_production", texte: "Pointer et être en tenue complète (casquette, tablier)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_prod_ouv_2: { zone: "@zone_bk_production", texte: "Allumer grils Whopper et friteuses — préchauffage 20 min", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_prod_ouv_3: { zone: "@zone_bk_production", texte: "Relever températures frigos et chambres froides (feuille HACCP)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_bk_prod_ouv_4: { zone: "@zone_bk_production", texte: "Contrôler DLC viandes, pains, crudités et sauces", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 4 }
+  m_bk_prod_ouv_5: { zone: "@zone_bk_production", texte: "Préparer postes burgers avec les quantités flash standards", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 5 }
+  m_bk_prod_pend_1: { zone: "@zone_bk_production", texte: "Assembler les burgers selon fiche recette (pas d'improvisation)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_prod_pend_2: { zone: "@zone_bk_production", texte: "Respecter temps de vie produits chauds (max 10 min holding)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_prod_pend_3: { zone: "@zone_bk_production", texte: "Relever températures toutes les 2h et consigner sur feuille", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_bk_prod_pend_4: { zone: "@zone_bk_production", texte: "Réapprovisionner la chaîne en continu (viandes, pains)", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_bk_prod_ferm_1: { zone: "@zone_bk_production", texte: "Filtrer huile friteuses, dégraisser grils Whopper", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_prod_ferm_2: { zone: "@zone_bk_production", texte: "Étiqueter et stocker matières premières restantes (DLC ouverture)", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_prod_ferm_3: { zone: "@zone_bk_production", texte: "Nettoyer complet production (surfaces, sols, hottes)", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 3 }
 
-  m_bk_caisse_ouv_1: { zone: "@zone_bk_caisse", texte: "Allumer caisses, bornes de commande et TPE", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_caisse_ouv_2: { zone: "@zone_bk_caisse", texte: "Vérifier fonds de caisse et signer feuille de prise", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_bk_caisse_pend_1: { zone: "@zone_bk_caisse", texte: "Accueillir, prendre commande, encaisser et servir plateau", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_caisse_pend_2: { zone: "@zone_bk_caisse", texte: "Gérer les bornes de commande (bouton aide client)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_bk_caisse_ferm_1: { zone: "@zone_bk_caisse", texte: "Clôturer caisses, imprimer Z, coffre-fort", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_caisse_ferm_2: { zone: "@zone_bk_caisse", texte: "Nettoyer bornes et désinfecter comptoir", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_bk_caisse_ouv_1: { zone: "@zone_bk_caisse", texte: "Allumer caisses, bornes de commande et TPE", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_caisse_ouv_2: { zone: "@zone_bk_caisse", texte: "Vérifier fonds de caisse et signer feuille de prise", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_caisse_pend_1: { zone: "@zone_bk_caisse", texte: "Accueillir, prendre commande, encaisser et servir plateau", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_caisse_pend_2: { zone: "@zone_bk_caisse", texte: "Gérer les bornes de commande (bouton aide client)", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_bk_caisse_ferm_1: { zone: "@zone_bk_caisse", texte: "Clôturer caisses, imprimer Z, coffre-fort", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_caisse_ferm_2: { zone: "@zone_bk_caisse", texte: "Nettoyer bornes et désinfecter comptoir", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
 
-  m_bk_salle_ouv_1: { zone: "@zone_bk_salle", texte: "Installer tables, vérifier propreté sol et vitres", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_salle_pend_1: { zone: "@zone_bk_salle", texte: "Débarrasser et désinfecter tables dès départ client", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_salle_pend_2: { zone: "@zone_bk_salle", texte: "Vérifier toilettes toutes les 30 min (feuille de passage)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_bk_salle_ferm_1: { zone: "@zone_bk_salle", texte: "Balayer et passer serpillère sur toute la salle", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_salle_ouv_1: { zone: "@zone_bk_salle", texte: "Installer tables, vérifier propreté sol et vitres", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_salle_pend_1: { zone: "@zone_bk_salle", texte: "Débarrasser et désinfecter tables dès départ client", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_salle_pend_2: { zone: "@zone_bk_salle", texte: "Vérifier toilettes toutes les 30 min (feuille de passage)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_salle_ferm_1: { zone: "@zone_bk_salle", texte: "Balayer et passer serpillère sur toute la salle", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
-  m_bk_drive_ouv_1: { zone: "@zone_bk_drive", texte: "Tester interphone et écran commande drive", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_drive_pend_1: { zone: "@zone_bk_drive", texte: "Répondre en < 10 sec, remise sac < 3 min total", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_bk_drive_pend_2: { zone: "@zone_bk_drive", texte: "Vérifier chaque sac avant remise (complet + conforme)", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_bk_drive_ferm_1: { zone: "@zone_bk_drive", texte: "Clôturer caisse drive, nettoyer zone de remise", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_drive_ouv_1: { zone: "@zone_bk_drive", texte: "Tester interphone et écran commande drive", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_drive_pend_1: { zone: "@zone_bk_drive", texte: "Répondre en < 10 sec, remise sac < 3 min total", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_bk_drive_pend_2: { zone: "@zone_bk_drive", texte: "Vérifier chaque sac avant remise (complet + conforme)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_bk_drive_ferm_1: { zone: "@zone_bk_drive", texte: "Clôturer caisse drive, nettoyer zone de remise", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
 
 App\Entity\Competence:
   comp_bk_prod_1: { zone: "@zone_bk_production", nom: "Maîtrise gril Whopper (cuisson à la flamme)",  points: 30, difficulte: "avancee" }

@@ -121,32 +121,32 @@ App\Entity\User:
     typeContrat: "EXTRA"
 
 App\Entity\Mission:
-  m_lm_acc_ouv_1:  { zone: "@zone_lm_accueil", texte: "Allumer la borne caisse, vérifier le TPE et le fond de caisse (80€)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_lm_acc_ouv_2:  { zone: "@zone_lm_accueil", texte: "Imprimer le planning des parties réservées du jour", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_lm_acc_ouv_3:  { zone: "@zone_lm_accueil", texte: "Vérifier propreté du hall d'accueil et disposition des flyers tarifs", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
-  m_lm_acc_pend_1: { zone: "@zone_lm_accueil", texte: "Accueillir les groupes, encaisser et briefer sur les règles de sécurité", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_lm_acc_pend_2: { zone: "@zone_lm_accueil", texte: "Gérer les réservations téléphone et mail en temps réel", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_lm_acc_pend_3: { zone: "@zone_lm_accueil", texte: "Remettre les résultats de parties (ticket score) aux joueurs", categorie: "PENDANT", frequence: "FIXE", priorite: "ne_pas_oublier", ordre: 3 }
-  m_lm_acc_ferm_1: { zone: "@zone_lm_accueil", texte: "Clôturer la caisse, imprimer Z et remettre la recette au coffre", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_lm_acc_ferm_2: { zone: "@zone_lm_accueil", texte: "Nettoyer le comptoir, ranger les flyers et vider les poubelles hall", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_lm_acc_ouv_1:  { zone: "@zone_lm_accueil", texte: "Allumer la borne caisse, vérifier le TPE et le fond de caisse (80€)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_acc_ouv_2:  { zone: "@zone_lm_accueil", texte: "Imprimer le planning des parties réservées du jour", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_acc_ouv_3:  { zone: "@zone_lm_accueil", texte: "Vérifier propreté du hall d'accueil et disposition des flyers tarifs", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_lm_acc_pend_1: { zone: "@zone_lm_accueil", texte: "Accueillir les groupes, encaisser et briefer sur les règles de sécurité", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_acc_pend_2: { zone: "@zone_lm_accueil", texte: "Gérer les réservations téléphone et mail en temps réel", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_lm_acc_pend_3: { zone: "@zone_lm_accueil", texte: "Remettre les résultats de parties (ticket score) aux joueurs", categorie: "Pendant", frequence: "FIXE", priorite: "ne_pas_oublier", ordre: 3 }
+  m_lm_acc_ferm_1: { zone: "@zone_lm_accueil", texte: "Clôturer la caisse, imprimer Z et remettre la recette au coffre", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_acc_ferm_2: { zone: "@zone_lm_accueil", texte: "Nettoyer le comptoir, ranger les flyers et vider les poubelles hall", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
 
-  m_lm_ar_ouv_1:  { zone: "@zone_lm_arene", texte: "Vérifier l'état de chaque gilet (32 gilets) et recharger les batteries", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_lm_ar_ouv_2:  { zone: "@zone_lm_arene", texte: "Contrôler l'éclairage UV et la fumée de l'arène (niveau réservoir)", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_lm_ar_ouv_3:  { zone: "@zone_lm_arene", texte: "Vérifier la sonorisation et le lancement du logiciel de jeu", categorie: "OUVERTURE", frequence: "FIXE", priorite: "important", ordre: 3 }
-  m_lm_ar_pend_1: { zone: "@zone_lm_arene", texte: "Briefer chaque groupe sur les consignes de sécurité avant entrée en arène", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_lm_ar_pend_2: { zone: "@zone_lm_arene", texte: "Distribuer et ajuster les gilets selon la taille des joueurs", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_lm_ar_pend_3: { zone: "@zone_lm_arene", texte: "Surveiller la partie via les caméras et intervenir en cas de comportement dangereux", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 3 }
-  m_lm_ar_pend_4: { zone: "@zone_lm_arene", texte: "Désinfecter les gilets entre chaque groupe (spray virucide)", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 4 }
-  m_lm_ar_ferm_1: { zone: "@zone_lm_arene", texte: "Ranger tous les gilets sur les racks de charge et vérifier verrouillage", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_lm_ar_ferm_2: { zone: "@zone_lm_arene", texte: "Éteindre machine à fumée, UV et console de jeu", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_lm_ar_ferm_3: { zone: "@zone_lm_arene", texte: "Passer l'aspirateur dans l'arène et contrôler les obstacles fixés", categorie: "FERMETURE", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_lm_ar_ouv_1:  { zone: "@zone_lm_arene", texte: "Vérifier l'état de chaque gilet (32 gilets) et recharger les batteries", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_ar_ouv_2:  { zone: "@zone_lm_arene", texte: "Contrôler l'éclairage UV et la fumée de l'arène (niveau réservoir)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_ar_ouv_3:  { zone: "@zone_lm_arene", texte: "Vérifier la sonorisation et le lancement du logiciel de jeu", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_lm_ar_pend_1: { zone: "@zone_lm_arene", texte: "Briefer chaque groupe sur les consignes de sécurité avant entrée en arène", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_ar_pend_2: { zone: "@zone_lm_arene", texte: "Distribuer et ajuster les gilets selon la taille des joueurs", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_ar_pend_3: { zone: "@zone_lm_arene", texte: "Surveiller la partie via les caméras et intervenir en cas de comportement dangereux", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_lm_ar_pend_4: { zone: "@zone_lm_arene", texte: "Désinfecter les gilets entre chaque groupe (spray virucide)", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 4 }
+  m_lm_ar_ferm_1: { zone: "@zone_lm_arene", texte: "Ranger tous les gilets sur les racks de charge et vérifier verrouillage", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_ar_ferm_2: { zone: "@zone_lm_arene", texte: "Éteindre machine à fumée, UV et console de jeu", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_ar_ferm_3: { zone: "@zone_lm_arene", texte: "Passer l'aspirateur dans l'arène et contrôler les obstacles fixés", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 3 }
 
-  m_lm_bar_ouv_1:  { zone: "@zone_lm_bar", texte: "Mise en route machine café, vérifier frigos softs et stocks bouteilles", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_lm_bar_ouv_2:  { zone: "@zone_lm_bar", texte: "Contrôler DLC des snackings (pizzas surgelées, paninis) et préparer le four", categorie: "OUVERTURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
-  m_lm_bar_pend_1: { zone: "@zone_lm_bar", texte: "Servir les commandes boissons et snacks pendant les parties", categorie: "PENDANT", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_lm_bar_pend_2: { zone: "@zone_lm_bar", texte: "Maintenir le comptoir propre et renouveler verres / couverts", categorie: "PENDANT", frequence: "FIXE", priorite: "important", ordre: 2 }
-  m_lm_bar_ferm_1: { zone: "@zone_lm_bar", texte: "Clôturer la caisse bar, nettoyer machine café et vider les tireuses", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 1 }
-  m_lm_bar_ferm_2: { zone: "@zone_lm_bar", texte: "Nettoyer plan de travail bar, four snack et passer la serpillère", categorie: "FERMETURE", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_bar_ouv_1:  { zone: "@zone_lm_bar", texte: "Mise en route machine café, vérifier frigos softs et stocks bouteilles", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_bar_ouv_2:  { zone: "@zone_lm_bar", texte: "Contrôler DLC des snackings (pizzas surgelées, paninis) et préparer le four", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_lm_bar_pend_1: { zone: "@zone_lm_bar", texte: "Servir les commandes boissons et snacks pendant les parties", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_bar_pend_2: { zone: "@zone_lm_bar", texte: "Maintenir le comptoir propre et renouveler verres / couverts", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_lm_bar_ferm_1: { zone: "@zone_lm_bar", texte: "Clôturer la caisse bar, nettoyer machine café et vider les tireuses", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_lm_bar_ferm_2: { zone: "@zone_lm_bar", texte: "Nettoyer plan de travail bar, four snack et passer la serpillère", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
 
 App\Entity\Competence:
   comp_lm_acc_1:  { zone: "@zone_lm_accueil", nom: "Gestion des réservations et planning de parties",   points: 20, difficulte: "avancee" }
