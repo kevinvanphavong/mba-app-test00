@@ -41,7 +41,10 @@ export default function ModalAddZone({ open, editZone, zones, onClose, onSave }:
       />
 
       {/* Sheet */}
-      <div className="fixed bottom-0 inset-x-0 z-50 bg-surface border border-border rounded-t-[24px] px-4 pt-5 pb-20 animate-fadeUp max-w-[390px] mx-auto max-h-[85vh] overflow-y-auto">
+      <div
+        className="fixed bottom-0 inset-x-0 z-50 bg-surface border border-border rounded-t-[24px] px-4 pt-5 animate-fadeUp max-w-[720px] mx-auto max-h-[85vh] overflow-y-auto"
+        style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}
+      >
         <div className="w-10 h-1 bg-border rounded-full mx-auto mb-[18px]" />
         <h2 className="font-syne font-extrabold text-[18px] mb-1">
           {editZone ? 'Modifier la zone' : 'Nouvelle zone'}
