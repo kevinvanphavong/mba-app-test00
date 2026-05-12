@@ -209,6 +209,7 @@ mba-app-test00/
     │   │   ├── User.php               # + ROLE_SUPERADMIN
     │   │   ├── Zone.php
     │   │   ├── Mission.php
+    │   │   ├── MissionCategorie.php    # Catalogue admin par centre (Ouverture/Pendant/Ménage/Fermeture + custom)
     │   │   ├── Competence.php
     │   │   ├── StaffCompetence.php
     │   │   ├── Service.php

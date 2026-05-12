@@ -103,10 +103,16 @@ Redirection par défaut : `/` → `/service`
 
 ---
 
-## Entités (12)
+## Entités (13)
 
-Centre, User, Zone, Mission, Competence, StaffCompetence,
+Centre, User, Zone, Mission, **MissionCategorie**, Competence, StaffCompetence,
 Service, Poste, Completion, Incident, Tutoriel, TutoRead
+
+> `MissionCategorie` (par centre, multi-tenant) est le catalogue administrable
+> des catégories de mission. Le champ `Mission.categorie` est un slug texte
+> libre qui matche `MissionCategorie.nom` côté lookup front. Pas de FK stricte
+> volontairement pour permettre la suppression d'une catégorie sans casser
+> les missions (elles tombent en fallback gris "orphelin" jusqu'à reclasse).
 
 ---
 
@@ -115,7 +121,8 @@ Service, Poste, Completion, Incident, Tutoriel, TutoRead
 ```
 Rôles          : MANAGER | EMPLOYE
 Service statut : PLANIFIE | EN_COURS | TERMINE
-Mission type   : OUVERTURE | SERVICE | MENAGE | FERMETURE
+Mission catégorie : slug texte libre — catalogue par centre via MissionCategorie
+                    Seed par défaut : Ouverture / Pendant / Ménage / Fermeture
 Mission priorité : vitale | important | ne_pas_oublier
 Compétence difficulté : simple | avancee | experimente
 Incident sévérité : haute | moyenne | basse
