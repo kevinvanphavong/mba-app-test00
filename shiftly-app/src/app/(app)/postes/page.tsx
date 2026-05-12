@@ -18,6 +18,7 @@ import ModalAddMission    from '@/components/editeur/ModalAddMission'
 import ModalAddCompetence from '@/components/editeur/ModalAddCompetence'
 import ModalAddZone       from '@/components/editeur/ModalAddZone'
 import ModalConfirmDelete from '@/components/editeur/ModalConfirmDelete'
+import ModalManageMissionCategories from '@/components/editeur/ModalManageMissionCategories'
 import type { Zone } from '@/types/index'
 import type {
   EditorMission, EditorCompetence,
@@ -47,6 +48,8 @@ export default function PostesPage() {
   const [showAddZone, setShowAddZone] = useState(false)
   // Edit zone : si !== null, ModalAddZone s'ouvre en mode édition sur cette zone.
   const [editZone,    setEditZone]    = useState<Zone | null>(null)
+  // Admin catégories de mission (manager-only)
+  const [showManageCategories, setShowManageCategories] = useState(false)
 
   const [confirmDelete, setConfirmDelete] = useState<
     | { type: 'mission';    item: EditorMission }
@@ -224,6 +227,15 @@ export default function PostesPage() {
                         </button>
                       </>
                     )}
+                    <button
+                      onClick={() => setShowManageCategories(true)}
+                      title="Gérer les catégories de mission"
+                      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                                 text-[12px] font-semibold text-muted hover:text-accent
+                                 border border-border hover:border-accent transition-colors"
+                    >
+                      🏷 Catégories
+                    </button>
                   </>
                 )}
               </div>
@@ -275,6 +287,15 @@ export default function PostesPage() {
                       </button>
                     </>
                   )}
+                  <button
+                    onClick={() => setShowManageCategories(true)}
+                    title="Gérer les catégories de mission"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px]
+                               border border-border text-[12px] font-semibold
+                               text-muted hover:text-accent hover:border-accent transition-colors"
+                  >
+                    🏷 Catégories
+                  </button>
                 </div>
               )}
               <PostesDesktopView
@@ -336,6 +357,14 @@ export default function PostesPage() {
               onConfirm={handleConfirmDelete}
             />
           </>
+        )}
+
+        {/* Modale admin des catégories de mission — manager uniquement */}
+        {isManager && (
+          <ModalManageMissionCategories
+            open={showManageCategories}
+            onClose={() => setShowManageCategories(false)}
+          />
         )}
 
         {/* Modale création / édition de zone — manager uniquement.
