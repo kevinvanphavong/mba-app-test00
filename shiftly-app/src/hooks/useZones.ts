@@ -32,8 +32,11 @@ export function useCreateZone() {
   const queryClient = useQueryClient()
 
   return useMutation({
+    // API Platform attend le champ \`centre\` au format IRI ("/api/centres/{id}"),
+    // pas \`centreId\` scalar. Sans ça, le centre reste null et Doctrine plante
+    // sur la contrainte NOT NULL → 500 SQLSTATE[23000].
     mutationFn: (payload: CreateZonePayload) =>
-      api.post('/zones', { ...payload, centreId }).then(r => r.data),
+      api.post('/zones', { ...payload, centre: `/api/centres/${centreId}` }).then(r => r.data),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['zones', centreId] })
