@@ -74,7 +74,10 @@ export default function ModalAddMission({ open, editMission, defaultCategorie, z
   return (
     <>
       <div className="fixed inset-0 bg-black/65 backdrop-blur-sm z-40" onClick={onClose} />
-      <div className="fixed bottom-0 inset-x-0 z-50 bg-surface border border-border rounded-t-[24px] px-4 pt-5 pb-20 animate-fadeUp max-w-[390px] mx-auto max-h-[85vh] overflow-y-auto">
+      <div
+        className="fixed bottom-0 inset-x-0 z-50 bg-surface border border-border rounded-t-[24px] px-4 pt-5 animate-fadeUp max-w-[720px] mx-auto max-h-[85vh] overflow-y-auto"
+        style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}
+      >
         <div className="w-10 h-1 bg-border rounded-full mx-auto mb-[18px]" />
         <h2 className="font-syne font-extrabold text-[18px] mb-1">
           {editMission ? 'Modifier la mission' : 'Nouvelle mission'}
@@ -97,59 +100,63 @@ export default function ModalAddMission({ open, editMission, defaultCategorie, z
           />
         </div>
 
-        {/* Catégorie */}
-        <div className="mb-3">
-          <label className="block text-[10px] font-bold uppercase tracking-[0.8px] text-muted mb-[5px]">Catégorie</label>
-          <div className="flex gap-1.5 flex-wrap">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setCategorie(c.id)}
-                className={`px-3 py-1.5 rounded-[8px] border text-[12px] font-semibold transition-all ${
-                  categorie === c.id ? c.cls : 'border-border text-muted'
-                }`}
-              >
-                {c.label}
-              </button>
-            ))}
+        {/* Catégorie / Fréquence / Priorité — grille 2 cols dès tablet pour
+            exploiter la largeur 720px (mobile reste empilé 1 col). */}
+        <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 mb-3">
+          {/* Catégorie */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.8px] text-muted mb-[5px]">Catégorie</label>
+            <div className="flex gap-1.5 flex-wrap">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setCategorie(c.id)}
+                  className={`px-3 py-1.5 rounded-[8px] border text-[12px] font-semibold transition-all ${
+                    categorie === c.id ? c.cls : 'border-border text-muted'
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Fréquence */}
-        <div className="mb-3">
-          <label className="block text-[10px] font-bold uppercase tracking-[0.8px] text-muted mb-[5px]">Fréquence</label>
-          <div className="flex gap-1.5">
-            {FREQUENCES.map((f) => (
-              <button
-                key={f.id}
-                onClick={() => setFrequence(f.id)}
-                className={`flex-1 px-3 py-1.5 rounded-[8px] border text-[11px] font-semibold transition-all ${
-                  frequence === f.id
-                    ? 'border-accent text-accent bg-accent/10'
-                    : 'border-border text-muted'
-                }`}
-              >
-                {f.label}
-              </button>
-            ))}
+          {/* Fréquence */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.8px] text-muted mb-[5px]">Fréquence</label>
+            <div className="flex gap-1.5">
+              {FREQUENCES.map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => setFrequence(f.id)}
+                  className={`flex-1 px-3 py-1.5 rounded-[8px] border text-[11px] font-semibold transition-all ${
+                    frequence === f.id
+                      ? 'border-accent text-accent bg-accent/10'
+                      : 'border-border text-muted'
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Priorité */}
-        <div className="mb-3">
-          <label className="block text-[10px] font-bold uppercase tracking-[0.8px] text-muted mb-[5px]">Priorité</label>
-          <div className="flex gap-1.5 flex-wrap">
-            {PRIORITES.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setPriorite(p.id)}
-                className={`flex-1 px-3 py-1.5 rounded-[8px] border text-[11px] font-semibold transition-all ${
-                  priorite === p.id ? p.cls : 'border-border text-muted'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
+          {/* Priorité — occupe toute la largeur en grille 2 cols */}
+          <div className="tablet:col-span-2">
+            <label className="block text-[10px] font-bold uppercase tracking-[0.8px] text-muted mb-[5px]">Priorité</label>
+            <div className="flex gap-1.5 flex-wrap">
+              {PRIORITES.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setPriorite(p.id)}
+                  className={`flex-1 px-3 py-1.5 rounded-[8px] border text-[11px] font-semibold transition-all ${
+                    priorite === p.id ? p.cls : 'border-border text-muted'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
