@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn }                       from '@/lib/cn'
 import { sheetVariants, backdropVariants } from '@/lib/animations'
 import { useCreateMission }         from '@/hooks/useMissions'
+import { useMissionCategories }     from '@/hooks/useMissionCategories'
 import type { ServiceZone }         from '@/types/service'
 
-type MissionCategorie = 'OUVERTURE' | 'PENDANT' | 'MENAGE' | 'FERMETURE'
 type MissionPriorite  = 'vitale' | 'important' | 'ne_pas_oublier'
 
 interface Props {
@@ -16,13 +16,6 @@ interface Props {
   serviceId: number
   onClose:   () => void
 }
-
-const CATEGORIES: Array<{ value: MissionCategorie; label: string }> = [
-  { value: 'OUVERTURE', label: 'Ouverture' },
-  { value: 'PENDANT',   label: 'Service'   },
-  { value: 'MENAGE',    label: 'Ménage'    },
-  { value: 'FERMETURE', label: 'Fermeture' },
-]
 
 const PRIORITES: Array<{ value: MissionPriorite; label: string; cls: string; activeCls: string }> = [
   {
@@ -46,20 +39,29 @@ const PRIORITES: Array<{ value: MissionPriorite; label: string; cls: string; act
 ]
 
 export default function ModalMissionPonctuelle({ open, zone, serviceId, onClose }: Props) {
+  const { data: categories = [] } = useMissionCategories()
   const [texte,     setTexte]     = useState('')
-  const [categorie, setCategorie] = useState<MissionCategorie>('PENDANT')
+  const [categorie, setCategorie] = useState<string>('')
   const [priorite,  setPriorite]  = useState<MissionPriorite>('important')
   const [error,     setError]     = useState<string | null>(null)
 
   const createMission = useCreateMission()
 
+  // Sélection par défaut : 1ère catégorie disponible (sinon slug vide → bouton submit désactivé)
+  useEffect(() => {
+    if (open && !categorie && categories.length > 0) {
+      setCategorie(categories[0].nom)
+    }
+  }, [open, categories, categorie])
+
   const handleClose = () => {
-    setTexte(''); setCategorie('PENDANT'); setPriorite('important'); setError(null)
+    setTexte(''); setCategorie(''); setPriorite('important'); setError(null)
     onClose()
   }
 
   const handleSubmit = async () => {
     if (!texte.trim()) { setError('Décris la mission en quelques mots.'); return }
+    if (!categorie)    { setError('Choisis une catégorie.'); return }
     setError(null)
 
     try {
@@ -157,27 +159,35 @@ export default function ModalMissionPonctuelle({ open, zone, serviceId, onClose 
                 )}
               </div>
 
-              {/* Catégorie */}
+              {/* Catégorie — dynamique depuis MissionCategorie du centre */}
               <div>
                 <label className="block text-[11px] font-bold text-muted uppercase tracking-wider mb-2">
-                  Moment
+                  Catégorie
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {CATEGORIES.map(c => (
-                    <button
-                      key={c.value}
-                      onClick={() => setCategorie(c.value)}
-                      className={cn(
-                        'py-2 px-3 rounded-[10px] border text-[12px] font-semibold transition-all duration-150',
-                        categorie === c.value
-                          ? 'border-accent/50 bg-accent/10 text-accent'
-                          : 'border-border text-muted hover:border-border/80'
-                      )}
-                    >
-                      {c.label}
-                    </button>
-                  ))}
-                </div>
+                {categories.length === 0 ? (
+                  <p className="text-[11px] text-muted italic">Aucune catégorie configurée.</p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {categories.map(c => {
+                      const active = categorie === c.nom
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() => setCategorie(c.nom)}
+                          className="py-2 px-3 rounded-[10px] border text-[12px] font-semibold transition-all duration-150 inline-flex items-center justify-center gap-1.5"
+                          style={{
+                            borderColor: active ? c.couleur : 'var(--border)',
+                            background:  active ? `${c.couleur}1f` : 'transparent',
+                            color:       active ? c.couleur : 'var(--muted)',
+                          }}
+                        >
+                          {c.icone && <span>{c.icone}</span>}
+                          {c.nom}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Priorité */}

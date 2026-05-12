@@ -1,18 +1,12 @@
 'use client'
 
-import type { EditorMission, MissionCategorie } from '@/types/editeur'
+import { useMissionCategories } from '@/hooks/useMissionCategories'
+import type { EditorMission } from '@/types/editeur'
 
 const PRIORITY_DOT: Record<string, string> = {
   vitale:         'bg-red',
   important:      'bg-yellow',
   ne_pas_oublier: 'bg-muted',
-}
-
-const CAT_BADGE: Record<MissionCategorie, { label: string; cls: string }> = {
-  OUVERTURE: { label: 'Ouverture', cls: 'bg-blue/10 text-blue'     },
-  PENDANT:   { label: 'Pendant',   cls: 'bg-green/10 text-green'   },
-  MENAGE:    { label: 'Ménage',    cls: 'bg-purple/10 text-purple' },
-  FERMETURE: { label: 'Fermeture', cls: 'bg-accent/10 text-accent' },
 }
 
 interface Props {
@@ -38,7 +32,8 @@ export default function MissionItem({
   onDrop,
   onDragEnd,
 }: Props) {
-  const badge = CAT_BADGE[mission.categorie] ?? CAT_BADGE.PENDANT
+  const { data: categories = [] } = useMissionCategories()
+  const cat = categories.find(c => c.nom === mission.categorie)
 
   return (
     <div
@@ -63,10 +58,20 @@ export default function MissionItem({
       {/* texte */}
       <span className="flex-1 text-[12px] font-medium">{mission.texte}</span>
 
-      {/* badge de catégorie */}
-      <span className={`text-[9px] font-bold px-1.5 py-[2px] rounded-[5px] flex-shrink-0 ${badge.cls}`}>
-        {badge.label}
-      </span>
+      {/* badge de catégorie — couleur dynamique depuis MissionCategorie */}
+      {cat ? (
+        <span
+          className="text-[9px] font-bold px-1.5 py-[2px] rounded-[5px] flex-shrink-0 inline-flex items-center gap-1"
+          style={{ color: cat.couleur, background: `${cat.couleur}1a` }}
+        >
+          {cat.icone && <span>{cat.icone}</span>}
+          {cat.nom}
+        </span>
+      ) : (
+        <span className="text-[9px] font-bold px-1.5 py-[2px] rounded-[5px] flex-shrink-0 bg-surface2 text-muted">
+          {mission.categorie}
+        </span>
+      )}
 
       {/* actions */}
       <div className="flex gap-1 flex-shrink-0">

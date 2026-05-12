@@ -1,16 +1,9 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import type { EditorMission, MissionCategorie } from '@/types/editeur'
+import { useMissionCategories } from '@/hooks/useMissionCategories'
+import type { EditorMission } from '@/types/editeur'
 import MissionItem from './MissionItem'
-
-const CAT_FILTERS: Array<{ id: MissionCategorie | 'Toutes'; label: string }> = [
-  { id: 'Toutes',    label: 'Toutes'    },
-  { id: 'OUVERTURE', label: 'Ouverture' },
-  { id: 'PENDANT',   label: 'Pendant'   },
-  { id: 'MENAGE',    label: 'Ménage'    },
-  { id: 'FERMETURE', label: 'Fermeture' },
-]
 
 interface Props {
   missions:   EditorMission[]
@@ -33,14 +26,25 @@ export default function MissionList({
   onAdd,
   onBack,
 }: Props) {
-  const [activeCat, setActiveCat] = useState<MissionCategorie | 'Toutes'>('Toutes')
+  const { data: categories = [] } = useMissionCategories()
+  const [activeCat, setActiveCat] = useState<string>('Toutes')
   const dragIndex = useRef<number | null>(null)
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
-  // Filtres limités aux catégories réellement présentes dans cette zone
-  const cats = CAT_FILTERS.filter(
-    (f) => f.id === 'Toutes' || missions.some(m => m.categorie === f.id)
-  )
+  // Filtres = "Toutes" + catégories du centre présentes dans cette zone
+  // (en respectant l'ordre admin) + slugs orphelins (catégorie supprimée mais
+  // mission encore référencée) en fin.
+  const knownSlugs = categories.map(c => c.nom)
+  const orphans = Array.from(new Set(
+    missions.map(m => m.categorie).filter(s => !knownSlugs.includes(s)),
+  ))
+  const cats: Array<{ id: string; label: string }> = [
+    { id: 'Toutes', label: 'Toutes' },
+    ...categories
+      .filter(c => missions.some(m => m.categorie === c.nom))
+      .map(c => ({ id: c.nom, label: c.nom })),
+    ...orphans.map(s => ({ id: s, label: `${s} (orphelin)` })),
+  ]
 
   const filtered = activeCat === 'Toutes'
     ? missions

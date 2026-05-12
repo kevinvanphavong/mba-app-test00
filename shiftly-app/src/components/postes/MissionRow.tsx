@@ -1,16 +1,10 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useMissionCategories } from '@/hooks/useMissionCategories'
 import type { EditorMission } from '@/types/editeur'
 
 // ─── Ligne mission (vue mobile/tablette) ──────────────────────────────────────
-
-const CAT_CONFIG: Record<EditorMission['categorie'], { label: string; color: string }> = {
-  OUVERTURE: { label: 'Ouverture', color: 'var(--blue)'   },
-  PENDANT:   { label: 'Pendant',   color: 'var(--green)'  },
-  MENAGE:    { label: 'Ménage',    color: 'var(--yellow)' },
-  FERMETURE: { label: 'Fermeture', color: 'var(--purple)' },
-}
 
 const PRIO_CONFIG: Record<EditorMission['priorite'], { label: string; color: string }> = {
   vitale:          { label: 'Vitale',           color: 'var(--red)'    },
@@ -39,7 +33,8 @@ export default function MissionRow({ mission, onEdit, onDelete }: Props) {
     return () => document.removeEventListener('mousedown', handler)
   }, [menuOpen])
 
-  const cat  = CAT_CONFIG[mission.categorie]
+  const { data: categories = [] } = useMissionCategories()
+  const cat  = categories.find(c => c.nom === mission.categorie)
   const prio = PRIO_CONFIG[mission.priorite]
 
   return (
@@ -55,12 +50,19 @@ export default function MissionRow({ mission, onEdit, onDelete }: Props) {
 
       {/* Tags */}
       <div className="flex items-center gap-1 flex-shrink-0">
-        <span
-          className="text-[9px] font-bold px-1.5 py-0.5 rounded-[5px]"
-          style={{ color: cat.color, background: `${cat.color}20` }}
-        >
-          {cat.label}
-        </span>
+        {cat ? (
+          <span
+            className="text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] inline-flex items-center gap-0.5"
+            style={{ color: cat.couleur, background: `${cat.couleur}20` }}
+          >
+            {cat.icone && <span>{cat.icone}</span>}
+            {cat.nom}
+          </span>
+        ) : (
+          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] bg-surface2 text-muted">
+            {mission.categorie}
+          </span>
+        )}
 
         {mission.frequence === 'PONCTUELLE' && (
           <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-[5px] text-accent bg-accent/10">

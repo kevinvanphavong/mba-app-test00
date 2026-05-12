@@ -3,6 +3,7 @@
 import { cn } from '@/lib/cn'
 import { getInitials } from '@/lib/userDisplay'
 import AuthImage from '@/components/shared/AuthImage'
+import { useMissionCategories } from '@/hooks/useMissionCategories'
 import type { ServiceMission } from '@/types/service'
 
 interface MissionItemProps {
@@ -17,13 +18,6 @@ interface MissionItemProps {
   /** Appelé quand l'user veut DÉCOCHER une mission requiresPhoto déjà validée.
    *  Le parent affiche un modal de confirmation avant de réellement décocher. */
   onConfirmUncheck?: (mission: ServiceMission) => void
-}
-
-const CATEGORIE_BADGE: Record<string, { label: string; cls: string }> = {
-  OUVERTURE: { label: 'Ouverture', cls: 'text-blue   bg-blue/10   border-blue/20'   },
-  PENDANT:   { label: 'Service',   cls: 'text-green  bg-green/10  border-green/20'  },
-  MENAGE:    { label: 'Ménage',    cls: 'text-yellow bg-yellow/10 border-yellow/20' },
-  FERMETURE: { label: 'Fermeture', cls: 'text-red    bg-red/10    border-red/20'    },
 }
 
 const PRIORITE_CONFIG: Record<string, { dot: string; label: string }> = {
@@ -41,7 +35,9 @@ export default function MissionItem({
   onOpenPhoto,
   onConfirmUncheck,
 }: MissionItemProps) {
-  const cat   = CATEGORIE_BADGE[mission.categorie]
+  const { data: categories = [] } = useMissionCategories()
+  const cat = categories.find(c => c.nom === mission.categorie)
+
   const prio  = PRIORITE_CONFIG[mission.priorite] ?? PRIORITE_CONFIG['ne_pas_oublier']
   const initials = mission.completedBy
     ? getInitials(mission.completedBy.nom, mission.completedBy.prenom)
@@ -106,13 +102,23 @@ export default function MissionItem({
 
         {/* Labels catégorie + priorité + fréquence */}
         <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-          {/* Catégorie */}
-          {cat && (
-            <span className={cn(
-              'text-[9px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-[4px] border',
-              cat.cls
-            )}>
-              {cat.label}
+          {/* Catégorie — couleur dynamique depuis MissionCategorie (centre.config) */}
+          {cat ? (
+            <span
+              className="text-[9px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-[4px] border inline-flex items-center gap-1"
+              style={{
+                color:       cat.couleur,
+                background:  `${cat.couleur}1a`,
+                borderColor: `${cat.couleur}33`,
+              }}
+            >
+              {cat.icone && <span>{cat.icone}</span>}
+              {cat.nom}
+            </span>
+          ) : (
+            // Fallback : slug texte sans correspondance dans le catalogue (catégorie supprimée).
+            <span className="text-[9px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-[4px] border border-border text-muted bg-surface2">
+              {mission.categorie}
             </span>
           )}
 

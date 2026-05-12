@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import MediaUploader from '@/components/media/MediaUploader'
 import MediaGallery  from '@/components/media/MediaGallery'
+import { useMissionCategories } from '@/hooks/useMissionCategories'
 import type {
   EditorMission,
   EditorZone,
@@ -11,13 +12,6 @@ import type {
   MissionFrequence,
   MissionPriorite,
 } from '@/types/editeur'
-
-const CATEGORIES: { id: MissionCategorie; label: string; cls: string }[] = [
-  { id: 'OUVERTURE', label: 'Ouverture', cls: 'border-blue text-blue bg-blue/10'       },
-  { id: 'PENDANT',   label: 'Pendant',   cls: 'border-green text-green bg-green/10'    },
-  { id: 'MENAGE',    label: 'Ménage',    cls: 'border-purple text-purple bg-purple/10' },
-  { id: 'FERMETURE', label: 'Fermeture', cls: 'border-accent text-accent bg-accent/10' },
-]
 
 const FREQUENCES: { id: MissionFrequence; label: string }[] = [
   { id: 'FIXE',       label: 'Fixe (récurrente)'  },
@@ -41,27 +35,36 @@ interface Props {
 }
 
 export default function ModalAddMission({ open, editMission, defaultCategorie, zone, onClose, onSave }: Props) {
+  const { data: categories = [] } = useMissionCategories()
+
   const [texte,         setTexte]         = useState('')
-  const [categorie,     setCategorie]     = useState<MissionCategorie>('PENDANT')
+  // La catégorie est libre côté backend (slug texte). On stocke le slug actif
+  // ici et on retrouve la couleur via lookup sur `categories` au rendu.
+  const [categorie,     setCategorie]     = useState<string>('')
   const [frequence,     setFrequence]     = useState<MissionFrequence>('FIXE')
   const [priorite,      setPriorite]      = useState<MissionPriorite>('ne_pas_oublier')
   const [requiresPhoto, setRequiresPhoto] = useState<boolean>(false)
 
+  // Fallback intelligent : sélectionne la 1ère catégorie disponible si pas
+  // d'editMission/defaultCategorie. Permet de continuer à éditer une mission
+  // dont le slug n'existe plus dans le catalogue (conserve l'ancien slug).
   useEffect(() => {
     if (open) {
       setTexte(editMission?.texte     ?? '')
-      setCategorie(editMission?.categorie ?? defaultCategorie ?? 'PENDANT')
+      setCategorie(editMission?.categorie ?? defaultCategorie ?? categories[0]?.nom ?? '')
       setFrequence(editMission?.frequence ?? 'FIXE')
       setPriorite(editMission?.priorite  ?? 'ne_pas_oublier')
       setRequiresPhoto(editMission?.requiresPhoto ?? false)
     }
-  }, [open, editMission, defaultCategorie])
+  }, [open, editMission, defaultCategorie, categories])
 
   function handleSave() {
-    if (!texte.trim()) return
+    if (!texte.trim() || !categorie) return
     onSave({
+      // cast contrôlé : le backend accepte des slugs libres, le type front
+      // MissionCategorie reste un alias texte tant que l'enum n'est pas retiré.
       texte: texte.trim(),
-      categorie,
+      categorie: categorie as MissionCategorie,
       frequence,
       priorite,
       zoneId: zone.id,
@@ -103,21 +106,33 @@ export default function ModalAddMission({ open, editMission, defaultCategorie, z
         {/* Catégorie / Fréquence / Priorité — grille 2 cols dès tablet pour
             exploiter la largeur 720px (mobile reste empilé 1 col). */}
         <div className="grid grid-cols-1 tablet:grid-cols-2 gap-3 mb-3">
-          {/* Catégorie */}
+          {/* Catégorie — liste dynamique depuis MissionCategorie (admin /postes) */}
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-[0.8px] text-muted mb-[5px]">Catégorie</label>
             <div className="flex gap-1.5 flex-wrap">
-              {CATEGORIES.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setCategorie(c.id)}
-                  className={`px-3 py-1.5 rounded-[8px] border text-[12px] font-semibold transition-all ${
-                    categorie === c.id ? c.cls : 'border-border text-muted'
-                  }`}
-                >
-                  {c.label}
-                </button>
-              ))}
+              {categories.length === 0 && (
+                <p className="text-[11px] text-muted italic">
+                  Aucune catégorie configurée — ouvre l'admin des catégories depuis la page Postes.
+                </p>
+              )}
+              {categories.map((c) => {
+                const active = categorie === c.nom
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setCategorie(c.nom)}
+                    className="px-3 py-1.5 rounded-[8px] border text-[12px] font-semibold transition-all inline-flex items-center gap-1.5"
+                    style={{
+                      borderColor: active ? c.couleur : 'var(--border)',
+                      background:  active ? `${c.couleur}1f` : 'transparent',
+                      color:       active ? c.couleur : 'var(--muted)',
+                    }}
+                  >
+                    {c.icone && <span className="text-[13px] leading-none">{c.icone}</span>}
+                    {c.nom}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
