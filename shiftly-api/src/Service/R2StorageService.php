@@ -61,6 +61,28 @@ class R2StorageService
     }
 
     /**
+     * Récupère le contenu binaire d'un objet R2 + son mime-type.
+     *
+     * Utilisé quand on veut proxy la donnée via Symfony (au lieu d'un 302 vers
+     * une URL signée) : garde le contrôle JWT/multi-tenant et évite la conf
+     * CORS R2 qu'il faudrait sinon maintenir par environnement.
+     *
+     * @return array{body: string, mime: string}
+     */
+    public function getObject(string $key): array
+    {
+        $result = $this->client->getObject([
+            'Bucket' => $this->bucket,
+            'Key'    => $key,
+        ]);
+
+        return [
+            'body' => $result->getBody()->getContentAsString(),
+            'mime' => $result->getContentType() ?? 'application/octet-stream',
+        ];
+    }
+
+    /**
      * Génère une URL signée GET valable $ttl secondes (1h par défaut).
      */
     public function presignedUrl(string $key, int $ttl = 3600): string

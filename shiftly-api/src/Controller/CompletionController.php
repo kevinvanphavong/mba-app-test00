@@ -12,7 +12,6 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -25,7 +24,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
  *
  *   POST /api/completions/create              JSON  { "posteId": 28, "missionId": 137 }
  *   POST /api/completions/create-with-photo   multipart (champs posteId, missionId + fichier "photo")
- *   GET  /api/completions/{id}/photo          302 vers une URL signée R2 (TTL 1h, multi-tenant guard)
+ *   GET  /api/completions/{id}/photo          proxy des bytes R2 (200 + image/jpeg, multi-tenant guard)
  */
 #[IsGranted('ROLE_USER')]
 class CompletionController extends AbstractController
@@ -129,9 +128,13 @@ class CompletionController extends AbstractController
     }
 
     /**
-     * Renvoie un 302 vers une URL signée R2 (TTL 1h).
-     * Auth obligatoire + le centre de la completion doit matcher celui de l'utilisateur.
-     * Le contrat front (`<AuthImage>`) est inchangé : il suit le redirect transparently.
+     * Proxy les bytes de la photo depuis R2 (200 + image/jpeg).
+     *
+     * Auth obligatoire + le centre de la completion doit matcher celui de
+     * l'utilisateur. Le contrat front (`<AuthImage>`) reçoit directement le
+     * blob via axios — pas de redirection cross-origin, donc pas besoin de
+     * conf CORS sur le bucket R2. Coût perf négligeable pour des photos
+     * compressées ~100 KB.
      */
     #[Route('/api/completions/{id}/photo', name: 'api_completion_photo', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function servePhoto(int $id): Response
@@ -150,10 +153,20 @@ class CompletionController extends AbstractController
             throw $this->createAccessDeniedException('Accès refusé à cette photo.');
         }
 
-        $signedUrl = $this->r2->presignedUrl($completion->getPhotoPath(), 3600);
+        try {
+            $object = $this->r2->getObject($completion->getPhotoPath());
+        } catch (\Throwable $e) {
+            error_log('[CompletionController] Fetch photo R2 failed: ' . $e->getMessage());
+            throw $this->createNotFoundException('Photo introuvable sur le stockage.');
+        }
 
-        // Cache privé court : la photo est immuable mais l'auth doit être revérifiée
-        return new RedirectResponse($signedUrl, Response::HTTP_FOUND, [
+        // Le mime stocké en BDD est la source de vérité (R2 peut renvoyer octet-stream)
+        $mime = $completion->getPhotoMimeType() ?: $object['mime'];
+
+        return new Response($object['body'], Response::HTTP_OK, [
+            'Content-Type'  => $mime,
+            // Cache privé court — la photo est immuable côté contenu mais l'auth
+            // doit être revérifiée à chaque accès (jamais de cache partagé).
             'Cache-Control' => 'private, max-age=300, no-store',
         ]);
     }
