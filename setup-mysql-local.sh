@@ -42,24 +42,49 @@ if ! mysqladmin ping --silent 2>/dev/null; then
   exit 1
 fi
 
-# ── 4. Création de la base ─────────────────────────────────────────────────
-echo "==> Création de la base 'shiftly'"
-mysql -u root -e \
-  "CREATE DATABASE IF NOT EXISTS shiftly CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-
-# ── 5. Bascule de .env.local sur MySQL ─────────────────────────────────────
-# Remplace UNIQUEMENT la ligne DATABASE_URL — les secrets (Sentry, R2) sont
-# préservés. Une sauvegarde horodatée est créée.
-NEWURL='DATABASE_URL="mysql://root:@127.0.0.1:3306/shiftly?serverVersion=8.0&charset=utf8mb4"'
-if grep -qE '^DATABASE_URL=.*sqlite' "$ENV"; then
-  cp "$ENV" "$ENV.bak.$(date +%Y%m%d%H%M%S)"
-  sed -i '' -E "s#^DATABASE_URL=.*#${NEWURL}#" "$ENV"
-  echo "==> .env.local basculé sur MySQL (sauvegarde .bak créée)"
+# ── 4. Mot de passe root MySQL ─────────────────────────────────────────────
+# Une install MySQL précédente peut avoir laissé un mot de passe root.
+# Saisie masquée : le mot de passe n'est ni affiché ni commité.
+echo ""
+read -rsp "Mot de passe root MySQL (laisse vide si aucun, puis Entrée) : " MYSQL_ROOT_PW
+echo ""
+if [ -n "$MYSQL_ROOT_PW" ]; then
+  MYSQL_AUTH=(-u root "-p${MYSQL_ROOT_PW}")
 else
-  echo "==> .env.local n'est pas sur SQLite, ligne DATABASE_URL laissée telle quelle"
+  MYSQL_AUTH=(-u root)
 fi
 
-# ── 6. Schéma + fixtures ───────────────────────────────────────────────────
+# Test de connexion
+if ! mysql "${MYSQL_AUTH[@]}" -e "SELECT 1;" >/dev/null 2>&1; then
+  echo "❌ Connexion refusée — mot de passe root incorrect."
+  echo "   Si tu ne le connais pas, demande-moi la procédure de reset."
+  exit 1
+fi
+echo "   Connexion root OK"
+
+# ── 5. Création de la base ─────────────────────────────────────────────────
+echo "==> Création de la base 'shiftly'"
+mysql "${MYSQL_AUTH[@]}" -e \
+  "CREATE DATABASE IF NOT EXISTS shiftly CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# ── 6. Bascule de .env.local sur MySQL ─────────────────────────────────────
+# Réécrit UNIQUEMENT la ligne DATABASE_URL (via Python, pour gérer le mot de
+# passe et les caractères spéciaux). Les secrets (Sentry, R2) sont préservés,
+# une sauvegarde horodatée est créée.
+echo "==> Bascule de .env.local sur MySQL"
+MYSQL_ROOT_PW="$MYSQL_ROOT_PW" python3 - "$ENV" <<'PYEOF'
+import os, sys, urllib.parse, datetime, shutil
+path = sys.argv[1]
+pw = urllib.parse.quote(os.environ.get("MYSQL_ROOT_PW", ""), safe="")
+url = f'DATABASE_URL="mysql://root:{pw}@127.0.0.1:3306/shiftly?serverVersion=8.0&charset=utf8mb4"'
+shutil.copy(path, path + ".bak." + datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+lines = open(path, encoding="utf-8").read().splitlines()
+out = [url if l.startswith("DATABASE_URL=") else l for l in lines]
+open(path, "w", encoding="utf-8").write("\n".join(out) + "\n")
+print("   .env.local mis à jour (sauvegarde .bak créée)")
+PYEOF
+
+# ── 7. Schéma + fixtures ───────────────────────────────────────────────────
 # On construit le schéma DIRECTEMENT depuis les entités Doctrine, sans
 # rejouer les 32 migrations (dont 11 contiennent du SQL SQLite non portable).
 # Puis on marque toutes les migrations comme appliquées : le prochain
