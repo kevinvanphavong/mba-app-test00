@@ -107,9 +107,9 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
   const gradient = getGradientFromColor(avatarColor)
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end">
+    <div className="fixed inset-0 z-50 flex items-end justify-center tablet:items-center tablet:p-4">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative bg-surface border-t border-border rounded-t-[24px] px-5 pt-5 pb-10 max-h-[90vh] overflow-y-auto flex flex-col gap-4">
+      <div className="relative w-full bg-surface border-t border-border rounded-t-[24px] px-5 pt-5 pb-10 max-h-[90vh] overflow-y-auto flex flex-col gap-4 tablet:w-auto tablet:max-w-[720px] tablet:rounded-[20px] tablet:border">
 
         <div className="flex items-center justify-between">
           <h3 className="font-syne font-extrabold text-[16px] text-text">
@@ -126,13 +126,14 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
             placeholder="Nom *" className={`flex-1 ${inputCls}`} />
         </div>
 
-        <input value={email} onChange={e => setEmail(e.target.value)}
-          placeholder="Email *" type="email" className={inputCls} />
-
-        {/* Mot de passe */}
-        <input value={password} onChange={e => setPassword(e.target.value)}
-          placeholder={member ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe *'}
-          type="password" className={inputCls} />
+        {/* Email + mot de passe — alignés comme Prénom/Nom */}
+        <div className="flex gap-2">
+          <input value={email} onChange={e => setEmail(e.target.value)}
+            placeholder="Email *" type="email" className={`flex-1 ${inputCls}`} />
+          <input value={password} onChange={e => setPassword(e.target.value)}
+            placeholder={member ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe *'}
+            type="password" className={`flex-1 ${inputCls}`} />
+        </div>
 
         {/* Rôle */}
         <div className="flex gap-2">
