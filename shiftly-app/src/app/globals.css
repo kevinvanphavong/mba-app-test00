@@ -659,12 +659,24 @@ input:focus { border-color: var(--accent); }
 .presence-dot[data-present="false"] { background: var(--muted); }
 
 .staff-member-panel {
-  background: rgba(var(--bg-rgb), 0.5);
+  background: var(--bg);
   padding: 4px 24px 18px 40px;
   border-bottom: 1px solid var(--border);
 }
-.staff-member-row.expanded { border-bottom: none; }
+.staff-member-row.expanded { border-bottom: none; background: var(--surface2); }
 .staff-member-panel:last-child { border-bottom: none; }
+
+/* Bandeau "Membre désactivé" en haut du panneau */
+.staff-inactive-notice {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 12px; color: var(--muted);
+  margin-bottom: 16px;
+}
+.staff-inactive-notice b { color: var(--text); font-weight: 700; }
 
 .panel-section + .panel-section { margin-top: 16px; }
 .panel-label {
@@ -693,6 +705,13 @@ input:focus { border-color: var(--accent); }
   font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s;
 }
 .btn-staff-danger:hover { background: rgba(var(--red-rgb), 0.10); }
+
+.btn-staff-reactivate {
+  background: transparent; border: 1px solid rgba(var(--green-rgb), 0.45); color: var(--green);
+  padding: 10px 16px; border-radius: 10px;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.btn-staff-reactivate:hover { background: rgba(var(--green-rgb), 0.10); }
 
 @media (max-width: 980px) {
   .staff-table-headers { display: none; }
