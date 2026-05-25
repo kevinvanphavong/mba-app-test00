@@ -7,7 +7,7 @@
  */
 
 import { useMemo, useState }       from 'react'
-import { motion }                  from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Topbar                      from '@/components/layout/Topbar'
 import MemberRow                   from '@/components/staff/MemberRow'
 import MemberPanel                 from '@/components/staff/MemberPanel'
@@ -35,7 +35,7 @@ export default function StaffPage() {
   const [expandedId,    setExpandedId]    = useState<number | null>(null)
   const [editOpen,      setEditOpen]      = useState(false)
   const [editTarget,    setEditTarget]    = useState<StaffMember | null>(null)
-  const [confirmOff,    setConfirmOff]    = useState<StaffMember | null>(null)
+  const [confirmToggle, setConfirmToggle] = useState<StaffMember | null>(null)
   const [highlightComp, setHighlightComp] = useState<number | null>(null)
 
   const showToast    = useToastStore(s => s.show)
@@ -51,17 +51,18 @@ export default function StaffPage() {
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim()
     return members.filter(m => {
-      if (!m.actif) return false
       if (tab !== 'all' && m.role !== tab) return false
       if (q && !m.nom.toLowerCase().includes(q) && !(m.prenom?.toLowerCase().includes(q) ?? false)) return false
       return true
     })
   }, [members, search, tab])
 
+  // Tri : actifs d'abord (managers > points décroissants), puis inactifs (idem)
   const sorted = useMemo(
     () => [...filtered].sort((a, b) => {
-      if (a.role === 'MANAGER' && b.role !== 'MANAGER') return -1
-      if (b.role === 'MANAGER' && a.role !== 'MANAGER') return 1
+      if (a.actif !== b.actif)                                     return a.actif ? -1 : 1
+      if (a.role === 'MANAGER' && b.role !== 'MANAGER')            return -1
+      if (b.role === 'MANAGER' && a.role !== 'MANAGER')            return 1
       return b.points - a.points
     }),
     [filtered]
@@ -91,11 +92,17 @@ export default function StaffPage() {
     }).catch(() => showToast('Erreur lors de la sauvegarde', 'error'))
   }
 
-  function confirmDeactivate() {
-    if (!confirmOff) return
-    updateStaff.mutate({ id: confirmOff.id, actif: false }, {
-      onSuccess: () => { showToast('Membre désactivé', 'success'); setConfirmOff(null) },
-      onError:   () => { showToast('Erreur lors de la désactivation', 'error') },
+  function confirmActifToggle() {
+    if (!confirmToggle) return
+    const nextActif = !confirmToggle.actif
+    updateStaff.mutate({ id: confirmToggle.id, actif: nextActif }, {
+      onSuccess: () => {
+        showToast(nextActif ? 'Membre réactivé' : 'Membre désactivé', 'success')
+        setConfirmToggle(null)
+      },
+      onError: () => {
+        showToast(nextActif ? 'Erreur lors de la réactivation' : 'Erreur lors de la désactivation', 'error')
+      },
     })
   }
 
@@ -182,16 +189,19 @@ export default function StaffPage() {
               return (
                 <div key={member.id}>
                   <MemberRow member={member} meta={meta} isSelf={isSelf} isExpanded={isExpanded} onToggle={handleToggle} />
-                  {isExpanded && (
-                    <MemberPanel
-                      member={member} meta={meta}
-                      isManager={isManager} isSelf={isSelf}
-                      highlightCompId={highlightComp}
-                      onEdit={() => { setEditTarget(member); setEditOpen(true) }}
-                      onDeactivate={() => setConfirmOff(member)}
-                      onScrollAddSkill={(id) => { setHighlightComp(id); setTimeout(() => setHighlightComp(null), 1600) }}
-                    />
-                  )}
+                  <AnimatePresence initial={false}>
+                    {isExpanded && (
+                      <MemberPanel
+                        key={member.id}
+                        member={member} meta={meta}
+                        isManager={isManager} isSelf={isSelf}
+                        highlightCompId={highlightComp}
+                        onEdit={() => { setEditTarget(member); setEditOpen(true) }}
+                        onToggleActif={() => setConfirmToggle(member)}
+                        onScrollAddSkill={(id) => { setHighlightComp(id); setTimeout(() => setHighlightComp(null), 1600) }}
+                      />
+                    )}
+                  </AnimatePresence>
                 </div>
               )
             })}
@@ -207,15 +217,23 @@ export default function StaffPage() {
         onSave={handleSave}
       />
 
-      {/* Modale confirmation désactivation */}
+      {/* Modale confirmation : désactivation OU réactivation selon l'état courant */}
       <ConfirmModal
-        open={confirmOff !== null}
-        title="Désactiver ce membre ?"
-        message={`${confirmOff?.prenom ?? ''} ${confirmOff?.nom ?? ''} sera marqué inactif. Il ne pourra plus se connecter mais l'historique reste intact.`}
-        confirmLabel={updateStaff.isPending ? 'Désactivation…' : 'Désactiver'}
-        onConfirm={confirmDeactivate}
-        onCancel={() => setConfirmOff(null)}
-        variant="danger"
+        open={confirmToggle !== null}
+        title={confirmToggle?.actif ? 'Désactiver ce membre ?' : 'Réactiver ce membre ?'}
+        message={
+          confirmToggle?.actif
+            ? `${confirmToggle?.prenom ?? ''} ${confirmToggle?.nom ?? ''} sera marqué inactif. Il ne pourra plus se connecter mais l'historique reste intact.`
+            : `${confirmToggle?.prenom ?? ''} ${confirmToggle?.nom ?? ''} sera de nouveau actif et pourra à nouveau se connecter.`
+        }
+        confirmLabel={
+          updateStaff.isPending
+            ? (confirmToggle?.actif ? 'Désactivation…' : 'Réactivation…')
+            : (confirmToggle?.actif ? 'Désactiver'    : 'Réactiver')
+        }
+        onConfirm={confirmActifToggle}
+        onCancel={() => setConfirmToggle(null)}
+        variant={confirmToggle?.actif ? 'danger' : 'default'}
         isLoading={updateStaff.isPending}
       />
     </motion.div>

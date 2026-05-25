@@ -22,10 +22,12 @@ interface Props {
   canEdit:           boolean
   /** Highlight pulsant 1.5s — déclenché par "Ajouter une compétence" */
   highlight?:        boolean
+  /** Membre inactif : tags désaturés (neutres) quelle que soit la valeur d'acquis */
+  inactive?:         boolean
 }
 
 export default function SkillTag({
-  userId, competenceId, staffCompetenceId, nom, zoneCouleur, acquis, canEdit, highlight = false,
+  userId, competenceId, staffCompetenceId, nom, zoneCouleur, acquis, canEdit, highlight = false, inactive = false,
 }: Props) {
   const queryClient = useQueryClient()
   const centreId    = useAuthStore(s => s.centreId)
@@ -48,8 +50,9 @@ export default function SkillTag({
     else if (!acquis)                          grant.mutate()
   }
 
-  // Couleurs : acquis = couleur de zone (fond + texte tintés), non-acquis = neutre
-  const acquiredStyle = acquis
+  // Couleurs : acquis = couleur de zone (fond + texte tintés), non-acquis = neutre.
+  // Membre inactif → on force la version neutre, même pour les compétences acquises (cf. maquette staff-v4-etats).
+  const acquiredStyle = acquis && !inactive
     ? {
         background:  `${zoneCouleur}1f`,                 // ~12% opacity
         borderColor: `${zoneCouleur}66`,                 // ~40%

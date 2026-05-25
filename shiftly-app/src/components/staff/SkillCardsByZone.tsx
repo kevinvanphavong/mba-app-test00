@@ -16,6 +16,8 @@ interface Props {
   acquisIds:        Map<number, number>
   canEdit:          boolean
   highlightCompId:  number | null
+  /** Membre désactivé : désature dot, nom de zone et tags acquis (cf. maquette) */
+  inactive?:        boolean
 }
 
 interface ZoneGroup {
@@ -37,7 +39,7 @@ function groupByZone(catalog: CompetenceCatalogItem[], acquisIds: Map<number, nu
   return Array.from(map.values())
 }
 
-export default function SkillCardsByZone({ userId, catalog, acquisIds, canEdit, highlightCompId }: Props) {
+export default function SkillCardsByZone({ userId, catalog, acquisIds, canEdit, highlightCompId, inactive = false }: Props) {
   const zones = useMemo(() => groupByZone(catalog, acquisIds), [catalog, acquisIds])
 
   if (zones.length === 0) {
@@ -50,11 +52,13 @@ export default function SkillCardsByZone({ userId, catalog, acquisIds, canEdit, 
         const total    = zone.items.length
         const acquired = zone.items.filter(i => i.acquis).length
         const pct      = total > 0 ? Math.round(acquired / total * 100) : 0
+        const zoneColor = inactive ? 'var(--muted)' : zone.couleur
+        const zoneDotBg = inactive ? 'var(--muted)' : zone.couleur
         return (
           <div key={zone.name} className="skill-card">
             <div className="skill-card-head">
-              <div className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: zone.couleur }}>
-                <span className="w-2 h-2 rounded-full" style={{ background: zone.couleur }} /> {zone.name}
+              <div className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: zoneColor }}>
+                <span className="w-2 h-2 rounded-full" style={{ background: zoneDotBg }} /> {zone.name}
               </div>
               <span className="text-[11px] text-muted"><strong className="text-text">{acquired}/{total}</strong></span>
               <span className="text-[10px] text-muted ml-auto">{pct}%</span>
@@ -71,6 +75,7 @@ export default function SkillCardsByZone({ userId, catalog, acquisIds, canEdit, 
                   acquis={item.acquis}
                   canEdit={canEdit}
                   highlight={highlightCompId === item.id}
+                  inactive={inactive}
                 />
               ))}
             </div>
