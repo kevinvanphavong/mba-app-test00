@@ -109,7 +109,7 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center tablet:items-center tablet:p-4">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full bg-surface border-t border-border rounded-t-[24px] px-5 pt-5 pb-10 max-h-[90vh] overflow-y-auto flex flex-col gap-4 tablet:w-auto tablet:max-w-[720px] tablet:rounded-[20px] tablet:border">
+      <div className="relative w-full bg-surface border-t border-border rounded-t-[24px] px-5 pt-5 pb-10 max-h-[90vh] overflow-y-auto flex flex-col gap-4 tablet:w-auto tablet:max-w-[1020px] tablet:rounded-[20px] tablet:border">
 
         <div className="flex items-center justify-between">
           <h3 className="font-syne font-extrabold text-[16px] text-text">
