@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — Formulaire membre · 3 variantes</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --surface3: #232838;
+    --border: #252a3a;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #a855f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 36px 28px 80px;
+  }
+
+  /* ── Bandeau ── */
+  .intro {
+    max-width: 880px; margin: 0 auto 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-size: 13px; line-height: 1.6; color: var(--muted);
+  }
+  .intro b { color: var(--text); }
+  .intro .tag {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--green); border: 1px solid rgba(34,197,94,0.4);
+    background: rgba(34,197,94,0.1); border-radius: 5px; padding: 1px 6px; margin-left: 6px;
+  }
+
+  /* ── En-tête de variante ── */
+  .variant-head {
+    max-width: 880px; margin: 0 auto 14px;
+  }
+  .variant-name {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--text);
+  }
+  .variant-desc { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .variant-block { margin-bottom: 56px; }
+
+  /* ── Scène (fond app simulé) ── */
+  .stage {
+    max-width: 880px; margin: 0 auto;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+    padding: 40px 20px;
+    display: flex; justify-content: center;
+  }
+  /* Scène pour un bottom-sheet : modale collée au bas */
+  .stage-sheet {
+    align-items: flex-end;
+    padding: 40px 20px 0;
+    overflow: hidden;
+  }
+  .sheet-handle {
+    width: 40px; height: 4px; border-radius: 999px;
+    background: var(--border); margin: 10px auto 0;
+  }
+
+  /* ====================================================
+     PRIMITIVES PARTAGÉES
+     ==================================================== */
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    overflow: hidden;
+    width: 100%;
+  }
+  .modal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-title {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; color: var(--text);
+  }
+  .modal-title small {
+    display: block; font-family: 'DM Sans', sans-serif; font-weight: 500;
+    font-size: 12px; color: var(--muted); margin-top: 2px; letter-spacing: 0;
+  }
+  .close-x {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--muted); font-size: 17px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-foot {
+    display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .lbl {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .lbl .req { color: var(--accent); }
+  .input {
+    width: 100%; padding: 10px 12px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
+  }
+  .input::placeholder { color: var(--muted); }
+  .input.focused { border-color: rgba(249,115,22,0.5); }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  .section-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--muted); display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* Segmented (rôle) */
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .seg button {
+    padding: 9px; border-radius: 9px; font-size: 12px; font-weight: 700;
+    border: 1px solid var(--border); background: transparent; color: var(--muted);
+    cursor: pointer;
+  }
+  .seg button.on {
+    background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.4); color: var(--accent);
+  }
+
+  /* Chips contrat */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    padding: 6px 11px; border-radius: 8px; font-size: 11px; font-weight: 700;
+    border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer;
+  }
+  .chip.on { background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.4); color: var(--accent); }
+
+  /* Palette avatar */
+  .palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .swatch {
+    aspect-ratio: 1; border-radius: 9px; cursor: pointer; border: none;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .swatch.on { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--text); }
+  .swatch svg { width: 13px; height: 13px; }
+  .avatar-prev {
+    width: 46px; height: 46px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 14px; flex-shrink: 0;
+  }
+
+  /* Toggle */
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 11px;
+  }
+  .toggle-row p { font-size: 13px; font-weight: 600; color: var(--text); }
+  .toggle-row span.sub { font-size: 11px; font-weight: 400; color: var(--muted); }
+  .switch {
+    width: 42px; height: 23px; border-radius: 999px; position: relative;
+    background: var(--green); border: none; cursor: pointer; flex-shrink: 0;
+  }
+  .switch::after {
+    content: ''; position: absolute; top: 3px; left: 22px;
+    width: 17px; height: 17px; border-radius: 50%; background: white;
+  }
+
+  /* Boutons */
+  .btn-primary {
+    padding: 11px 22px; border-radius: 11px; border: none;
+    background: var(--accent); color: white; font-weight: 700; font-size: 13px;
+    font-family: 'Syne', sans-serif; cursor: pointer;
+  }
+  .btn-ghost {
+    padding: 11px 18px; border-radius: 11px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); font-weight: 600; font-size: 13px; cursor: pointer;
+  }
+
+  .pin-input {
+    display: flex; gap: 8px;
+  }
+  .pin-cell {
+    width: 40px; height: 44px; border-radius: 9px;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; color: var(--text);
+  }
+  /* Champ PIN = un seul input, stylé large et espacé */
+  .input-pin {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 16px; letter-spacing: 10px; padding-left: 14px;
+  }
+  .pin-hint { font-size: 11px; color: var(--muted); }
+
+  /* ====================================================
+     VARIANTE 1 — DEUX COLONNES
+     ==================================================== */
+  .v1 { max-width: 720px; }
+  .v1 .modal-body {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+    padding: 22px 24px;
+  }
+  .v1 .colstack { display: flex; flex-direction: column; gap: 18px; }
+  .v1 .group { display: flex; flex-direction: column; gap: 11px; }
+
+  /* ====================================================
+     VARIANTE 2 — SECTIONS EN CARTES
+     ==================================================== */
+  .v2 { max-width: 600px; }
+  .v2 .modal-body {
+    display: flex; flex-direction: column; gap: 14px;
+    padding: 20px 22px;
+  }
+  .v2 .card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .v2 .card-title {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 13px; font-weight: 700; color: var(--text);
+  }
+  .v2 .card-ico {
+    width: 26px; height: 26px; border-radius: 7px;
+    background: rgba(249,115,22,0.12); color: var(--accent);
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .v2 .card .input { background: var(--surface); }
+  .v2 .card .toggle-row { background: var(--surface); }
+  .v2 .card .pin-cell { background: var(--surface); }
+
+  /* ====================================================
+     VARIANTE 3 — SIDEBAR APERÇU
+     ==================================================== */
+  .v3 { max-width: 760px; }
+  .v3 .modal-body { display: flex; }
+  .v3 .aside {
+    width: 240px; flex-shrink: 0;
+    background: var(--surface2);
+    border-right: 1px solid var(--border);
+    padding: 24px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+  }
+  .v3 .aside-prev {
+    width: 84px; height: 84px; border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 28px;
+    font-family: 'Syne', sans-serif;
+  }
+  .v3 .aside-name {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px;
+    color: var(--text); text-align: center;
+  }
+  .v3 .aside-role {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+    padding: 3px 9px; border-radius: 6px;
+    background: rgba(249,115,22,0.12); color: var(--accent); border: 1px solid rgba(249,115,22,0.3);
+  }
+  .v3 .aside-sep { width: 100%; height: 1px; background: var(--border); }
+  .v3 .aside-palette-lbl {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    color: var(--muted); align-self: flex-start;
+  }
+  .v3 .aside .palette { width: 100%; grid-template-columns: repeat(5, 1fr); }
+  .v3 .main {
+    flex: 1; padding: 22px 24px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .v3 .group { display: flex; flex-direction: column; gap: 11px; }
+  .v3 .aside-toggle {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+  }
+  .v3 .aside-toggle p { font-size: 12px; color: var(--text); font-weight: 600; }
+
+  /* ====================================================
+     VARIANTE 4 — DEUX COLONNES EN CARTES (hybride V1 + V2)
+     ==================================================== */
+  .v4 { max-width: 720px; border-radius: 24px 24px 0 0; }
+  .v4 .modal-body {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    padding: 20px 22px; align-items: start;
+  }
+  .v4 .colstack { display: flex; flex-direction: column; gap: 14px; }
+  .v4 .card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .v4 .card-title {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 13px; font-weight: 700; color: var(--text);
+  }
+  .v4 .card-ico {
+    width: 26px; height: 26px; border-radius: 7px;
+    background: rgba(249,115,22,0.12); color: var(--accent);
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .v4 .card .input { background: var(--surface); }
+  .v4 .card .toggle-row { background: var(--surface); }
+  .v4 .card .pin-cell { background: var(--surface); }
+
+  @media (max-width: 720px) {
+    .v1 .modal-body, .v3 .modal-body, .v4 .modal-body { grid-template-columns: 1fr; display: flex; flex-direction: column; }
+    .v3 .aside { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+  <div class="intro">
+    <b>Formulaire membre — 4 directions de design.</b> Le formulaire actuel est une longue colonne unique en bottom-sheet. Voici 4 évolutions, toutes au design system Shiftly (dark, Syne + DM Sans, tokens couleurs). Mêmes champs partout, seule l'organisation change.<br>
+    Direction retenue : la <b>Variante 4</b> <span class="tag">retenue</span> — deux colonnes de cartes titrées, présentée ici en <b>bottom-sheet collé en bas</b> (même patron que le formulaire « Nouveau shift »), centrée, 720px de large. Les variantes 1 à 3 plus haut sont en présentation centrée et ne sont plus que des références.
+  </div>
+
+  <!-- ============================================================
+       VARIANTE 1 — DEUX COLONNES
+       ============================================================ -->
+  <div class="variant-block">
+    <div class="variant-head">
+      <div class="variant-name">Variante 1 — Deux colonnes</div>
+      <div class="variant-desc">720px. Identité + avatar à gauche, contrat + équipement + accès à droite. Tout visible sans scroll, footer d'actions fixe.</div>
+    </div>
+    <div class="stage">
+      <div class="modal v1">
+        <div class="modal-head">
+          <div class="modal-title">Modifier le membre<small>Mégane Goueffon · Family Games Center</small></div>
+          <button class="close-x">×</button>
+        </div>
+        <div class="modal-body">
+
+          <!-- Colonne gauche -->
+          <div class="colstack">
+            <div class="group">
+              <div class="section-label">Identité</div>
+              <div class="row-2">
+                <div class="field"><span class="lbl">Prénom</span><input class="input" value="Mégane"></div>
+                <div class="field"><span class="lbl">Nom <span class="req">*</span></span><input class="input" value="Goueffon"></div>
+              </div>
+              <div class="row-2">
+                <div class="field"><span class="lbl">Email <span class="req">*</span></span><input class="input" value="megane@bowlingcentral.fr"></div>
+                <div class="field"><span class="lbl">Mot de passe</span><input class="input" type="password" placeholder="Inchangé"></div>
+              </div>
+              <div class="field">
+                <span class="lbl">Rôle</span>
+                <div class="seg"><button>Employé</button><button class="on">Manager</button></div>
+              </div>
+            </div>
+
+            <div class="group">
+              <div class="section-label">Avatar</div>
+              <div style="display:flex;align-items:center;gap:11px;">
+                <div class="avatar-prev" style="background:linear-gradient(135deg,#f97316,#fb923c);">MG</div>
+                <span style="font-size:12px;color:var(--muted);">Orange Shiftly</span>
+              </div>
+              <div class="palette">
+                <button class="swatch on" style="background:linear-gradient(135deg,#f97316,#fb923c);"><svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#3b82f6,#6366f1);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#22c55e,#10b981);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#a855f7,#ec4899);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#ef4444,#dc2626);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#eab308,#f59e0b);"></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Colonne droite -->
+          <div class="colstack">
+            <div class="group">
+              <div class="section-label">Contrat</div>
+              <div class="chips">
+                <button class="chip on">CDI</button><button class="chip">CDD</button>
+                <button class="chip">EXTRA</button><button class="chip">ALTERNANCE</button>
+                <button class="chip">STAGE</button>
+              </div>
+              <div class="row-2">
+                <div class="field"><span class="lbl">Heures / semaine</span><input class="input" value="35"></div>
+                <div class="field"><span class="lbl">Date d'embauche</span><input class="input" value="12/03/2022"></div>
+              </div>
+            </div>
+
+            <div class="group">
+              <div class="section-label">Équipement</div>
+              <div class="row-3">
+                <div class="field"><span class="lbl">Haut</span><input class="input" value="M"></div>
+                <div class="field"><span class="lbl">Bas</span><input class="input" value="40"></div>
+                <div class="field"><span class="lbl">Pointure</span><input class="input" value="38"></div>
+              </div>
+            </div>
+
+            <div class="group">
+              <div class="section-label">Accès</div>
+              <div class="field">
+                <span class="lbl">Code PIN pointage</span>
+                <div class="pin-input">
+                  <div class="pin-cell">1</div><div class="pin-cell">2</div>
+                  <div class="pin-cell">3</div><div class="pin-cell">4</div>
+                </div>
+              </div>
+              <div class="toggle-row">
+                <p>Membre actif <span class="sub">— visible dans l'app</span></p>
+                <button class="switch"></button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-foot">
+          <button class="btn-ghost">Annuler</button>
+          <button class="btn-primary">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       VARIANTE 2 — SECTIONS EN CARTES
+       ============================================================ -->
+  <div class="variant-block">
+    <div class="variant-head">
+      <div class="variant-name">Variante 2 — Sections en cartes</div>
+      <div class="variant-desc">600px. Colonne unique mais chaque groupe devient une carte titrée. Plus calme, lecture séquentielle, scroll court.</div>
+    </div>
+    <div class="stage">
+      <div class="modal v2">
+        <div class="modal-head">
+          <div class="modal-title">Modifier le membre<small>Mégane Goueffon · Family Games Center</small></div>
+          <button class="close-x">×</button>
+        </div>
+        <div class="modal-body">
+
+          <div class="card">
+            <div class="card-title"><span class="card-ico">●</span> Identité &amp; compte</div>
+            <div class="row-2">
+              <div class="field"><span class="lbl">Prénom</span><input class="input" value="Mégane"></div>
+              <div class="field"><span class="lbl">Nom <span class="req">*</span></span><input class="input" value="Goueffon"></div>
+            </div>
+            <div class="row-2">
+              <div class="field"><span class="lbl">Email <span class="req">*</span></span><input class="input" value="megane@bowlingcentral.fr"></div>
+              <div class="field"><span class="lbl">Mot de passe</span><input class="input" type="password" placeholder="Inchangé"></div>
+            </div>
+            <div class="field">
+              <span class="lbl">Rôle</span>
+              <div class="seg"><button>Employé</button><button class="on">Manager</button></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-ico">▮</span> Contrat</div>
+            <div class="chips">
+              <button class="chip on">CDI</button><button class="chip">CDD</button>
+              <button class="chip">EXTRA</button><button class="chip">ALTERNANCE</button>
+              <button class="chip">STAGE</button>
+            </div>
+            <div class="row-2">
+              <div class="field"><span class="lbl">Heures / semaine</span><input class="input" value="35"></div>
+              <div class="field"><span class="lbl">Date d'embauche</span><input class="input" value="12/03/2022"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-ico">◆</span> Avatar &amp; équipement</div>
+            <div style="display:flex;align-items:center;gap:11px;">
+              <div class="avatar-prev" style="background:linear-gradient(135deg,#f97316,#fb923c);">MG</div>
+              <div class="palette" style="flex:1;">
+                <button class="swatch on" style="background:linear-gradient(135deg,#f97316,#fb923c);"><svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#3b82f6,#6366f1);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#22c55e,#10b981);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#a855f7,#ec4899);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#ef4444,#dc2626);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#eab308,#f59e0b);"></button>
+              </div>
+            </div>
+            <div class="row-3">
+              <div class="field"><span class="lbl">Haut</span><input class="input" value="M"></div>
+              <div class="field"><span class="lbl">Bas</span><input class="input" value="40"></div>
+              <div class="field"><span class="lbl">Pointure</span><input class="input" value="38"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="card-ico">⚿</span> Accès &amp; statut</div>
+            <div class="field">
+              <span class="lbl">Code PIN pointage</span>
+              <div class="pin-input">
+                <div class="pin-cell">1</div><div class="pin-cell">2</div>
+                <div class="pin-cell">3</div><div class="pin-cell">4</div>
+              </div>
+            </div>
+            <div class="toggle-row">
+              <p>Membre actif <span class="sub">— visible dans l'app</span></p>
+              <button class="switch"></button>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-foot">
+          <button class="btn-ghost">Annuler</button>
+          <button class="btn-primary">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       VARIANTE 3 — SIDEBAR APERÇU
+       ============================================================ -->
+  <div class="variant-block">
+    <div class="variant-head">
+      <div class="variant-name">Variante 3 — Sidebar aperçu</div>
+      <div class="variant-desc">760px. Rail gauche = aperçu vivant (avatar, nom, rôle, statut, palette). Droite = champs groupés. Le plus abouti, un peu plus de dev.</div>
+    </div>
+    <div class="stage">
+      <div class="modal v3">
+        <div class="modal-head">
+          <div class="modal-title">Modifier le membre<small>Family Games Center</small></div>
+          <button class="close-x">×</button>
+        </div>
+        <div class="modal-body">
+
+          <!-- Rail aperçu -->
+          <div class="aside">
+            <div class="aside-prev" style="background:linear-gradient(135deg,#f97316,#fb923c);">MG</div>
+            <div class="aside-name">Mégane Goueffon</div>
+            <span class="aside-role">Manager</span>
+            <div class="aside-sep"></div>
+            <span class="aside-palette-lbl">Couleur d'avatar</span>
+            <div class="palette">
+              <button class="swatch on" style="background:linear-gradient(135deg,#f97316,#fb923c);"><svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button class="swatch" style="background:linear-gradient(135deg,#3b82f6,#6366f1);"></button>
+              <button class="swatch" style="background:linear-gradient(135deg,#22c55e,#10b981);"></button>
+              <button class="swatch" style="background:linear-gradient(135deg,#a855f7,#ec4899);"></button>
+              <button class="swatch" style="background:linear-gradient(135deg,#ef4444,#dc2626);"></button>
+              <button class="swatch" style="background:linear-gradient(135deg,#eab308,#f59e0b);"></button>
+              <button class="swatch" style="background:linear-gradient(135deg,#14b8a6,#06b6d4);"></button>
+              <button class="swatch" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);"></button>
+              <button class="swatch" style="background:linear-gradient(135deg,#ec4899,#f43f5e);"></button>
+              <button class="swatch" style="background:linear-gradient(135deg,#84cc16,#22c55e);"></button>
+            </div>
+            <div class="aside-sep"></div>
+            <div class="aside-toggle">
+              <p>Membre actif</p>
+              <button class="switch"></button>
+            </div>
+          </div>
+
+          <!-- Champs -->
+          <div class="main">
+            <div class="group">
+              <div class="section-label">Identité</div>
+              <div class="row-2">
+                <div class="field"><span class="lbl">Prénom</span><input class="input" value="Mégane"></div>
+                <div class="field"><span class="lbl">Nom <span class="req">*</span></span><input class="input" value="Goueffon"></div>
+              </div>
+              <div class="row-2">
+                <div class="field"><span class="lbl">Email <span class="req">*</span></span><input class="input" value="megane@bowlingcentral.fr"></div>
+                <div class="field"><span class="lbl">Mot de passe</span><input class="input" type="password" placeholder="Inchangé"></div>
+              </div>
+              <div class="field">
+                <span class="lbl">Rôle</span>
+                <div class="seg"><button>Employé</button><button class="on">Manager</button></div>
+              </div>
+            </div>
+
+            <div class="group">
+              <div class="section-label">Contrat</div>
+              <div class="chips">
+                <button class="chip on">CDI</button><button class="chip">CDD</button>
+                <button class="chip">EXTRA</button><button class="chip">ALTERNANCE</button>
+                <button class="chip">STAGE</button>
+              </div>
+              <div class="row-2">
+                <div class="field"><span class="lbl">Heures / semaine</span><input class="input" value="35"></div>
+                <div class="field"><span class="lbl">Date d'embauche</span><input class="input" value="12/03/2022"></div>
+              </div>
+            </div>
+
+            <div class="group">
+              <div class="section-label">Équipement &amp; accès</div>
+              <div class="row-3">
+                <div class="field"><span class="lbl">Haut</span><input class="input" value="M"></div>
+                <div class="field"><span class="lbl">Bas</span><input class="input" value="40"></div>
+                <div class="field"><span class="lbl">Pointure</span><input class="input" value="38"></div>
+              </div>
+              <div class="field">
+                <span class="lbl">Code PIN pointage</span>
+                <div class="pin-input">
+                  <div class="pin-cell">1</div><div class="pin-cell">2</div>
+                  <div class="pin-cell">3</div><div class="pin-cell">4</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-foot">
+          <button class="btn-ghost">Annuler</button>
+          <button class="btn-primary">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       VARIANTE 4 — DEUX COLONNES EN CARTES (hybride V1 + V2)
+       ============================================================ -->
+  <div class="variant-block">
+    <div class="variant-head">
+      <div class="variant-name">Variante 4 — Deux colonnes en cartes <span style="font-size:12px;font-weight:600;color:var(--green);">· retenue</span></div>
+      <div class="variant-desc">Bottom-sheet collé en bas (comme « Nouveau shift »), centré, 720px de large, coins arrondis en haut + poignée. Grille 2 colonnes de cartes titrées, repli en 1 colonne sur mobile.</div>
+    </div>
+    <div class="stage stage-sheet">
+      <div class="modal v4">
+        <div class="sheet-handle"></div>
+        <div class="modal-head">
+          <div class="modal-title">Modifier le membre<small>Mégane Goueffon · Family Games Center</small></div>
+          <button class="close-x">×</button>
+        </div>
+        <div class="modal-body">
+
+          <!-- Colonne gauche -->
+          <div class="colstack">
+            <div class="card">
+              <div class="card-title"><span class="card-ico">●</span> Identité &amp; compte</div>
+              <div class="row-2">
+                <div class="field"><span class="lbl">Prénom</span><input class="input" value="Mégane"></div>
+                <div class="field"><span class="lbl">Nom <span class="req">*</span></span><input class="input" value="Goueffon"></div>
+              </div>
+              <div class="row-2">
+                <div class="field"><span class="lbl">Email <span class="req">*</span></span><input class="input" value="megane@bowlingcentral.fr"></div>
+                <div class="field"><span class="lbl">Mot de passe</span><input class="input" type="password" placeholder="Inchangé"></div>
+              </div>
+              <div class="field">
+                <span class="lbl">Rôle</span>
+                <div class="seg"><button>Employé</button><button class="on">Manager</button></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title"><span class="card-ico">◆</span> Avatar</div>
+              <div style="display:flex;align-items:center;gap:11px;">
+                <div class="avatar-prev" style="background:linear-gradient(135deg,#f97316,#fb923c);">MG</div>
+                <span style="font-size:12px;color:var(--muted);">Orange Shiftly</span>
+              </div>
+              <div class="palette">
+                <button class="swatch on" style="background:linear-gradient(135deg,#f97316,#fb923c);"><svg viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#3b82f6,#6366f1);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#22c55e,#10b981);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#a855f7,#ec4899);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#ef4444,#dc2626);"></button>
+                <button class="swatch" style="background:linear-gradient(135deg,#eab308,#f59e0b);"></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Colonne droite -->
+          <div class="colstack">
+            <div class="card">
+              <div class="card-title"><span class="card-ico">▮</span> Contrat</div>
+              <div class="chips">
+                <button class="chip on">CDI</button><button class="chip">CDD</button>
+                <button class="chip">EXTRA</button><button class="chip">ALTERNANCE</button>
+                <button class="chip">STAGE</button>
+              </div>
+              <div class="row-2">
+                <div class="field"><span class="lbl">Heures / semaine</span><input class="input" value="35"></div>
+                <div class="field"><span class="lbl">Date d'embauche</span><input class="input" value="12/03/2022"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title"><span class="card-ico">◈</span> Équipement</div>
+              <div class="row-3">
+                <div class="field"><span class="lbl">Haut</span><input class="input" value="M"></div>
+                <div class="field"><span class="lbl">Bas</span><input class="input" value="40"></div>
+                <div class="field"><span class="lbl">Pointure</span><input class="input" value="38"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-title"><span class="card-ico">⚿</span> Accès &amp; statut</div>
+              <div class="field">
+                <span class="lbl">Code PIN pointage</span>
+                <input class="input input-pin" value="1234" maxlength="4">
+                <span class="pin-hint">4 chiffres. Code actuel pré-rempli — efface et retape pour le changer.</span>
+              </div>
+              <div class="toggle-row">
+                <p>Membre actif <span class="sub">— visible dans l'app</span></p>
+                <button class="switch"></button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-foot">
+          <button class="btn-ghost">Annuler</button>
+          <button class="btn-primary">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
