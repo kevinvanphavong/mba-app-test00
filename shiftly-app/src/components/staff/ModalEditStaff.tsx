@@ -1,33 +1,36 @@
 'use client'
 
-import { useState, useEffect }               from 'react'
-import { AVATAR_PALETTE, getGradientFromColor } from '@/lib/colors'
-import type { StaffMember }                  from '@/types/staff'
+/**
+ * ModalEditStaff — bottom-sheet ancré en bas (cf. ShiftModal), centré,
+ * 720px de large, organisé en deux colonnes de cartes titrées (Variante 4
+ * — cf. docs/maquettes/staff-form-variants.html).
+ *
+ * Responsabilités : state local, chargement depuis `member`, validation,
+ * appel `onSave`. Toute la mise en forme passe par les sous-composants
+ * présentationnels `StaffForm*` du même dossier.
+ */
 
-const ROLES = [
-  { value: 'EMPLOYE' as const,  label: 'Employé' },
-  { value: 'MANAGER' as const,  label: 'Manager' },
-]
+import { useState, useEffect }    from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { sheetVariants, backdropVariants } from '@/lib/animations'
+import { useCurrentUser }          from '@/hooks/useCurrentUser'
+import type { StaffMember }        from '@/types/staff'
+import StaffFormIdentite           from './StaffFormIdentite'
+import StaffFormAvatar             from './StaffFormAvatar'
+import StaffFormContrat            from './StaffFormContrat'
+import StaffFormEquipement         from './StaffFormEquipement'
+import StaffFormAcces              from './StaffFormAcces'
 
 const DEFAULT_COLOR = '#f97316'
 
-const CONTRATS = ['CDI', 'CDD', 'EXTRA', 'ALTERNANCE', 'STAGE'] as const
-
 interface SaveData {
-  nom:           string
-  prenom:        string | null
-  email:         string
-  role:          'MANAGER' | 'EMPLOYE'
-  tailleHaut:    string | null
-  tailleBas:     string | null
-  pointure:      string | null
-  actif:         boolean
-  avatarColor:   string
-  heuresHebdo:   number | null
-  typeContrat:   string | null
-  dateEmbauche:  string | null
-  codePointage:  string | null
-  password?:     string
+  nom: string; prenom: string | null; email: string
+  role: 'MANAGER' | 'EMPLOYE'
+  tailleHaut: string | null; tailleBas: string | null; pointure: string | null
+  actif: boolean; avatarColor: string
+  heuresHebdo: number | null
+  typeContrat: string | null; dateEmbauche: string | null
+  codePointage: string | null; password?: string
 }
 
 interface Props {
@@ -38,38 +41,27 @@ interface Props {
 }
 
 export default function ModalEditStaff({ open, member, onClose, onSave }: Props) {
-  const [nom,         setNom]         = useState('')
-  const [prenom,      setPrenom]      = useState('')
-  const [email,       setEmail]       = useState('')
-  const [role,        setRole]        = useState<'MANAGER' | 'EMPLOYE'>('EMPLOYE')
-  const [tailleHaut,  setTailleHaut]  = useState('')
-  const [tailleBas,   setTailleBas]   = useState('')
-  const [pointure,    setPointure]    = useState('')
-  const [actif,        setActif]        = useState(true)
-  const [password,     setPassword]     = useState('')
-  const [avatarColor,  setAvatarColor]  = useState(DEFAULT_COLOR)
-  const [heuresHebdo,   setHeuresHebdo]   = useState('')
-  const [typeContrat,   setTypeContrat]   = useState('')
-  const [dateEmbauche,  setDateEmbauche]  = useState('')
-  const [codePointage,  setCodePointage]  = useState('')
+  const { user } = useCurrentUser()
+  const [nom, setNom] = useState(''); const [prenom, setPrenom] = useState('')
+  const [email, setEmail] = useState(''); const [password, setPassword] = useState('')
+  const [role, setRole] = useState<'MANAGER' | 'EMPLOYE'>('EMPLOYE')
+  const [tailleHaut, setTailleHaut] = useState(''); const [tailleBas, setTailleBas] = useState('')
+  const [pointure, setPointure] = useState('')
+  const [actif, setActif] = useState(true)
+  const [avatarColor, setAvatarColor] = useState(DEFAULT_COLOR)
+  const [heuresHebdo, setHeuresHebdo] = useState('')
+  const [typeContrat, setTypeContrat] = useState(''); const [dateEmbauche, setDateEmbauche] = useState('')
+  const [codePointage, setCodePointage] = useState('')
 
   useEffect(() => {
     if (!open) return
     if (member) {
-      setNom(member.nom)
-      setPrenom(member.prenom ?? '')
-      setEmail(member.email)
-      setRole(member.role)
-      setTailleHaut(member.tailleHaut ?? '')
-      setTailleBas(member.tailleBas ?? '')
-      setPointure(member.pointure ?? '')
-      setActif(member.actif)
-      setAvatarColor(member.avatarColor ?? DEFAULT_COLOR)
+      setNom(member.nom); setPrenom(member.prenom ?? ''); setEmail(member.email); setRole(member.role)
+      setTailleHaut(member.tailleHaut ?? ''); setTailleBas(member.tailleBas ?? ''); setPointure(member.pointure ?? '')
+      setActif(member.actif); setAvatarColor(member.avatarColor ?? DEFAULT_COLOR)
       setHeuresHebdo(member.heuresHebdo != null ? String(member.heuresHebdo) : '')
-      setTypeContrat(member.typeContrat ?? '')
-      setDateEmbauche(member.dateEmbauche ?? '')
-      setCodePointage(member.codePointage ?? '')
-      setPassword('')
+      setTypeContrat(member.typeContrat ?? ''); setDateEmbauche(member.dateEmbauche ?? '')
+      setCodePointage(member.codePointage ?? ''); setPassword('')
     } else {
       setNom(''); setPrenom(''); setEmail(''); setRole('EMPLOYE')
       setTailleHaut(''); setTailleBas(''); setPointure('')
@@ -81,15 +73,9 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
   function handleSubmit() {
     if (!nom.trim() || !email.trim()) return
     onSave({
-      nom:         nom.trim(),
-      prenom:      prenom.trim() || null,
-      email:       email.trim(),
-      role,
-      tailleHaut:  tailleHaut.trim() || null,
-      tailleBas:   tailleBas.trim() || null,
-      pointure:    pointure.trim() || null,
-      actif,
-      avatarColor,
+      nom: nom.trim(), prenom: prenom.trim() || null, email: email.trim(), role,
+      tailleHaut: tailleHaut.trim() || null, tailleBas: tailleBas.trim() || null, pointure: pointure.trim() || null,
+      actif, avatarColor,
       heuresHebdo:  heuresHebdo !== '' ? parseInt(heuresHebdo, 10) : null,
       typeContrat:  typeContrat || null,
       dateEmbauche: dateEmbauche || null,
@@ -98,194 +84,66 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
     })
   }
 
-  if (!open) return null
-
-  const inputCls = "w-full px-3 py-2.5 bg-surface2 border border-border rounded-[10px] text-[13px] text-text placeholder:text-muted outline-none focus:border-accent/50"
-
-  /* Initiales pour la preview */
-  const initials = ((prenom?.[0] ?? nom[0] ?? '?') + (nom.split(' ')[0]?.[0] ?? '')).toUpperCase()
-  const gradient = getGradientFromColor(avatarColor)
+  const initials   = ((prenom?.[0] ?? nom[0] ?? '?') + (nom.split(' ')[0]?.[0] ?? '')).toUpperCase()
+  const isEdit     = member !== null
+  const memberName = isEdit ? `${member?.prenom ? `${member.prenom} ` : ''}${member?.nom}` : null
+  const subtitle   = [memberName, user?.centre?.nom].filter(Boolean).join(' · ')
+  const canSubmit  = nom.trim().length > 0 && email.trim().length > 0 && (isEdit || password.trim().length > 0)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center tablet:items-center tablet:p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full bg-surface border-t border-border rounded-t-[24px] px-5 pt-5 pb-10 max-h-[90vh] overflow-y-auto flex flex-col gap-4 tablet:w-auto tablet:max-w-[1020px] tablet:rounded-[20px] tablet:border">
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div variants={backdropVariants} initial="closed" animate="open" exit="exit"
+            className="fixed inset-0 z-40 bg-black/65 backdrop-blur-sm" onClick={onClose} />
 
-        <div className="flex items-center justify-between">
-          <h3 className="font-syne font-extrabold text-[16px] text-text">
-            {member ? 'Modifier le membre' : 'Nouveau membre'}
-          </h3>
-          <button onClick={onClose} className="text-muted text-[20px] leading-none">×</button>
-        </div>
+          <motion.div variants={sheetVariants} initial="closed" animate="open" exit="exit"
+            className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-[720px] rounded-t-[24px] border border-border bg-surface max-h-[90vh] overflow-y-auto flex flex-col">
 
-        {/* Identité */}
-        <div className="flex gap-2">
-          <input value={prenom} onChange={e => setPrenom(e.target.value)}
-            placeholder="Prénom" className={`flex-1 ${inputCls}`} />
-          <input value={nom} onChange={e => setNom(e.target.value)}
-            placeholder="Nom *" className={`flex-1 ${inputCls}`} />
-        </div>
+            <div className="mx-auto mt-[10px] h-1 w-10 rounded-full bg-border" />
 
-        {/* Email + mot de passe — alignés comme Prénom/Nom */}
-        <div className="flex gap-2">
-          <input value={email} onChange={e => setEmail(e.target.value)}
-            placeholder="Email *" type="email" className={`flex-1 ${inputCls}`} />
-          <input value={password} onChange={e => setPassword(e.target.value)}
-            placeholder={member ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe *'}
-            type="password" className={`flex-1 ${inputCls}`} />
-        </div>
-
-        {/* Rôle */}
-        <div className="flex gap-2">
-          {ROLES.map(r => (
-            <button
-              key={r.value}
-              onClick={() => setRole(r.value)}
-              className={`flex-1 py-2 rounded-[10px] text-[11px] font-bold border transition-all ${
-                role === r.value ? 'bg-accent/10 border-accent/40 text-accent' : 'border-border text-muted'
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Contrat */}
-        <div>
-          <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">Contrat</p>
-          <div className="flex gap-2 mb-2 flex-wrap">
-            {CONTRATS.map(c => (
-              <button
-                key={c}
-                onClick={() => setTypeContrat(v => v === c ? '' : c)}
-                className={`px-3 py-1.5 rounded-[8px] text-[11px] font-bold border transition-all ${
-                  typeContrat === c ? 'bg-accent/10 border-accent/40 text-accent' : 'border-border text-muted'
-                }`}
-              >
-                {c}
+            <header className="flex items-center justify-between px-6 py-5 border-b border-border">
+              <div>
+                <h2 className="font-syne text-[17px] font-extrabold text-text">{isEdit ? 'Modifier le membre' : 'Nouveau membre'}</h2>
+                {subtitle && <p className="text-[12px] text-muted mt-0.5">{subtitle}</p>}
+              </div>
+              <button type="button" onClick={onClose}
+                aria-label="Fermer"
+                className="w-[30px] h-[30px] rounded-[8px] border border-border bg-surface2 text-muted text-[17px] flex items-center justify-center">
+                ×
               </button>
-            ))}
-          </div>
-          <input
-            value={heuresHebdo}
-            onChange={e => setHeuresHebdo(e.target.value.replace(/\D/g, ''))}
-            placeholder="Heures / semaine (ex : 35)"
-            className={inputCls}
-          />
-          <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-1 mt-3">Date d'embauche</p>
-          <input
-            type="date"
-            value={dateEmbauche}
-            onChange={e => setDateEmbauche(e.target.value)}
-            className={inputCls}
-          />
-        </div>
+            </header>
 
-        {/* Couleur avatar */}
-        <div>
-          <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-3">
-            Couleur de l'avatar
-          </p>
-
-          {/* Preview */}
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-[2.5px] rounded-[12px]" style={{ background: avatarColor }}>
-              <div
-                className="w-[40px] h-[40px] rounded-[10px] flex items-center justify-center text-white font-extrabold text-[13px]"
-                style={{ background: gradient }}
-              >
-                {initials || '?'}
+            <div className="grid grid-cols-1 tablet:grid-cols-2 gap-[14px] p-5">
+              <div className="flex flex-col gap-[14px]">
+                <StaffFormIdentite prenom={prenom} nom={nom} email={email} password={password} role={role} isEdit={isEdit}
+                  onPrenom={setPrenom} onNom={setNom} onEmail={setEmail} onPassword={setPassword} onRole={setRole} />
+                <StaffFormAvatar value={avatarColor} initials={initials} onChange={setAvatarColor} />
+              </div>
+              <div className="flex flex-col gap-[14px]">
+                <StaffFormContrat typeContrat={typeContrat} heuresHebdo={heuresHebdo} dateEmbauche={dateEmbauche}
+                  onTypeContrat={setTypeContrat} onHeuresHebdo={setHeuresHebdo} onDateEmbauche={setDateEmbauche} />
+                <StaffFormEquipement tailleHaut={tailleHaut} tailleBas={tailleBas} pointure={pointure}
+                  onTailleHaut={setTailleHaut} onTailleBas={setTailleBas} onPointure={setPointure} />
+                <StaffFormAcces codePointage={codePointage} actif={actif} showActifRow={isEdit}
+                  onCodePointage={setCodePointage} onActif={setActif} />
               </div>
             </div>
-            <p className="text-[12px] text-muted">
-              {AVATAR_PALETTE.find(p => p.color === avatarColor)?.label ?? 'Personnalisée'}
-            </p>
-          </div>
 
-          {/* Palette */}
-          <div className="grid grid-cols-6 gap-2">
-            {AVATAR_PALETTE.map(entry => (
-              <button
-                key={entry.color}
-                onClick={() => setAvatarColor(entry.color)}
-                title={entry.label}
-                className="relative w-9 h-9 rounded-[10px] transition-transform active:scale-90"
-                style={{ background: entry.gradient }}
-              >
-                {avatarColor === entry.color && (
-                  <span className="absolute inset-0 flex items-center justify-center">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M2.5 7L5.5 10L11.5 4" stroke="white" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
-                )}
+            <footer className="flex items-center justify-end gap-2.5 px-6 py-4 border-t border-border bg-surface">
+              <button type="button" onClick={onClose}
+                className="px-4 py-2.5 rounded-[11px] bg-surface2 border border-border text-text text-[13px] font-semibold">
+                Annuler
               </button>
-            ))}
-          </div>
-        </div>
+              <button type="button" onClick={handleSubmit} disabled={!canSubmit}
+                className="px-5 py-2.5 rounded-[11px] bg-accent text-white font-syne font-extrabold text-[13px] disabled:opacity-40 transition-opacity">
+                {isEdit ? 'Enregistrer' : 'Créer le membre'}
+              </button>
+            </footer>
 
-        {/* Tailles */}
-        <div>
-          <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">Équipement</p>
-          <div className="grid grid-cols-3 gap-2">
-            <input value={tailleHaut} onChange={e => setTailleHaut(e.target.value)}
-              placeholder="Haut" className={inputCls} />
-            <input value={tailleBas} onChange={e => setTailleBas(e.target.value)}
-              placeholder="Bas" className={inputCls} />
-            <input value={pointure} onChange={e => setPointure(e.target.value)}
-              placeholder="Pointure" className={inputCls} />
-          </div>
-        </div>
-
-        {/* Code PIN pointage */}
-        <div>
-          <p className="text-[10px] font-syne font-bold uppercase tracking-widest text-muted mb-2">
-            Code PIN pointage
-          </p>
-          <input
-            value={codePointage}
-            onChange={e => setCodePointage(e.target.value.replace(/\D/g, '').slice(0, 4))}
-            placeholder="4 chiffres (ex : 1234)"
-            inputMode="numeric"
-            maxLength={4}
-            className={inputCls}
-          />
-          {codePointage.length > 0 && codePointage.length < 4 && (
-            <p className="text-[11px] mt-1" style={{ color: 'var(--yellow)' }}>
-              Le code doit comporter exactement 4 chiffres
-            </p>
-          )}
-        </div>
-
-        {/* Statut actif */}
-        {member && (
-          <div className="flex items-center justify-between px-1">
-            <div>
-              <p className="text-[13px] text-text font-medium">Membre actif</p>
-              <p className="text-[11px] text-muted">Visible dans l'app et les statistiques</p>
-            </div>
-            <button
-              onClick={() => setActif(v => !v)}
-              className={`w-[44px] h-[24px] rounded-full relative flex-shrink-0 transition-colors ${
-                actif ? 'bg-green' : 'bg-surface2 border border-border'
-              }`}
-            >
-              <span className={`absolute top-[3px] w-4 h-4 bg-white rounded-full shadow transition-all ${
-                actif ? 'left-[23px]' : 'left-[3px]'
-              }`} />
-            </button>
-          </div>
-        )}
-
-        <button
-          onClick={handleSubmit}
-          disabled={!nom.trim() || !email.trim() || (!member && !password.trim())}
-          className="w-full py-3 rounded-[12px] bg-accent text-white font-syne font-bold text-[14px] disabled:opacity-40 transition-opacity"
-        >
-          {member ? 'Enregistrer' : 'Créer le membre'}
-        </button>
-      </div>
-    </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   )
 }
