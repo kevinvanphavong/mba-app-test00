@@ -738,6 +738,20 @@ class ValidationHebdoService
             $pointage->setStatut(Pointage::STATUT_TERMINE);
         }
 
+        // Symétrique : rectifier l'heure d'arrivée d'un pointage encore PREVU
+        // ne peut signifier qu'une chose — l'employé est arrivé (juste pas
+        // pointé en direct). Sans ce bascule, l'invariant "PREVU => pas
+        // d'heureArrivee" est cassé et la timeline / les compteurs deviennent
+        // incohérents. Si un heureDepart existe aussi (correction d'un shift
+        // entier a posteriori), on saute directement à TERMINE.
+        if ($champ === 'heureArrivee' && $pointage->getStatut() === Pointage::STATUT_PREVU) {
+            $pointage->setStatut(
+                $pointage->getHeureDepart()
+                    ? Pointage::STATUT_TERMINE
+                    : Pointage::STATUT_EN_COURS
+            );
+        }
+
         $pointage->setUpdatedAt(new \DateTimeImmutable());
 
         // Tracer la correction
