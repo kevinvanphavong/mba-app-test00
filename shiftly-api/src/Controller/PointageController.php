@@ -84,6 +84,13 @@ class PointageController extends AbstractController
         $pointage->setStatut(Pointage::STATUT_EN_COURS);
         $pointage->setUpdatedAt($now);
 
+        // Trace l'utilisateur JWT qui a déclenché l'action (manager sur tablette
+        // de réception, manager bypass, ou employé sur son propre compte).
+        // Permet de répondre à "qui a pointé X ?" en cas de litige prud'homal.
+        /** @var \App\Entity\User|null $actor */
+        $actor = $this->getUser();
+        $pointage->setPointePar($actor);
+
         if (!empty($body['commentaire'])) {
             $pointage->setCommentaire($body['commentaire']);
         }
@@ -333,8 +340,9 @@ class PointageController extends AbstractController
 
     private function serializePointage(Pointage $p): array
     {
-        $poste = $p->getPoste();
-        $user  = $p->getUser();
+        $poste     = $p->getPoste();
+        $user      = $p->getUser();
+        $pointePar = $p->getPointePar();
 
         $pauses = array_map(fn(PointagePause $pause) => [
             'id'         => $pause->getId(),
@@ -359,6 +367,12 @@ class PointageController extends AbstractController
                 'avatarColor' => $user->getAvatarColor(),
                 'role'        => $user->getRole(),
             ],
+            'pointePar' => $pointePar ? [
+                'id'     => $pointePar->getId(),
+                'nom'    => $pointePar->getNom(),
+                'prenom' => $pointePar->getPrenom(),
+                'role'   => $pointePar->getRole(),
+            ] : null,
             'poste' => $poste ? [
                 'id'           => $poste->getId(),
                 'heureDebut'   => $poste->getHeureDebut()?->format('H:i'),

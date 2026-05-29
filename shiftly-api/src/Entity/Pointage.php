@@ -51,6 +51,18 @@ class Pointage
     #[Groups(['pointage:read'])]
     private ?\DateTimeImmutable $heureDepart = null;
 
+    /**
+     * Utilisateur authentifié qui a déclenché l'action de pointage (arrivée).
+     * - PIN classique → manager propriétaire de la tablette de réception
+     * - Bypass manager → manager qui force le pointage
+     * - Null = pointage généré par fixture ou rectifié uniquement via validation hebdo
+     *   (dans ce cas, l'auteur de la correction est tracé séparément dans CorrectionPointage).
+     */
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups(['pointage:read'])]
+    private ?User $pointePar = null;
+
     #[ORM\Column(length: 20)]
     #[Groups(['pointage:read'])]
     private string $statut = self::STATUT_PREVU;
@@ -94,6 +106,9 @@ class Pointage
 
     public function getHeureDepart(): ?\DateTimeImmutable { return $this->heureDepart; }
     public function setHeureDepart(?\DateTimeImmutable $h): static { $this->heureDepart = $h; return $this; }
+
+    public function getPointePar(): ?User { return $this->pointePar; }
+    public function setPointePar(?User $user): static { $this->pointePar = $user; return $this; }
 
     public function getStatut(): string { return $this->statut; }
     public function setStatut(string $statut): static { $this->statut = $statut; return $this; }

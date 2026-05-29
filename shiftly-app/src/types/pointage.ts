@@ -31,6 +31,13 @@ export interface PointagePoste {
   }
 }
 
+export interface PointageActor {
+  id:     number
+  nom:    string
+  prenom: string | null
+  role:   string
+}
+
 export interface PointageEntry {
   id:             number
   user:           PointageUser
@@ -42,6 +49,7 @@ export interface PointageEntry {
   dureeEffective: number          // minutes (calculé côté API)
   minutesRetard:  number          // 0 si à l'heure
   commentaire:    string | null
+  pointePar:      PointageActor | null  // null = pointage fixture / rectifié uniquement via validation hebdo
 }
 
 export interface PointageStats {
