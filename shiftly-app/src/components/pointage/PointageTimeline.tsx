@@ -26,7 +26,9 @@ function buildEvents(pointages: PointageEntry[]): TimelineEvent[] {
   for (const p of pointages) {
     const nom = p.user.prenom ? `${p.user.prenom} ${p.user.nom}` : p.user.nom
 
-    if (p.heureArrivee) {
+    // Ne considère une arrivée réelle que si le statut a quitté PREVU.
+    // Sinon, heureArrivee peut contenir l'horaire planifié (fixtures) sans pointage effectif.
+    if (p.heureArrivee && p.statut !== 'PREVU') {
       events.push({
         heure:   p.heureArrivee,
         texte:   p.minutesRetard > 0 ? `Arrivée (retard +${p.minutesRetard} min)` : 'Arrivée',
