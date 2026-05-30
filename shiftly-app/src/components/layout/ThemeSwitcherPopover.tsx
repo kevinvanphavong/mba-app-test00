@@ -22,29 +22,15 @@ const OPTIONS: Option[] = [
   { value: 'sand',  label: 'Sable',  icon: '⛱' },
 ]
 
-const THEME_ICON: Record<Theme, string> = {
-  light: '☀',
-  dark:  '☾',
-  sand:  '⛱',
-}
-
-const THEME_LABEL: Record<Theme, string> = {
-  light: 'Clair',
-  dark:  'Sombre',
-  sand:  'Sable',
-}
-
 /**
  * ThemeSwitcherPopover — bouton « Apparence » + popover ancré.
- *
- * - Expanded : bouton large avec icône + label + thème actuel à droite.
- * - Collapsed : bouton 40x40 icône uniquement, popover ancré à droite du bouton.
- * - Ferme au click extérieur (mousedown), Escape, ou choix d'un thème.
+ * Collapsed → bouton 40x40 + popover à droite. Ferme au click extérieur / Escape / choix.
  */
 export default function ThemeSwitcherPopover({ collapsed }: Props) {
   const { theme, setTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const current = OPTIONS.find(o => o.value === theme) ?? OPTIONS[1]
 
   // Click extérieur + Escape : fermeture commune
   useEffect(() => {
@@ -73,7 +59,7 @@ export default function ThemeSwitcherPopover({ collapsed }: Props) {
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={collapsed ? 'Apparence' : undefined}
-        title={collapsed ? `Apparence — ${THEME_LABEL[theme]}` : undefined}
+        title={collapsed ? `Apparence — ${current.label}` : undefined}
         className={cn(
           'flex items-center rounded-xl border border-border bg-surface2 transition-colors hover:bg-surface',
           collapsed
@@ -81,15 +67,11 @@ export default function ThemeSwitcherPopover({ collapsed }: Props) {
             : 'w-full gap-2.5 px-3 py-2.5'
         )}
       >
-        <span className="text-[15px] leading-none flex-shrink-0" aria-hidden>
-          {THEME_ICON[theme]}
-        </span>
+        <span className="text-[15px] leading-none flex-shrink-0" aria-hidden>{current.icon}</span>
         {!collapsed && (
           <>
-            <span className="text-[12px] font-semibold text-text leading-none flex-1 text-left">
-              Apparence
-            </span>
-            <span className="text-[11px] text-muted leading-none">{THEME_LABEL[theme]}</span>
+            <span className="text-[12px] font-semibold text-text leading-none flex-1 text-left">Apparence</span>
+            <span className="text-[11px] text-muted leading-none">{current.label}</span>
           </>
         )}
       </button>
