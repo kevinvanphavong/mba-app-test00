@@ -3,6 +3,7 @@ import Link                 from 'next/link'
 import dynamic              from 'next/dynamic'
 import { ty }               from '@/lib/typography'
 import LogoutButton         from '@/components/auth/LogoutButton'
+import PageContainer        from '@/components/layout/PageContainer'
 
 // Ces composants lisent Zustand (localStorage) — désactivation SSR pour éviter le mismatch d'hydration
 const ProfileCard          = dynamic(() => import('@/components/settings/ProfileCard'),          { ssr: false })
@@ -13,7 +14,7 @@ export const metadata: Metadata = { title: 'Réglages — Shiftly' }
 
 export default function ReglagesPage() {
   return (
-    <div className="mx-auto px-5 py-6">
+    <PageContainer>
       <div className="mb-5">
         <h1 className={`${ty.kpi} text-[20px]`}>Réglages</h1>
       </div>
@@ -66,6 +67,6 @@ export default function ReglagesPage() {
           <LogoutButton />
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 }

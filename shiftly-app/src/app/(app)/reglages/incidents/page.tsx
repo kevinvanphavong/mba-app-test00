@@ -6,6 +6,7 @@ import { formatDistanceToNow }     from 'date-fns'
 import { fr }                      from 'date-fns/locale'
 import { cn }                      from '@/lib/cn'
 import { ty }                      from '@/lib/typography'
+import PageContainer               from '@/components/layout/PageContainer'
 import ModalIncidentDetail         from '@/components/dashboard/ModalIncidentDetail'
 import ModalIncidentEdit           from '@/components/dashboard/ModalIncidentEdit'
 import { useIncidentsFull, useUpdateIncidentFull } from '@/hooks/useIncidents'
@@ -95,7 +96,7 @@ export default function IncidentsReglagesPage() {
 
   return (
     <>
-      <div className="mx-auto px-4 pb-24 desktop:max-w-2xl">
+      <PageContainer>
 
         {/* Header */}
         <div className="py-4 flex justify-between items-center">
@@ -237,7 +238,7 @@ export default function IncidentsReglagesPage() {
               })}
             </div>
           )}
-      </div>
+      </PageContainer>
 
       {/* Modales */}
       <ModalIncidentDetail

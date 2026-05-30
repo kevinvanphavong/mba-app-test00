@@ -12,6 +12,7 @@ import {
   useEditeurMissions,
 } from '@/hooks/useEditeur'
 import Topbar             from '@/components/layout/Topbar'
+import PageContainer      from '@/components/layout/PageContainer'
 import PosteCard          from '@/components/postes/PosteCard'
 import PostesDesktopView  from '@/components/postes/PostesDesktopView'
 import ModalAddMission    from '@/components/editeur/ModalAddMission'
@@ -141,7 +142,7 @@ export default function PostesPage() {
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
       <Topbar title="Postes" subtitle={subtitle} />
 
-      <div className="pt-6 px-4 pb-28 desktop:px-7 desktop:pb-10 desktop:max-w-[1400px] desktop:mx-auto space-y-4">
+      <PageContainer>
 
         {/* Loading */}
         {isLoading && (
@@ -382,7 +383,7 @@ export default function PostesPage() {
             onSave={handleSaveZone}
           />
         )}
-      </div>
+      </PageContainer>
     </motion.div>
   )
 }

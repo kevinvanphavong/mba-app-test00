@@ -5,6 +5,7 @@ import { useSearchParams }                               from 'next/navigation'
 import { motion }                                        from 'framer-motion'
 import { listVariants, listItemVariants, fadeUpVariants } from '@/lib/animations'
 import Topbar                                            from '@/components/layout/Topbar'
+import PageContainer                                     from '@/components/layout/PageContainer'
 import ProgressBanner from '@/components/tutoriels/ProgressBanner'
 import FeaturedCard   from '@/components/tutoriels/FeaturedCard'
 import TutoCard       from '@/components/tutoriels/TutoCard'
@@ -92,7 +93,7 @@ function TutorielsContent() {
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
       <Topbar title="Tutoriels" subtitle={topSubtitle} />
 
-      <div className="pt-6 px-4 pb-28 desktop:px-7 desktop:pb-10 space-y-4 desktop:mx-auto">
+      <PageContainer className="space-y-4">
 
         {/* ── État loading ── */}
         {isLoading && (
@@ -202,7 +203,7 @@ function TutorielsContent() {
             )}
           </>
         )}
-      </div>
+      </PageContainer>
     </motion.div>
   )
 }

@@ -8,6 +8,7 @@ import type {
   EditorZone, EditorTutoriel, TutorielFormData,
 } from '@/types/editeur'
 
+import PageContainer    from '@/components/layout/PageContainer'
 import TutorielList     from '@/components/editeur/TutorielList'
 import ModalAddTutoriel from '@/components/editeur/ModalAddTutoriel'
 import ModalConfirmDelete from '@/components/editeur/ModalConfirmDelete'
@@ -87,7 +88,7 @@ export default function EditeurTutorielsPage() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="mx-auto px-4 pb-24 desktop:max-w-2xl">
+    <PageContainer>
       <div className="py-4 flex justify-between items-center">
         <button
           onClick={() => router.back()}
@@ -175,6 +176,6 @@ export default function EditeurTutorielsPage() {
         onClose={() => setConfirmDelete(null)}
         onConfirm={handleConfirmDelete}
       />
-    </div>
+    </PageContainer>
   )
 }

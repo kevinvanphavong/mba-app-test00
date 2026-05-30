@@ -7,12 +7,13 @@ import { useMyTickets } from '@/hooks/useSupport'
 import TicketStatusBadge   from '@/components/support/TicketStatusBadge'
 import TicketPriorityBadge from '@/components/support/TicketPriorityBadge'
 import TicketCategoryBadge from '@/components/support/TicketCategoryBadge'
+import PageContainer       from '@/components/layout/PageContainer'
 
 export default function MyTicketsPage() {
   const { data, isLoading } = useMyTickets()
 
   return (
-    <div className="max-w-4xl mx-auto p-5 desktop:p-8">
+    <PageContainer>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
           <h1 className="font-syne font-extrabold text-[26px]">Support</h1>
@@ -70,6 +71,6 @@ export default function MyTicketsPage() {
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

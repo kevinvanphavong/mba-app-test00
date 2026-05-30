@@ -9,6 +9,7 @@
 import { useMemo, useState }       from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Topbar                      from '@/components/layout/Topbar'
+import PageContainer               from '@/components/layout/PageContainer'
 import MemberRow                   from '@/components/staff/MemberRow'
 import MemberPanel                 from '@/components/staff/MemberPanel'
 import ModalEditStaff              from '@/components/staff/ModalEditStaff'
@@ -109,19 +110,21 @@ export default function StaffPage() {
   if (isLoading) return (
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
       <Topbar title="Staff" subtitle={topSubtitle} />
-      <div className="p-6 space-y-3">
+      <PageContainer className="space-y-3">
         {[0,1,2,3].map(i => <div key={i} className="h-16 bg-surface border border-border rounded-[14px] animate-pulse" />)}
-      </div>
+      </PageContainer>
     </motion.div>
   )
 
   if (isError || !meta) return (
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
       <Topbar title="Staff" subtitle={topSubtitle} />
-      <div className="px-4 py-14 text-center">
-        <p className={`${ty.cardTitleMd} font-bold text-red mb-1`}>Impossible de charger le staff.</p>
-        <p className={ty.metaLg}>Vérifie la connexion ou recharge la page.</p>
-      </div>
+      <PageContainer>
+        <div className="py-14 text-center">
+          <p className={`${ty.cardTitleMd} font-bold text-red mb-1`}>Impossible de charger le staff.</p>
+          <p className={ty.metaLg}>Vérifie la connexion ou recharge la page.</p>
+        </div>
+      </PageContainer>
     </motion.div>
   )
 
@@ -129,7 +132,7 @@ export default function StaffPage() {
     <motion.div className="min-h-full" variants={fadeUpVariants} initial="hidden" animate="show">
       <Topbar title="Staff" subtitle={`Roster, compétences & contrats — ${user?.centre?.nom ?? ''}`} />
 
-      <div className="pt-4 px-4 pb-28 desktop:px-7 desktop:pb-10 space-y-4 mx-auto w-full">
+      <PageContainer className="space-y-4">
         {/* Hero */}
         <div className="rounded-[14px] border border-border border-t-2 border-t-accent bg-surface px-6 py-5 flex items-center justify-between flex-wrap gap-5">
           <div className="flex flex-col gap-1 min-w-0">
@@ -207,7 +210,7 @@ export default function StaffPage() {
             })}
           </div>
         )}
-      </div>
+      </PageContainer>
 
       {/* Modale édition */}
       <ModalEditStaff

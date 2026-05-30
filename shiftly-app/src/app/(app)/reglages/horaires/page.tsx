@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import api from '@/lib/api'
 import { useManagerGuard } from '@/hooks/useManagerGuard'
+import PageContainer       from '@/components/layout/PageContainer'
 import { useAuthStore }    from '@/store/authStore'
 import {
   JOURS_SEMAINE,
@@ -67,7 +68,7 @@ export default function HorairesPage() {
   if (!isManager) return null
 
   return (
-    <div className="mx-auto px-5 py-6 desktop:max-w-2xl">
+    <PageContainer>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Link
@@ -176,6 +177,6 @@ export default function HorairesPage() {
           </button>
         </form>
       )}
-    </div>
+    </PageContainer>
   )
 }

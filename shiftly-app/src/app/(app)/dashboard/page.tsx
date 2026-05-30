@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Topbar                from '@/components/layout/Topbar'
+import PageContainer         from '@/components/layout/PageContainer'
 import HeroService           from '@/components/dashboard/HeroService'
 import KPIGrid               from '@/components/dashboard/KPIGrid'
 import IncidentsList         from '@/components/dashboard/IncidentsList'
@@ -90,7 +91,7 @@ export default function DashboardPage() {
           onReportIncident={canReport ? openReportIncident : undefined}
         />
 
-        <div className="pt-5 px-5 pb-8 desktop:px-7 space-y-4">
+        <PageContainer className="space-y-4">
 
           {isLoading && (
             <div className="space-y-4 animate-pulse">
@@ -133,7 +134,7 @@ export default function DashboardPage() {
               </div>
             </>
           )}
-        </div>
+        </PageContainer>
       </div>
 
       {/* Modales — hors du div animé pour que position:fixed fonctionne */}
