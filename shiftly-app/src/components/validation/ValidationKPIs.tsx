@@ -102,7 +102,7 @@ export default function ValidationKPIs({ kpis }: Props) {
             {kpi.icon}
           </div>
           <div className="min-w-0">
-            <div className="kpi-value text-[18px] desktop:text-[26px]" style={{ color: kpi.valueColor }}>
+            <div className="kpi-value !text-[18px] desktop:!text-[26px]" style={{ color: kpi.valueColor }}>
               {kpi.value}
             </div>
             <div className="kpi-label">{kpi.label}</div>
