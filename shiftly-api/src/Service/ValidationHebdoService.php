@@ -179,6 +179,7 @@ class ValidationHebdoService
         $dateStr      = $jour->format('Y-m-d');
         $jourSemaine  = $this->formatJourSemaine($jour);
         $now          = new \DateTimeImmutable();
+        $planifie     = $this->getHorairesPlanifiees($pointage);
 
         // Cas : absence justifiée
         if ($absence !== null && $absence->getType() !== 'REPOS') {
@@ -190,6 +191,8 @@ class ValidationHebdoService
                 'heureArrivee'     => null,
                 'heureDepart'      => null,
                 'heureDepartAuto'  => false,
+                'heureDebutPlanifiee' => $planifie['debut'],
+                'heureFinPlanifiee'   => $planifie['fin'],
                 'pauses'           => [],
                 'heuresNettes'     => null,
                 'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
@@ -209,6 +212,8 @@ class ValidationHebdoService
                 'heureArrivee'     => null,
                 'heureDepart'      => null,
                 'heureDepartAuto'  => false,
+                'heureDebutPlanifiee' => null,
+                'heureFinPlanifiee'   => null,
                 'pauses'           => [],
                 'heuresNettes'     => null,
                 'heuresPrevues'    => null,
@@ -227,6 +232,8 @@ class ValidationHebdoService
                 'heureArrivee'     => null,
                 'heureDepart'      => null,
                 'heureDepartAuto'  => false,
+                'heureDebutPlanifiee' => $planifie['debut'],
+                'heureFinPlanifiee'   => $planifie['fin'],
                 'pauses'           => [],
                 'heuresNettes'     => null,
                 'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
@@ -251,6 +258,8 @@ class ValidationHebdoService
                     'heureArrivee'     => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
                     'heureDepart'      => $resolution['fin']->format(\DateTimeInterface::ATOM),
                     'heureDepartAuto'  => true,
+                    'heureDebutPlanifiee' => $planifie['debut'],
+                    'heureFinPlanifiee'   => $planifie['fin'],
                     'pauses'           => $this->formatPauses($pointage),
                     'heuresNettes'     => $this->calculerHeuresNettes($pointage),
                     'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
@@ -267,6 +276,8 @@ class ValidationHebdoService
                 'heureArrivee'     => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
                 'heureDepart'      => null,
                 'heureDepartAuto'  => false,
+                'heureDebutPlanifiee' => $planifie['debut'],
+                'heureFinPlanifiee'   => $planifie['fin'],
                 'pauses'           => $this->formatPauses($pointage),
                 'heuresNettes'     => $this->calculerHeuresNettes($pointage),
                 'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
@@ -285,6 +296,8 @@ class ValidationHebdoService
             'heureArrivee'     => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
             'heureDepart'      => $pointage->getHeureDepart()?->format(\DateTimeInterface::ATOM),
             'heureDepartAuto'  => false,
+            'heureDebutPlanifiee' => $planifie['debut'],
+            'heureFinPlanifiee'   => $planifie['fin'],
             'pauses'           => $this->formatPauses($pointage),
             'heuresNettes'     => $heuresNettes,
             'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
@@ -822,6 +835,25 @@ class ValidationHebdoService
         }
 
         return $result;
+    }
+
+    /**
+     * Renvoie les horaires planifiés du poste pour ce pointage, en 'HH:MM' local.
+     * Utilisé par le front (popover correction, CTA "pointer maintenant").
+     *
+     * @return array{debut: string|null, fin: string|null}
+     */
+    private function getHorairesPlanifiees(?Pointage $pointage): array
+    {
+        $poste = $pointage?->getPoste();
+        if ($poste === null) {
+            return ['debut' => null, 'fin' => null];
+        }
+
+        return [
+            'debut' => $poste->getHeureDebut()?->format('H:i'),
+            'fin'   => $poste->getHeureFin()?->format('H:i'),
+        ];
     }
 
     private function getHeuresPrevuesdepuisPointage(?Pointage $pointage): ?int
