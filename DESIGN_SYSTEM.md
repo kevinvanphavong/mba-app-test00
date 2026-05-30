@@ -164,6 +164,28 @@ Aucun `sm:` / `md:` / `lg:` / `xl:` ne subsiste dans `src/`.
 
 **Layout < desktop :** Header sticky 56px (logo + nom centre + burger) → ouvre `MobileDrawer` (slide depuis la gauche, backdrop, fermeture backdrop/Escape/item).
 
+### 4.1 Conteneurs de page — `PageContainer` / `PageContainerFull`
+
+Deux composants layout standardisent la largeur max et le padding de toutes les pages `src/app/(app)/`. Chaque page rend son `<Topbar />` au niveau racine, puis enveloppe le contenu dans l'un des deux conteneurs. Les états loading / error / empty sont rendus **à l'intérieur** du conteneur pour conserver le bon cadrage.
+
+| Composant | Padding mobile | Padding desktop | Largeur max desktop |
+|---|---|---|---|
+| `PageContainer` | `px-4 pt-6 pb-28` | `desktop:px-7 desktop:pt-8 desktop:pb-10` | `1400px` centré (`desktop:mx-auto`) |
+| `PageContainerFull` | `px-4 pt-6 pb-28` | `desktop:px-7 desktop:pt-8 desktop:pb-10` | — (pleine largeur) |
+
+**Règle de décision :**
+- **`PageContainer`** (défaut) — toutes les pages de lecture / paramétrage / consultation où le contenu serait illisible étiré : `dashboard`, `postes`, `staff`, `tutoriels`, `reglages` + sous-pages (`editeur`, `support`, `horaires`, `incidents`).
+- **`PageContainerFull`** — outils opérationnels temps réel ou denses qui doivent exploiter toute la zone après la Sidebar : `service`, `services`, `planning`, `pointage/validation`.
+- **`/pointage` (kiosk mode)** — n'utilise aucun des deux : layout dédié plein écran pour tablette de réception.
+
+**API commune :**
+
+```tsx
+<PageContainer className="space-y-4">    {/* className optionnel, mergé via twMerge */}
+  {/* contenu */}
+</PageContainer>
+```
+
 ---
 
 ## 5. Composants
