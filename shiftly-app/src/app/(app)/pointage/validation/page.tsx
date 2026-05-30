@@ -164,40 +164,7 @@ export default function ValidationPage() {
 
       <PageContainerFull className="flex-1">
 
-        {/* Boutons d'action — le titre vient désormais du Topbar */}
-        <div className="flex items-center justify-end mb-5 flex-wrap gap-3">
-          <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={handleDevaliderTout}
-              disabled={devaliderSemaineMut.isPending || nbValides === 0}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border transition-all"
-              style={{
-                background: 'var(--surface2)',
-                color: 'var(--red)',
-                borderColor: 'var(--red)',
-                opacity: devaliderSemaineMut.isPending || nbValides === 0 ? 0.4 : 1,
-                cursor: devaliderSemaineMut.isPending || nbValides === 0 ? 'not-allowed' : 'pointer',
-              }}
-            >
-              ✕ {devaliderSemaineMut.isPending ? 'Dévalidation...' : 'Tout dévalider'}
-            </button>
-
-            <button
-              onClick={handleValiderTout}
-              disabled={validerSemaineMut.isPending}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all"
-              style={{
-                background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
-                color: 'white',
-                opacity: validerSemaineMut.isPending ? 0.7 : 1,
-              }}
-            >
-              ✓ {validerSemaineMut.isPending ? 'Validation...' : 'Tout valider'}
-            </button>
-          </div>
-        </div>
-
-        {/* Navigation semaine */}
+        {/* Navigation semaine + boutons d'action (slot actions) */}
         <div className="mb-5">
           <ValidationWeekControl
             currentLundi={currentLundi}
@@ -205,6 +172,37 @@ export default function ValidationPage() {
             statut={semaine?.statutSemaine}
             nbValides={nbValides}
             nbTotal={nbTotal}
+            actions={
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={handleDevaliderTout}
+                  disabled={devaliderSemaineMut.isPending || nbValides === 0}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all"
+                  style={{
+                    background: 'var(--surface2)',
+                    color: 'var(--red)',
+                    borderColor: 'var(--red)',
+                    opacity: devaliderSemaineMut.isPending || nbValides === 0 ? 0.4 : 1,
+                    cursor: devaliderSemaineMut.isPending || nbValides === 0 ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  ✕ {devaliderSemaineMut.isPending ? 'Dévalidation...' : 'Tout dévalider'}
+                </button>
+
+                <button
+                  onClick={handleValiderTout}
+                  disabled={validerSemaineMut.isPending}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-semibold transition-all"
+                  style={{
+                    background: 'linear-gradient(135deg, var(--accent), var(--accent2))',
+                    color: 'white',
+                    opacity: validerSemaineMut.isPending ? 0.7 : 1,
+                  }}
+                >
+                  ✓ {validerSemaineMut.isPending ? 'Validation...' : 'Tout valider'}
+                </button>
+              </div>
+            }
           />
         </div>
 
