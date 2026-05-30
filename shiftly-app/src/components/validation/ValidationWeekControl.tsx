@@ -5,6 +5,7 @@
  * Affiche numéro ISO de semaine, plage de dates et badge statut.
  */
 
+import type { ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { format, addDays, addWeeks, subWeeks, getISOWeek } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -16,6 +17,9 @@ interface Props {
   statut?: ValidationSemaine['statutSemaine']
   nbValides?: number
   nbTotal?: number
+  // Slot facultatif rendu à droite du badge (boutons d'action en général).
+  // En mobile, wrap sous le bloc semaine via justify-end + flex-wrap.
+  actions?: ReactNode
 }
 
 const STATUT_LABELS = {
@@ -30,6 +34,7 @@ export default function ValidationWeekControl({
   statut = 'en_attente',
   nbValides,
   nbTotal,
+  actions,
 }: Props) {
   const dimanche   = addDays(currentLundi, 6)
   const numSemaine = getISOWeek(currentLundi)
@@ -71,11 +76,14 @@ export default function ValidationWeekControl({
         </button>
       </div>
 
-      <div
-        className="validation-status-badge"
-        data-status={statut}
-      >
-        {badgeLabel}
+      <div className="flex items-center gap-3 flex-wrap justify-end">
+        <div
+          className="validation-status-badge"
+          data-status={statut}
+        >
+          {badgeLabel}
+        </div>
+        {actions}
       </div>
     </motion.div>
   )
