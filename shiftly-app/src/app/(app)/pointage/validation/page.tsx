@@ -19,6 +19,8 @@ import {
   useValiderSemaine,
   useDevaliderSemaine,
   useCorrigerPointage,
+  useAnnulerCorrection,
+  usePointerArriveeManager,
 } from '@/hooks/useValidation'
 import { AnimatePresence, motion }  from 'framer-motion'
 import Topbar                       from '@/components/layout/Topbar'
@@ -31,7 +33,7 @@ import ValidationWeekSummary        from '@/components/validation/ValidationWeek
 import ValidationLegalAlerts        from '@/components/validation/ValidationLegalAlerts'
 import ConfirmModal                 from '@/components/ui/ConfirmModal'
 import { useToastStore }            from '@/store/toastStore'
-import type { CorrectionPayload }   from '@/types/validation'
+import type { CorrectionPayload, CorrectionPointage } from '@/types/validation'
 
 /** Extrait un message lisible d'une erreur API (axios + JSON-LD API Platform). */
 function extractApiError(err: unknown, fallback: string): string {
@@ -81,6 +83,8 @@ export default function ValidationPage() {
   const validerSemaineMut   = useValiderSemaine(dateStr)
   const devaliderSemaineMut = useDevaliderSemaine(dateStr)
   const corrigerMut         = useCorrigerPointage(dateStr)
+  const annulerMut          = useAnnulerCorrection(dateStr)
+  const pointerArriveeMut   = usePointerArriveeManager(dateStr)
 
   // Statistiques validation pour le badge
   const nbValides = semaine
@@ -106,6 +110,33 @@ export default function ValidationPage() {
     corrigerMut.mutate(payload, {
       onSuccess: () => showToast('Correction appliquée', 'success'),
       onError:   (err) => showToast(extractApiError(err, 'Erreur lors de la correction'), 'error'),
+    })
+  }
+
+  const handleAnnulerCorrection = (correction: CorrectionPointage) => {
+    if (correction.ancienneValeur === null) {
+      showToast('Correction non annulable (pas d\'ancienne valeur enregistrée)', 'error')
+      return
+    }
+    // Le back stocke en 'Y-m-d H:i:s' local → on convertit en ISO pour le POST.
+    const iso = new Date(correction.ancienneValeur.replace(' ', 'T')).toISOString()
+    annulerMut.mutate(
+      {
+        pointageId:    correction.pointageId,
+        champModifie:  correction.champModifie as CorrectionPayload['champModifie'],
+        valeurACretablir: iso,
+      },
+      {
+        onSuccess: () => showToast('Correction annulée', 'success'),
+        onError:   (err) => showToast(extractApiError(err, 'Erreur lors de l\'annulation'), 'error'),
+      }
+    )
+  }
+
+  const handlePointerArrivee = (pointageId: number) => {
+    pointerArriveeMut.mutate(pointageId, {
+      onSuccess: () => showToast('Arrivée pointée', 'success'),
+      onError:   (err) => showToast(extractApiError(err, 'Erreur lors du pointage'), 'error'),
     })
   }
 
@@ -278,9 +309,13 @@ export default function ValidationPage() {
                     onValider={handleValiderEmploye}
                     onDevalider={handleDevaliderEmploye}
                     onCorriger={handleCorriger}
+                    onAnnulerCorrection={handleAnnulerCorrection}
+                    onPointerArrivee={handlePointerArrivee}
                     isValidating={validerEmployeMut.isPending}
                     isDevalidating={devaliderEmployeMut.isPending}
                     isCorrecting={corrigerMut.isPending}
+                    isAnnulant={annulerMut.isPending}
+                    isPointing={pointerArriveeMut.isPending}
                   />
                 </div>
               </motion.div>
@@ -310,9 +345,13 @@ export default function ValidationPage() {
                   onValider={handleValiderEmploye}
                   onDevalider={handleDevaliderEmploye}
                   onCorriger={handleCorriger}
+                  onAnnulerCorrection={handleAnnulerCorrection}
+                  onPointerArrivee={handlePointerArrivee}
                   isValidating={validerEmployeMut.isPending}
                   isDevalidating={devaliderEmployeMut.isPending}
                   isCorrecting={corrigerMut.isPending}
+                  isAnnulant={annulerMut.isPending}
+                  isPointing={pointerArriveeMut.isPending}
                 />
               ) : (
                 <div className="py-8 text-center text-sm" style={{ color: 'var(--muted)' }}>

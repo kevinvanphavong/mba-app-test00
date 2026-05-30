@@ -1,264 +1,162 @@
 'use client'
 
 /**
- * ValidationEmployeeDetail — Panneau détail jour par jour d'un employé.
- * Affiche arrivée, pauses, départ, heures nettes et historique corrections.
+ * ValidationEmployeeDetail — Orchestrateur du panneau détail employé (V2).
+ * Compose : tête employé · bulk actions · liste ValidationDayRow · timeline corrections · footer.
  */
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { fadeUpVariants as fadeUp } from '@/lib/animations'
-import ValidationCorrectionForm from './ValidationCorrectionForm'
-import ConfirmModal from '@/components/ui/ConfirmModal'
-import { formatHeure } from '@/lib/formatHeure'
-import type { ValidationEmploye, CorrectionPayload } from '@/types/validation'
+import ValidationDayRow              from './ValidationDayRow'
+import ValidationCorrectionTimeline  from './ValidationCorrectionTimeline'
+import ValidationBulkActions         from './ValidationBulkActions'
+import ConfirmModal                  from '@/components/ui/ConfirmModal'
+import type {
+  ValidationEmploye, ValidationJour, CorrectionPayload, CorrectionPointage,
+} from '@/types/validation'
 
 interface Props {
   employe: ValidationEmploye
   onValider: (userId: number) => void
   onDevalider: (userId: number) => void
   onCorriger: (payload: CorrectionPayload) => void
+  onAnnulerCorrection: (correction: CorrectionPointage) => void
+  onPointerArrivee: (pointageId: number) => void
   isValidating?: boolean
   isDevalidating?: boolean
   isCorrecting?: boolean
+  isAnnulant?: boolean
+  isPointing?: boolean
 }
 
 function minToHHMM(minutes: number | null): string {
   if (minutes === null) return '—'
-  const h   = Math.floor(minutes / 60)
-  const min = minutes % 60
+  const h = Math.floor(minutes / 60); const min = minutes % 60
   return `${h}h${min > 0 ? String(min).padStart(2, '0') : ''}`
+}
+function initiales(prenom: string, nom: string): string {
+  return `${prenom[0] ?? ''}${nom[0] ?? ''}`.toUpperCase()
+}
+// Convertit 'YYYY-MM-DD' + 'HH:MM' → ISO UTC, fuseau navigateur local (Europe/Paris).
+function toIsoUtc(date: string, time: string): string {
+  const [y, m, d] = date.split('-').map(Number)
+  const [hh, mm] = time.split(':').map(Number)
+  return new Date(y, m - 1, d, hh, mm, 0).toISOString()
 }
 
 export default function ValidationEmployeeDetail({
-  employe,
-  onValider,
-  onDevalider,
-  onCorriger,
-  isValidating = false,
-  isDevalidating = false,
-  isCorrecting = false,
+  employe, onValider, onDevalider, onCorriger, onAnnulerCorrection, onPointerArrivee,
+  isValidating = false, isDevalidating = false, isCorrecting = false,
+  isAnnulant = false, isPointing = false,
 }: Props) {
-  const [showCorrectionForm, setShowCorrectionForm] = useState(false)
-  const [correctionPointageId, setCorrectionPointageId] = useState<number | null>(null)
-  const [correctionDate, setCorrectionDate] = useState('')
-  const [correctionPauseId, setCorrectionPauseId] = useState<number | null>(null)
   const [showDevalidConfirm, setShowDevalidConfirm] = useState(false)
-
   const isValidee = employe.statut === 'VALIDEE'
 
+  const corrections = employe.corrections ?? []
+
+  // Map pointageId → date (utilisé par timeline + groupage des corrections par jour).
+  const pointageToDate: Record<number, string> = useMemo(() => {
+    const m: Record<number, string> = {}
+    employe.jours.forEach(j => { if (j.pointageId !== null) m[j.pointageId] = j.date })
+    return m
+  }, [employe.jours])
+
+  // Corrections groupées par pointageId pour pouvoir injecter "modified" sur la pilule.
+  const correctionsByPointage: Record<number, CorrectionPointage[]> = useMemo(() => {
+    const acc: Record<number, CorrectionPointage[]> = {}
+    corrections.forEach(c => {
+      const arr = acc[c.pointageId] ?? []
+      arr.push(c); acc[c.pointageId] = arr
+    })
+    Object.values(acc).forEach(arr => arr.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)))
+    return acc
+  }, [corrections])
+
   const joursActifs = employe.jours.filter(
-    j => j.statut === 'travaille' || j.statut === 'en_cours'
+    (j: ValidationJour) => j.statut === 'travaille' || j.statut === 'en_cours' || j.statut === 'absent_non_justifie'
   )
+  const joursAuto = joursActifs.filter(j => j.heureDepartAuto && j.pointageId !== null && j.heureFinPlanifiee)
 
-  const handleCorriger = (payload: CorrectionPayload) => {
-    onCorriger(payload)
-    setShowCorrectionForm(false)
-  }
-
-  // Ouvre le formulaire de correction pré-rempli sur un jour, éventuellement sur une pause précise.
-  const openCorrectionFor = (pointageId: number, date: string, pauseId: number | null = null) => {
-    setCorrectionPointageId(pointageId)
-    setCorrectionDate(date)
-    setCorrectionPauseId(pauseId)
-    setShowCorrectionForm(true)
+  const handleApplyDepartPlanifieAll = () => {
+    joursAuto.forEach(j => {
+      if (j.pointageId === null || !j.heureFinPlanifiee) return
+      onCorriger({
+        pointageId:     j.pointageId,
+        champModifie:   'heureDepart',
+        nouvelleValeur: toIsoUtc(j.date, j.heureFinPlanifiee),
+        motif:          'Appliquer le départ planifié (bulk)',
+      })
+    })
   }
 
   return (
-    <motion.div
-      className="flex flex-col h-full"
-      variants={fadeUp}
-      initial="hidden"
-      animate="show"
-    >
+    <motion.div className="flex flex-col h-full" variants={fadeUp} initial="hidden" animate="show">
       {/* En-tête employé */}
-      <div className="pb-3 mb-3" style={{ borderBottom: '1px solid var(--border)' }}>
-        <div className="text-sm font-semibold" style={{ color: 'var(--text)' }}>
-          {employe.prenom} {employe.nom}
+      <div className="validation-detail-head">
+        <div className="validation-detail-head__id">
+          <span className="validation-detail-head__avatar">{initiales(employe.prenom, employe.nom)}</span>
+          <div>
+            <div className="validation-detail-head__name">{employe.prenom} {employe.nom}</div>
+            <div className="validation-detail-head__meta">
+              {employe.role === 'MANAGER' ? 'Manager' : 'Employé'}{employe.zone ? ` · ${employe.zone}` : ''}
+            </div>
+          </div>
         </div>
-        <div className="text-[11px] mt-1" style={{ color: 'var(--muted)' }}>
-          {employe.role === 'MANAGER' ? 'Manager' : 'Employé'}{employe.zone ? ` · ${employe.zone}` : ''}
+        <div className="validation-detail-head__total">
+          <div className="validation-detail-head__total-lbl">Heures nettes</div>
+          <div className="validation-detail-head__total-val">{minToHHMM(employe.totalTravaille)}</div>
         </div>
       </div>
 
-      {/* Jours travaillés */}
+      <ValidationBulkActions
+        nbJoursAuto={joursAuto.length}
+        onAppliquerDepartPlanifie={handleApplyDepartPlanifieAll}
+        isApplying={isCorrecting}
+      />
+
+      {/* Jours */}
       <div className="flex-1 overflow-y-auto">
-        {joursActifs.length === 0 ? (
+        {employe.jours.length === 0 ? (
           <div className="text-sm py-4 text-center" style={{ color: 'var(--muted)' }}>
-            Aucune journée travaillée cette semaine
+            Aucune journée cette semaine
           </div>
         ) : (
-          joursActifs.map((jour) => (
-            <div key={jour.date} className="validation-detail-row flex items-start gap-3 py-3">
-              <div className="validation-detail-day">{jour.jourSemaine} {jour.date.slice(8)}</div>
-
-              <div className="validation-detail-times flex-1">
-                {jour.heureArrivee && (
-                  <div className="validation-detail-time-item flex items-center gap-1">
-                    Arrivée {formatHeure(jour.heureArrivee)}
-                    {jour.estRetard
-                      ? <span style={{ color: 'var(--accent)' }}>⚠</span>
-                      : <span style={{ color: 'var(--green)' }}>✓</span>
-                    }
-                  </div>
-                )}
-                {jour.pauses.map((p) => (
-                  <div key={p.id} className="validation-detail-time-item flex items-center gap-1">
-                    {p.type === 'REPAS' ? '🍽' : '☕'} {formatHeure(p.debut)}–{p.fin ? formatHeure(p.fin) : '??'}
-                    <span>({p.dureeMinutes} min)</span>
-                    {jour.pointageId !== null && (
-                      <button
-                        type="button"
-                        onClick={() => openCorrectionFor(jour.pointageId as number, jour.date, p.id)}
-                        aria-label={`Corriger la pause de ${jour.jourSemaine} ${jour.date.slice(8)}`}
-                        title="Corriger cette pause"
-                        className="ml-1 shrink-0"
-                        style={{
-                          color: 'var(--muted)',
-                          background: 'transparent',
-                          border: '1px solid var(--border)',
-                          borderRadius: 6,
-                          padding: '0 4px',
-                          fontSize: 10,
-                          cursor: 'pointer',
-                          lineHeight: '14px',
-                        }}
-                      >
-                        ✏️
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {jour.heureDepart && (
-                  <div className="validation-detail-time-item flex items-center gap-1">
-                    Départ{' '}
-                    {jour.heureDepartAuto ? (
-                      <>
-                        <span style={{ fontStyle: 'italic', color: 'var(--muted)' }}>
-                          {formatHeure(jour.heureDepart)}
-                        </span>
-                        <span
-                          title="Heure de fin appliquée automatiquement (pas de pointage de départ)"
-                          style={{
-                            padding:       '0 4px',
-                            fontSize:      9,
-                            fontWeight:    700,
-                            textTransform: 'uppercase',
-                            letterSpacing: 0.4,
-                            borderRadius:  4,
-                            background:    'rgba(249,115,22,0.12)',
-                            color:         'var(--accent)',
-                          }}
-                        >
-                          auto
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        {formatHeure(jour.heureDepart)}
-                        <span style={{ color: 'var(--green)' }}>✓</span>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="validation-detail-net">
-                {minToHHMM(jour.heuresNettes)}
-              </div>
-
-              {jour.pointageId !== null && (
-                <button
-                  type="button"
-                  onClick={() => openCorrectionFor(jour.pointageId as number, jour.date)}
-                  aria-label={`Corriger le pointage du ${jour.jourSemaine} ${jour.date.slice(8)}`}
-                  className="validation-detail-correct-btn shrink-0"
-                  style={{
-                    color: 'var(--muted)',
-                    background: 'transparent',
-                    border: '1px solid var(--border)',
-                    borderRadius: 6,
-                    padding: '2px 6px',
-                    fontSize: 11,
-                    cursor: 'pointer',
-                  }}
-                  title="Corriger ce pointage"
-                >
-                  ✏️
-                </button>
-              )}
-            </div>
+          employe.jours.map(jour => (
+            <ValidationDayRow
+              key={jour.date}
+              jour={jour}
+              corrections={jour.pointageId !== null ? (correctionsByPointage[jour.pointageId] ?? []) : []}
+              isCorrecting={isCorrecting || isPointing}
+              onCorriger={onCorriger}
+              onPointerArrivee={onPointerArrivee}
+            />
           ))
         )}
       </div>
 
-      {/* Historique corrections */}
-      <div className="validation-correction-history mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-        {!employe.corrections || employe.corrections.length === 0 ? (
-          <span>
-            Historique corrections : <strong style={{ color: 'var(--green)' }}>Aucune correction cette semaine</strong>
-          </span>
-        ) : (
-          <>
-            <div className="font-semibold mb-1" style={{ color: 'var(--text)' }}>Corrections ({employe.corrections.length})</div>
-            {employe.corrections.slice(0, 3).map(c => (
-              <div key={c.id} className="text-[11px] py-1" style={{ color: 'var(--muted)' }}>
-                {c.champModifie} : {c.ancienneValeur?.slice(11, 16) ?? '—'} → {c.nouvelleValeur?.slice(11, 16) ?? '—'} par {c.corrigePar}
-              </div>
-            ))}
-          </>
-        )}
-      </div>
+      <ValidationCorrectionTimeline
+        corrections={corrections}
+        pointageToDate={pointageToDate}
+        onAnnuler={onAnnulerCorrection}
+        isAnnulant={isAnnulant}
+      />
 
-      {/* Formulaire de correction */}
-      {showCorrectionForm && correctionPointageId && correctionDate && (
-        <div className="mt-3">
-          <ValidationCorrectionForm
-            pointageId={correctionPointageId}
-            date={correctionDate}
-            pauseId={correctionPauseId ?? undefined}
-            onSubmit={handleCorriger}
-            onCancel={() => setShowCorrectionForm(false)}
-            isLoading={isCorrecting}
-          />
-        </div>
-      )}
-
-      {/* Bouton de validation — toggle valider / dévalider selon l'état */}
-      <div className="flex gap-2 mt-4 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+      {/* Footer : valider / dévalider */}
+      <div className="validation-detail-foot">
         {isValidee ? (
-          <button
-            onClick={() => setShowDevalidConfirm(true)}
-            disabled={isDevalidating}
-            className="flex-1 py-2 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1.5"
-            style={{
-              background: 'var(--surface2)',
-              color: 'var(--muted)',
-              borderColor: 'var(--border)',
-              opacity: isDevalidating ? 0.5 : 1,
-            }}
-            title="Annuler la validation de cette semaine pour cet employé"
-          >
+          <button type="button" onClick={() => setShowDevalidConfirm(true)} disabled={isDevalidating}
+            className="validation-detail-foot__btn-secondary">
             {isDevalidating ? 'Annulation…' : '↺ Annuler la validation'}
           </button>
         ) : (
-          <button
-            onClick={() => onValider(employe.userId)}
-            disabled={isValidating}
-            className="flex-1 py-2 rounded-lg text-xs font-semibold border transition-all flex items-center justify-center gap-1"
-            style={{
-              background: 'rgba(34,197,94,0.15)',
-              color: 'var(--green)',
-              borderColor: 'var(--green)',
-              opacity: isValidating ? 0.5 : 1,
-            }}
-          >
-            {isValidating ? 'Validation…' : '✓ Valider la semaine'}
+          <button type="button" onClick={() => onValider(employe.userId)} disabled={isValidating}
+            className="validation-detail-foot__btn-valider">
+            {isValidating ? 'Validation…' : `✓ Valider la semaine de ${employe.prenom}`}
           </button>
         )}
       </div>
 
-      {/* Confirmation avant dévalidation — paie sensible, on évite le clic accidentel */}
       <ConfirmModal
         open={showDevalidConfirm}
         title="Annuler la validation de la semaine ?"
@@ -268,10 +166,7 @@ export default function ValidationEmployeeDetail({
         variant="danger"
         isLoading={isDevalidating}
         onCancel={() => setShowDevalidConfirm(false)}
-        onConfirm={() => {
-          onDevalider(employe.userId)
-          setShowDevalidConfirm(false)
-        }}
+        onConfirm={() => { onDevalider(employe.userId); setShowDevalidConfirm(false) }}
       />
     </motion.div>
   )
