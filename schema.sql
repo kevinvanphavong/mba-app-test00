@@ -530,6 +530,44 @@ CREATE TABLE media (
 -- qui suppriment aussi le binaire R2 via R2StorageService::delete().
 
 -- ============================================================
+-- TABLE : event_log
+-- Module EventLog — journal append-only des événements métier.
+-- Premier producteur : CompletionEventLogger (CHECK / UNCHECK).
+-- Lecture seule via API Platform (GET only), MANAGER + filtre centre.
+-- entity_type : 'completion' (autres entités à venir en Phase 2).
+-- action      : 'CHECK' | 'UNCHECK'
+-- payload     : JSON snapshot 8 clés (missionNom, zoneNom, userNom, etc.)
+-- FK user/poste/mission : ON DELETE SET NULL (préserver l'historique).
+-- ============================================================
+
+CREATE TABLE event_log (
+    id            BIGINT AUTO_INCREMENT NOT NULL,
+    centre_id     INT          NOT NULL,
+    entity_type   VARCHAR(50)  NOT NULL,
+    entity_id     INT          DEFAULT NULL,
+    action        VARCHAR(20)  NOT NULL,
+    user_id       INT          DEFAULT NULL,
+    poste_id      INT          DEFAULT NULL,
+    mission_id    INT          DEFAULT NULL,
+    payload       JSON         NOT NULL,
+    occurred_at   DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    PRIMARY KEY (id),
+    INDEX idx_eventlog_centre_type_date (centre_id, entity_type, occurred_at),
+    INDEX idx_eventlog_centre_user_date (centre_id, user_id, occurred_at),
+    INDEX idx_eventlog_poste            (poste_id),
+    INDEX idx_eventlog_mission          (mission_id),
+    INDEX idx_eventlog_user             (user_id),
+    CONSTRAINT FK_eventlog_centre  FOREIGN KEY (centre_id)  REFERENCES centre (id),
+    CONSTRAINT FK_eventlog_user    FOREIGN KEY (user_id)    REFERENCES `user`  (id) ON DELETE SET NULL,
+    CONSTRAINT FK_eventlog_poste   FOREIGN KEY (poste_id)   REFERENCES poste   (id) ON DELETE SET NULL,
+    CONSTRAINT FK_eventlog_mission FOREIGN KEY (mission_id) REFERENCES mission (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Append-only : aucun UPDATE ni DELETE depuis l'app. Job cron de rétention
+-- 3 ans à mettre en place en Phase 2 (cf. EVENTLOG_MODULE.md §11).
+-- Pas de fixture sur event_log : alimentée au runtime par les listeners.
+
+-- ============================================================
 -- NOTES MÉTIER
 -- ============================================================
 

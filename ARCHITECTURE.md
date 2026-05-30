@@ -233,10 +233,11 @@ mba-app-test00/
     │   │   ├── PlanningTemplateShift.php # Shifts du template (zone+user+dayOfWeek+horaires)
     │   │   ├── PlanningTemplateAbsence.php # Absences du template (user+dayOfWeek+type+motif)
     │   │   ├── AuditLog.php           # Trace des actions SuperAdmin (Phase 1)
+    │   │   ├── EventLog.php           # Journal append-only métier (Completion CHECK/UNCHECK)
     │   │   └── CentreNote.php         # Notes internes SuperAdmin par centre (Phase 1)
     │   │
     │   ├── Controller/
-    │   │   ├── DashboardController.php            # GET /api/dashboard/{centreId}
+    │   │   ├── DashboardController.php            # GET /api/dashboard/{centreId} + /completion-history (manager)
     │   │   ├── ValidationController.php           # 7 routes /api/pointages/validation/*
     │   │   ├── PlanningTemplateController.php     # CRUD + apply templates de semaine
     │   │   ├── SuperAdminAuthController.php       # GET /api/superadmin/auth/me
@@ -254,6 +255,7 @@ mba-app-test00/
     │   │
     │   ├── EventListener/             # Listeners Doctrine
     │   │   ├── CompletionListener.php             # Recalcul taux_completion (postPersist/postRemove)
+    │   │   ├── CompletionEventLogger.php          # Append-only EventLog (onFlush: CHECK/UNCHECK)
     │   │   ├── CompletionPhotoCleanupListener.php # Supprime le binaire R2 (preRemove)
     │   │   ├── MediaR2CleanupListener.php         # Idem pour Media (preRemove)
     │   │   ├── MissionMediaCleanupListener.php    # Cascade Media R2 sur Mission supprimée

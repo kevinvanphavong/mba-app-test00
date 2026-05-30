@@ -709,3 +709,53 @@ Ces alertes ont le champ `categorie: 'legal'` et un champ `baseLegale` (référe
 | `PAUSE_6H` | Shift > 6h et pauseMinutes < 20 | Art. L3121-16 C. travail |
 
 Différenciées visuellement des alertes métier dans `AlertPanel.tsx` par un badge ⚖️.
+
+---
+
+## Module EventLog — journal append-only métier
+
+> Spec complète : [`docs/modules/EVENTLOG_MODULE.md`](EVENTLOG_MODULE.md).
+
+### Entité `EventLog`
+
+Table `event_log` (clé `bigint`) — **append-only**, jamais d'UPDATE/DELETE depuis l'app.
+Premier producteur : `CompletionEventLogger` (CHECK / UNCHECK des Completions).
+Conçue polymorphe pour HACCP / Pointage / Incident en Phase 2 (`entityType`).
+
+| Champ | Type | Rôle |
+|---|---|---|
+| `centre` | FK Centre, NOT NULL | Cloison multi-tenant — indexée |
+| `entityType` | VARCHAR(50) | Discriminant : `completion` (autres types à venir) |
+| `entityId` | INT nullable | Id de l'objet d'origine (peut être null sur insertion) |
+| `action` | VARCHAR(20) | `CHECK` / `UNCHECK` |
+| `user` / `poste` / `mission` | FK nullable | Contexte fort, `onDelete: SET NULL` (GDPR + audit) |
+| `payload` | JSON | Snapshot 8 clés (cf. §4 spec) |
+| `occurredAt` | DATETIME_IMMUTABLE | Horodatage serveur |
+
+Index composés : `(centre_id, entity_type, occurred_at)` · `(centre_id, user_id, occurred_at)` · `poste_id` · `mission_id` · `user_id`.
+
+### Listener `CompletionEventLogger`
+
+`onFlush` — itère `scheduledEntityInsertions` (CHECK) et `scheduledEntityDeletions`
+(UNCHECK) sur les Completion. Persiste l'EventLog + `computeChangeSet` pour
+flush atomique. En CLI (fixtures), retombe sur `Completion::getUser()` ; tolère
+`user = null`. `entity_id` peut être `null` côté CHECK car l'id Completion
+n'est assigné qu'au moment de l'INSERT — sans impact analytics (FK `mission_id` / `poste_id` suffisent).
+
+### Endpoints (MANAGER only)
+
+| Méthode | Route | Description |
+|---|---|---|
+| GET | `/api/event_logs` | Collection paginée (filtres `entityType`, `action`, `user`, `poste`, `mission`, `occurredAt[before|after]`) |
+| GET | `/api/event_logs/{id}` | Détail (Voter `VIEW`) |
+| GET | `/api/dashboard/completion-history?period=7d\|30d\|90d` | Agrégats widget /dashboard (cache `private, max-age=60`) |
+| GET | `/api/dashboard/completion-history/services/{serviceId}` | Timeline drill-down |
+
+Cloison stricte par centre : `CentreQueryExtension` (filtre auto API Platform) +
+`EventLogVoter` (lecture seule, attribute `VIEW`). Un EMPLOYE → 403 sur toutes
+les routes EventLog.
+
+### Hors scope (Phase 2 — cf. EVENTLOG_MODULE.md §12)
+
+Export PDF/CSV, vue SuperAdmin cross-centre, instrumentation HACCP/Pointage/Incident,
+webhook sortant, job cron rétention 3 ans.

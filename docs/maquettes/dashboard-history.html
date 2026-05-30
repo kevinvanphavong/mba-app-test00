@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shiftly — Dashboard · Historique des services</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #151820;
+      --surface2: #1c2030;
+      --surface3: #232838;
+      --border: #252a3a;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --accent: #f97316;
+      --accent2: #fb923c;
+      --blue: #3b82f6;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --purple: #a855f7;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .page { max-width: 1240px; margin: 0 auto; padding: 20px 16px 80px; }
+
+    /* ── Header section ── */
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .section-title h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: -0.5px;
+    }
+    .section-title p {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    /* ── Période toggle ── */
+    .period-toggle {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+    }
+    .period-pill {
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      border-radius: 7px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .period-pill:hover { color: var(--text); }
+    .period-pill.active {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* ── KPI ligne ── */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .kpi-value {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 26px;
+      line-height: 1;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+    .kpi-sub.up   { color: var(--green); }
+    .kpi-sub.down { color: var(--red); }
+
+    /* ── Grille widgets ── */
+    .widgets-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) {
+      .widgets-grid { grid-template-columns: 1fr; }
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .widget {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .widget-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 15px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .widget-title .ico {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      background: var(--surface3);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    /* ── Donut zones ── */
+    .donut-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .donut {
+      position: relative;
+      width: 140px; height: 140px;
+    }
+    .donut svg { transform: rotate(-90deg); }
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .donut-center .v {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 24px;
+    }
+    .donut-center .l {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+    .zone-legend {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .zone-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .zone-dot {
+      width: 10px; height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .zone-row .nom { flex: 1; font-weight: 500; }
+    .zone-row .val { font-weight: 700; color: var(--text); }
+
+    /* ── Missions oubliées ── */
+    .miss-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .miss-row:last-child { border-bottom: none; }
+    .miss-rank {
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      background: var(--surface2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .miss-rank.top { background: rgba(239,68,68,0.15); color: var(--red); }
+    .miss-info { flex: 1; min-width: 0; }
+    .miss-name {
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .miss-zone {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .miss-count {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--red);
+    }
+    .miss-count span {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-left: 2px;
+    }
+
+    /* ── Ranking staff ── */
+    .staff-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .staff-row:last-child { border-bottom: none; }
+    .avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      color: white;
+      flex-shrink: 0;
+    }
+    .staff-info { flex: 1; min-width: 0; }
+    .staff-name { font-weight: 600; font-size: 13px; }
+    .staff-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .staff-taux {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .staff-taux.high { color: var(--green); }
+    .staff-taux.mid  { color: var(--yellow); }
+    .staff-taux.low  { color: var(--red); }
+
+    /* ── Services récents ── */
+    .services-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .services-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .service-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      gap: 14px;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .service-card:hover {
+      background: var(--surface3);
+      border-color: var(--accent);
+    }
+    @media (max-width: 600px) {
+      .service-card { grid-template-columns: auto 1fr auto; }
+      .service-card .creneau-col { display: none; }
+    }
+    .service-date {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 13px;
+      width: 54px;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .service-date .jour { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .service-meta { min-width: 0; }
+    .service-titre {
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .service-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .creneau-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--surface3);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .taux-pill {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      background: rgba(34,197,94,0.1);
+      color: var(--green);
+    }
+    .taux-pill.mid { background: rgba(234,179,8,0.1);  color: var(--yellow); }
+    .taux-pill.low { background: rgba(239,68,68,0.1);  color: var(--red); }
+
+    /* ── Modale drill-down ── */
+    .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+      padding: 0;
+    }
+    @media (min-width: 700px) {
+      .modal-backdrop { align-items: center; padding: 40px; }
+    }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px 16px 0 0;
+      width: 100%;
+      max-width: 680px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    @media (min-width: 700px) {
+      .modal { border-radius: 16px; }
+    }
+    .modal-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modal-head h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .modal-head .close {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* Filtre zones de la timeline */
+    .zone-filter {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .zone-pill {
+      padding: 5px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 16px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .zone-pill.active.accueil { background: rgba(59,130,246,0.15); border-color: var(--blue);   color: var(--blue); }
+    .zone-pill.active.bar     { background: rgba(168,85,247,0.15); border-color: var(--purple); color: var(--purple); }
+    .zone-pill.active.salle   { background: rgba(34,197,94,0.15);  border-color: var(--green);  color: var(--green); }
+    .zone-pill.active.manager { background: rgba(249,115,22,0.15); border-color: var(--accent); color: var(--accent); }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 6px;
+      bottom: 6px;
+      width: 2px;
+      background: var(--border);
+    }
+    .tl-event {
+      position: relative;
+      padding: 8px 0 8px 4px;
+    }
+    .tl-event::before {
+      content: '';
+      position: absolute;
+      left: -27px;
+      top: 14px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+    }
+    .tl-event.check::before   { background: var(--green); }
+    .tl-event.uncheck::before { background: var(--red); }
+    .tl-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+    .tl-time {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--muted);
+      width: 46px;
+      flex-shrink: 0;
+    }
+    .tl-action {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tl-action.check   { background: rgba(34,197,94,0.15);  color: var(--green); }
+    .tl-action.uncheck { background: rgba(239,68,68,0.15);  color: var(--red); }
+    .tl-mission { font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tl-user {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* États loading / empty */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface2), var(--surface3), var(--surface2));
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 6px;
+    }
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .empty-state .emoji { font-size: 28px; display: block; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- HEADER : titre + sélecteur période -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="section-header">
+      <div class="section-title">
+        <h2>Historique des services</h2>
+        <p>Qui a coché quoi, et quand. Mise à jour temps réel.</p>
+      </div>
+      <div class="period-toggle">
+        <button class="period-pill">7 jours</button>
+        <button class="period-pill active">30 jours</button>
+        <button class="period-pill">90 jours</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- KPI ROW -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Missions cochées</div>
+        <div class="kpi-value">1 842</div>
+        <div class="kpi-sub up">↑ 12% vs 30j précédents</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Décochages</div>
+        <div class="kpi-value">47</div>
+        <div class="kpi-sub">soit 2.5% des actions</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Services complets</div>
+        <div class="kpi-value">28<span style="color:var(--muted);font-size:14px">/31</span></div>
+        <div class="kpi-sub up">↑ 90% du mois</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Taux moyen</div>
+        <div class="kpi-value" style="color:var(--green)">91.6%</div>
+        <div class="kpi-sub up">↑ 3.2 pts</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- 3 WIDGETS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="widgets-grid">
+
+      <!-- Widget 1 : Donut zones -->
+      <div class="widget">
+        <div class="widget-title"><span class="ico">📍</span>Taux par zone</div>
+        <div class="donut-wrap">
+          <div class="donut">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <!-- Cercle background -->
+              <circle cx="70" cy="70" r="55" fill="none" stroke="var(--surface2)" stroke-width="18"/>
+              <!-- Accueil : 35% (bleu) -->
+              <circle cx="70" cy="70" r="55" fill="none" stroke="#3b82f6" stroke-width="18"
+                stroke-dasharray="121 345" stroke-dashoffset="0"/>
+              <!-- Bar : 25% (violet) -->
+              <circle cx="70" cy="70" r="55" fill="none" stroke="#a855f7" stroke-width="18"
+                stroke-dasharray="86 345" stroke-dashoffset="-121"/>
+              <!-- Salle : 30% (vert) -->
+              <circle cx="70" cy="70" r="55" fill="none" stroke="#22c55e" stroke-width="18"
+                stroke-dasharray="104 345" stroke-dashoffset="-207"/>
+              <!-- Manager : 10% (orange) -->
+              <circle cx="70" cy="70" r="55" fill="none" stroke="#f97316" stroke-width="18"
+                stroke-dasharray="35 345" stroke-dashoffset="-311"/>
+            </svg>
+            <div class="donut-center">
+              <div class="v">91.6%</div>
+              <div class="l">moyen</div>
+            </div>
+          </div>
+          <div class="zone-legend">
+            <div class="zone-row">
+              <span class="zone-dot" style="background:var(--blue)"></span>
+              <span class="nom">Accueil</span>
+              <span class="val">95.6%</span>
+            </div>
+            <div class="zone-row">
+              <span class="zone-dot" style="background:var(--purple)"></span>
+              <span class="nom">Bar</span>
+              <span class="val">92.4%</span>
+            </div>
+            <div class="zone-row">
+              <span class="zone-dot" style="background:var(--green)"></span>
+              <span class="nom">Salle</span>
+              <span class="val">88.1%</span>
+            </div>
+            <div class="zone-row">
+              <span class="zone-dot" style="background:var(--accent)"></span>
+              <span class="nom">Manager</span>
+              <span class="val">90.3%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Widget 2 : Missions oubliées -->
+      <div class="widget">
+        <div class="widget-title"><span class="ico">⚠️</span>Missions oubliées</div>
+        <div>
+          <div class="miss-row">
+            <span class="miss-rank top">1</span>
+            <div class="miss-info">
+              <div class="miss-name">Vider corbeille du Bar</div>
+              <div class="miss-zone">Bar · important</div>
+            </div>
+            <div class="miss-count">14<span>x</span></div>
+          </div>
+          <div class="miss-row">
+            <span class="miss-rank top">2</span>
+            <div class="miss-info">
+              <div class="miss-name">Vérifier stock gobelets</div>
+              <div class="miss-zone">Bar · ne pas oublier</div>
+            </div>
+            <div class="miss-count">11<span>x</span></div>
+          </div>
+          <div class="miss-row">
+            <span class="miss-rank top">3</span>
+            <div class="miss-info">
+              <div class="miss-name">Nettoyer écran accueil</div>
+              <div class="miss-zone">Accueil · ne pas oublier</div>
+            </div>
+            <div class="miss-count">9<span>x</span></div>
+          </div>
+          <div class="miss-row">
+            <span class="miss-rank">4</span>
+            <div class="miss-info">
+              <div class="miss-name">Recharger papier WC</div>
+              <div class="miss-zone">Salle · important</div>
+            </div>
+            <div class="miss-count">7<span>x</span></div>
+          </div>
+          <div class="miss-row">
+            <span class="miss-rank">5</span>
+            <div class="miss-info">
+              <div class="miss-name">Vérifier sono</div>
+              <div class="miss-zone">Salle · ne pas oublier</div>
+            </div>
+            <div class="miss-count">5<span>x</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Widget 3 : Ranking staff -->
+      <div class="widget">
+        <div class="widget-title"><span class="ico">🏆</span>Ranking staff</div>
+        <div>
+          <div class="staff-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#f97316,#fb923c)">SL</div>
+            <div class="staff-info">
+              <div class="staff-name">Sophie L.</div>
+              <div class="staff-sub">312 checks · 22 services</div>
+            </div>
+            <div class="staff-taux high">96.2%</div>
+          </div>
+          <div class="staff-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#a855f7,#c084fc)">TM</div>
+            <div class="staff-info">
+              <div class="staff-name">Thomas M.</div>
+              <div class="staff-sub">298 checks · 21 services</div>
+            </div>
+            <div class="staff-taux high">94.8%</div>
+          </div>
+          <div class="staff-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#3b82f6,#60a5fa)">LB</div>
+            <div class="staff-info">
+              <div class="staff-name">Léa B.</div>
+              <div class="staff-sub">256 checks · 19 services</div>
+            </div>
+            <div class="staff-taux high">92.1%</div>
+          </div>
+          <div class="staff-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#22c55e,#4ade80)">KV</div>
+            <div class="staff-info">
+              <div class="staff-name">Kévin V.</div>
+              <div class="staff-sub">189 checks · 14 services</div>
+            </div>
+            <div class="staff-taux mid">87.4%</div>
+          </div>
+          <div class="staff-row">
+            <div class="avatar" style="background:linear-gradient(135deg,#ef4444,#f87171)">JR</div>
+            <div class="staff-info">
+              <div class="staff-name">Julien R.</div>
+              <div class="staff-sub">142 checks · 12 services</div>
+            </div>
+            <div class="staff-taux low">78.9%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SERVICES RÉCENTS (drill-down) -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="services-block">
+      <div class="widget-title"><span class="ico">🕒</span>Services récents — cliquer pour le détail</div>
+      <div class="services-list">
+
+        <div class="service-card" onclick="document.getElementById('drilldown').style.display='flex'">
+          <div class="service-date">29<span class="jour">Mai</span></div>
+          <div class="service-meta">
+            <div class="service-titre">Service soir — 17h-23h</div>
+            <div class="service-sub">5 staff · 47 missions · 4 zones</div>
+          </div>
+          <div class="creneau-col"><span class="creneau-tag">Soir</span></div>
+          <div class="taux-pill">94%</div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-date">29<span class="jour">Mai</span></div>
+          <div class="service-meta">
+            <div class="service-titre">Service matin — 10h-14h</div>
+            <div class="service-sub">3 staff · 28 missions · 3 zones</div>
+          </div>
+          <div class="creneau-col"><span class="creneau-tag">Matin</span></div>
+          <div class="taux-pill">100%</div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-date">28<span class="jour">Mai</span></div>
+          <div class="service-meta">
+            <div class="service-titre">Service soir — 17h-23h</div>
+            <div class="service-sub">5 staff · 47 missions · 4 zones</div>
+          </div>
+          <div class="creneau-col"><span class="creneau-tag">Soir</span></div>
+          <div class="taux-pill mid">82%</div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-date">27<span class="jour">Mai</span></div>
+          <div class="service-meta">
+            <div class="service-titre">Service soir — 17h-23h</div>
+            <div class="service-sub">4 staff · 42 missions · 4 zones</div>
+          </div>
+          <div class="creneau-col"><span class="creneau-tag">Soir</span></div>
+          <div class="taux-pill low">68%</div>
+        </div>
+
+        <div class="service-card">
+          <div class="service-date">27<span class="jour">Mai</span></div>
+          <div class="service-meta">
+            <div class="service-titre">Service matin — 10h-14h</div>
+            <div class="service-sub">3 staff · 28 missions · 3 zones</div>
+          </div>
+          <div class="creneau-col"><span class="creneau-tag">Matin</span></div>
+          <div class="taux-pill">96%</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- MODALE DRILL-DOWN — timeline du service -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="drilldown" style="display:none">
+    <div class="modal">
+      <div class="modal-head">
+        <div>
+          <h3>Vendredi 29 mai — Soir</h3>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">5 staff · 47 missions · taux 94%</div>
+        </div>
+        <button class="close" onclick="document.getElementById('drilldown').style.display='none'">×</button>
+      </div>
+      <div class="modal-body">
+
+        <div class="zone-filter">
+          <span class="zone-pill active accueil">Accueil</span>
+          <span class="zone-pill active bar">Bar</span>
+          <span class="zone-pill active salle">Salle</span>
+          <span class="zone-pill active manager">Manager</span>
+        </div>
+
+        <div class="timeline">
+          <div class="tl-event check">
+            <div class="tl-line">
+              <span class="tl-time">17:02</span>
+              <span class="tl-action check">Check</span>
+              <span class="tl-mission">Ouverture caisse</span>
+            </div>
+            <div class="tl-user">Sophie L. · Accueil</div>
+          </div>
+          <div class="tl-event check">
+            <div class="tl-line">
+              <span class="tl-time">17:08</span>
+              <span class="tl-action check">Check</span>
+              <span class="tl-mission">Allumer écrans piste</span>
+            </div>
+            <div class="tl-user">Thomas M. · Salle</div>
+          </div>
+          <div class="tl-event check">
+            <div class="tl-line">
+              <span class="tl-time">17:14</span>
+              <span class="tl-action check">Check</span>
+              <span class="tl-mission">Mise en route machine à café</span>
+            </div>
+            <div class="tl-user">Léa B. · Bar</div>
+          </div>
+          <div class="tl-event uncheck">
+            <div class="tl-line">
+              <span class="tl-time">17:22</span>
+              <span class="tl-action uncheck">Décoche</span>
+              <span class="tl-mission">Vérifier stock gobelets</span>
+            </div>
+            <div class="tl-user">Léa B. · Bar — recoché par erreur</div>
+          </div>
+          <div class="tl-event check">
+            <div class="tl-line">
+              <span class="tl-time">17:35</span>
+              <span class="tl-action check">Check</span>
+              <span class="tl-mission">Briefing équipe</span>
+            </div>
+            <div class="tl-user">Kévin V. · Manager</div>
+          </div>
+          <div class="tl-event check">
+            <div class="tl-line">
+              <span class="tl-time">18:02</span>
+              <span class="tl-action check">Check</span>
+              <span class="tl-mission">Service famille piste 1-4</span>
+            </div>
+            <div class="tl-user">Thomas M. · Salle</div>
+          </div>
+          <div class="tl-event check">
+            <div class="tl-line">
+              <span class="tl-time">19:14</span>
+              <span class="tl-action check">Check</span>
+              <span class="tl-mission">Rotation tournée bar</span>
+            </div>
+            <div class="tl-user">Léa B. · Bar</div>
+          </div>
+          <div class="tl-event check">
+            <div class="tl-line">
+              <span class="tl-time">20:48</span>
+              <span class="tl-action check">Check</span>
+              <span class="tl-mission">Nettoyage WC</span>
+            </div>
+            <div class="tl-user">Julien R. · Salle</div>
+          </div>
+          <div class="tl-event check">
+            <div class="tl-line">
+              <span class="tl-time">22:54</span>
+              <span class="tl-action check">Check</span>
+              <span class="tl-mission">Fermeture caisse</span>
+            </div>
+            <div class="tl-user">Sophie L. · Accueil</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
