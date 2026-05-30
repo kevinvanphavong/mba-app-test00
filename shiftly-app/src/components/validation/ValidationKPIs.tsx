@@ -80,16 +80,24 @@ export default function ValidationKPIs({ kpis }: Props) {
 
   return (
     <div className="grid grid-cols-2 gap-4 tablet:grid-cols-3 desktop:grid-cols-6">
-      {kpiItems.map((kpi, i) => (
-        <motion.div
-          key={kpi.label}
-          // Desktop : ligne 1 = 3 KPIs (col-span-2 chacun = 33% sur 6), ligne 2 = 2 KPIs (col-span-3 = 50% sur 6).
-          className={`validation-kpi-card kpi-card flex items-center gap-3 p-4 ${i < 3 ? 'desktop:col-span-2' : 'desktop:col-span-3'}`}
-          variants={fadeUp}
-          initial="hidden"
-          animate="show"
-          transition={{ delay: i * 0.05 }}
-        >
+      {kpiItems.map((kpi, i) => {
+        const isLast = i === kpiItems.length - 1
+        // Mobile (grid-cols-2)  : dernier KPI orphelin → col-span-2 plein largeur.
+        // Tablet (grid-cols-3)  : grille par défaut (3 + 2 alignés à gauche).
+        // Desktop (grid-cols-6) : ligne 1 = 3 KPIs (col-span-2), ligne 2 = 2 KPIs (col-span-3).
+        const spanClasses = [
+          isLast ? 'col-span-2 tablet:col-span-1' : '',
+          i < 3 ? 'desktop:col-span-2' : 'desktop:col-span-3',
+        ].filter(Boolean).join(' ')
+        return (
+          <motion.div
+            key={kpi.label}
+            className={`validation-kpi-card kpi-card flex items-center gap-3 p-4 ${spanClasses}`}
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{ delay: i * 0.05 }}
+          >
           <div className={`kpi-icon flex items-center justify-center flex-shrink-0 text-xl ${kpi.iconClass}`}>
             {kpi.icon}
           </div>
@@ -105,7 +113,8 @@ export default function ValidationKPIs({ kpis }: Props) {
             )}
           </div>
         </motion.div>
-      ))}
+        )
+      })}
     </div>
   )
 }
