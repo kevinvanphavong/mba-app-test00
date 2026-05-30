@@ -3,14 +3,17 @@
 /**
  * MobileDrawer — Drawer latéral pour la navigation < desktop (< 900px).
  * Animé via Framer Motion (slide depuis la gauche). Ferme au backdrop click,
- * Escape, ou clic sur un item. Réutilise les items de la Sidebar desktop.
+ * Escape, ou clic sur un item. Réutilise les sections de navigation de la
+ * Sidebar desktop (cohérence visuelle : Pilotage / Opérations / etc.).
+ *
+ * Le drawer ne gère pas de mode collapsed (un overlay ne se réduit pas).
  */
 
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { cn } from '@/lib/cn'
-import { useNavItems } from '@/hooks/useNavItems'
+import { useNavItems, type NavItemWithActive } from '@/hooks/useNavItems'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { ty } from '@/lib/typography'
 import ThemeSwitcher from '@/components/layout/ThemeSwitcher'
@@ -27,9 +30,27 @@ const drawerVariants = {
   exit:   { x: '-100%', transition: { ...easeDefault, duration: 0.22 } },
 }
 
+function DrawerLink({ item, onClick }: { item: NavItemWithActive; onClick: () => void }) {
+  return (
+    <Link
+      href={item.href}
+      onClick={onClick}
+      className={cn(
+        'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all',
+        item.active
+          ? 'bg-accent/10 text-accent font-bold'
+          : 'text-muted hover:bg-surface2 hover:text-text'
+      )}
+    >
+      <span className="text-[15px]">{item.icon}</span>
+      <span className={`${ty.sectionLabel} flex-1 leading-none`}>{item.label}</span>
+    </Link>
+  )
+}
+
 export default function MobileDrawer({ open, onClose }: Props) {
   const { user } = useCurrentUser()
-  const navItems = useNavItems()
+  const { sections, footer } = useNavItems()
 
   // Verrouille le scroll body + ferme à l'Escape tant que le drawer est ouvert
   useEffect(() => {
@@ -87,30 +108,31 @@ export default function MobileDrawer({ open, onClose }: Props) {
               </button>
             </div>
 
-            <div className="text-[9px] font-syne font-bold uppercase tracking-widest text-muted mb-1.5 px-3">
-              Navigation
-            </div>
-
-            <nav className="flex flex-col gap-0.5 flex-1 overflow-y-auto">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={onClose}
-                  className={cn(
-                    'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all',
-                    item.active
-                      ? 'bg-accent/10 text-accent font-bold'
-                      : 'text-muted hover:bg-surface2 hover:text-text'
-                  )}
-                >
-                  <span className="text-[15px]">{item.icon}</span>
-                  <span className={`${ty.sectionLabel} flex-1 leading-none`}>{item.label}</span>
-                </Link>
+            <nav className="flex flex-col flex-1 overflow-y-auto">
+              {sections.map((section, idx) => (
+                <div key={section.id} className={cn('flex flex-col', idx > 0 && 'mt-3')}>
+                  <div className="text-[9px] font-syne font-bold uppercase tracking-widest text-muted mb-1.5 px-3">
+                    {section.label}
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    {section.items.map(item => (
+                      <DrawerLink key={item.href} item={item} onClick={onClose} />
+                    ))}
+                  </div>
+                </div>
               ))}
             </nav>
 
             <div className="mt-4"><ThemeSwitcher /></div>
+
+            {/* Footer items (Réglages) — gardés sous le theme switcher */}
+            {footer.length > 0 && (
+              <div className="flex flex-col gap-0.5 mt-3">
+                {footer.map(item => (
+                  <DrawerLink key={item.href} item={item} onClick={onClose} />
+                ))}
+              </div>
+            )}
 
             <div className="flex items-center gap-2.5 px-3 pt-4 border-t border-border mt-4">
               <div
