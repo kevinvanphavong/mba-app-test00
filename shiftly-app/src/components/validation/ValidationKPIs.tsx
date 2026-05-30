@@ -79,11 +79,12 @@ export default function ValidationKPIs({ kpis }: Props) {
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-4 tablet:grid-cols-3 desktop:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 tablet:grid-cols-3 desktop:grid-cols-6">
       {kpiItems.map((kpi, i) => (
         <motion.div
           key={kpi.label}
-          className="validation-kpi-card kpi-card flex items-center gap-3 p-4"
+          // Desktop : ligne 1 = 3 KPIs (col-span-2 chacun = 33% sur 6), ligne 2 = 2 KPIs (col-span-3 = 50% sur 6).
+          className={`validation-kpi-card kpi-card flex items-center gap-3 p-4 ${i < 3 ? 'desktop:col-span-2' : 'desktop:col-span-3'}`}
           variants={fadeUp}
           initial="hidden"
           animate="show"
