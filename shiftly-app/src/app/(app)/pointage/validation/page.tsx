@@ -22,6 +22,7 @@ import {
 } from '@/hooks/useValidation'
 import { AnimatePresence, motion }  from 'framer-motion'
 import Topbar                       from '@/components/layout/Topbar'
+import PageContainerFull            from '@/components/layout/PageContainerFull'
 import ValidationWeekControl        from '@/components/validation/ValidationWeekControl'
 import ValidationKPIs               from '@/components/validation/ValidationKPIs'
 import ValidationTable              from '@/components/validation/ValidationTable'
@@ -134,9 +135,9 @@ export default function ValidationPage() {
     return (
       <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
         <Topbar title={topTitle} subtitle={user?.centre?.nom ?? ''} />
-        <div className="flex items-center justify-center flex-1">
+        <PageContainerFull className="flex flex-1 items-center justify-center">
           <div className="text-sm" style={{ color: 'var(--muted)' }}>Chargement des données...</div>
-        </div>
+        </PageContainerFull>
       </div>
     )
   }
@@ -145,9 +146,9 @@ export default function ValidationPage() {
     return (
       <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
         <Topbar title={topTitle} subtitle={user?.centre?.nom ?? ''} />
-        <div className="flex items-center justify-center flex-1">
+        <PageContainerFull className="flex flex-1 items-center justify-center">
           <div className="text-sm" style={{ color: 'var(--red)' }}>Erreur lors du chargement des données.</div>
-        </div>
+        </PageContainerFull>
       </div>
     )
   }
@@ -161,7 +162,7 @@ export default function ValidationPage() {
     <div className="flex flex-col flex-1 min-h-screen" style={{ background: 'var(--bg)' }}>
       <Topbar title={topTitle} subtitle={topSubtitle} />
 
-      <div className="flex-1 p-4 tablet:p-6 mx-auto w-full">
+      <PageContainerFull className="flex-1">
 
         {/* Boutons d'action — le titre vient désormais du Topbar */}
         <div className="flex items-center justify-end mb-5 flex-wrap gap-3">
@@ -358,7 +359,7 @@ export default function ValidationPage() {
           </div>
         </div>
 
-      </div>
+      </PageContainerFull>
 
       <ConfirmModal
         open={showDevaliderModal}

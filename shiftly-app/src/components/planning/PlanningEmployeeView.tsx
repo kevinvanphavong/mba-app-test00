@@ -5,6 +5,7 @@ import { listVariants } from '@/lib/animations'
 import { useEmployeePlanning } from '@/hooks/usePlanning'
 import { useCurrentUser }     from '@/hooks/useCurrentUser'
 import Topbar from '@/components/layout/Topbar'
+import PageContainerFull from '@/components/layout/PageContainerFull'
 import WeekCard from './WeekCard'
 
 /** Vue employé — 3 semaines publiées glissantes (IDCC 1790 : 7j de prévenance) */
@@ -60,16 +61,18 @@ export default function PlanningEmployeeView() {
   return (
     <>
       <Topbar title="Mon planning" subtitle={topSubtitle} />
-      <motion.div
-        variants={listVariants}
-        initial="hidden"
-        animate="show"
-        className="flex flex-col gap-4 overflow-auto p-4 tablet:p-6"
-      >
-        {weeks.map(week => (
-          <WeekCard key={week.weekStart} week={week} />
-        ))}
-      </motion.div>
+      <PageContainerFull>
+        <motion.div
+          variants={listVariants}
+          initial="hidden"
+          animate="show"
+          className="flex flex-col gap-4"
+        >
+          {weeks.map(week => (
+            <WeekCard key={week.weekStart} week={week} />
+          ))}
+        </motion.div>
+      </PageContainerFull>
     </>
   )
 }

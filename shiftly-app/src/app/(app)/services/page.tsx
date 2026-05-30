@@ -6,6 +6,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { useServicesList, useDeleteService, useAddServiceNote } from '@/hooks/useService'
 import { ty } from '@/lib/typography'
 import Topbar from '@/components/layout/Topbar'
+import PageContainerFull from '@/components/layout/PageContainerFull'
 import ModalCreateService from '@/components/services/ModalCreateService'
 import ServicesMobileView from '@/components/services/ServicesMobileView'
 import ServicesDesktopView from '@/components/services/ServicesDesktopView'
@@ -50,37 +51,39 @@ export default function ServicesPage() {
     <>
       <Topbar title="Services" subtitle={isLoading || isError ? centreName : subtitle} />
 
-      {/* ── Mobile ───────────────────────────────────────────────────────── */}
-      <div className="desktop:hidden">
-        {!centreId || isLoading ? (
-          <MobileSkeleton />
-        ) : isError ? (
-          <MobileError onRetry={refetch} />
-        ) : (
-          <ServicesMobileView
-            services={services}
-            isManager={!!isManager}
-            onDelete={handleDelete}
-            onAddNote={handleAddNote}
-            onOpenCreate={() => setShowCreate(true)}
-          />
-        )}
-      </div>
+      <PageContainerFull>
+        {/* ── Mobile ───────────────────────────────────────────────────────── */}
+        <div className="desktop:hidden">
+          {!centreId || isLoading ? (
+            <MobileSkeleton />
+          ) : isError ? (
+            <MobileError onRetry={refetch} />
+          ) : (
+            <ServicesMobileView
+              services={services}
+              isManager={!!isManager}
+              onDelete={handleDelete}
+              onAddNote={handleAddNote}
+              onOpenCreate={() => setShowCreate(true)}
+            />
+          )}
+        </div>
 
-      {/* ── Desktop ──────────────────────────────────────────────────────── */}
-      <div className="hidden desktop:block">
-        <ServicesDesktopView
-          services={services}
-          centreName={centreName}
-          isManager={!!isManager}
-          isLoading={!centreId || isLoading}
-          isError={isError}
-          onDelete={handleDelete}
-          onSaveNote={handleAddNote}
-          onOpenCreate={() => setShowCreate(true)}
-          onRetry={refetch}
-        />
-      </div>
+        {/* ── Desktop ──────────────────────────────────────────────────────── */}
+        <div className="hidden desktop:block">
+          <ServicesDesktopView
+            services={services}
+            centreName={centreName}
+            isManager={!!isManager}
+            isLoading={!centreId || isLoading}
+            isError={isError}
+            onDelete={handleDelete}
+            onSaveNote={handleAddNote}
+            onOpenCreate={() => setShowCreate(true)}
+            onRetry={refetch}
+          />
+        </div>
+      </PageContainerFull>
 
       {/* Modale création service (partagée mobile + desktop) */}
       {isManager && (
@@ -97,7 +100,7 @@ export default function ServicesPage() {
 
 function MobileSkeleton() {
   return (
-    <div className="mx-auto px-5 py-6 desktop:max-w-2xl">
+    <div>
       <div className="flex items-start justify-between mb-5">
         <div>
           <div className="h-5 w-28 bg-surface2 rounded-lg animate-pulse" />
@@ -115,7 +118,7 @@ function MobileSkeleton() {
 
 function MobileError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="mx-auto px-5 py-6 desktop:max-w-2xl">
+    <div>
       <div className="bg-surface border border-red/20 rounded-[18px] p-8 text-center">
         <p className="text-[28px] mb-2">⚠️</p>
         <p className={`${ty.cardTitleMd} text-red font-bold`}>Erreur de chargement</p>

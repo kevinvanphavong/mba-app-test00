@@ -10,6 +10,7 @@ import { useToastStore }       from '@/store/toastStore'
 import { formatHours }         from '@/lib/formatHours'
 import type { PlanningShift } from '@/types/planning'
 import Topbar from '@/components/layout/Topbar'
+import PageContainerFull from '@/components/layout/PageContainerFull'
 import PlanningGrid from './PlanningGrid'
 import AlertPanel from './AlertPanel'
 import ShiftModal from './ShiftModal'
@@ -183,7 +184,7 @@ export default function PlanningManagerView() {
         onReportIncident={canReport ? openReportIncident : undefined}
       />
 
-      <div className="flex flex-col gap-4 p-6 tablet:px-6 pb-24 tablet:pb-8">
+      <PageContainerFull className="flex flex-col gap-4">
 
         {/* ── Carte "Planning hebdomadaire" ───────────────────────────────── */}
         <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[14px] p-5 tablet:p-6 accent-bar relative overflow-hidden">
@@ -317,7 +318,7 @@ export default function PlanningManagerView() {
 
         {/* ── Alertes — toujours en bas ───────────────────────────────────── */}
         {alertes.length > 0 && <AlertPanel alertes={alertes} show={true} />}
-      </div>
+      </PageContainerFull>
 
       {/* ── Modal historique des snapshots ── */}
       {data && (

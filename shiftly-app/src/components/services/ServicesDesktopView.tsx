@@ -86,7 +86,7 @@ export default function ServicesDesktopView({
   // ── États bord ────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="px-6 pb-6 flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <div className="h-[120px] bg-surface border border-border rounded-[18px] animate-pulse" />
         <div className="h-[40px] w-[300px] bg-surface border border-border rounded-[10px] animate-pulse" />
         <div className="bg-surface border border-border rounded-[14px] overflow-hidden">
@@ -100,7 +100,7 @@ export default function ServicesDesktopView({
 
   if (isError) {
     return (
-      <div className="px-6 py-10 flex justify-center">
+      <div className="py-10 flex justify-center">
         <div className="bg-surface border border-red/20 rounded-[18px] p-8 text-center max-w-md">
           <p className="text-[28px] mb-2">⚠️</p>
           <p className="font-bold text-red text-[14px]">Erreur de chargement</p>
@@ -117,7 +117,7 @@ export default function ServicesDesktopView({
   }
 
   return (
-    <div className="p-6 pb-12 flex flex-col gap-3.5">
+    <div className="flex flex-col gap-3.5">
       <ServicesHero
         centreName={centreName}
         nbEnCours={buckets.encours.length}

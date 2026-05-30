@@ -4,6 +4,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import Topbar                   from '@/components/layout/Topbar'
+import PageContainerFull        from '@/components/layout/PageContainerFull'
 import HeroServiceCard          from '@/components/service/HeroServiceCard'
 import ZoneCard                 from '@/components/service/ZoneCard'
 import ModalMissionPonctuelle   from '@/components/service/ModalMissionPonctuelle'
@@ -129,13 +130,13 @@ export default function ServicePage() {
     return (
       <div className="min-h-full animate-fadeUp">
         <Topbar title="Service du jour" subtitle={user?.centre?.nom ?? ''} />
-        <div className="px-4 pb-28 space-y-3">
+        <PageContainerFull className="space-y-3">
           <div className="h-[180px] bg-surface rounded-[18px] border border-border animate-pulse" />
           <div className="h-[80px]  bg-surface rounded-[18px] border border-border animate-pulse" />
           {[0, 1, 2].map(i => (
             <div key={i} className="h-[200px] bg-surface rounded-[18px] border border-border animate-pulse" />
           ))}
-        </div>
+        </PageContainerFull>
       </div>
     )
   }
@@ -145,15 +146,17 @@ export default function ServicePage() {
     return (
       <div className="min-h-full animate-fadeUp">
         <Topbar title={topTitle} subtitle={user?.centre?.nom ?? ''} />
-        <div className="px-4 py-16 flex flex-col items-center gap-3 text-center">
-          <span className="text-3xl">📋</span>
-          <p className="font-syne font-extrabold text-[15px] text-text">
-            Aucun service aujourd'hui
-          </p>
-          <p className="text-[13px] text-muted max-w-[260px]">
-            Aucun service n'est planifié pour ce centre. Crée-en un depuis le planning.
-          </p>
-        </div>
+        <PageContainerFull>
+          <div className="py-16 flex flex-col items-center gap-3 text-center">
+            <span className="text-3xl">📋</span>
+            <p className="font-syne font-extrabold text-[15px] text-text">
+              Aucun service aujourd'hui
+            </p>
+            <p className="text-[13px] text-muted max-w-[260px]">
+              Aucun service n'est planifié pour ce centre. Crée-en un depuis le planning.
+            </p>
+          </div>
+        </PageContainerFull>
       </div>
     )
   }
@@ -173,7 +176,7 @@ export default function ServicePage() {
           onReportIncident={canReport ? openReportIncident : undefined}
         />
 
-        <div className="p-6 pb-28 desktop:px-7 desktop:pb-12 space-y-3 desktop:mx-auto">
+        <PageContainerFull className="space-y-3">
 
           {/* Hero service */}
           <HeroServiceCard
@@ -202,7 +205,7 @@ export default function ServicePage() {
             />
           ))}
 
-        </div>
+        </PageContainerFull>
       </div>
 
       {/* Modales — en dehors du div animé pour que position:fixed fonctionne */}
