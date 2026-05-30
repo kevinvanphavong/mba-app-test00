@@ -10,6 +10,7 @@ import IncidentsList         from '@/components/dashboard/IncidentsList'
 import StaffRanking          from '@/components/dashboard/StaffRanking'
 import ModalIncidentDetail   from '@/components/dashboard/ModalIncidentDetail'
 import ModalIncidentEdit     from '@/components/dashboard/ModalIncidentEdit'
+import HistorySection        from '@/components/dashboard/history/HistorySection'
 import { useDashboard }          from '@/hooks/useDashboard'
 import { useServiceToday }       from '@/hooks/useService'
 import { useUpdateIncidentFull } from '@/hooks/useIncidents'
@@ -132,6 +133,8 @@ export default function DashboardPage() {
                 />
                 <StaffRanking topStaff={data.topStaff} />
               </div>
+
+              <HistorySection />
             </>
           )}
         </PageContainer>
