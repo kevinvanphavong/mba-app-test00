@@ -67,7 +67,7 @@ export default function Sidebar() {
       </div>
 
       {/* Sections de navigation */}
-      <nav className="flex flex-col flex-1 min-h-0 overflow-y-auto">
+      <nav className="flex flex-col flex-1 min-h-0 overflow-y-auto gap-2.5">
         {sections.map((section, idx) => (
           <SidebarSection
             key={section.id}

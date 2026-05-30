@@ -22,7 +22,7 @@ export default function SidebarSection({ section, collapsed, showDivider, onItem
           <div className="mx-3 my-2 border-t border-border" aria-hidden />
         )
       ) : (
-        <div className="text-[9px] font-syne font-bold uppercase tracking-widest text-muted mb-1.5 px-3 mt-5 first:mt-0">
+        <div className="text-[9px] font-syne font-bold uppercase tracking-widest text-muted mb-1.5 px-3">
           {section.label}
         </div>
       )}
