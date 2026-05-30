@@ -153,8 +153,12 @@ mba-app-test00/
 │   │   │   │   ├── ValidationKPIs.tsx            # 5 cartes KPI dynamiques
 │   │   │   │   ├── ValidationDayCell.tsx         # Cellule jour (4 états)
 │   │   │   │   ├── ValidationTable.tsx           # Tableau employés × 7 jours
-│   │   │   │   ├── ValidationEmployeeDetail.tsx  # Détail jour par jour + corrections
-│   │   │   │   ├── ValidationCorrectionForm.tsx  # Formulaire correction pointage
+│   │   │   │   ├── ValidationEmployeeDetail.tsx  # Orchestrateur panneau détail V2
+│   │   │   │   ├── ValidationDayRow.tsx          # Ligne jour (pilules inline + popover)
+│   │   │   │   ├── ValidationTimePill.tsx        # Pilule horaire cliquable (ok/late/auto/modified/empty)
+│   │   │   │   ├── ValidationTimePopover.tsx     # Popover TimePicker (±5/±15, raccourcis, chips motif)
+│   │   │   │   ├── ValidationCorrectionTimeline.tsx # Historique complet corrections + ↺ Annuler
+│   │   │   │   ├── ValidationBulkActions.tsx     # Bandeau "Appliquer le départ planifié à tous"
 │   │   │   │   ├── ValidationWeekSummary.tsx     # Résumé totaux équipe
 │   │   │   │   └── ValidationLegalAlerts.tsx     # Alertes légales IDCC 1790
 │   │   │   │
