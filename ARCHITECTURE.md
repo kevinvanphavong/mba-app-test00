@@ -91,12 +91,17 @@ mba-app-test00/
 │   │   │   │   └── StatCard.tsx       # Carte KPI dashboard
 │   │   │   │
 │   │   │   ├── layout/
-│   │   │   │   ├── Sidebar.tsx            # Sidebar desktop ≥ 900px (220px)
-│   │   │   │   ├── Header.tsx             # Header burger < 900px (sticky 56px)
-│   │   │   │   ├── MobileDrawer.tsx       # Drawer latéral ouvert par le burger
-│   │   │   │   ├── Topbar.tsx             # Barre top de page (intra-écran)
-│   │   │   │   ├── PageContainer.tsx      # Conteneur centré max 1400px (défaut)
-│   │   │   │   └── PageContainerFull.tsx  # Conteneur pleine largeur (planning, service, validation)
+│   │   │   │   ├── Sidebar.tsx               # Sidebar desktop ≥ 900px (240px expanded / 64px collapsed)
+│   │   │   │   ├── SidebarItem.tsx           # Lien nav + tooltip collapsed (Framer Motion)
+│   │   │   │   ├── SidebarSection.tsx        # Header section + liste d'items
+│   │   │   │   ├── SidebarToggle.tsx         # Bouton chevrons (expand/collapse)
+│   │   │   │   ├── ThemeSwitcher.tsx         # Segment 3 thèmes (utilisé dans MobileDrawer)
+│   │   │   │   ├── ThemeSwitcherPopover.tsx  # Bouton « Apparence » + popover (utilisé dans Sidebar V2)
+│   │   │   │   ├── Header.tsx                # Header burger < 900px (sticky 56px)
+│   │   │   │   ├── MobileDrawer.tsx          # Drawer latéral ouvert par le burger
+│   │   │   │   ├── Topbar.tsx                # Barre top de page (intra-écran)
+│   │   │   │   ├── PageContainer.tsx         # Conteneur centré max 1400px (défaut)
+│   │   │   │   └── PageContainerFull.tsx     # Conteneur pleine largeur (planning, service, validation)
 │   │   │   │
 │   │   │   ├── auth/
 │   │   │   │   └── LoginForm.tsx
@@ -179,7 +184,9 @@ mba-app-test00/
 │   │   │   ├── useStaff.ts
 │   │   │   ├── useTutoriels.ts
 │   │   │   ├── useDashboard.ts
-│   │   │   └── useValidation.ts       # Validation hebdomadaire (queries + mutations)
+│   │   │   ├── useValidation.ts       # Validation hebdomadaire (queries + mutations)
+│   │   │   ├── useNavItems.ts         # Items de nav groupés par section (Sidebar V2 + Drawer)
+│   │   │   └── useSidebarCollapsed.ts # Mode collapsed de la Sidebar (localStorage + Ctrl/Cmd+B)
 │   │   │
 │   │   ├── lib/
 │   │   │   ├── api.ts                 # Client Axios (baseURL, JWT, gestion 401)

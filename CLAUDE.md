@@ -161,7 +161,7 @@ Trois devices Shiftly (override Tailwind dans `tailwind.config.ts`) :
 ```
 Mobile  < 500px      : Header sticky 56px + bouton burger → MobileDrawer
 Tablet  500–899px    : idem mobile (burger + drawer)
-Desktop ≥ 900px      : Sidebar latérale fixe 220px (le Header burger disparaît)
+Desktop ≥ 900px      : Sidebar latérale fixe 240px expanded / 64px collapsed (le Header burger disparaît)
 ```
 
 Préfixes Tailwind autorisés : **uniquement** `tablet:` et `desktop:`.

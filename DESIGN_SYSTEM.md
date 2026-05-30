@@ -190,24 +190,46 @@ Deux composants layout standardisent la largeur max et le padding de toutes les 
 
 ## 5. Composants
 
-### 5.1 Sidebar (Desktop / iPad)
+### 5.1 Sidebar (Desktop ≥ 900px) — V2
 
 ```
-Width: 240px desktop / 220px iPad
+Width: 240px expanded / 64px collapsed (animation Framer Motion 0.22s easeInOut)
 Background: surface
 Border-right: 1px border
-Padding: 22px 14px
+Padding: 24px 12px (expanded) / 24px 8px (collapsed)
 
-Structure:
-  Logo "Shiftly."  (Syne 800, accent)
-  Centre name (11px, muted)
-  Section label (9px, uppercase, tracking-wide)
-  Nav items (13px, DM Sans 500, muted)
-    active  → bg rgba(249,115,22,0.1)  color accent  fw 700
-    hover   → bg surface2  color text
-  Badges : bg red  9px  fw 800  rounded-[5px]
-  Bottom user row : avatar 34px + nom + rôle
+Structure :
+  Logo "Shiftly."  (Syne 800, accent)   — collapsed → juste « S. »
+  Centre name (10px, muted)              — masqué en collapsed
+  Sections groupées (4) :
+    - Pilotage (Dashboard — manager)
+    - Opérations (Service du jour, Pointage, Validation hebdo)
+    - Planification (Planning, Services)
+    - Équipe (Staff, Postes, Tutoriels)
+    Header section : 9px Syne 700 uppercase tracking-widest muted
+                     → collapsed : remplacé par un séparateur fin (border-t border-border, mx-3)
+  Footer (hors regroupement) :
+    - Bouton Apparence (popover Framer Motion AnimatePresence, click-outside + Escape)
+    - Réglages (item nav classique)
+    - User row : avatar + nom + rôle  → collapsed : avatar seul + tooltip droit au hover
+    - Toggle collapsed (chevrons-left ↔ chevrons-right)
+
+Items :
+  Padding : px-3 py-2.5 (expanded) / mx-auto w-10 h-10 centré (collapsed)
+  active  → bg accent/10  color accent  fw 700
+  hover   → bg surface2  color text
+  Collapsed : tooltip Framer Motion ancré à droite, offset 8px, 0.12s easeOut
 ```
+
+**Toggle / persistance**
+- Bouton chevrons en bas de sidebar (toujours visible).
+- Raccourci global `Ctrl/Cmd + B` (ignoré si focus dans `input`/`textarea`/`[contenteditable]`).
+- Persistance : `localStorage` clé `shiftly:sidebar-collapsed` (`'0'` / `'1'`).
+- Hydration safe : initial render serveur → `false`, lecture localStorage dans `useEffect` au mount.
+- Fallback silencieux en cas de localStorage bloqué (Safari privé).
+
+**Sections — modèle de données**
+Voir `src/lib/navigation.ts` : chaque `NavItem` a un champ `section`. `SECTION_ORDER` + `SECTION_LABELS` exportés. Le hook `useNavItems` retourne `{ sections, footer }` — les sections vides (filtrées par rôle) sont automatiquement omises.
 
 ### 5.2 Bottom Nav (Mobile)
 
