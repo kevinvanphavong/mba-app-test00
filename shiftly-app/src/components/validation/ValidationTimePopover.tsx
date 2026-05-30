@@ -28,14 +28,11 @@ interface Props {
 }
 
 function toMinutes(t: string): number {
-  const [h, m] = t.split(':').map(Number)
-  return h * 60 + m
+  const [h, m] = t.split(':').map(Number); return h * 60 + m
 }
 function fromMinutes(min: number): string {
-  const safe = ((min % (24 * 60)) + 24 * 60) % (24 * 60)
-  const h = Math.floor(safe / 60)
-  const m = safe % 60
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+  const safe = ((min % 1440) + 1440) % 1440
+  return `${String(Math.floor(safe / 60)).padStart(2, '0')}:${String(safe % 60).padStart(2, '0')}`
 }
 function diffLabel(current: string, original: string): string {
   const d = toMinutes(current) - toMinutes(original)
