@@ -53,6 +53,10 @@ export interface ValidationJour {
    * Le manager peut corriger via le formulaire de correction.
    */
   heureDepartAuto: boolean
+  /** Heure de début planifiée du poste (format 'HH:MM' local), null si pas de poste. */
+  heureDebutPlanifiee: string | null
+  /** Heure de fin planifiée du poste (format 'HH:MM' local), null si pas de poste. */
+  heureFinPlanifiee: string | null
   pauses: ValidationPause[]
   heuresNettes: number | null  // en minutes
   heuresPrevues: number | null // en minutes

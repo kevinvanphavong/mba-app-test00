@@ -134,3 +134,43 @@ export function useCorrigerPointage(date: string) {
     },
   })
 }
+
+/**
+ * Annule une correction existante en POSTant une nouvelle correction qui
+ * restaure l'ancienne valeur, avec motif "Annulation de correction".
+ * Pas d'endpoint DELETE : on conserve la trace d'audit intacte (paie).
+ */
+export function useAnnulerCorrection(date: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (params: { pointageId: number; champModifie: CorrectionPayload['champModifie']; valeurACretablir: string; pauseId?: number }) =>
+      api.post('/pointages/validation/correction', {
+        pointageId:     params.pointageId,
+        champModifie:   params.champModifie,
+        nouvelleValeur: params.valeurACretablir,
+        motif:          'Annulation de correction',
+        pauseId:        params.pauseId,
+      }).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['validation'] })
+    },
+  })
+}
+
+/**
+ * Pointe l'arrivée d'un employé en bypass manager (sans PIN).
+ * Utilisé depuis le panneau validation pour rattraper une arrivée manquante.
+ */
+export function usePointerArriveeManager(date: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (pointageId: number) =>
+      api.post(`/pointage/${pointageId}/arrivee`, { managerBypass: true }).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['validation'] })
+      queryClient.invalidateQueries({ queryKey: ['pointage'] })
+    },
+  })
+}
