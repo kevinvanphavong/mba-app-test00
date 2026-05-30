@@ -6,6 +6,7 @@ use App\Entity\Incident;
 use App\Entity\Service;
 use App\Entity\User;
 use App\Repository\CompletionRepository;
+use App\Repository\EventLogRepository;
 use App\Repository\IncidentRepository;
 use App\Repository\MissionRepository;
 use App\Repository\ServiceRepository;
@@ -16,6 +17,7 @@ use App\Service\ServiceStatutResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -32,6 +34,7 @@ class DashboardController extends AbstractController
         private readonly CompletionRepository    $completionRepo,
         private readonly MissionRepository       $missionRepo,
         private readonly ServiceStatutResolver   $statutResolver,
+        private readonly EventLogRepository      $eventLogRepo,
     ) {}
 
     /**
@@ -45,7 +48,7 @@ class DashboardController extends AbstractController
      *  - taux tutoriels (lectures / total par centre)
      *  - stats globales (moyenne completion de tous les services)
      */
-    #[Route('/api/dashboard/{centreId}', name: 'api_dashboard', methods: ['GET'], format: 'json')]
+    #[Route('/api/dashboard/{centreId}', name: 'api_dashboard', methods: ['GET'], format: 'json', requirements: ['centreId' => '\d+'])]
     public function __invoke(int $centreId): JsonResponse
     {
         /** @var User $currentUser */
@@ -340,5 +343,97 @@ class DashboardController extends AbstractController
             'moyenneCompletion' => round($cumul / $nbServices, 1),
             'totalServices'     => $nbServices,
         ];
+    }
+
+    // ─── Historique des Completions (widget /dashboard manager) ──────────────
+
+    /**
+     * GET /api/dashboard/completion-history?period=7d|30d|90d
+     *   ou  ?from=YYYY-MM-DD&to=YYYY-MM-DD
+     *
+     * Renvoie les agrégats EventLog sur la période demandée.
+     * MANAGER uniquement — pas de fallback employé.
+     */
+    #[Route('/api/dashboard/completion-history', name: 'api_dashboard_completion_history', methods: ['GET'], format: 'json')]
+    #[IsGranted('ROLE_MANAGER')]
+    public function completionHistory(Request $request): JsonResponse
+    {
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+        $centre = $currentUser->getCentre();
+
+        if (!$centre) {
+            throw $this->createAccessDeniedException('Centre absent du compte courant.');
+        }
+
+        [$from, $to] = $this->resolvePeriod($request);
+
+        $data = $this->eventLogRepo->findCompletionHistory($centre, $from, $to);
+
+        $payload = [
+            'periode' => [
+                'from' => $from->format('Y-m-d'),
+                'to'   => $to->format('Y-m-d'),
+            ],
+            ...$data,
+        ];
+
+        $response = $this->json($payload);
+        $response->setPrivate();
+        $response->setMaxAge(60); // Cache-Control: private, max-age=60
+        return $response;
+    }
+
+    /**
+     * GET /api/dashboard/completion-history/services/{serviceId}
+     * Timeline brute d'un service (drill-down).
+     */
+    #[Route('/api/dashboard/completion-history/services/{serviceId}', name: 'api_dashboard_completion_history_service', methods: ['GET'], format: 'json', requirements: ['serviceId' => '\d+'])]
+    #[IsGranted('ROLE_MANAGER')]
+    public function completionHistoryService(int $serviceId): JsonResponse
+    {
+        /** @var User $currentUser */
+        $currentUser = $this->getUser();
+        $centre = $currentUser->getCentre();
+
+        if (!$centre) {
+            throw $this->createAccessDeniedException('Centre absent du compte courant.');
+        }
+
+        $events = $this->eventLogRepo->findEventsForService($centre, $serviceId);
+
+        $response = $this->json([
+            'serviceId' => $serviceId,
+            'events'    => $events,
+        ]);
+        $response->setPrivate();
+        $response->setMaxAge(60);
+        return $response;
+    }
+
+    /** @return array{0:\DateTimeImmutable,1:\DateTimeImmutable} */
+    private function resolvePeriod(Request $request): array
+    {
+        $tz = new \DateTimeZone('Europe/Paris');
+        $from = $request->query->get('from');
+        $to   = $request->query->get('to');
+
+        if (is_string($from) && is_string($to) && $from !== '' && $to !== '') {
+            $fromDt = \DateTimeImmutable::createFromFormat('!Y-m-d', $from, $tz);
+            $toDt   = \DateTimeImmutable::createFromFormat('!Y-m-d', $to,   $tz);
+            if ($fromDt && $toDt) {
+                return [$fromDt->setTime(0, 0, 0), $toDt->setTime(23, 59, 59)];
+            }
+        }
+
+        $period = $request->query->get('period', '30d');
+        $days = match ($period) {
+            '7d'  => 7,
+            '90d' => 90,
+            default => 30,
+        };
+        $now  = new \DateTimeImmutable('now', $tz);
+        $fromDt = $now->modify("-{$days} days")->setTime(0, 0, 0);
+        return [$fromDt, $now];
     }
 }
