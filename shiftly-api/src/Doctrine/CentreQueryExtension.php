@@ -10,6 +10,7 @@ use App\Entity\Absence;
 use App\Entity\Centre;
 use App\Entity\Competence;
 use App\Entity\Completion;
+use App\Entity\EventLog;
 use App\Entity\Incident;
 use App\Entity\LegalConfig;
 use App\Entity\Mission;
@@ -95,6 +96,7 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
                 Pointage::class,
                 PointageCorrection::class,
                 Absence::class,
+                EventLog::class,
             ], true) => $queryBuilder
                 ->andWhere("{$alias}.centre = :{$paramName}")
                 ->setParameter($paramName, $centreId),
