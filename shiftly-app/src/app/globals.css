@@ -544,7 +544,9 @@ input:focus { border-color: var(--accent); }
 .validation-day-row--incoherent      { background: rgba(239,68,68,0.10); border-left: 1px solid var(--red); }
 .validation-day-row__dot   { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 28px; background: var(--accent); border-radius: 0 4px 4px 0; }
 .validation-day-row__dot--red { background: var(--red); }
-.validation-day-row__incoherent-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid var(--red); border-radius: 6px; font-size: 10px; font-weight: 700; font-family: 'DM Sans', sans-serif; line-height: 1.2; text-align: center; white-space: nowrap; }
+/* Badge "Pointage à corriger" — placé dans __times (zone qui wrap) pour ne jamais déborder. */
+.validation-day-row__incoherent-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid var(--red); border-radius: 6px; font-size: 10px; font-weight: 700; font-family: 'DM Sans', sans-serif; line-height: 1.2; max-width: 100%; cursor: help; }
+.validation-day-row__net-incoherent { color: var(--red); font-weight: 700; }
 .validation-day-row__pause-group { display: inline-flex; align-items: center; gap: 4px; }
 .validation-day-row__pause-sep   { color: var(--muted); font-size: 11px; }
 .validation-day-row__label { font-weight: 600; font-size: 13px; color: var(--text); }

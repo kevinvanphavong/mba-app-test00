@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — Validation hebdo · Détail employé V2</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0d0f14;
+    --surface:  #151820;
+    --surface2: #1c2030;
+    --surface3: #232838;
+    --border:   #252a3a;
+    --text:     #e8eaf0;
+    --muted:    #6b7280;
+    --accent:   #f97316;
+    --accent2:  #fb923c;
+    --blue:     #3b82f6;
+    --green:    #22c55e;
+    --red:      #ef4444;
+    --yellow:   #eab308;
+    --purple:   #a855f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+    line-height: 1.45;
+  }
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .page-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  /* ── Layout ── */
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .section-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .section-header .pill {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .section-body { padding: 18px; }
+
+  /* ── Notes pédagogiques ── */
+  .note {
+    background: rgba(249,115,22,0.08);
+    border: 1px solid rgba(249,115,22,0.3);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #ffd8b8;
+    margin-bottom: 16px;
+  }
+  .note strong { color: var(--accent); }
+
+  /* ── Sidebar annotations ── */
+  .annot {
+    position: sticky;
+    top: 24px;
+  }
+  .annot-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .annot-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+  .annot-title {
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .annot-body {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ─────────────────────────────────────
+     PANNEAU DÉTAIL — V2
+     ───────────────────────────────────── */
+
+  .detail-head {
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .detail-head-name {
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: white;
+  }
+  .detail-head-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .badge-week-total {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    text-align: right;
+  }
+  .badge-week-total .lbl {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .badge-week-total .val {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--text);
+  }
+
+  /* ── Ligne d'un jour ── */
+  .day-row {
+    display: grid;
+    grid-template-columns: 70px minmax(0, 1fr) 70px 28px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 10px;
+    border-radius: 10px;
+    transition: background 0.15s;
+    position: relative;
+  }
+  .day-row + .day-row { border-top: 1px solid var(--border); }
+  .day-row:hover { background: var(--surface2); }
+  .day-row.has-correction {
+    background: rgba(249,115,22,0.04);
+  }
+  .day-row.empty-arrival {
+    background: rgba(239,68,68,0.04);
+  }
+
+  .day-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .day-label .small {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .day-correction-dot {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 28px;
+    background: var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .day-times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* ── Pilule heure cliquable (inline edit) ── */
+  .time-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-variant-numeric: tabular-nums;
+  }
+  .time-pill:hover {
+    background: var(--surface3);
+    border-color: var(--accent);
+  }
+  .time-pill .lbl {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .time-pill.ok      { border-left: 3px solid var(--green); }
+  .time-pill.late    { border-left: 3px solid var(--accent); }
+  .time-pill.empty   {
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--muted);
+  }
+  .time-pill.empty:hover { color: var(--accent); border-color: var(--accent); }
+  .time-pill.auto {
+    border-left: 3px solid var(--yellow);
+  }
+  .time-pill.auto .auto-tag {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: rgba(234,179,8,0.15);
+  }
+  .time-pill .icon {
+    font-size: 13px;
+    opacity: 0.7;
+  }
+
+  /* ── Diff inline (heure modifiée) ── */
+  .time-pill.modified {
+    border-left: 3px solid var(--accent);
+  }
+  .time-pill .old {
+    color: var(--muted);
+    text-decoration: line-through;
+    font-size: 11px;
+  }
+  .time-pill .arrow {
+    color: var(--accent);
+    font-size: 10px;
+  }
+  .time-pill .new {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .net-pill {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: right;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .net-pill .delta {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-top: 2px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .net-pill .delta.up   { color: var(--green); }
+  .net-pill .delta.down { color: var(--red);   }
+
+  .row-menu-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .row-menu-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  .day-empty-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: rgba(239,68,68,0.08);
+    border: 1px dashed var(--red);
+    border-radius: 8px;
+    font-size: 11px;
+    color: var(--red);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .day-empty-cta:hover { background: rgba(239,68,68,0.15); }
+
+  /* ── Popover TimePicker ── */
+  .popover-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 50;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    width: 280px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  }
+  .popover::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 18px;
+    width: 12px;
+    height: 12px;
+    background: var(--surface3);
+    border-left: 1px solid var(--border);
+    border-top: 1px solid var(--border);
+    transform: rotate(45deg);
+  }
+  .popover-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .popover-head .title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .popover-head .meta {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .popover-display {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .popover-display .time-big {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .popover-display .time-diff {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .popover-display .time-diff strong { color: var(--green); }
+  .popover-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .popover-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 4px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .popover-btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
+  .popover-btn.minus { color: var(--red); }
+  .popover-btn.plus  { color: var(--green); }
+  .popover-shortcuts {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .popover-shortcut {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 10px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .popover-shortcut:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ── Motif chips ── */
+  .popover-motif-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  .chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .chip:hover { color: var(--text); border-color: var(--accent); }
+  .chip.selected {
+    background: rgba(249,115,22,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .popover-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .popover-actions button {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-apply {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+  }
+  .btn-cancel {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border) !important;
+  }
+
+  /* ── Footer panneau détail ── */
+  .detail-foot {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .btn-valider {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(34,197,94,0.15);
+    color: var(--green);
+    border: 1px solid var(--green);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .btn-secondary {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .btn-secondary:hover { color: var(--text); border-color: var(--accent); }
+
+  /* ── Historique timeline ── */
+  .history {
+    margin-top: 20px;
+  }
+  .history-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .history-head .title {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .history-head .count {
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .history-head .clear {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .history-head .clear:hover { color: var(--accent); }
+
+  .timeline {
+    position: relative;
+    padding-left: 18px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 4px;
+    bottom: 4px;
+    width: 1px;
+    background: var(--border);
+  }
+  .timeline-item {
+    position: relative;
+    padding-bottom: 14px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 4px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+  }
+  .timeline-line1 {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .timeline-line1 .field {
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .timeline-line1 .old {
+    color: var(--muted);
+    text-decoration: line-through;
+    font-variant-numeric: tabular-nums;
+  }
+  .timeline-line1 .new {
+    color: var(--accent);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .timeline-line2 {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .timeline-motif {
+    padding: 1px 7px;
+    background: var(--surface2);
+    border-radius: 999px;
+    font-size: 10px;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .timeline-undo {
+    margin-left: auto;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 2px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .timeline-undo:hover { color: var(--red); border-color: var(--red); }
+
+  /* ── Bulk action bar ── */
+  .bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+  .bulk-bar .lbl {
+    color: var(--muted);
+  }
+  .bulk-bar button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 5px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .bulk-bar button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Comparaison avant/après ── */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 900px) { .compare { grid-template-columns: 1fr; } }
+  .compare-col {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .compare-col h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .compare-col.before h3 { color: var(--red); }
+  .compare-col.after  h3 { color: var(--green); }
+  .compare-col p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .compare-step {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text);
+    padding: 4px 0;
+  }
+  .compare-step .num {
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  hr.sep {
+    border: 0;
+    border-top: 1px dashed var(--border);
+    margin: 18px 0;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend .swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+  <div style="max-width: 1280px; margin: 0 auto 24px;">
+    <div class="page-title">Validation hebdo — Panneau détail employé V2</div>
+    <div class="page-sub">Maquette des améliorations UX · Sem. 22 (25 mai → 31 mai 2026)</div>
+  </div>
+
+  <!-- ─────────── Comparaison avant/après ─────────── -->
+  <div class="compare" style="max-width: 1280px; margin: 0 auto 24px;">
+    <div class="compare-col before">
+      <h3>✕ AVANT — Modifier une heure d'arrivée</h3>
+      <p>5 actions, contexte perdu, motif libre</p>
+      <div class="compare-step"><span class="num">1.</span> Clic sur ✏️ à droite de la ligne</div>
+      <div class="compare-step"><span class="num">2.</span> Scroll : le formulaire apparaît en bas du panneau</div>
+      <div class="compare-step"><span class="num">3.</span> Ouvrir le &lt;select&gt;, choisir « Heure d'arrivée »</div>
+      <div class="compare-step"><span class="num">4.</span> Cliquer input time, taper 4 chiffres au clavier numérique</div>
+      <div class="compare-step"><span class="num">5.</span> Optionnel : taper un motif texte, valider</div>
+    </div>
+    <div class="compare-col after">
+      <h3>✓ APRÈS — Inline edit</h3>
+      <p>2 actions, contexte préservé, motif en chips</p>
+      <div class="compare-step"><span class="num">1.</span> Clic direct sur la pilule « Arrivée 09:02 »</div>
+      <div class="compare-step"><span class="num">2.</span> Popover : tap sur « -2 min » + chip « Erreur saisie » → Appliquer</div>
+      <div class="compare-step" style="color: var(--muted);"><span class="num">∅</span> Pas de scroll, pas de select, pas de saisie clavier</div>
+    </div>
+  </div>
+
+  <!-- ─────────── Layout principal ─────────── -->
+  <div class="grid">
+
+    <!-- ── Colonne gauche : panneau détail V2 ── -->
+    <div>
+
+      <!-- ── Section principale : panneau détail au repos ── -->
+      <div class="section">
+        <div class="section-header">
+          👤 Détail — Lucas Martin · Semaine 22
+          <span class="pill">7/7 jours • 2 corrections</span>
+        </div>
+        <div class="section-body">
+
+          <!-- Tête employé -->
+          <div class="detail-head">
+            <div>
+              <div class="detail-head-name">
+                <span class="avatar">LM</span>
+                <div>
+                  Lucas Martin
+                  <div class="detail-head-meta">Employé · Bar · 4 services prévus</div>
+                </div>
+              </div>
+            </div>
+            <div class="badge-week-total">
+              <div class="lbl">Heures nettes</div>
+              <div class="val">34h45</div>
+            </div>
+          </div>
+
+          <!-- Bulk action bar -->
+          <div class="bulk-bar">
+            <span class="lbl">⚡ Action rapide</span>
+            <span style="color: var(--text);">2 jours « auto » détectés</span>
+            <button>Appliquer le départ planifié à tous</button>
+          </div>
+
+          <!-- ── Jours travaillés ── -->
+
+          <!-- Lundi : nominal -->
+          <div class="day-row">
+            <div class="day-label">
+              <span class="small">Lun.</span>
+              25 mai
+            </div>
+            <div class="day-times">
+              <span class="time-pill ok">
+                <span class="lbl">Arr.</span>
+                09:00
+                <span class="icon">✓</span>
+              </span>
+              <span class="time-pill">
+                <span class="icon">☕</span>
+                12:00 – 12:20
+                <span style="color: var(--muted); font-size: 10px;">(20 min)</span>
+              </span>
+              <span class="time-pill ok">
+                <span class="lbl">Dép.</span>
+                17:30
+                <span class="icon">✓</span>
+              </span>
+            </div>
+            <div class="net-pill">
+              8h10
+            </div>
+            <button class="row-menu-btn" title="Plus d'actions">⋯</button>
+          </div>
+
+          <!-- Mardi : retard + correction historique -->
+          <div class="day-row has-correction">
+            <div class="day-correction-dot" title="Ce jour a été corrigé"></div>
+            <div class="day-label">
+              <span class="small">Mar.</span>
+              26 mai
+            </div>
+            <div class="day-times">
+              <span class="time-pill modified" title="Corrigé par Kévin il y a 2h · Erreur de saisie">
+                <span class="lbl">Arr.</span>
+                <span class="old">09:02</span>
+                <span class="arrow">→</span>
+                <span class="new">09:00</span>
+                <span class="icon">✏️</span>
+              </span>
+              <span class="time-pill">
+                <span class="icon">🍽</span>
+                13:00 – 14:00
+                <span style="color: var(--muted); font-size: 10px;">(60 min)</span>
+              </span>
+              <span class="time-pill ok">
+                <span class="lbl">Dép.</span>
+                18:00
+                <span class="icon">✓</span>
+              </span>
+            </div>
+            <div class="net-pill">
+              8h00
+              <span class="delta up">+2 min</span>
+            </div>
+            <button class="row-menu-btn">⋯</button>
+          </div>
+
+          <!-- Mercredi : repos -->
+          <div class="day-row" style="opacity: 0.5;">
+            <div class="day-label">
+              <span class="small">Mer.</span>
+              27 mai
+            </div>
+            <div class="day-times" style="color: var(--muted); font-size: 12px;">
+              Repos
+            </div>
+            <div class="net-pill" style="color: var(--muted);">—</div>
+            <div></div>
+          </div>
+
+          <!-- Jeudi : départ auto -->
+          <div class="day-row">
+            <div class="day-label">
+              <span class="small">Jeu.</span>
+              28 mai
+            </div>
+            <div class="day-times">
+              <span class="time-pill ok">
+                <span class="lbl">Arr.</span>
+                14:00
+                <span class="icon">✓</span>
+              </span>
+              <span class="time-pill auto" title="Heure de fin appliquée automatiquement (pas de pointage)">
+                <span class="lbl">Dép.</span>
+                23:00
+                <span class="auto-tag">auto</span>
+              </span>
+            </div>
+            <div class="net-pill">
+              9h00
+            </div>
+            <button class="row-menu-btn">⋯</button>
+          </div>
+
+          <!-- Vendredi : arrivée manquante -->
+          <div class="day-row empty-arrival">
+            <div class="day-label">
+              <span class="small">Ven.</span>
+              29 mai
+            </div>
+            <div class="day-times">
+              <button class="day-empty-cta">
+                ⚠ Pointer arrivée maintenant (plan. 17:00)
+              </button>
+              <span class="time-pill empty">
+                <span class="lbl">Dép.</span>
+                + ajouter
+              </span>
+            </div>
+            <div class="net-pill" style="color: var(--red);">
+              0h00
+            </div>
+            <button class="row-menu-btn">⋯</button>
+          </div>
+
+          <!-- Samedi : popover ouvert -->
+          <div class="day-row has-correction" style="background: rgba(249,115,22,0.08); z-index: 20; position: relative;">
+            <div class="day-correction-dot"></div>
+            <div class="day-label">
+              <span class="small">Sam.</span>
+              30 mai
+            </div>
+            <div class="day-times">
+
+              <!-- Popover wrap -->
+              <div class="popover-wrap">
+                <span class="time-pill late" style="border-color: var(--accent); background: var(--surface3);">
+                  <span class="lbl">Arr.</span>
+                  09:08
+                  <span class="icon" style="color: var(--accent);">⚠</span>
+                </span>
+
+                <div class="popover">
+                  <div class="popover-head">
+                    <span class="title">Heure d'arrivée</span>
+                    <span class="meta">Sam. 30 mai · planifié 09:00</span>
+                  </div>
+
+                  <div class="popover-display">
+                    <div class="time-big">09:00</div>
+                    <div class="time-diff">Original : 09:08 · <strong>−8 min</strong></div>
+                  </div>
+
+                  <div class="popover-grid">
+                    <button class="popover-btn minus">−15</button>
+                    <button class="popover-btn minus">−5</button>
+                    <button class="popover-btn plus">+5</button>
+                    <button class="popover-btn plus">+15</button>
+                  </div>
+
+                  <div class="popover-shortcuts">
+                    <button class="popover-shortcut">Maintenant</button>
+                    <button class="popover-shortcut" style="border-color: var(--accent); color: var(--accent);">Heure plan.</button>
+                    <button class="popover-shortcut">Saisir</button>
+                  </div>
+
+                  <div class="popover-motif-label">Motif</div>
+                  <div class="chips">
+                    <span class="chip">Oubli pointage</span>
+                    <span class="chip">Retard justifié</span>
+                    <span class="chip selected">Erreur saisie</span>
+                    <span class="chip">Pause non scannée</span>
+                    <span class="chip">Accord verbal</span>
+                    <span class="chip">Autre…</span>
+                  </div>
+
+                  <div class="popover-actions">
+                    <button class="btn-cancel">Annuler</button>
+                    <button class="btn-apply">Appliquer</button>
+                  </div>
+                </div>
+              </div>
+
+              <span class="time-pill">
+                <span class="icon">☕</span>
+                15:00 – 15:20
+              </span>
+              <span class="time-pill ok">
+                <span class="lbl">Dép.</span>
+                19:00
+              </span>
+            </div>
+            <div class="net-pill">
+              9h32
+              <span class="delta up">+8 min</span>
+            </div>
+            <button class="row-menu-btn">⋯</button>
+          </div>
+
+          <!-- Dimanche : repos -->
+          <div class="day-row" style="opacity: 0.5;">
+            <div class="day-label">
+              <span class="small">Dim.</span>
+              31 mai
+            </div>
+            <div class="day-times" style="color: var(--muted); font-size: 12px;">Repos</div>
+            <div class="net-pill" style="color: var(--muted);">—</div>
+            <div></div>
+          </div>
+
+          <div class="legend">
+            <span><span class="swatch" style="background: var(--green);"></span> Pointé</span>
+            <span><span class="swatch" style="background: var(--accent);"></span> Corrigé</span>
+            <span><span class="swatch" style="background: var(--yellow);"></span> Auto (pas pointé)</span>
+            <span><span class="swatch" style="background: var(--red);"></span> Manquant</span>
+          </div>
+
+          <!-- ── Historique corrections (timeline complète) ── -->
+          <div class="history">
+            <div class="history-head">
+              <span class="title">📜 Historique des corrections</span>
+              <span class="count">2</span>
+              <button class="clear">Tout dérouler</button>
+            </div>
+
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-line1">
+                  Sam. 30 mai · <span class="field">Arrivée</span>
+                  <span class="old">09:08</span> → <span class="new">09:00</span>
+                </div>
+                <div class="timeline-line2">
+                  <span class="timeline-motif">Erreur saisie</span>
+                  par <strong style="color: var(--text);">Kévin</strong>
+                  · il y a 2 min
+                  <button class="timeline-undo">↺ Annuler</button>
+                </div>
+              </div>
+
+              <div class="timeline-item">
+                <div class="timeline-line1">
+                  Mar. 26 mai · <span class="field">Arrivée</span>
+                  <span class="old">09:02</span> → <span class="new">09:00</span>
+                </div>
+                <div class="timeline-line2">
+                  <span class="timeline-motif">Erreur saisie</span>
+                  par <strong style="color: var(--text);">Kévin</strong>
+                  · il y a 2h
+                  <button class="timeline-undo">↺ Annuler</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer : valider semaine -->
+          <div class="detail-foot">
+            <button class="btn-valider">✓ Valider la semaine de Lucas</button>
+            <button class="btn-secondary">Exporter PDF</button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Sidebar annotations ── -->
+    <div class="annot">
+
+      <div class="annot-card">
+        <div class="annot-title"><span class="annot-num">1</span>Inline edit direct</div>
+        <div class="annot-body">
+          Clic sur la pilule horaire → popover s'ouvre <strong>au-dessus de la ligne</strong>.
+          Le champ corrigé est déduit du clic (plus de &lt;select&gt; à choisir).
+        </div>
+      </div>
+
+      <div class="annot-card">
+        <div class="annot-title"><span class="annot-num">2</span>TimePicker custom</div>
+        <div class="annot-body">
+          Boutons <strong>−15 / −5 / +5 / +15</strong> + raccourcis <em>Maintenant</em> et <em>Heure planifiée</em>.
+          90 % des corrections sont des micro-ajustements, le clavier numérique devient secondaire.
+        </div>
+      </div>
+
+      <div class="annot-card">
+        <div class="annot-title"><span class="annot-num">3</span>Motif en chips presets</div>
+        <div class="annot-body">
+          Plus de champ libre obligatoire. <strong>1 tap = motif sélectionné</strong>.
+          Bonus : analytics des motifs les plus fréquents pour repérer les centres à problème.
+        </div>
+      </div>
+
+      <div class="annot-card">
+        <div class="annot-title"><span class="annot-num">4</span>Diff visuel sur la pilule</div>
+        <div class="annot-body">
+          Heure originale <s>barrée</s> + nouvelle valeur en orange.
+          L'audit légal devient visuel, plus besoin de croiser avec l'historique.
+        </div>
+      </div>
+
+      <div class="annot-card">
+        <div class="annot-title"><span class="annot-num">5</span>Marqueur jour corrigé</div>
+        <div class="annot-body">
+          Trait orange à gauche + fond ambré léger sur la ligne.
+          Vue d'ensemble immédiate des jours retouchés.
+        </div>
+      </div>
+
+      <div class="annot-card">
+        <div class="annot-title"><span class="annot-num">6</span>Timeline historique</div>
+        <div class="annot-body">
+          Date du jour + champ + diff + motif + auteur + ancienneté + bouton <strong>↺ Annuler</strong>.
+          Toutes les corrections, plus de troncature silencieuse.
+        </div>
+      </div>
+
+      <div class="annot-card">
+        <div class="annot-title"><span class="annot-num">7</span>Actions rapides</div>
+        <div class="annot-body">
+          <strong>Pointer maintenant</strong> sur arrivée manquante.
+          <strong>Appliquer départ planifié à tous</strong> pour solder les jours « auto ».
+        </div>
+      </div>
+
+      <div class="annot-card" style="background: rgba(34,197,94,0.06); border-color: rgba(34,197,94,0.3);">
+        <div class="annot-title" style="color: var(--green);">⚡ Gain estimé</div>
+        <div class="annot-body">
+          <strong>5 actions → 2 actions</strong> par correction.
+          Sur 10 employés × 2 corrections/semaine, ~6 min gagnées chaque dimanche de validation.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>

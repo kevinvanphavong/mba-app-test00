@@ -129,7 +129,7 @@ export default function PointagePage() {
     return (
       <div className="flex-1 flex flex-col">
         <Topbar title={topTitle} subtitle={user?.centre?.nom ?? ''} />
-        <div className="flex-1 flex items-center justify-center flex-col gap-2 px-6 text-center">
+        <div className="px-6 py-16 flex-1 flex items-center justify-center flex-col gap-2 text-center">
           <p className="text-3xl">📋</p>
           <p className="font-semibold font-syne" style={{ color: 'var(--text)' }}>Aucun service aujourd'hui</p>
           <p className="text-sm" style={{ color: 'var(--muted)' }}>

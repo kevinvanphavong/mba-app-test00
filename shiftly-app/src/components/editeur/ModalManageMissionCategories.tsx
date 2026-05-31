@@ -105,7 +105,6 @@ export default function ModalManageMissionCategories({ open, onClose }: Props) {
           <motion.div
             role="dialog" aria-modal="true" aria-labelledby="manage-cat-title"
             className="relative z-[60] w-full rounded-t-[24px] border-t border-border bg-surface tablet:w-auto tablet:max-w-[720px] tablet:rounded-[20px] tablet:border max-h-[90vh] overflow-y-auto"
-            style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 1.5rem))' }}
             variants={sheetVariants}
             initial="closed" animate="open" exit="exit"
           >
@@ -113,7 +112,7 @@ export default function ModalManageMissionCategories({ open, onClose }: Props) {
               <div className="h-1 w-9 rounded-full bg-border" />
             </div>
 
-            <div className="px-5 pt-2 pb-4">
+            <div className="px-5 pt-5 pb-6">
               <div className="flex items-center justify-between mb-1">
                 <h2 id="manage-cat-title" className="font-syne text-[16px] font-bold text-text">
                   Catégories de mission

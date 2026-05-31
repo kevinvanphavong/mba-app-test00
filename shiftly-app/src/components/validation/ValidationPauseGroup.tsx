@@ -18,9 +18,25 @@ interface Props {
   onEditFin: (initialTime: string) => void
 }
 
+/**
+ * Calcule la durée d'une pause en minutes à partir des heures ISO renvoyées
+ * par le back. On recalcule côté front pour rester cohérent avec ce qui est
+ * affiché dans les pilules même si le refetch de la query est légèrement
+ * désynchronisé après une correction (sinon (20 min) reste figé alors que
+ * les heures ont visiblement changé).
+ */
+function dureeMinutesFront(debut: string, fin: string | null): number | null {
+  if (!fin) return null
+  const d = new Date(debut).getTime()
+  const f = new Date(fin).getTime()
+  if (Number.isNaN(d) || Number.isNaN(f)) return null
+  return Math.max(0, Math.round((f - d) / 60000))
+}
+
 export default function ValidationPauseGroup({ pause, corrections, onEditDebut, onEditFin }: Props) {
   const debutCorr = corrections.find(c => c.champModifie === 'pauseDebut' && c.pauseId === pause.id) ?? null
   const finCorr   = corrections.find(c => c.champModifie === 'pauseFin'   && c.pauseId === pause.id) ?? null
+  const duree     = dureeMinutesFront(pause.debut, pause.fin)
 
   return (
     <span className="validation-day-row__pause-group">
@@ -37,7 +53,7 @@ export default function ValidationPauseGroup({ pause, corrections, onEditDebut, 
         variant={finCorr ? 'modified' : 'neutral'}
         time={pause.fin ? formatHeure(pause.fin) : '??'}
         oldTime={finCorr?.ancienneValeur ? formatHeure(finCorr.ancienneValeur) : undefined}
-        subInfo={`(${pause.dureeMinutes} min)`}
+        subInfo={duree !== null ? `(${duree} min)` : undefined}
         ariaLabel="Corriger la fin de la pause"
         onClick={pause.fin ? () => onEditFin(formatHeure(pause.fin)) : undefined}
       />

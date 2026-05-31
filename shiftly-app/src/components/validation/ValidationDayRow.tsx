@@ -79,6 +79,14 @@ export default function ValidationDayRow({ jour, corrections, isCorrecting, onCo
       </div>
 
       <div className="validation-day-row__times">
+        {jour.pointageIncoherent && (
+          <span
+            className="validation-day-row__incoherent-badge"
+            title="Pointage incohérent — corrige l'arrivée ou le départ avant de valider"
+          >
+            ⚠ Pointage à corriger
+          </span>
+        )}
         {isRepos ? (
           <span className="validation-day-row__rest-label">{jour.statut === 'absent_justifie' ? `Absent (${jour.typeAbsence ?? '—'})` : jour.statut === 'absent_non_justifie' ? 'Absent non justifié' : 'Repos'}</span>
         ) : jour.heureArrivee ? (
@@ -114,7 +122,7 @@ export default function ValidationDayRow({ jour, corrections, isCorrecting, onCo
 
       <div className="validation-day-row__net">
         {jour.pointageIncoherent ? (
-          <span className="validation-day-row__incoherent-badge">⚠ Pointage incohérent</span>
+          <span className="validation-day-row__net-incoherent" aria-label="Heures non calculables">—</span>
         ) : (
           <>
             {minToHHMM(jour.heuresNettes)}
