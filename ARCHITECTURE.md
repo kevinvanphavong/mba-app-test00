@@ -154,13 +154,16 @@ mba-app-test00/
 │   │   │   │   ├── ValidationDayCell.tsx         # Cellule jour (4 états)
 │   │   │   │   ├── ValidationTable.tsx           # Tableau employés × 7 jours
 │   │   │   │   ├── ValidationEmployeeDetail.tsx  # Orchestrateur panneau détail V2
-│   │   │   │   ├── ValidationDayRow.tsx          # Ligne jour (pilules inline + popover)
+│   │   │   │   ├── ValidationDetailHead.tsx      # Tête employé (avatar + nom + total)
+│   │   │   │   ├── ValidationDayRow.tsx          # Ligne jour (pilules inline + popover + variant incoherent)
 │   │   │   │   ├── ValidationTimePill.tsx        # Pilule horaire cliquable (ok/late/auto/modified/empty)
 │   │   │   │   ├── ValidationTimePopover.tsx     # Popover TimePicker (±5/±15, raccourcis, chips motif)
+│   │   │   │   ├── ValidationPauseGroup.tsx      # Duo de pilules pause (début/fin cliquables)
+│   │   │   │   ├── ValidationArriveeEmptyCta.tsx # Bouton arrivée vide scopé par date (now/popover/null)
 │   │   │   │   ├── ValidationCorrectionTimeline.tsx # Historique complet corrections + ↺ Annuler
 │   │   │   │   ├── ValidationBulkActions.tsx     # Bandeau "Appliquer le départ planifié à tous"
 │   │   │   │   ├── ValidationWeekSummary.tsx     # Résumé totaux équipe
-│   │   │   │   └── ValidationLegalAlerts.tsx     # Alertes légales IDCC 1790
+│   │   │   │   └── ValidationLegalAlerts.tsx     # Alertes légales IDCC 1790 (+ pointage_incoherent)
 │   │   │   │
 │   │   │   ├── postes/                 # Page /postes — gestion manager + lecture employé
 │   │   │   │   ├── PostesDesktopView.tsx   # Vue ≥ lg : carousel + 4 colonnes + compétences
@@ -202,6 +205,7 @@ mba-app-test00/
 │   │   │   ├── strings.ts             # Helpers strings (capitalizeFirst, capitalizeWords)
 │   │   │   ├── serviceFilters.ts      # Helpers purs /services (tabs, period, Tx clôture)
 │   │   │   ├── serviceUtils.ts        # getEffectiveToday + helpers service du jour
+│   │   │   ├── validationDay.ts       # Helpers purs validation (minToHHMM, deltaHeures, toIsoUtc…)
 │   │   │   └── mock/                  # Données mock pour développement offline
 │   │   │
 │   │   └── types/                     # Types TypeScript (entités + DTOs)
