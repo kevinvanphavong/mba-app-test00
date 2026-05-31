@@ -118,8 +118,8 @@ export default function ValidationPage() {
       showToast('Correction non annulable (pas d\'ancienne valeur enregistrée)', 'error')
       return
     }
-    // Le back stocke en 'Y-m-d H:i:s' local → on convertit en ISO pour le POST.
-    const iso = new Date(correction.ancienneValeur.replace(' ', 'T')).toISOString()
+    // Le back renvoie désormais ATOM (ISO 8601 avec offset) — directement consommable.
+    const iso = new Date(correction.ancienneValeur).toISOString()
     annulerMut.mutate(
       {
         pointageId:    correction.pointageId,

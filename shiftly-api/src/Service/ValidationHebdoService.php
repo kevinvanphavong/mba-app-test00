@@ -790,16 +790,18 @@ class ValidationHebdoService
     {
         $corrections = $this->correctionRepo->findByPointage($pointageId);
 
+        // ATOM (ISO 8601 avec offset) : le front interprète directement en heure locale.
+        // L'ancien format 'Y-m-d H:i:s' était ambigu et entraînait un −2h apparent (cf. fix V2).
         return array_map(fn(CorrectionPointage $c) => [
             'id'             => $c->getId(),
             'pointageId'     => $c->getPointage()->getId(),
             'pauseId'        => $c->getPause()?->getId(),
             'champModifie'   => $c->getChampModifie(),
-            'ancienneValeur' => $c->getAncienneValeur()?->format('Y-m-d H:i:s'),
-            'nouvelleValeur' => $c->getNouvelleValeur()?->format('Y-m-d H:i:s'),
+            'ancienneValeur' => $c->getAncienneValeur()?->format(\DateTimeInterface::ATOM),
+            'nouvelleValeur' => $c->getNouvelleValeur()?->format(\DateTimeInterface::ATOM),
             'motif'          => $c->getMotif(),
             'corrigePar'     => $c->getCorrigePar()->getNom(),
-            'createdAt'      => $c->getCreatedAt()->format('Y-m-d H:i:s'),
+            'createdAt'      => $c->getCreatedAt()->format(\DateTimeInterface::ATOM),
         ], $corrections);
     }
 

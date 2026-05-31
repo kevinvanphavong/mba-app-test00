@@ -26,14 +26,6 @@ const CHAMP_LIBELLE: Record<string, string> = {
   pauseFin:     'Fin pause',
 }
 
-/** Convertit "2026-05-30 09:00:00" (format back) en heure locale HH:MM. */
-function fmtBackTime(value: string | null): string {
-  if (!value) return '—'
-  // Le back renvoie "Y-m-d H:i:s" → on le traite comme heure locale.
-  const iso = value.replace(' ', 'T')
-  return formatHeure(iso)
-}
-
 export default function ValidationCorrectionTimeline({ corrections, pointageToDate, onAnnuler, isAnnulant }: Props) {
   if (corrections.length === 0) {
     return (
@@ -71,13 +63,13 @@ export default function ValidationCorrectionTimeline({ corrections, pointageToDa
             <div key={c.id} className="validation-timeline__item">
               <div className="validation-timeline__line1">
                 {jourLabel} · <span className="validation-timeline__field">{CHAMP_LIBELLE[c.champModifie] ?? c.champModifie}</span>{' '}
-                <span className="validation-timeline__old">{fmtBackTime(c.ancienneValeur)}</span>{' → '}
-                <span className="validation-timeline__new">{fmtBackTime(c.nouvelleValeur)}</span>
+                <span className="validation-timeline__old">{formatHeure(c.ancienneValeur)}</span>{' → '}
+                <span className="validation-timeline__new">{formatHeure(c.nouvelleValeur)}</span>
               </div>
               <div className="validation-timeline__line2">
                 {c.motif && <span className="validation-timeline__motif">{c.motif}</span>}
                 par <strong>{c.corrigePar}</strong>
-                <span> · il y a {formatDistanceToNow(parseISO(c.createdAt.replace(' ', 'T')), { locale: fr })}</span>
+                <span> · il y a {formatDistanceToNow(parseISO(c.createdAt), { locale: fr })}</span>
                 {!isAnnulation && (
                   <button
                     type="button"

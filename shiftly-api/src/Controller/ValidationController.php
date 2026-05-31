@@ -280,10 +280,11 @@ class ValidationController extends AbstractController
             'pointageId'     => $correction->getPointage()->getId(),
             'pauseId'        => $correction->getPause()?->getId(),
             'champModifie'   => $correction->getChampModifie(),
-            'ancienneValeur' => $correction->getAncienneValeur()?->format('Y-m-d H:i:s'),
-            'nouvelleValeur' => $correction->getNouvelleValeur()?->format('Y-m-d H:i:s'),
+            // ATOM = ISO 8601 avec offset. Le front formate ensuite en heure locale.
+            'ancienneValeur' => $correction->getAncienneValeur()?->format(\DateTimeInterface::ATOM),
+            'nouvelleValeur' => $correction->getNouvelleValeur()?->format(\DateTimeInterface::ATOM),
             'motif'          => $correction->getMotif(),
-            'createdAt'      => $correction->getCreatedAt()->format('Y-m-d H:i:s'),
+            'createdAt'      => $correction->getCreatedAt()->format(\DateTimeInterface::ATOM),
         ]);
     }
 
