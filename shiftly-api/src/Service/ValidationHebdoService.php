@@ -389,37 +389,50 @@ class ValidationHebdoService
             return 0;
         }
 
-        $fin   = $this->resolveFinPointage($pointage)['fin'];
-        $delta = ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) / 60;
-
-        // Pointage incohérent : départ AVANT arrivée → on refuse de calculer.
-        if ($delta < 0) {
+        // Garde-fou : on ne retourne null (= "incohérent, refuse de calculer")
+        // QUE si l'employé a réellement pointé un départ < arrivée.
+        // En cours (heureDepart null), resolveFinPointage fabrique un now/finPlanifiee
+        // qui peut être < arrivee à cause d'un décalage timezone ou d'une arrivée
+        // antérieure à l'heure planifiée — ce n'est pas un cas d'incohérence métier.
+        if ($this->estPointageIncoherent($pointage)) {
             return null;
         }
+
+        $fin   = $this->resolveFinPointage($pointage)['fin'];
+        $delta = ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) / 60;
 
         return (int) max(0, $delta - $this->calculerTotalPausesMinutes($pointage));
     }
 
     /**
-     * Vrai si le pointage présente un delta arrivée→départ négatif (cas absurde,
-     * typiquement une saisie de minuit mal interprétée). Bloque la validation.
+     * Vrai si l'employé a réellement pointé un départ avant son arrivée
+     * (cas Mickael : arrivée 01:45, départ pointé 00:54).
+     * On n'évalue PAS sur un pointage en cours — heureDepart doit être défini.
      */
     public function estPointageIncoherent(Pointage $pointage): bool
     {
-        if ($pointage->getHeureArrivee() === null) return false;
-        $fin = $this->resolveFinPointage($pointage)['fin'];
-        return ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) < 0;
+        $arrivee = $pointage->getHeureArrivee();
+        $depart  = $pointage->getHeureDepart();
+        if ($arrivee === null || $depart === null) {
+            return false;
+        }
+        return $depart < $arrivee;
     }
 
     /**
      * Vrai si le delta brut arrivée→départ dépasse 10h (600 min, max légal IDCC 1790).
+     * Évalué uniquement sur un départ réellement pointé (pas sur une fin fictive
+     * fabriquée par resolveFinPointage pour un service en cours).
      * N'empêche pas la validation, mais lève une alerte légale "danger".
      */
     public function depasseLimiteLegale(Pointage $pointage): bool
     {
-        if ($pointage->getHeureArrivee() === null) return false;
-        $fin   = $this->resolveFinPointage($pointage)['fin'];
-        $delta = ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) / 60;
+        $arrivee = $pointage->getHeureArrivee();
+        $depart  = $pointage->getHeureDepart();
+        if ($arrivee === null || $depart === null) {
+            return false;
+        }
+        $delta = ($depart->getTimestamp() - $arrivee->getTimestamp()) / 60;
         return $delta > 600;
     }
 
