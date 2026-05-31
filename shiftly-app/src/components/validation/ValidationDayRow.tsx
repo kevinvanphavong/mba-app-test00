@@ -10,10 +10,11 @@ import { format, parseISO } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import ValidationTimePill from './ValidationTimePill'
 import ValidationTimePopover from './ValidationTimePopover'
+import ValidationPauseGroup from './ValidationPauseGroup'
+import ValidationArriveeEmptyCta from './ValidationArriveeEmptyCta'
 import { formatHeure } from '@/lib/formatHeure'
-import type { ValidationJour, CorrectionPointage, CorrectionPayload } from '@/types/validation'
-
-type Champ = 'heureArrivee' | 'heureDepart'
+import { minToHHMM, deltaHeures, lastCorrectionFor, toIsoUtc } from '@/lib/validationDay'
+import type { ValidationJour, CorrectionPointage, CorrectionPayload, CorrectionChamp } from '@/types/validation'
 
 interface Props {
   jour: ValidationJour
@@ -24,56 +25,53 @@ interface Props {
   onPointerArrivee: (pointageId: number) => void
 }
 
-function minToHHMM(minutes: number | null): string {
-  if (minutes === null) return '—'
-  const h = Math.floor(minutes / 60); const min = minutes % 60
-  return `${h}h${min > 0 ? String(min).padStart(2, '0') : ''}`
-}
-/** Calcule l'écart en minutes entre nettes et prévues (positif = sup, négatif = manque). */
-function delta(jour: ValidationJour): number | null {
-  if (jour.heuresNettes === null || jour.heuresPrevues === null) return null
-  return jour.heuresNettes - jour.heuresPrevues
-}
-/** Cherche la dernière correction pour un champ donné — sert au diff inline sur la pilule. */
-function lastCorrectionFor(corrections: CorrectionPointage[], champ: Champ): CorrectionPointage | null {
-  return corrections.find(c => c.champModifie === champ) ?? null
-}
-
-// Conversion locale (Europe/Paris) → ISO UTC pour stockage uniforme côté back.
-// Repris de l'ancien ValidationCorrectionForm.tsx (logique fuseau inchangée).
-function toIsoUtc(date: string, time: string): string {
-  const [y, m, d] = date.split('-').map(Number)
-  const [hh, mm] = time.split(':').map(Number)
-  return new Date(y, m - 1, d, hh, mm, 0).toISOString()
-}
+type PopoverState = { champ: CorrectionChamp; pauseId?: number; initialTime: string }
 
 export default function ValidationDayRow({ jour, corrections, isCorrecting, onCorriger, onPointerArrivee }: Props) {
-  const [openPopover, setOpenPopover] = useState<Champ | null>(null)
+  const [popover, setPopover] = useState<PopoverState | null>(null)
 
-  const isRepos = jour.statut === 'repos' || jour.statut === 'absent_justifie' || jour.statut === 'absent_non_justifie'
-  const hasCorrection  = corrections.length > 0
-  const arriveeCorr    = lastCorrectionFor(corrections, 'heureArrivee')
-  const departCorr     = lastCorrectionFor(corrections, 'heureDepart')
-  const ecart          = delta(jour)
-  const dayDateLabel   = format(parseISO(jour.date), 'EEE d MMM', { locale: fr })
+  const isRepos       = jour.statut === 'repos' || jour.statut === 'absent_justifie' || jour.statut === 'absent_non_justifie'
+  const hasCorrection = corrections.length > 0
+  const arriveeCorr   = lastCorrectionFor(corrections, 'heureArrivee')
+  const departCorr    = lastCorrectionFor(corrections, 'heureDepart')
+  const ecart         = deltaHeures(jour)
+  const dayDateLabel  = format(parseISO(jour.date), 'EEE d MMM', { locale: fr })
 
-  const handleApply = (champ: Champ, newTime: string, motif: string) => {
-    if (jour.pointageId === null) return
+  const handleApply = (newTime: string, motif: string) => {
+    if (jour.pointageId === null || popover === null) return
     onCorriger({
       pointageId:     jour.pointageId,
-      champModifie:   champ,
+      champModifie:   popover.champ,
       nouvelleValeur: toIsoUtc(jour.date, newTime),
       motif,
+      pauseId:        popover.pauseId,
     })
-    setOpenPopover(null)
+    setPopover(null)
   }
 
   const arriveeVariant = arriveeCorr ? 'modified' : jour.estRetard ? 'late' : 'ok'
   const departVariant  = departCorr  ? 'modified' : jour.heureDepartAuto ? 'auto' : 'ok'
 
+  const popoverInfo = popover === null ? null : {
+    plannedTime: popover.champ === 'heureArrivee' ? jour.heureDebutPlanifiee
+               : popover.champ === 'heureDepart'  ? jour.heureFinPlanifiee
+               : null,
+    fieldLabel:  popover.champ === 'heureArrivee' ? "Heure d'arrivée"
+               : popover.champ === 'heureDepart'  ? 'Heure de départ'
+               : popover.champ === 'pauseDebut'   ? 'Début pause' : 'Fin pause',
+  }
+
+  const rowClass = [
+    'validation-day-row',
+    jour.pointageIncoherent && 'validation-day-row--incoherent',
+    hasCorrection && !jour.pointageIncoherent && 'validation-day-row--has-correction',
+    !jour.heureArrivee && !isRepos && !jour.pointageIncoherent && 'validation-day-row--empty-arrival',
+    isRepos && 'validation-day-row--rest',
+  ].filter(Boolean).join(' ')
+
   return (
-    <div className={`validation-day-row${hasCorrection ? ' validation-day-row--has-correction' : ''}${!jour.heureArrivee && !isRepos ? ' validation-day-row--empty-arrival' : ''}${isRepos ? ' validation-day-row--rest' : ''}`}>
-      {hasCorrection && <span className="validation-day-row__dot" aria-hidden />}
+    <div className={rowClass}>
+      {(hasCorrection || jour.pointageIncoherent) && <span className={`validation-day-row__dot${jour.pointageIncoherent ? ' validation-day-row__dot--red' : ''}`} aria-hidden />}
 
       <div className="validation-day-row__label">
         <span className="validation-day-row__label-small">{format(parseISO(jour.date), 'EEE', { locale: fr })}</span>
@@ -84,24 +82,24 @@ export default function ValidationDayRow({ jour, corrections, isCorrecting, onCo
         {isRepos ? (
           <span className="validation-day-row__rest-label">{jour.statut === 'absent_justifie' ? `Absent (${jour.typeAbsence ?? '—'})` : jour.statut === 'absent_non_justifie' ? 'Absent non justifié' : 'Repos'}</span>
         ) : jour.heureArrivee ? (
-          <ValidationTimePill
-            variant={arriveeVariant} label="Arr."
+          <ValidationTimePill variant={arriveeVariant} label="Arr."
             time={formatHeure(jour.heureArrivee)}
             oldTime={arriveeCorr?.ancienneValeur ? formatHeure(arriveeCorr.ancienneValeur) : undefined}
             icon={arriveeCorr ? '✏️' : jour.estRetard ? '⚠' : '✓'}
             ariaLabel={`Corriger l'arrivée du ${dayDateLabel}`}
-            onClick={jour.pointageId !== null ? () => setOpenPopover('heureArrivee') : undefined}
+            onClick={jour.pointageId !== null ? () => setPopover({ champ: 'heureArrivee', initialTime: formatHeure(jour.heureArrivee) }) : undefined}
           />
-        ) : jour.pointageId !== null ? (
-          <button type="button" className="validation-day-row__empty-cta" onClick={() => onPointerArrivee(jour.pointageId as number)}>
-            ⚠ Pointer arrivée maintenant{jour.heureDebutPlanifiee ? ` (plan. ${jour.heureDebutPlanifiee})` : ''}
-          </button>
-        ) : null}
+        ) : (
+          <ValidationArriveeEmptyCta jourDate={jour.date} pointageId={jour.pointageId}
+            heureDebutPlanifiee={jour.heureDebutPlanifiee}
+            onPointerNow={onPointerArrivee}
+            onOpenSaisie={(t) => setPopover({ champ: 'heureArrivee', initialTime: t })} />
+        )}
 
         {!isRepos && jour.pauses.map(p => (
-          <ValidationTimePill key={p.id} variant="neutral" icon={p.type === 'REPAS' ? '🍽' : '☕'}
-            time={`${formatHeure(p.debut)}${p.fin ? `–${formatHeure(p.fin)}` : ''}`}
-            subInfo={`(${p.dureeMinutes} min)`} />
+          <ValidationPauseGroup key={p.id} pause={p} corrections={corrections}
+            onEditDebut={(t) => setPopover({ champ: 'pauseDebut', pauseId: p.id, initialTime: t })}
+            onEditFin={(t)   => setPopover({ champ: 'pauseFin',   pauseId: p.id, initialTime: t })} />
         ))}
 
         {!isRepos && jour.heureDepart && (
@@ -110,29 +108,36 @@ export default function ValidationDayRow({ jour, corrections, isCorrecting, onCo
             oldTime={departCorr?.ancienneValeur ? formatHeure(departCorr.ancienneValeur) : undefined}
             icon={departCorr ? '✏️' : jour.heureDepartAuto ? undefined : '✓'}
             ariaLabel={`Corriger le départ du ${dayDateLabel}`}
-            onClick={jour.pointageId !== null ? () => setOpenPopover('heureDepart') : undefined} />
+            onClick={jour.pointageId !== null ? () => setPopover({ champ: 'heureDepart', initialTime: formatHeure(jour.heureDepart) }) : undefined} />
         )}
       </div>
 
       <div className="validation-day-row__net">
-        {minToHHMM(jour.heuresNettes)}
-        {ecart !== null && ecart !== 0 && (
-          <span className={`validation-day-row__delta validation-day-row__delta--${ecart > 0 ? 'up' : 'down'}`}>
-            {ecart > 0 ? '+' : '−'}{Math.abs(ecart)} min
-          </span>
+        {jour.pointageIncoherent ? (
+          <span className="validation-day-row__incoherent-badge">⚠ Pointage incohérent</span>
+        ) : (
+          <>
+            {minToHHMM(jour.heuresNettes)}
+            {ecart !== null && ecart !== 0 && (
+              <span className={`validation-day-row__delta validation-day-row__delta--${ecart > 0 ? 'up' : 'down'}`}>
+                {ecart > 0 ? '+' : '−'}{Math.abs(ecart)} min
+              </span>
+            )}
+          </>
         )}
       </div>
 
-      {openPopover && (
+      {popoverInfo && popover && (
         <div className="validation-day-row__popover-anchor">
           <ValidationTimePopover
-            initialTime={formatHeure(openPopover === 'heureArrivee' ? jour.heureArrivee : jour.heureDepart)}
-            plannedTime={openPopover === 'heureArrivee' ? jour.heureDebutPlanifiee : jour.heureFinPlanifiee}
+            initialTime={popover.initialTime}
+            plannedTime={popoverInfo.plannedTime}
             dayLabel={dayDateLabel}
-            fieldLabel={openPopover === 'heureArrivee' ? "Heure d'arrivée" : 'Heure de départ'}
-            onCancel={() => setOpenPopover(null)}
-            onApply={(t, m) => handleApply(openPopover, t, m)}
+            fieldLabel={popoverInfo.fieldLabel}
+            onCancel={() => setPopover(null)}
+            onApply={handleApply}
             isLoading={isCorrecting}
+            allowApplyUnchanged={popover.champ === 'heureArrivee' && !jour.heureArrivee}
           />
         </div>
       )}

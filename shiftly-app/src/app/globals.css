@@ -541,7 +541,12 @@ input:focus { border-color: var(--accent); }
 .validation-day-row--rest  { opacity: 0.55; }
 .validation-day-row--has-correction  { background: rgba(249,115,22,0.04); }
 .validation-day-row--empty-arrival   { background: rgba(239,68,68,0.04); }
+.validation-day-row--incoherent      { background: rgba(239,68,68,0.10); border-left: 1px solid var(--red); }
 .validation-day-row__dot   { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 4px; height: 28px; background: var(--accent); border-radius: 0 4px 4px 0; }
+.validation-day-row__dot--red { background: var(--red); }
+.validation-day-row__incoherent-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid var(--red); border-radius: 6px; font-size: 10px; font-weight: 700; font-family: 'DM Sans', sans-serif; line-height: 1.2; text-align: center; white-space: nowrap; }
+.validation-day-row__pause-group { display: inline-flex; align-items: center; gap: 4px; }
+.validation-day-row__pause-sep   { color: var(--muted); font-size: 11px; }
 .validation-day-row__label { font-weight: 600; font-size: 13px; color: var(--text); }
 .validation-day-row__label-small { display: block; font-size: 10px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
 .validation-day-row__times { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -550,8 +555,13 @@ input:focus { border-color: var(--accent); }
 .validation-day-row__delta { display: block; font-size: 10px; font-weight: 500; color: var(--muted); margin-top: 2px; font-family: 'DM Sans', sans-serif; }
 .validation-day-row__delta--up   { color: var(--green); }
 .validation-day-row__delta--down { color: var(--red); }
-.validation-day-row__empty-cta { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(239,68,68,0.08); border: 1px dashed var(--red); border-radius: 8px; font-size: 11px; color: var(--red); cursor: pointer; font-weight: 600; }
+.validation-day-row__empty-cta { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; background: rgba(239,68,68,0.08); border: 1px dashed var(--red); border-radius: 8px; font-size: 11px; color: var(--red); cursor: pointer; font-weight: 600; font-family: 'DM Sans', sans-serif; }
 .validation-day-row__empty-cta:hover { background: rgba(239,68,68,0.15); }
+/* Variant "+ Saisir l'heure" pour les jours passés (ouvre popover au lieu de POST now). */
+.validation-day-row__empty-cta--past { background: var(--surface2); border: 1px dashed var(--border); color: var(--muted); }
+.validation-day-row__empty-cta--past:hover { background: var(--surface3, #232838); color: var(--accent); border-color: var(--accent); }
+/* Bouton "Valider" verrouillé par un pointage incohérent : style alerte au lieu de simple disabled. */
+.validation-detail-foot__btn-valider--blocked { background: rgba(239,68,68,0.10) !important; color: var(--red) !important; border-color: var(--red) !important; }
 .validation-day-row__popover-anchor { position: absolute; top: 100%; left: 90px; z-index: 50; }
 
 /* Pilule horaire cliquable (inline edit) */

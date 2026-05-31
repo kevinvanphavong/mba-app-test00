@@ -21,10 +21,16 @@ interface Props {
   initialTime: string         // 'HH:MM'
   plannedTime: string | null  // 'HH:MM' (raccourci "Heure plan.")
   dayLabel: string            // ex: "Sam. 30 mai"
-  fieldLabel: string          // ex: "Heure d'arrivée"
+  fieldLabel: string          // ex: "Heure d'arrivée" / "Début pause" / "Fin pause"
   onCancel: () => void
   onApply: (newTime: string, motif: string) => void
   isLoading?: boolean
+  /**
+   * Si true, on autorise l'application même quand l'heure est inchangée.
+   * Utile pour la saisie rétroactive d'une arrivée vide pré-remplie sur
+   * l'heure planifiée (le manager peut vouloir valider tel quel).
+   */
+  allowApplyUnchanged?: boolean
 }
 
 function toMinutes(t: string): number {
@@ -43,6 +49,7 @@ function diffLabel(current: string, original: string): string {
 
 export default function ValidationTimePopover({
   initialTime, plannedTime, dayLabel, fieldLabel, onCancel, onApply, isLoading = false,
+  allowApplyUnchanged = false,
 }: Props) {
   const [time, setTime]   = useState(initialTime)
   const [motif, setMotif] = useState<string>('')
@@ -52,16 +59,10 @@ export default function ValidationTimePopover({
 
   // Outside click + Escape ferment le popover (sans appliquer).
   useEffect(() => {
-    const onClickOutside = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) onCancel()
-    }
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
-    document.addEventListener('mousedown', onClickOutside)
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('mousedown', onClickOutside)
-      document.removeEventListener('keydown', onKey)
-    }
+    const onClick = (e: MouseEvent) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) onCancel() }
+    const onKey   = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
+    document.addEventListener('mousedown', onClick); document.addEventListener('keydown', onKey)
+    return () => { document.removeEventListener('mousedown', onClick); document.removeEventListener('keydown', onKey) }
   }, [onCancel])
 
   const adjust = (deltaMin: number) => setTime(fromMinutes(toMinutes(time) + deltaMin))
@@ -71,7 +72,8 @@ export default function ValidationTimePopover({
   }
 
   const finalMotif = motif === 'Autre…' ? customMotif.trim() : motif
-  const canApply   = time !== initialTime && !!finalMotif && !isLoading
+  const timeChanged = time !== initialTime
+  const canApply   = (timeChanged || allowApplyUnchanged) && !!finalMotif && !isLoading
 
   return (
     <motion.div
@@ -107,13 +109,8 @@ export default function ValidationTimePopover({
       <div className="validation-popover__shortcuts">
         <button type="button" className="validation-popover__shortcut" onClick={setNow}>Maintenant</button>
         <button type="button" className="validation-popover__shortcut" disabled={!plannedTime} onClick={() => plannedTime && setTime(plannedTime)}>Heure plan.</button>
-        <input
-          type="time"
-          className="validation-popover__time-input"
-          value={time}
-          onChange={(e) => e.target.value && setTime(e.target.value)}
-          aria-label="Saisir une heure"
-        />
+        <input type="time" className="validation-popover__time-input" value={time}
+          onChange={(e) => e.target.value && setTime(e.target.value)} aria-label="Saisir une heure" />
       </div>
 
       <div className="validation-popover__motif-label">Motif</div>

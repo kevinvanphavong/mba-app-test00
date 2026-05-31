@@ -13,6 +13,7 @@ import ValidationDayRow              from './ValidationDayRow'
 import ValidationCorrectionTimeline  from './ValidationCorrectionTimeline'
 import ValidationBulkActions         from './ValidationBulkActions'
 import ConfirmModal                  from '@/components/ui/ConfirmModal'
+import { toIsoUtc } from '@/lib/validationDay'
 import type { ValidationEmploye, CorrectionPayload, CorrectionPointage } from '@/types/validation'
 
 interface Props {
@@ -29,13 +30,6 @@ interface Props {
   isPointing?: boolean
 }
 
-// Convertit 'YYYY-MM-DD' + 'HH:MM' → ISO UTC, fuseau navigateur local (Europe/Paris).
-function toIsoUtc(date: string, time: string): string {
-  const [y, m, d] = date.split('-').map(Number)
-  const [hh, mm]  = time.split(':').map(Number)
-  return new Date(y, m - 1, d, hh, mm, 0).toISOString()
-}
-
 export default function ValidationEmployeeDetail({
   employe, onValider, onDevalider, onCorriger, onAnnulerCorrection, onPointerArrivee,
   isValidating = false, isDevalidating = false, isCorrecting = false,
@@ -44,6 +38,11 @@ export default function ValidationEmployeeDetail({
   const [showDevalidConfirm, setShowDevalidConfirm] = useState(false)
   const isValidee   = employe.statut === 'VALIDEE'
   const corrections = employe.corrections ?? []
+
+  // Blocage : un pointage incohérent (départ avant arrivée) empêche la validation.
+  // Le manager doit corriger via le popover avant de pouvoir cocher "Valider".
+  const nbJoursIncoherents = employe.jours.filter(j => j.pointageIncoherent).length
+  const hasIncoherence     = nbJoursIncoherents > 0
 
   // Map pointageId → date (utilisé par la timeline pour libeller "Sam. 30 mai").
   const pointageToDate: Record<number, string> = useMemo(() => {
@@ -115,9 +114,10 @@ export default function ValidationEmployeeDetail({
             {isDevalidating ? 'Annulation…' : '↺ Annuler la validation'}
           </button>
         ) : (
-          <button type="button" onClick={() => onValider(employe.userId)} disabled={isValidating}
-            className="validation-detail-foot__btn-valider">
-            {isValidating ? 'Validation…' : `✓ Valider la semaine de ${employe.prenom}`}
+          <button type="button" onClick={() => onValider(employe.userId)} disabled={isValidating || hasIncoherence}
+            className={`validation-detail-foot__btn-valider${hasIncoherence ? ' validation-detail-foot__btn-valider--blocked' : ''}`}
+            title={hasIncoherence ? `${nbJoursIncoherents} jour(s) avec un pointage incohérent — corrige avant de valider` : undefined}>
+            {isValidating ? 'Validation…' : hasIncoherence ? `⛔ ${nbJoursIncoherents} pointage(s) à corriger` : `✓ Valider la semaine de ${employe.prenom}`}
           </button>
         )}
       </div>

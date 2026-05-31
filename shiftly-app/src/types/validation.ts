@@ -19,6 +19,7 @@ export type AlerteType =
   | 'pause_6h'
   | 'max_journalier'
   | 'max_hebdo'
+  | 'pointage_incoherent'
 
 export type AlerteSeverite = 'ok' | 'warning' | 'danger'
 
@@ -58,10 +59,14 @@ export interface ValidationJour {
   /** Heure de fin planifiée du poste (format 'HH:MM' local), null si pas de poste. */
   heureFinPlanifiee: string | null
   pauses: ValidationPause[]
-  heuresNettes: number | null  // en minutes
+  heuresNettes: number | null  // en minutes — null si pointageIncoherent
   heuresPrevues: number | null // en minutes
   estRetard: boolean
   typeAbsence: string | null   // 'CP', 'RTT', 'MALADIE', etc.
+  /** Vrai si delta arrivée→départ < 0. Bloque la validation. */
+  pointageIncoherent: boolean
+  /** Vrai si delta brut > 10h (max légal IDCC 1790). Alerte sans blocage. */
+  depasseLimiteLegale: boolean
 }
 
 export interface ValidationEmploye {
@@ -102,6 +107,8 @@ export interface AlerteLegale {
 export interface CorrectionPointage {
   id: number
   pointageId: number
+  /** Renseigné quand la correction porte sur 'pauseDebut' ou 'pauseFin'. */
+  pauseId: number | null
   champModifie: string
   ancienneValeur: string | null
   nouvelleValeur: string | null
@@ -115,9 +122,11 @@ export interface ValiderEmployePayload {
   date: string              // lundi YYYY-MM-DD
 }
 
+export type CorrectionChamp = 'heureArrivee' | 'heureDepart' | 'pauseDebut' | 'pauseFin'
+
 export interface CorrectionPayload {
   pointageId: number
-  champModifie: 'heureArrivee' | 'heureDepart' | 'pauseDebut' | 'pauseFin'
+  champModifie: CorrectionChamp
   nouvelleValeur: string   // ISO datetime
   motif?: string
   /** Obligatoire quand champModifie est 'pauseDebut' ou 'pauseFin'. */
