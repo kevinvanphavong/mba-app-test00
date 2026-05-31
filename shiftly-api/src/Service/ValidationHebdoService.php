@@ -181,6 +181,12 @@ class ValidationHebdoService
         $now          = new \DateTimeImmutable();
         $planifie     = $this->getHorairesPlanifiees($pointage);
 
+        // Flags d'incohérence — calculés ici une fois, propagés à chaque branche.
+        // pointageIncoherent : delta arrivée→départ < 0 (cas Mickael 01:45 → 00:54).
+        // depasseLimiteLegale : delta brut > 10h (max légal IDCC 1790).
+        $pointageIncoherent  = $pointage !== null && $this->estPointageIncoherent($pointage);
+        $depasseLimiteLegale = $pointage !== null && $this->depasseLimiteLegale($pointage);
+
         // Cas : absence justifiée
         if ($absence !== null && $absence->getType() !== 'REPOS') {
             return [
@@ -198,6 +204,8 @@ class ValidationHebdoService
                 'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
                 'estRetard'        => false,
                 'typeAbsence'      => $absence->getType(),
+                'pointageIncoherent'  => $pointageIncoherent,
+                'depasseLimiteLegale' => $depasseLimiteLegale,
             ];
         }
 
@@ -219,6 +227,8 @@ class ValidationHebdoService
                 'heuresPrevues'    => null,
                 'estRetard'        => false,
                 'typeAbsence'      => null,
+                'pointageIncoherent'  => false,
+                'depasseLimiteLegale' => false,
             ];
         }
 
@@ -239,6 +249,8 @@ class ValidationHebdoService
                 'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
                 'estRetard'        => false,
                 'typeAbsence'      => null,
+                'pointageIncoherent'  => $pointageIncoherent,
+                'depasseLimiteLegale' => $depasseLimiteLegale,
             ];
         }
 
@@ -265,6 +277,8 @@ class ValidationHebdoService
                     'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
                     'estRetard'        => $this->estEnRetard($pointage),
                     'typeAbsence'      => null,
+                    'pointageIncoherent'  => $pointageIncoherent,
+                    'depasseLimiteLegale' => $depasseLimiteLegale,
                 ];
             }
 
@@ -283,6 +297,8 @@ class ValidationHebdoService
                 'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
                 'estRetard'        => $this->estEnRetard($pointage),
                 'typeAbsence'      => null,
+                'pointageIncoherent'  => $pointageIncoherent,
+                'depasseLimiteLegale' => $depasseLimiteLegale,
             ];
         }
 
@@ -303,6 +319,8 @@ class ValidationHebdoService
             'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
             'estRetard'        => $this->estEnRetard($pointage),
             'typeAbsence'      => null,
+            'pointageIncoherent'  => $pointageIncoherent,
+            'depasseLimiteLegale' => $depasseLimiteLegale,
         ];
     }
 
@@ -361,17 +379,48 @@ class ValidationHebdoService
      * Calcule les heures nettes travaillées (arrivée→départ − pauses) en minutes.
      * Si heureDepart est null mais que le shift est terminé, applique le fallback
      * sur l'heure de fin du poste (cf. resolveFinPointage).
+     *
+     * Retourne null si le pointage est incohérent (departure < arrivee, cas Mickael
+     * 01:45 → 00:54). Le manager doit corriger avant de pouvoir valider.
      */
-    public function calculerHeuresNettes(Pointage $pointage): int
+    public function calculerHeuresNettes(Pointage $pointage): ?int
     {
         if ($pointage->getHeureArrivee() === null) {
             return 0;
         }
 
         $fin   = $this->resolveFinPointage($pointage)['fin'];
-        $duree = ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) / 60;
+        $delta = ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) / 60;
 
-        return (int) max(0, $duree - $this->calculerTotalPausesMinutes($pointage));
+        // Pointage incohérent : départ AVANT arrivée → on refuse de calculer.
+        if ($delta < 0) {
+            return null;
+        }
+
+        return (int) max(0, $delta - $this->calculerTotalPausesMinutes($pointage));
+    }
+
+    /**
+     * Vrai si le pointage présente un delta arrivée→départ négatif (cas absurde,
+     * typiquement une saisie de minuit mal interprétée). Bloque la validation.
+     */
+    public function estPointageIncoherent(Pointage $pointage): bool
+    {
+        if ($pointage->getHeureArrivee() === null) return false;
+        $fin = $this->resolveFinPointage($pointage)['fin'];
+        return ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) < 0;
+    }
+
+    /**
+     * Vrai si le delta brut arrivée→départ dépasse 10h (600 min, max légal IDCC 1790).
+     * N'empêche pas la validation, mais lève une alerte légale "danger".
+     */
+    public function depasseLimiteLegale(Pointage $pointage): bool
+    {
+        if ($pointage->getHeureArrivee() === null) return false;
+        $fin   = $this->resolveFinPointage($pointage)['fin'];
+        $delta = ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) / 60;
+        return $delta > 600;
     }
 
     /**
@@ -524,6 +573,16 @@ class ValidationHebdoService
 
             // Vérification jour par jour : max journalier 10h et pause obligatoire 6h
             foreach ($employe['jours'] as $jour) {
+                // Pointage incohérent (départ < arrivée) : alerte danger spécifique,
+                // visible même si le statut n'est pas 'travaille' (cas réel : Mickael).
+                if (!empty($jour['pointageIncoherent'])) {
+                    $alertes[] = $this->buildAlerte(
+                        'pointage_incoherent', 'danger', $userId, $nom,
+                        'Pointage incohérent — Correction requise',
+                        $jour['jourSemaine'] . ' — départ avant arrivée. Validation bloquée tant que ce jour n\'est pas corrigé.'
+                    );
+                }
+
                 if ($jour['statut'] !== 'travaille' && $jour['statut'] !== 'en_cours') {
                     continue;
                 }
@@ -601,6 +660,15 @@ class ValidationHebdoService
         $employes = $this->getSemaineData($centreId, $lundi)['employes'];
         foreach ($employes as $employe) {
             if ($employe['userId'] === $userId) {
+                // Garde-fou : refuser de valider si au moins un jour est incohérent
+                // (départ < arrivée). Le manager doit corriger avant.
+                $joursIncoherents = array_filter($employe['jours'], fn($j) => !empty($j['pointageIncoherent']));
+                if (count($joursIncoherents) > 0) {
+                    $libelles = implode(', ', array_map(fn($j) => $j['jourSemaine'], $joursIncoherents));
+                    throw new \DomainException(
+                        "Pointage(s) incohérent(s) à corriger avant validation : {$libelles}."
+                    );
+                }
                 $validation->setHeuresTravaillees($employe['totalTravaille']);
                 $validation->setHeuresPrevues($employe['totalPrevu']);
                 $validation->setEcart($employe['ecart']);

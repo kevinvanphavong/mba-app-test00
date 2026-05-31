@@ -163,7 +163,13 @@ class ValidationController extends AbstractController
         $centreId = $manager->getCentre()->getId();
         $lundi    = $this->parseLundi($date);
 
-        $validation = $this->validationService->validerEmploye($centreId, $userId, $lundi, $manager);
+        try {
+            $validation = $this->validationService->validerEmploye($centreId, $userId, $lundi, $manager);
+        } catch (\DomainException $e) {
+            // Pointage incohérent → 409 Conflict (le front doit obliger l'utilisateur
+            // à corriger avant de retenter, pas une 4xx ordinaire).
+            return $this->json(['hydra:description' => $e->getMessage(), 'detail' => $e->getMessage()], 409);
+        }
 
         return $this->json([
             'id'      => $validation->getId(),
@@ -186,7 +192,12 @@ class ValidationController extends AbstractController
         $centreId = $manager->getCentre()->getId();
         $lundi    = $this->parseLundi($date);
 
-        $validations = $this->validationService->validerSemaine($centreId, $lundi, $manager);
+        try {
+            $validations = $this->validationService->validerSemaine($centreId, $lundi, $manager);
+        } catch (\DomainException $e) {
+            // Au moins un employé a un jour incohérent — refuser tout.
+            return $this->json(['hydra:description' => $e->getMessage(), 'detail' => $e->getMessage()], 409);
+        }
 
         return $this->json([
             'valides'   => count($validations),
