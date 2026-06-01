@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 
 const MOTIFS = [
@@ -56,14 +57,26 @@ export default function ValidationTimePopover({
   const [customMotif, setCustomMotif] = useState('')
   const [showCustom, setShowCustom]   = useState(false)
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
 
-  // Outside click + Escape ferment le popover (sans appliquer).
+  // Le portal n'est dispo qu'après hydration côté client (document inexistant en SSR).
+  useEffect(() => { setMounted(true) }, [])
+
+  // Escape ferme le popover. Le clic backdrop est géré par le wrapper modal lui-même
+  // (cf. onMouseDown sur .validation-popover-overlay) ; on n'écoute plus le document
+  // pour éviter qu'un clic dans le popover ne ferme à tort via stopPropagation oubli.
   useEffect(() => {
-    const onClick = (e: MouseEvent) => { if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) onCancel() }
-    const onKey   = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
-    document.addEventListener('mousedown', onClick); document.addEventListener('keydown', onKey)
-    return () => { document.removeEventListener('mousedown', onClick); document.removeEventListener('keydown', onKey) }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
   }, [onCancel])
+
+  // Bloque le scroll de la page tant que le popover est ouvert (UX modal).
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
 
   const adjust = (deltaMin: number) => setTime(fromMinutes(toMinutes(time) + deltaMin))
   const setNow = () => {
@@ -75,15 +88,26 @@ export default function ValidationTimePopover({
   const timeChanged = time !== initialTime
   const canApply   = (timeChanged || allowApplyUnchanged) && !!finalMotif && !isLoading
 
-  return (
+  if (!mounted) return null
+
+  const popover = (
+    <motion.div
+      className="validation-popover-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) onCancel() }}
+    >
     <motion.div
       ref={wrapperRef}
       className="validation-popover"
-      initial={{ opacity: 0, y: -4 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, scale: 0.96, y: -4 }}
+      animate={{ opacity: 1, scale: 1,    y: 0 }}
       transition={{ duration: 0.15 }}
       role="dialog"
       aria-label={`${fieldLabel} — ${dayLabel}`}
+      aria-modal="true"
     >
       <div className="validation-popover__head">
         <span className="validation-popover__title">{fieldLabel}</span>
@@ -141,5 +165,8 @@ export default function ValidationTimePopover({
         </button>
       </div>
     </motion.div>
+    </motion.div>
   )
+
+  return createPortal(popover, document.body)
 }

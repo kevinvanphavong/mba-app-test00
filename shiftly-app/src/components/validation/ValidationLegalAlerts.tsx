@@ -23,7 +23,6 @@ const ALERT_ICONS: Record<string, string> = {
   pause_6h:               '☕',
   max_journalier:         '⚠️',
   max_hebdo:              '⚠️',
-  pointage_incoherent:    '⛔',
 }
 
 export default function ValidationLegalAlerts({ alertes }: Props) {

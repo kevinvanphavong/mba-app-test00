@@ -63,15 +63,14 @@ export default function ValidationDayRow({ jour, corrections, isCorrecting, onCo
 
   const rowClass = [
     'validation-day-row',
-    jour.pointageIncoherent && 'validation-day-row--incoherent',
-    hasCorrection && !jour.pointageIncoherent && 'validation-day-row--has-correction',
-    !jour.heureArrivee && !isRepos && !jour.pointageIncoherent && 'validation-day-row--empty-arrival',
+    hasCorrection && 'validation-day-row--has-correction',
+    !jour.heureArrivee && !isRepos && 'validation-day-row--empty-arrival',
     isRepos && 'validation-day-row--rest',
   ].filter(Boolean).join(' ')
 
   return (
     <div className={rowClass}>
-      {(hasCorrection || jour.pointageIncoherent) && <span className={`validation-day-row__dot${jour.pointageIncoherent ? ' validation-day-row__dot--red' : ''}`} aria-hidden />}
+      {hasCorrection && <span className="validation-day-row__dot" aria-hidden />}
 
       <div className="validation-day-row__label">
         <span className="validation-day-row__label-small">{format(parseISO(jour.date), 'EEE', { locale: fr })}</span>
@@ -79,14 +78,6 @@ export default function ValidationDayRow({ jour, corrections, isCorrecting, onCo
       </div>
 
       <div className="validation-day-row__times">
-        {jour.pointageIncoherent && (
-          <span
-            className="validation-day-row__incoherent-badge"
-            title="Pointage incohérent — corrige l'arrivée ou le départ avant de valider"
-          >
-            ⚠ Pointage à corriger
-          </span>
-        )}
         {isRepos ? (
           <span className="validation-day-row__rest-label">{jour.statut === 'absent_justifie' ? `Absent (${jour.typeAbsence ?? '—'})` : jour.statut === 'absent_non_justifie' ? 'Absent non justifié' : 'Repos'}</span>
         ) : jour.heureArrivee ? (
@@ -121,33 +112,25 @@ export default function ValidationDayRow({ jour, corrections, isCorrecting, onCo
       </div>
 
       <div className="validation-day-row__net">
-        {jour.pointageIncoherent ? (
-          <span className="validation-day-row__net-incoherent" aria-label="Heures non calculables">—</span>
-        ) : (
-          <>
-            {minToHHMM(jour.heuresNettes)}
-            {ecart !== null && ecart !== 0 && (
-              <span className={`validation-day-row__delta validation-day-row__delta--${ecart > 0 ? 'up' : 'down'}`}>
-                {ecart > 0 ? '+' : '−'}{Math.abs(ecart)} min
-              </span>
-            )}
-          </>
+        {minToHHMM(jour.heuresNettes)}
+        {ecart !== null && ecart !== 0 && (
+          <span className={`validation-day-row__delta validation-day-row__delta--${ecart > 0 ? 'up' : 'down'}`}>
+            {ecart > 0 ? '+' : '−'}{Math.abs(ecart)} min
+          </span>
         )}
       </div>
 
       {popoverInfo && popover && (
-        <div className="validation-day-row__popover-anchor">
-          <ValidationTimePopover
-            initialTime={popover.initialTime}
-            plannedTime={popoverInfo.plannedTime}
-            dayLabel={dayDateLabel}
-            fieldLabel={popoverInfo.fieldLabel}
-            onCancel={() => setPopover(null)}
-            onApply={handleApply}
-            isLoading={isCorrecting}
-            allowApplyUnchanged={popover.champ === 'heureArrivee' && !jour.heureArrivee}
-          />
-        </div>
+        <ValidationTimePopover
+          initialTime={popover.initialTime}
+          plannedTime={popoverInfo.plannedTime}
+          dayLabel={dayDateLabel}
+          fieldLabel={popoverInfo.fieldLabel}
+          onCancel={() => setPopover(null)}
+          onApply={handleApply}
+          isLoading={isCorrecting}
+          allowApplyUnchanged={popover.champ === 'heureArrivee' && !jour.heureArrivee}
+        />
       )}
     </div>
   )

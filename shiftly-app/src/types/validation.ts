@@ -19,7 +19,6 @@ export type AlerteType =
   | 'pause_6h'
   | 'max_journalier'
   | 'max_hebdo'
-  | 'pointage_incoherent'
 
 export type AlerteSeverite = 'ok' | 'warning' | 'danger'
 
@@ -59,14 +58,10 @@ export interface ValidationJour {
   /** Heure de fin planifiée du poste (format 'HH:MM' local), null si pas de poste. */
   heureFinPlanifiee: string | null
   pauses: ValidationPause[]
-  heuresNettes: number | null  // en minutes — null si pointageIncoherent
+  heuresNettes: number | null  // en minutes (null = pas de pointage / pas calculable)
   heuresPrevues: number | null // en minutes
   estRetard: boolean
   typeAbsence: string | null   // 'CP', 'RTT', 'MALADIE', etc.
-  /** Vrai si delta arrivée→départ < 0. Bloque la validation. */
-  pointageIncoherent: boolean
-  /** Vrai si delta brut > 10h (max légal IDCC 1790). Alerte sans blocage. */
-  depasseLimiteLegale: boolean
 }
 
 export interface ValidationEmploye {
