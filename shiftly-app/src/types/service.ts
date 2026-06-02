@@ -47,6 +47,26 @@ export interface ServiceMission {
   hasPhoto:     boolean
   /** Qui a coché cette mission (null si pas encore cochée) */
   completedBy:  Pick<ServiceStaffMember, 'id' | 'nom' | 'prenom' | 'avatarColor'> | null
+  /** Si présent → mission HACCP, ouvre HaccpCheckModal au lieu du toggle direct. */
+  haccpSpec?:   {
+    id:                     number
+    typeReleve:             'TEMPERATURE' | 'DLC' | 'PHOTO' | 'RECEPTION'
+    moment:                 'DEBUT_SERVICE' | 'FIN_SERVICE' | null
+    seuilMin:               number | null
+    seuilMax:               number | null
+    unite:                  string | null
+    photoObligatoire:       boolean
+    commentaireObligatoire: boolean
+    archivee:               boolean
+    equipement:             {
+      id:       number
+      nom:      string
+      type:     'FRIGO' | 'CONGELATEUR' | 'VITRINE' | 'AUTRE'
+      seuilMin: number
+      seuilMax: number
+      unite:    string
+    } | null
+  } | null
 }
 
 /** Zone avec ses postes (staff) et ses missions dédupliquées */
