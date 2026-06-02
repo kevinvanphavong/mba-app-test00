@@ -101,6 +101,7 @@ class MissionHaccpSpec
     #[Groups(['haccp_spec:read', 'haccp_spec:write', 'mission:read', 'haccp_registre:read'])]
     private ?string $moment = null;
 
+    // Décimaux sérialisés/dénormalisés comme string (xsd:decimal, cf. note HaccpEquipement::$seuilMin).
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
     #[Groups(['haccp_spec:read', 'haccp_spec:write', 'mission:read'])]
     private ?string $seuilMin = null;

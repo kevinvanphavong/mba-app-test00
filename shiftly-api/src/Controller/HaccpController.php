@@ -63,8 +63,18 @@ class HaccpController extends AbstractController
     #[Route('/api/completions/haccp', name: 'api_completion_haccp', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
-        $posteId   = (int) ($request->request->get('posteId',   $request->toArray()['posteId']   ?? 0));
-        $missionId = (int) ($request->request->get('missionId', $request->toArray()['missionId'] ?? 0));
+        // Accepte indifféremment multipart/form-data (saisie depuis /service avec
+        // photo) et application/json (clients API headless). `toArray()` lance
+        // une exception si le corps n'est pas du JSON, d'où le try/catch.
+        $jsonBody = [];
+        $ct = (string) $request->headers->get('Content-Type', '');
+        if (str_contains($ct, 'json')) {
+            try { $jsonBody = $request->toArray(); } catch (\Throwable) { $jsonBody = []; }
+        }
+        $body = $request->request->all() ?: $jsonBody;
+
+        $posteId   = (int) ($body['posteId']   ?? 0);
+        $missionId = (int) ($body['missionId'] ?? 0);
 
         if (!$posteId || !$missionId) {
             throw new BadRequestHttpException('posteId et missionId sont requis.');
@@ -75,8 +85,6 @@ class HaccpController extends AbstractController
         if (!$spec instanceof MissionHaccpSpec) {
             throw new BadRequestHttpException('Cette mission n\'a pas de spec HACCP.');
         }
-
-        $body = $request->request->all() ?: ($request->toArray() ?? []);
         $valeur = isset($body['valeurNumerique']) && $body['valeurNumerique'] !== ''
             ? (float) $body['valeurNumerique'] : null;
         $dateReleveRaw = $body['dateReleve'] ?? null;

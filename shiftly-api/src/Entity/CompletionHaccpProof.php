@@ -60,6 +60,7 @@ class CompletionHaccpProof
     #[Groups(['haccp_proof:read'])]
     private ?Centre $centre = null;
 
+    // Décimal sérialisé/dénormalisé comme string (xsd:decimal, cf. note HaccpEquipement::$seuilMin).
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
     #[Groups(['haccp_proof:read', 'completion:read', 'haccp_registre:read'])]
     private ?string $valeurNumerique = null;

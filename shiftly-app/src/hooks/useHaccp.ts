@@ -18,13 +18,38 @@ const unwrap = <T,>(r: { data: any }): T =>
 
 // ─── Équipements ──────────────────────────────────────────────────────────────
 
+// Hydra/API Platform sérialise `decimal` comme string ("0.00") → on convertit
+// en number à la frontière pour que les composants comparent / affichent
+// proprement.
+function deserializeEquipement(raw: any): HaccpEquipement {
+  return {
+    ...raw,
+    seuilMin: typeof raw.seuilMin === 'string' ? Number(raw.seuilMin) : raw.seuilMin,
+    seuilMax: typeof raw.seuilMax === 'string' ? Number(raw.seuilMax) : raw.seuilMax,
+  }
+}
+
 export function useHaccpEquipements() {
   const centreId = useAuthStore(s => s.centreId)
   return useQuery<HaccpEquipement[]>({
     queryKey: ['haccp', 'equipements', centreId],
-    queryFn:  () => api.get('/haccp_equipements').then(r => unwrap<HaccpEquipement[]>(r)),
+    queryFn:  () => api.get('/haccp_equipements').then(r => {
+      const list = unwrap<any[]>(r)
+      return Array.isArray(list) ? list.map(deserializeEquipement) : []
+    }),
     enabled:  !!centreId,
   })
+}
+
+// API Platform / Hydra convention : un champ Doctrine `decimal` (seuils HACCP)
+// est sérialisé / dénormalisé comme **string** (xsd:decimal). Les hooks
+// convertissent les nombres en strings avant POST/PATCH pour éviter une 400
+// "must be string, integer given" côté serveur.
+function normalizeEquipementPayload<P extends Partial<HaccpEquipementInput>>(p: P): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...p }
+  if (typeof p.seuilMin === 'number') out.seuilMin = p.seuilMin.toFixed(2)
+  if (typeof p.seuilMax === 'number') out.seuilMax = p.seuilMax.toFixed(2)
+  return out
 }
 
 export function useCreerEquipement() {
@@ -32,8 +57,10 @@ export function useCreerEquipement() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (payload: HaccpEquipementInput) =>
-      api.post('/haccp_equipements', { ...payload, centre: `/api/centres/${centreId}` })
-        .then(r => r.data as HaccpEquipement),
+      api.post('/haccp_equipements', {
+        ...normalizeEquipementPayload(payload),
+        centre: `/api/centres/${centreId}`,
+      }).then(r => deserializeEquipement(r.data)),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['haccp', 'equipements', centreId] })
       qc.invalidateQueries({ queryKey: ['missions'] })
@@ -46,9 +73,9 @@ export function useModifierEquipement() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: ({ id, ...payload }: { id: number } & Partial<HaccpEquipementInput>) =>
-      api.patch(`/haccp_equipements/${id}`, payload, {
+      api.patch(`/haccp_equipements/${id}`, normalizeEquipementPayload(payload), {
         headers: { 'Content-Type': 'application/merge-patch+json' },
-      }).then(r => r.data as HaccpEquipement),
+      }).then(r => deserializeEquipement(r.data)),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['haccp', 'equipements', centreId] })
       qc.invalidateQueries({ queryKey: ['missions'] })

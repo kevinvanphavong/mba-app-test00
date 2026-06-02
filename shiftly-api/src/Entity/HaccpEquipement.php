@@ -86,6 +86,10 @@ class HaccpEquipement
     #[Groups(['haccp_equip:read', 'haccp_equip:write'])]
     private ?Zone $zone = null;
 
+    // Convention API Platform / Hydra xsd:decimal : un champ Doctrine `decimal`
+    // est sérialisé / dénormalisé comme string. Les consommateurs (front, n8n)
+    // doivent envoyer/recevoir des strings ("4.00") pour les seuils.
+    // Les accesseurs renvoient un float pour rester pratiques côté PHP métier.
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2)]
     #[Groups(['haccp_equip:read', 'haccp_equip:write', 'mission:read', 'haccp_registre:read'])]
     private string $seuilMin = '0.00';
