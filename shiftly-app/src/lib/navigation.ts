@@ -32,6 +32,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
 
   // Équipe
   { href: '/staff',               label: 'Staff',             icon: '👥', managerOnly: false, section: 'equipe' },
+  { href: '/haccp',               label: 'HACCP',             icon: '🍔', managerOnly: false, section: 'equipe' },
   { href: '/postes',              label: 'Postes',            icon: '🗂️', managerOnly: false, section: 'equipe' },
   { href: '/tutoriels',           label: 'Tutoriels',         icon: '📖', managerOnly: false, section: 'equipe' },
 
