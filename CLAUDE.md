@@ -95,6 +95,8 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 | Services Planning | `/services` | Manager uniquement |
 | Postes | `/postes` | Manager (édition zones/missions/compétences + drag-drop) / Employé (lecture) |
 | Staff | `/staff` | Manager (écriture) / Employé (lecture) |
+| HACCP — Registre | `/haccp` | Manager + Employé (lecture) |
+| HACCP — Équipements | `/haccp/equipements` | Manager uniquement |
 | Tutoriels | `/tutoriels` | Manager + Employé |
 | Réglages | `/reglages` | Manager (tout) / Employé (profil + notifs) |
 | Tutoriels (gestion) | `/reglages/editeur` | Manager uniquement — zones/missions/compétences ont migré sur /postes |
@@ -103,10 +105,11 @@ Redirection par défaut : `/` → `/service`
 
 ---
 
-## Entités (13)
+## Entités (16)
 
 Centre, User, Zone, Mission, **MissionCategorie**, Competence, StaffCompetence,
-Service, Poste, Completion, Incident, Tutoriel, TutoRead
+Service, Poste, Completion, Incident, Tutoriel, TutoRead,
+**HaccpEquipement**, **MissionHaccpSpec**, **CompletionHaccpProof**
 
 > `MissionCategorie` (par centre, multi-tenant) est le catalogue administrable
 > des catégories de mission. Le champ `Mission.categorie` est un slug texte

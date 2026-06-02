@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — HACCP Modal de saisie (4 variantes)</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --surface3: #232838;
+    --border: #252a3a;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #a855f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px 16px;
+  }
+  .preview-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 900px) { .preview-grid { grid-template-columns: 1fr; } }
+
+  .preview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .preview-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .preview-stage {
+    background: rgba(13, 15, 20, 0.4);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  /* ── MODAL CORE ── */
+  .haccp-modal {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.4);
+  }
+  .haccp-modal__head {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .haccp-modal__head-info { display: flex; flex-direction: column; gap: 4px; }
+  .haccp-modal__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    background: rgba(249, 115, 22, 0.12);
+    color: var(--accent);
+    border: 1px solid rgba(249, 115, 22, 0.3);
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    width: fit-content;
+  }
+  .haccp-modal__title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .haccp-modal__sub {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .haccp-modal__close {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    transition: all 0.15s;
+  }
+  .haccp-modal__close:hover { color: var(--text); background: var(--surface2); }
+  .haccp-modal__body { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .haccp-modal__foot {
+    padding: 14px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .btn {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn:hover { background: var(--surface3); }
+  .btn--primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .btn--primary:hover { background: var(--accent2); border-color: var(--accent2); }
+
+  /* ── FIELDS ── */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field__label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+  }
+  .field__label .req { color: var(--red); }
+  .field__hint {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .input, .textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .input:focus, .textarea:focus { border-color: var(--accent); }
+  .textarea { resize: vertical; min-height: 64px; }
+
+  /* ── TEMPERATURE picker ── */
+  .temp-picker {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 8px;
+  }
+  .temp-picker__btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .temp-picker__btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .temp-picker__value {
+    flex: 1;
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .temp-picker__value .unit { font-size: 18px; color: var(--muted); margin-left: 4px; }
+
+  /* ── Seuils info bar ── */
+  .seuils-bar {
+    display: flex;
+    justify-content: space-between;
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .seuils-bar.warn {
+    background: rgba(239, 68, 68, 0.10);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+  .seuils-bar__item { display: flex; flex-direction: column; gap: 2px; }
+  .seuils-bar__label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .seuils-bar__value { font-size: 14px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+  .seuils-bar__status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green);
+  }
+  .seuils-bar.warn .seuils-bar__status { color: var(--red); }
+
+  /* ── Photo uploader ── */
+  .photo-uploader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px;
+    background: var(--surface2);
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .photo-uploader:hover { border-color: var(--accent); color: var(--accent); }
+  .photo-uploader__icon { font-size: 22px; }
+
+  .photo-uploaded {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 10px;
+  }
+  .photo-uploaded__thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+  .photo-uploaded__meta { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .photo-uploaded__name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .photo-uploaded__size { font-size: 11px; color: var(--muted); }
+  .photo-uploaded__remove {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+  }
+  .photo-uploaded__remove:hover { color: var(--red); }
+
+  /* ── Date input ── */
+  .date-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--text);
+    width: 100%;
+    cursor: pointer;
+  }
+
+  /* ── Réception grid ── */
+  .reception-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* ── Description page ── */
+  .doc-header {
+    max-width: 1400px;
+    margin: 0 auto 32px;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+  .doc-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .doc-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .doc-sub strong { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-title">HACCP — Modal de saisie au check d'une mission</div>
+  <div class="doc-sub">
+    Cette modal s'ouvre sur <strong>/service</strong> quand l'employé coche une mission HACCP (catégorie = HACCP).
+    Le contenu de la modal dépend du <strong>typeReleve</strong> de la <code>MissionHaccpSpec</code> :
+    TEMPERATURE / DLC / PHOTO / RECEPTION. Mêmes patterns UX, mêmes composants.<br>
+    À l'envoi, on POST <code>/api/completions</code> avec un sous-objet <code>haccpProof</code> en cascade.
+    Le champ <code>est_conforme</code> est calculé côté back par <code>HaccpProofConformityChecker</code>.
+  </div>
+</div>
+
+<div class="preview-grid">
+
+  <!-- ───────────────────────────── VARIANT 1 : TEMPERATURE ───────────────────────────── -->
+  <div class="preview-card">
+    <div class="preview-title">▸ Variante 1 — TEMPERATURE</div>
+    <div class="preview-stage">
+      <div class="haccp-modal">
+        <div class="haccp-modal__head">
+          <div class="haccp-modal__head-info">
+            <span class="haccp-modal__badge">🧊 HACCP · Frigo bar principal</span>
+            <div class="haccp-modal__title">Relevé T° — début de service</div>
+            <div class="haccp-modal__sub">Zone Bar · Lun. 02 juin 2026 · 09:14</div>
+          </div>
+          <button class="haccp-modal__close">✕</button>
+        </div>
+
+        <div class="haccp-modal__body">
+          <div class="field">
+            <span class="field__label">Température relevée <span class="req">*</span></span>
+            <div class="temp-picker">
+              <button class="temp-picker__btn">−</button>
+              <div class="temp-picker__value">3.5<span class="unit">°C</span></div>
+              <button class="temp-picker__btn">+</button>
+            </div>
+          </div>
+
+          <div class="seuils-bar">
+            <div class="seuils-bar__item">
+              <span class="seuils-bar__label">Seuil min</span>
+              <span class="seuils-bar__value">0.0 °C</span>
+            </div>
+            <div class="seuils-bar__item">
+              <span class="seuils-bar__label">Seuil max</span>
+              <span class="seuils-bar__value">4.0 °C</span>
+            </div>
+            <div class="seuils-bar__status">✓ Conforme</div>
+          </div>
+
+          <div class="field">
+            <span class="field__label">Commentaire (optionnel)</span>
+            <textarea class="textarea" placeholder="RAS — vitrine ramenée à 3.5°C en 5 min."></textarea>
+          </div>
+        </div>
+
+        <div class="haccp-modal__foot">
+          <button class="btn">Annuler</button>
+          <button class="btn btn--primary">✓ Valider le relevé</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────── VARIANT 1b : TEMPERATURE hors seuil ───────────────────────────── -->
+  <div class="preview-card">
+    <div class="preview-title">▸ Variante 1b — TEMPERATURE hors seuil (warning)</div>
+    <div class="preview-stage">
+      <div class="haccp-modal">
+        <div class="haccp-modal__head">
+          <div class="haccp-modal__head-info">
+            <span class="haccp-modal__badge" style="background: rgba(239,68,68,0.12); color: var(--red); border-color: rgba(239,68,68,0.3);">⚠ HACCP · Frigo bar — hors seuil</span>
+            <div class="haccp-modal__title">Relevé T° — début de service</div>
+            <div class="haccp-modal__sub">Zone Bar · Lun. 02 juin 2026 · 09:14</div>
+          </div>
+          <button class="haccp-modal__close">✕</button>
+        </div>
+
+        <div class="haccp-modal__body">
+          <div class="field">
+            <span class="field__label">Température relevée <span class="req">*</span></span>
+            <div class="temp-picker">
+              <button class="temp-picker__btn">−</button>
+              <div class="temp-picker__value" style="color: var(--red);">9.2<span class="unit">°C</span></div>
+              <button class="temp-picker__btn">+</button>
+            </div>
+          </div>
+
+          <div class="seuils-bar warn">
+            <div class="seuils-bar__item">
+              <span class="seuils-bar__label">Seuil min</span>
+              <span class="seuils-bar__value">0.0 °C</span>
+            </div>
+            <div class="seuils-bar__item">
+              <span class="seuils-bar__label">Seuil max</span>
+              <span class="seuils-bar__value">4.0 °C</span>
+            </div>
+            <div class="seuils-bar__status">⛔ Hors seuil</div>
+          </div>
+
+          <div class="field">
+            <span class="field__label">Commentaire <span class="req">*</span> (obligatoire si hors seuil)</span>
+            <textarea class="textarea" placeholder="Frigo signalé en panne, technicien appelé à 09:15." style="border-color: var(--red);"></textarea>
+            <span class="field__hint" style="color: var(--red);">Le relevé sera enregistré en non-conforme. Le manager sera notifié.</span>
+          </div>
+        </div>
+
+        <div class="haccp-modal__foot">
+          <button class="btn">Annuler</button>
+          <button class="btn btn--primary" style="background: var(--red); border-color: var(--red);">Enregistrer le relevé non-conforme</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────── VARIANT 2 : DLC ───────────────────────────── -->
+  <div class="preview-card">
+    <div class="preview-title">▸ Variante 2 — DLC + photo étiquette</div>
+    <div class="preview-stage">
+      <div class="haccp-modal">
+        <div class="haccp-modal__head">
+          <div class="haccp-modal__head-info">
+            <span class="haccp-modal__badge">📅 HACCP · Contrôle DLC</span>
+            <div class="haccp-modal__title">Contrôle DLC produits frais</div>
+            <div class="haccp-modal__sub">Zone Bar · Lun. 02 juin 2026</div>
+          </div>
+          <button class="haccp-modal__close">✕</button>
+        </div>
+
+        <div class="haccp-modal__body">
+          <div class="field">
+            <span class="field__label">Produit contrôlé <span class="req">*</span></span>
+            <input class="input" type="text" placeholder="Ex : Jambon blanc Fleury Michon" value="Jambon blanc Fleury Michon">
+          </div>
+
+          <div class="field">
+            <span class="field__label">DLC inscrite sur l'étiquette <span class="req">*</span></span>
+            <input class="date-input" type="text" value="08 / 06 / 2026">
+            <span class="field__hint">Il reste 6 jours — OK pour le service du soir.</span>
+          </div>
+
+          <div class="field">
+            <span class="field__label">Photo de l'étiquette <span class="req">*</span></span>
+            <div class="photo-uploaded">
+              <div class="photo-uploaded__thumb">📷</div>
+              <div class="photo-uploaded__meta">
+                <span class="photo-uploaded__name">etiquette-jambon-fleury.jpg</span>
+                <span class="photo-uploaded__size">1.2 Mo · prise à 09:18</span>
+              </div>
+              <button class="photo-uploaded__remove">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="haccp-modal__foot">
+          <button class="btn">Annuler</button>
+          <button class="btn btn--primary">✓ Valider la DLC</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────── VARIANT 3 : PHOTO ───────────────────────────── -->
+  <div class="preview-card">
+    <div class="preview-title">▸ Variante 3 — PHOTO étiquetage produit ouvert</div>
+    <div class="preview-stage">
+      <div class="haccp-modal">
+        <div class="haccp-modal__head">
+          <div class="haccp-modal__head-info">
+            <span class="haccp-modal__badge">🏷️ HACCP · Étiquetage</span>
+            <div class="haccp-modal__title">Étiquetage produit ouvert (date)</div>
+            <div class="haccp-modal__sub">Zone Bar · Lun. 02 juin 2026</div>
+          </div>
+          <button class="haccp-modal__close">✕</button>
+        </div>
+
+        <div class="haccp-modal__body">
+          <div class="field">
+            <span class="field__label">Photo de l'étiquette posée <span class="req">*</span></span>
+            <div class="photo-uploader">
+              <span class="photo-uploader__icon">📷</span>
+              <span>Prendre une photo / charger un fichier</span>
+            </div>
+            <span class="field__hint">Étiquette doit être visible et lisible (date d'ouverture, initiales).</span>
+          </div>
+
+          <div class="field">
+            <span class="field__label">Commentaire (optionnel)</span>
+            <textarea class="textarea" placeholder="Ex : sauce barbecue ouverte ce matin, DLC ouvert +3j."></textarea>
+          </div>
+        </div>
+
+        <div class="haccp-modal__foot">
+          <button class="btn">Annuler</button>
+          <button class="btn btn--primary">✓ Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────────── VARIANT 4 : RECEPTION ───────────────────────────── -->
+  <div class="preview-card" style="grid-column: 1 / -1;">
+    <div class="preview-title">▸ Variante 4 — RECEPTION fournisseur</div>
+    <div class="preview-stage">
+      <div class="haccp-modal">
+        <div class="haccp-modal__head">
+          <div class="haccp-modal__head-info">
+            <span class="haccp-modal__badge">🚚 HACCP · Réception</span>
+            <div class="haccp-modal__title">Réception fournisseur</div>
+            <div class="haccp-modal__sub">Zone Bar · Lun. 02 juin 2026 · 11:42</div>
+          </div>
+          <button class="haccp-modal__close">✕</button>
+        </div>
+
+        <div class="haccp-modal__body">
+          <div class="reception-grid">
+            <div class="field">
+              <span class="field__label">Fournisseur <span class="req">*</span></span>
+              <input class="input" type="text" value="Metro Cash & Carry">
+            </div>
+            <div class="field">
+              <span class="field__label">N° de lot / BL <span class="req">*</span></span>
+              <input class="input" type="text" value="BL-2026-0608-887">
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field__label">T° à réception <span class="req">*</span></span>
+            <div class="temp-picker">
+              <button class="temp-picker__btn">−</button>
+              <div class="temp-picker__value">2.8<span class="unit">°C</span></div>
+              <button class="temp-picker__btn">+</button>
+            </div>
+          </div>
+
+          <div class="seuils-bar">
+            <div class="seuils-bar__item">
+              <span class="seuils-bar__label">T° max acceptée</span>
+              <span class="seuils-bar__value">4.0 °C</span>
+            </div>
+            <div class="seuils-bar__status">✓ Conforme</div>
+          </div>
+
+          <div class="field">
+            <span class="field__label">Photo du bon de livraison <span class="req">*</span></span>
+            <div class="photo-uploaded">
+              <div class="photo-uploaded__thumb">📄</div>
+              <div class="photo-uploaded__meta">
+                <span class="photo-uploaded__name">BL-metro-20260602.jpg</span>
+                <span class="photo-uploaded__size">894 ko · prise à 11:43</span>
+              </div>
+              <button class="photo-uploaded__remove">✕</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field__label">Commentaire (optionnel)</span>
+            <textarea class="textarea" placeholder="Ex : 2 caisses légèrement abîmées mais contenu intact."></textarea>
+          </div>
+        </div>
+
+        <div class="haccp-modal__foot">
+          <button class="btn">Annuler</button>
+          <button class="btn btn--primary">✓ Valider la réception</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

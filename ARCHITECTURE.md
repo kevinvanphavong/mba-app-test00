@@ -242,10 +242,14 @@ mba-app-test00/
     │   │   ├── PlanningTemplateAbsence.php # Absences du template (user+dayOfWeek+type+motif)
     │   │   ├── AuditLog.php           # Trace des actions SuperAdmin (Phase 1)
     │   │   ├── EventLog.php           # Journal append-only métier (Completion CHECK/UNCHECK)
+    │   │   ├── HaccpEquipement.php    # Équipements froid (frigo/congel/vitrine) + seuils T° par centre
+    │   │   ├── MissionHaccpSpec.php   # Extension HACCP optionnelle d'une mission (1-1, cascade)
+    │   │   ├── CompletionHaccpProof.php # Preuve HACCP attachée à une completion (1-1, cascade)
     │   │   └── CentreNote.php         # Notes internes SuperAdmin par centre (Phase 1)
     │   │
     │   ├── Controller/
     │   │   ├── DashboardController.php            # GET /api/dashboard/{centreId} + /completion-history (manager)
+    │   │   ├── HaccpController.php                # POST /api/completions/haccp + sync + registre + export PDF
     │   │   ├── ValidationController.php           # 7 routes /api/pointages/validation/*
     │   │   ├── PlanningTemplateController.php     # CRUD + apply templates de semaine
     │   │   ├── SuperAdminAuthController.php       # GET /api/superadmin/auth/me
@@ -256,6 +260,9 @@ mba-app-test00/
     │   │   ├── ValidationHebdoService.php  # Agrégation pointages + alertes IDCC 1790
     │   │   ├── PlanningGuardService.php    # Empêche services à date < jour de référence
     │   │   ├── AuditLogService.php         # Centralise la création d'AuditLog
+    │   │   ├── Haccp/HaccpMissionGenerator.php # Synchro idempotente des missions HACCP T° par équipement
+    │   │   ├── Haccp/HaccpSyncResult.php       # DTO résultat sync (créées/archivées/réactivées/inchangées)
+    │   │   ├── Upload/HaccpPhotoUploader.php   # Upload preuve HACCP vers R2 (haccp/YYYY/MM/uuid.ext)
     │   │   └── SentryApiService.php        # Appels API REST Sentry
     │   │
     │   ├── Repository/                # Un repository par entité
@@ -264,6 +271,9 @@ mba-app-test00/
     │   ├── EventListener/             # Listeners Doctrine
     │   │   ├── CompletionListener.php             # Recalcul taux_completion (postPersist/postRemove)
     │   │   ├── CompletionEventLogger.php          # Append-only EventLog (onFlush: CHECK/UNCHECK)
+    │   │   ├── HaccpEquipementSyncListener.php    # Sync auto missions HACCP T° (postPersist/Update/preRemove + postFlush)
+    │   │   ├── HaccpProofConformityChecker.php    # Calcule est_conforme à l'insert d'une CompletionHaccpProof (prePersist)
+    │   │   ├── CentreHaccpSeedListener.php        # Seed 2 équipements + 3 missions HACCP standalone à la création d'un Centre
     │   │   ├── CompletionPhotoCleanupListener.php # Supprime le binaire R2 (preRemove)
     │   │   ├── MediaR2CleanupListener.php         # Idem pour Media (preRemove)
     │   │   ├── MissionMediaCleanupListener.php    # Cascade Media R2 sur Mission supprimée

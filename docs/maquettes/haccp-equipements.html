@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — HACCP Équipements (/haccp/equipements)</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --surface3: #232838;
+    --border: #252a3a;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+  /* ── Sidebar ── */
+  .sidebar { width: 240px; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; }
+  .sidebar-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; color: var(--accent); padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 14px; color: var(--muted); cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s; }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--accent); background: rgba(249,115,22,0.08); border-left-color: var(--accent); font-weight: 600; }
+  .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+
+  .main { margin-left: 240px; flex: 1; padding: 28px 32px; min-width: 0; }
+  @media (max-width: 900px) { .main { margin-left: 0; padding: 20px 16px; } .sidebar { display: none; } }
+
+  /* ── Topbar ── */
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; gap: 16px; flex-wrap: wrap; }
+  .topbar__title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; color: var(--text); }
+  .topbar__sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* ── Tabs HACCP ── */
+  .haccp-tabs { display: flex; gap: 6px; margin-bottom: 22px; border-bottom: 1px solid var(--border); }
+  .haccp-tab {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .haccp-tab:hover { color: var(--text); }
+  .haccp-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .haccp-tab__count {
+    background: var(--surface2);
+    color: var(--muted);
+    padding: 2px 7px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .haccp-tab.active .haccp-tab__count { background: rgba(249,115,22,0.15); color: var(--accent); }
+
+  /* ── Buttons ── */
+  .btn {
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { background: var(--surface2); }
+  .btn--primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn--primary:hover { background: var(--accent2); border-color: var(--accent2); }
+  .btn--ghost { background: transparent; }
+  .btn--sm { padding: 6px 11px; font-size: 12px; border-radius: 8px; }
+
+  /* ── Bandeau sync ── */
+  .sync-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(251,146,60,0.04));
+    border: 1px solid rgba(249,115,22,0.3);
+    border-radius: 12px;
+    margin-bottom: 22px;
+  }
+  .sync-banner__icon { font-size: 22px; }
+  .sync-banner__text { flex: 1; }
+  .sync-banner__title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .sync-banner__sub   { font-size: 12px; color: var(--muted); }
+  .sync-banner__sub strong { color: var(--accent); font-weight: 700; }
+
+  /* ── Layout 2 col ── */
+  .layout { display: grid; grid-template-columns: 1fr 360px; gap: 22px; }
+  @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } }
+
+  /* ── Equipement card ── */
+  .equip-list { display: flex; flex-direction: column; gap: 12px; }
+  .equip-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.15s;
+  }
+  .equip-card:hover { border-color: var(--surface3); }
+  .equip-card.inactive { opacity: 0.55; }
+
+  .equip-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+  .equip-icon--frigo       { background: rgba(59,130,246,0.12); }
+  .equip-icon--congel      { background: rgba(6,182,212,0.12);  }
+  .equip-icon--vitrine     { background: rgba(168,85,247,0.12); }
+  .equip-icon--autre       { background: var(--surface3); }
+
+  .equip-info { flex: 1; min-width: 0; }
+  .equip-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .equip-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); align-items: center; }
+  .equip-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); }
+
+  .equip-seuils {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .equip-seuils small { color: var(--muted); font-size: 11px; font-weight: 500; font-family: 'DM Sans', sans-serif; }
+
+  .equip-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .equip-status--active { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .equip-status--inactive { background: var(--surface3); color: var(--muted); }
+
+  .equip-missions {
+    background: rgba(59,130,246,0.08);
+    color: var(--blue);
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .equip-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.15s;
+  }
+  .icon-btn:hover { color: var(--text); background: var(--surface3); }
+  .icon-btn.danger:hover { color: var(--red); border-color: rgba(239,68,68,0.4); }
+
+  /* ── Form panel ── */
+  .form-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: sticky;
+    top: 28px;
+    height: fit-content;
+  }
+  .form-panel__title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .form-panel__sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+
+  .form-grid { display: flex; flex-direction: column; gap: 14px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field__label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+  .field__label .req { color: var(--red); }
+  .field__hint { font-size: 11px; color: var(--muted); font-style: italic; }
+
+  .input, .select, .textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .input:focus, .select:focus, .textarea:focus { border-color: var(--accent); }
+
+  .seuils-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .type-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .type-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .type-option:hover { border-color: var(--surface3); }
+  .type-option.selected { background: rgba(249,115,22,0.08); border-color: var(--accent); }
+  .type-option__icon { font-size: 22px; }
+  .type-option__label { font-size: 12px; font-weight: 600; color: var(--text); }
+  .type-option__hint { font-size: 10px; color: var(--muted); }
+
+  .switch-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; }
+  .switch { width: 36px; height: 20px; background: var(--surface3); border-radius: 12px; position: relative; cursor: pointer; }
+  .switch.on { background: var(--green); }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: left 0.2s; }
+  .switch.on::after { left: 18px; }
+  .switch-row__text { flex: 1; }
+  .switch-row__title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .switch-row__sub { font-size: 11px; color: var(--muted); }
+
+  .form-panel__foot { margin-top: 18px; display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ── Preview generated missions ── */
+  .preview-missions {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--surface2);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+  }
+  .preview-missions__title { font-weight: 700; color: var(--text); margin-bottom: 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+  .preview-missions__item { display: flex; align-items: center; gap: 7px; padding: 5px 0; color: var(--text); }
+  .preview-missions__item::before { content: '+'; color: var(--green); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">SHIFTLY</div>
+  <div class="nav-item"><span class="icon">📊</span> Dashboard</div>
+  <div class="nav-item"><span class="icon">📅</span> Planning</div>
+  <div class="nav-item"><span class="icon">▶️</span> Service du jour</div>
+  <div class="nav-item"><span class="icon">⏱️</span> Pointage</div>
+  <div class="nav-item"><span class="icon">👥</span> Staff</div>
+  <div class="nav-item active"><span class="icon">🍔</span> HACCP</div>
+  <div class="nav-item"><span class="icon">🎓</span> Tutoriels</div>
+  <div class="nav-item"><span class="icon">⚙️</span> Réglages</div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="topbar__title">HACCP — Équipements</div>
+      <div class="topbar__sub">Configure tes frigos et congélos. Les missions de relevé T° du service sont générées automatiquement.</div>
+    </div>
+  </div>
+
+  <!-- ── Tabs HACCP ── -->
+  <div class="haccp-tabs">
+    <div class="haccp-tab"><span>📋</span> Registre <span class="haccp-tab__count">147</span></div>
+    <div class="haccp-tab active"><span>❄️</span> Équipements <span class="haccp-tab__count">4</span></div>
+  </div>
+
+  <!-- ── Bandeau sync ── -->
+  <div class="sync-banner">
+    <span class="sync-banner__icon">🔄</span>
+    <div class="sync-banner__text">
+      <div class="sync-banner__title">Synchronisation des missions de relevé</div>
+      <div class="sync-banner__sub">
+        Chaque équipement actif génère <strong>2 missions HACCP</strong> dans le service du jour
+        (relevé de début et de fin). Total actuel : <strong>6 missions T° actives</strong> sur 4 équipements
+        (Vitrine boissons désactivée).
+      </div>
+    </div>
+    <button class="btn btn--primary">🔄 Régénérer les missions</button>
+  </div>
+
+  <!-- ── Layout 2 col ── -->
+  <div class="layout">
+
+    <!-- ── Liste équipements ── -->
+    <div class="equip-list">
+
+      <!-- Frigo 1 -->
+      <div class="equip-card">
+        <div class="equip-icon equip-icon--frigo">🧊</div>
+        <div class="equip-info">
+          <div class="equip-name">Frigo bar principal</div>
+          <div class="equip-meta">
+            <span class="equip-status equip-status--active">✓ Actif</span>
+            <span class="dot"></span>
+            <span>Zone Bar</span>
+            <span class="dot"></span>
+            <span class="equip-missions">2 missions T° auto</span>
+          </div>
+        </div>
+        <div class="equip-seuils">
+          0 — 4 <small>°C</small>
+        </div>
+        <div class="equip-actions">
+          <button class="icon-btn" title="Modifier">✏️</button>
+          <button class="icon-btn danger" title="Désactiver">⏸</button>
+          <button class="icon-btn danger" title="Supprimer">🗑️</button>
+        </div>
+      </div>
+
+      <!-- Frigo 2 -->
+      <div class="equip-card">
+        <div class="equip-icon equip-icon--frigo">🧊</div>
+        <div class="equip-info">
+          <div class="equip-name">Frigo cuisine (préparation)</div>
+          <div class="equip-meta">
+            <span class="equip-status equip-status--active">✓ Actif</span>
+            <span class="dot"></span>
+            <span>Zone Bar</span>
+            <span class="dot"></span>
+            <span class="equip-missions">2 missions T° auto</span>
+          </div>
+        </div>
+        <div class="equip-seuils">
+          0 — 4 <small>°C</small>
+        </div>
+        <div class="equip-actions">
+          <button class="icon-btn" title="Modifier">✏️</button>
+          <button class="icon-btn danger" title="Désactiver">⏸</button>
+          <button class="icon-btn danger" title="Supprimer">🗑️</button>
+        </div>
+      </div>
+
+      <!-- Congélateur -->
+      <div class="equip-card">
+        <div class="equip-icon equip-icon--congel">❄️</div>
+        <div class="equip-info">
+          <div class="equip-name">Congélateur cuisine</div>
+          <div class="equip-meta">
+            <span class="equip-status equip-status--active">✓ Actif</span>
+            <span class="dot"></span>
+            <span>Zone Bar</span>
+            <span class="dot"></span>
+            <span class="equip-missions">2 missions T° auto</span>
+          </div>
+        </div>
+        <div class="equip-seuils">
+          −22 — −18 <small>°C</small>
+        </div>
+        <div class="equip-actions">
+          <button class="icon-btn" title="Modifier">✏️</button>
+          <button class="icon-btn danger" title="Désactiver">⏸</button>
+          <button class="icon-btn danger" title="Supprimer">🗑️</button>
+        </div>
+      </div>
+
+      <!-- Vitrine désactivée -->
+      <div class="equip-card inactive">
+        <div class="equip-icon equip-icon--vitrine">🥤</div>
+        <div class="equip-info">
+          <div class="equip-name">Vitrine boissons (libre-service)</div>
+          <div class="equip-meta">
+            <span class="equip-status equip-status--inactive">⏸ Désactivé</span>
+            <span class="dot"></span>
+            <span>Zone Accueil</span>
+            <span class="dot"></span>
+            <span style="color: var(--yellow);">⚠ Missions T° archivées</span>
+          </div>
+        </div>
+        <div class="equip-seuils">
+          2 — 8 <small>°C</small>
+        </div>
+        <div class="equip-actions">
+          <button class="icon-btn" title="Réactiver">▶️</button>
+          <button class="icon-btn" title="Modifier">✏️</button>
+          <button class="icon-btn danger" title="Supprimer">🗑️</button>
+        </div>
+      </div>
+
+      <button class="btn btn--ghost" style="margin-top: 6px; align-self: flex-start;">+ Ajouter un équipement</button>
+    </div>
+
+    <!-- ── Form panel ── -->
+    <div class="form-panel">
+      <div class="form-panel__title">Nouvel équipement</div>
+      <div class="form-panel__sub">Configure-le une fois, les missions du service sont régénérées automatiquement.</div>
+
+      <div class="form-grid">
+
+        <div class="field">
+          <span class="field__label">Type d'équipement <span class="req">*</span></span>
+          <div class="type-picker">
+            <div class="type-option selected">
+              <span class="type-option__icon">🧊</span>
+              <span class="type-option__label">Frigo</span>
+              <span class="type-option__hint">0 à 4 °C</span>
+            </div>
+            <div class="type-option">
+              <span class="type-option__icon">❄️</span>
+              <span class="type-option__label">Congélateur</span>
+              <span class="type-option__hint">−22 à −18 °C</span>
+            </div>
+            <div class="type-option">
+              <span class="type-option__icon">🥤</span>
+              <span class="type-option__label">Vitrine</span>
+              <span class="type-option__hint">2 à 8 °C</span>
+            </div>
+            <div class="type-option">
+              <span class="type-option__icon">📦</span>
+              <span class="type-option__label">Autre</span>
+              <span class="type-option__hint">Seuils libres</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="field__label">Nom de l'équipement <span class="req">*</span></span>
+          <input class="input" type="text" placeholder="Ex : Frigo bar principal" value="Frigo bar principal">
+          <span class="field__hint">Visible par le staff dans la mission ("Relevé T° {nom} — début").</span>
+        </div>
+
+        <div class="field">
+          <span class="field__label">Zone (optionnel)</span>
+          <select class="select">
+            <option>— Aucune —</option>
+            <option selected>Bar</option>
+            <option>Salle</option>
+            <option>Accueil</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <span class="field__label">Seuils de température <span class="req">*</span></span>
+          <div class="seuils-row">
+            <input class="input" type="text" placeholder="Min" value="0.0">
+            <input class="input" type="text" placeholder="Max" value="4.0">
+          </div>
+          <span class="field__hint">Tout relevé hors de [min, max] sera flaggé non-conforme.</span>
+        </div>
+
+        <div class="switch-row">
+          <div class="switch on"></div>
+          <div class="switch-row__text">
+            <div class="switch-row__title">Actif</div>
+            <div class="switch-row__sub">Génère les 2 missions T° dans /service</div>
+          </div>
+        </div>
+
+        <div class="preview-missions">
+          <div class="preview-missions__title">Missions qui seront créées</div>
+          <div class="preview-missions__item">Relevé T° Frigo bar principal — début de service</div>
+          <div class="preview-missions__item">Relevé T° Frigo bar principal — fin de service</div>
+        </div>
+
+      </div>
+
+      <div class="form-panel__foot">
+        <button class="btn">Annuler</button>
+        <button class="btn btn--primary">✓ Créer l'équipement</button>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+</html>

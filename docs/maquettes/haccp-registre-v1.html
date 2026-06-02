@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — HACCP Registre v1 (page /haccp MVP)</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --surface3: #232838;
+    --border: #252a3a;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #a855f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* ── Sidebar (simplifiée) ── */
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 10;
+  }
+  .sidebar-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--accent);
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    color: var(--muted);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active {
+    color: var(--accent);
+    background: rgba(249,115,22,0.08);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+  .nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+
+  /* ── Layout main ── */
+  .main { margin-left: 240px; flex: 1; padding: 28px 32px; min-width: 0; }
+  @media (max-width: 900px) { .main { margin-left: 0; padding: 20px 16px; } .sidebar { display: none; } }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 22px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .topbar__title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    color: var(--text);
+  }
+  .topbar__sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .topbar__actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ── Tabs HACCP ── */
+  .haccp-tabs { display: flex; gap: 6px; margin-bottom: 22px; border-bottom: 1px solid var(--border); }
+  .haccp-tab {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .haccp-tab:hover { color: var(--text); }
+  .haccp-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .haccp-tab__count { background: var(--surface2); color: var(--muted); padding: 2px 7px; border-radius: 8px; font-size: 11px; font-weight: 700; }
+  .haccp-tab.active .haccp-tab__count { background: rgba(249,115,22,0.15); color: var(--accent); }
+
+  .btn {
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { background: var(--surface2); }
+  .btn--primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn--primary:hover { background: var(--accent2); border-color: var(--accent2); }
+  .btn--ghost { background: transparent; }
+
+  /* ── KPIs ── */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .kpi__label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .kpi__value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 26px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi__sub { font-size: 11px; color: var(--muted); }
+  .kpi--ok    .kpi__value { color: var(--green); }
+  .kpi--warn  .kpi__value { color: var(--yellow); }
+  .kpi--danger .kpi__value { color: var(--red); }
+
+  /* ── Filtres ── */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .filter-input, .filter-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+  }
+  .filter-input:focus, .filter-select:focus { border-color: var(--accent); }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .filter-chip:hover { color: var(--text); }
+  .filter-chip.active {
+    background: rgba(249,115,22,0.12);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  .filters__spacer { flex: 1; }
+
+  /* ── Registre groupé par jour ── */
+  .registre { display: flex; flex-direction: column; gap: 14px; }
+
+  .day-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .day-block__head {
+    padding: 12px 18px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .day-block__date {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .day-block__date small { color: var(--muted); margin-left: 8px; font-weight: 500; font-family: 'DM Sans', sans-serif; font-size: 12px; }
+  .day-block__stats { display: flex; gap: 12px; font-size: 12px; }
+  .day-block__stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .day-block__stat strong { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  .day-block__list { display: flex; flex-direction: column; }
+
+  .releve-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 100px 130px 140px 80px;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .releve-row:last-child { border-bottom: none; }
+  .releve-row:hover { background: rgba(249,115,22,0.02); }
+
+  @media (max-width: 1100px) {
+    .releve-row {
+      grid-template-columns: 80px 1fr 100px;
+      grid-template-areas:
+        "time mission type"
+        "value value zone"
+        "user user conform";
+    }
+    .releve-row > .time     { grid-area: time;     }
+    .releve-row > .mission  { grid-area: mission;  }
+    .releve-row > .type     { grid-area: type;     }
+    .releve-row > .value    { grid-area: value;    }
+    .releve-row > .zone     { grid-area: zone;     }
+    .releve-row > .user     { grid-area: user;     }
+    .releve-row > .conform  { grid-area: conform;  text-align: right; }
+  }
+
+  .time { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .mission { font-size: 14px; color: var(--text); font-weight: 600; }
+  .mission small { display: block; color: var(--muted); font-size: 11px; font-weight: 500; margin-top: 2px; }
+
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    width: fit-content;
+  }
+  .type-badge--temp     { background: rgba(59,130,246,0.12);  color: var(--blue);   border: 1px solid rgba(59,130,246,0.3); }
+  .type-badge--dlc      { background: rgba(234,179,8,0.12);   color: var(--yellow); border: 1px solid rgba(234,179,8,0.3); }
+  .type-badge--photo    { background: rgba(168,85,247,0.12);  color: var(--purple); border: 1px solid rgba(168,85,247,0.3); }
+  .type-badge--reception { background: rgba(34,197,94,0.12);  color: var(--green);  border: 1px solid rgba(34,197,94,0.3); }
+
+  .value-cell {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .value-cell.ok { color: var(--green); }
+  .value-cell.warn { color: var(--red); }
+  .value-cell small { color: var(--muted); font-size: 11px; margin-left: 3px; font-weight: 500; font-family: 'DM Sans', sans-serif; }
+  .value-cell--photo {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    background: var(--surface3);
+    border-radius: 7px;
+    font-size: 11px;
+    color: var(--accent);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+  }
+
+  .user-cell { display: flex; align-items: center; gap: 8px; }
+  .user-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .user-avatar.b { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+  .user-avatar.g { background: linear-gradient(135deg, #4ade80, #22c55e); }
+  .user-avatar.p { background: linear-gradient(135deg, #c084fc, #a855f7); }
+  .user-name { font-size: 12px; color: var(--text); font-weight: 600; }
+
+  .conform-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    width: fit-content;
+  }
+  .conform-cell--ok    { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+  .conform-cell--ko    { background: rgba(239,68,68,0.12); color: var(--red);   border: 1px solid rgba(239,68,68,0.3); }
+  .conform-cell--na    { background: var(--surface3);      color: var(--muted); }
+
+  /* ── Empty state ── */
+  .empty-state {
+    padding: 50px 20px;
+    text-align: center;
+    color: var(--muted);
+  }
+  .empty-state__icon { font-size: 36px; margin-bottom: 10px; opacity: 0.6; }
+  .empty-state__title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .empty-state__sub { font-size: 12px; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">SHIFTLY</div>
+  <div class="nav-item"><span class="icon">📊</span> Dashboard</div>
+  <div class="nav-item"><span class="icon">📅</span> Planning</div>
+  <div class="nav-item"><span class="icon">▶️</span> Service du jour</div>
+  <div class="nav-item"><span class="icon">⏱️</span> Pointage</div>
+  <div class="nav-item"><span class="icon">👥</span> Staff</div>
+  <div class="nav-item active"><span class="icon">🍔</span> HACCP</div>
+  <div class="nav-item"><span class="icon">🎓</span> Tutoriels</div>
+  <div class="nav-item"><span class="icon">⚙️</span> Réglages</div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="topbar__title">HACCP — Registre des relevés</div>
+      <div class="topbar__sub">Family Games Center · Blois · Les relevés sont saisis automatiquement par le staff dans le Service du Jour.</div>
+    </div>
+    <div class="topbar__actions">
+      <button class="btn btn--primary">📥 Exporter le PDF du mois</button>
+    </div>
+  </div>
+
+  <!-- ── Tabs HACCP ── -->
+  <div class="haccp-tabs">
+    <div class="haccp-tab active"><span>📋</span> Registre <span class="haccp-tab__count">147</span></div>
+    <div class="haccp-tab"><span>❄️</span> Équipements <span class="haccp-tab__count">4</span></div>
+  </div>
+
+  <!-- ── KPIs ── -->
+  <div class="kpis">
+    <div class="kpi kpi--ok">
+      <span class="kpi__label">Relevés ce mois-ci</span>
+      <span class="kpi__value">147</span>
+      <span class="kpi__sub">Sur 162 attendus · 91%</span>
+    </div>
+    <div class="kpi kpi--ok">
+      <span class="kpi__label">Taux de conformité</span>
+      <span class="kpi__value">96%</span>
+      <span class="kpi__sub">6 relevés non-conformes sur 147</span>
+    </div>
+    <div class="kpi kpi--danger">
+      <span class="kpi__label">Non-conformes (30j)</span>
+      <span class="kpi__value">6</span>
+      <span class="kpi__sub">À investiguer avec l'équipe</span>
+    </div>
+    <div class="kpi kpi--warn">
+      <span class="kpi__label">Relevés manquants</span>
+      <span class="kpi__value">15</span>
+      <span class="kpi__sub">Sur les 30 derniers jours</span>
+    </div>
+  </div>
+
+  <!-- ── Filtres ── -->
+  <div class="filters">
+    <input class="filter-input" type="text" placeholder="🔍 Rechercher une mission, un produit…" style="min-width: 240px;">
+    <select class="filter-select">
+      <option>Mois en cours (juin 2026)</option>
+      <option>Mai 2026</option>
+      <option>Avril 2026</option>
+      <option>Personnalisé…</option>
+    </select>
+
+    <span class="filter-chip active">Tous les types</span>
+    <span class="filter-chip">🌡️ Température</span>
+    <span class="filter-chip">📅 DLC</span>
+    <span class="filter-chip">🏷️ Étiquetage</span>
+    <span class="filter-chip">🚚 Réception</span>
+
+    <div class="filters__spacer"></div>
+
+    <span class="filter-chip">⛔ Non-conformes uniquement</span>
+  </div>
+
+  <!-- ── Registre ── -->
+  <div class="registre">
+
+    <!-- Jour 1 -->
+    <div class="day-block">
+      <div class="day-block__head">
+        <div class="day-block__date">Lundi 02 juin 2026 <small>· aujourd'hui</small></div>
+        <div class="day-block__stats">
+          <span class="day-block__stat">📋 <strong>5</strong> relevés</span>
+          <span class="day-block__stat">✓ <strong>4</strong> conformes</span>
+          <span class="day-block__stat" style="color: var(--red);">⛔ <strong>1</strong> non-conforme</span>
+        </div>
+      </div>
+
+      <div class="day-block__list">
+        <div class="releve-row">
+          <div class="time">09:14</div>
+          <div class="mission">Relevé T° vitrine bar (ouverture)<small>Bar · Mission HACCP fixe</small></div>
+          <div class="type"><span class="type-badge type-badge--temp">🌡️ T°</span></div>
+          <div class="value">
+            <span class="value-cell ok">3.5 °C <small>/ 0–4</small></span>
+          </div>
+          <div class="user user-cell">
+            <div class="user-avatar">CH</div>
+            <span class="user-name">Chloé R.</span>
+          </div>
+          <div class="conform"><span class="conform-cell conform-cell--ok">✓ Conforme</span></div>
+        </div>
+
+        <div class="releve-row">
+          <div class="time">09:16</div>
+          <div class="mission">Relevé T° frigo cuisine (ouverture)<small>Bar · Mission HACCP fixe</small></div>
+          <div class="type"><span class="type-badge type-badge--temp">🌡️ T°</span></div>
+          <div class="value">
+            <span class="value-cell warn">9.2 °C <small>/ 0–4</small></span>
+          </div>
+          <div class="user user-cell">
+            <div class="user-avatar">CH</div>
+            <span class="user-name">Chloé R.</span>
+          </div>
+          <div class="conform"><span class="conform-cell conform-cell--ko">⛔ Non-conforme</span></div>
+        </div>
+
+        <div class="releve-row">
+          <div class="time">09:18</div>
+          <div class="mission">Contrôle DLC produits frais<small>Bar · Jambon blanc Fleury Michon — DLC 08/06</small></div>
+          <div class="type"><span class="type-badge type-badge--dlc">📅 DLC</span></div>
+          <div class="value">
+            <span class="value-cell ok">+6 j <small>restants</small></span>
+          </div>
+          <div class="user user-cell">
+            <div class="user-avatar b">JN</div>
+            <span class="user-name">Jonathan</span>
+          </div>
+          <div class="conform"><span class="conform-cell conform-cell--ok">✓ Conforme</span></div>
+        </div>
+
+        <div class="releve-row">
+          <div class="time">11:43</div>
+          <div class="mission">Réception fournisseur<small>Metro · BL-2026-0608-887</small></div>
+          <div class="type"><span class="type-badge type-badge--reception">🚚 RÉCEPTION</span></div>
+          <div class="value">
+            <span class="value-cell ok">2.8 °C <small>/ max 4</small></span>
+          </div>
+          <div class="user user-cell">
+            <div class="user-avatar g">MX</div>
+            <span class="user-name">Maxime (M)</span>
+          </div>
+          <div class="conform"><span class="conform-cell conform-cell--ok">✓ Conforme</span></div>
+        </div>
+
+        <div class="releve-row">
+          <div class="time">14:22</div>
+          <div class="mission">Étiquetage produit ouvert (date)<small>Sauce barbecue · DLC ouvert +3j</small></div>
+          <div class="type"><span class="type-badge type-badge--photo">🏷️ ÉTIQUETAGE</span></div>
+          <div class="value">
+            <span class="value-cell--photo">📷 Voir la photo</span>
+          </div>
+          <div class="user user-cell">
+            <div class="user-avatar p">SB</div>
+            <span class="user-name">Sabri</span>
+          </div>
+          <div class="conform"><span class="conform-cell conform-cell--na">N/A</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jour 2 -->
+    <div class="day-block">
+      <div class="day-block__head">
+        <div class="day-block__date">Dimanche 01 juin 2026 <small>· hier</small></div>
+        <div class="day-block__stats">
+          <span class="day-block__stat">📋 <strong>4</strong> relevés</span>
+          <span class="day-block__stat">✓ <strong>4</strong> conformes</span>
+        </div>
+      </div>
+
+      <div class="day-block__list">
+        <div class="releve-row">
+          <div class="time">10:08</div>
+          <div class="mission">Relevé T° vitrine bar (ouverture)<small>Bar</small></div>
+          <div class="type"><span class="type-badge type-badge--temp">🌡️ T°</span></div>
+          <div class="value"><span class="value-cell ok">3.2 °C <small>/ 0–4</small></span></div>
+          <div class="user user-cell"><div class="user-avatar b">JN</div><span class="user-name">Jonathan</span></div>
+          <div class="conform"><span class="conform-cell conform-cell--ok">✓ Conforme</span></div>
+        </div>
+        <div class="releve-row">
+          <div class="time">10:11</div>
+          <div class="mission">Relevé T° congélateur<small>Bar</small></div>
+          <div class="type"><span class="type-badge type-badge--temp">🌡️ T°</span></div>
+          <div class="value"><span class="value-cell ok">−19.4 °C <small>/ −22 à −18</small></span></div>
+          <div class="user user-cell"><div class="user-avatar b">JN</div><span class="user-name">Jonathan</span></div>
+          <div class="conform"><span class="conform-cell conform-cell--ok">✓ Conforme</span></div>
+        </div>
+        <div class="releve-row">
+          <div class="time">10:14</div>
+          <div class="mission">Contrôle DLC produits frais<small>Bar · Salade César — DLC 04/06</small></div>
+          <div class="type"><span class="type-badge type-badge--dlc">📅 DLC</span></div>
+          <div class="value"><span class="value-cell ok">+3 j</span></div>
+          <div class="user user-cell"><div class="user-avatar b">JN</div><span class="user-name">Jonathan</span></div>
+          <div class="conform"><span class="conform-cell conform-cell--ok">✓ Conforme</span></div>
+        </div>
+        <div class="releve-row">
+          <div class="time">19:48</div>
+          <div class="mission">Étiquetage produit ouvert (date)<small>Sauce mayonnaise · ouverture +24h</small></div>
+          <div class="type"><span class="type-badge type-badge--photo">🏷️ ÉTIQUETAGE</span></div>
+          <div class="value"><span class="value-cell--photo">📷 Voir la photo</span></div>
+          <div class="user user-cell"><div class="user-avatar p">SB</div><span class="user-name">Sabri</span></div>
+          <div class="conform"><span class="conform-cell conform-cell--na">N/A</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jour 3 -->
+    <div class="day-block">
+      <div class="day-block__head">
+        <div class="day-block__date">Samedi 31 mai 2026</div>
+        <div class="day-block__stats">
+          <span class="day-block__stat">📋 <strong>3</strong> relevés</span>
+          <span class="day-block__stat" style="color: var(--yellow);">⚠ <strong>2</strong> manquants</span>
+        </div>
+      </div>
+      <div class="day-block__list">
+        <div class="releve-row">
+          <div class="time">11:02</div>
+          <div class="mission">Relevé T° vitrine bar (ouverture)<small>Bar</small></div>
+          <div class="type"><span class="type-badge type-badge--temp">🌡️ T°</span></div>
+          <div class="value"><span class="value-cell ok">3.8 °C <small>/ 0–4</small></span></div>
+          <div class="user user-cell"><div class="user-avatar">CH</div><span class="user-name">Chloé R.</span></div>
+          <div class="conform"><span class="conform-cell conform-cell--ok">✓ Conforme</span></div>
+        </div>
+        <div class="releve-row">
+          <div class="time">11:05</div>
+          <div class="mission">Relevé T° frigo cuisine (ouverture)<small>Bar</small></div>
+          <div class="type"><span class="type-badge type-badge--temp">🌡️ T°</span></div>
+          <div class="value"><span class="value-cell ok">3.1 °C <small>/ 0–4</small></span></div>
+          <div class="user user-cell"><div class="user-avatar">CH</div><span class="user-name">Chloé R.</span></div>
+          <div class="conform"><span class="conform-cell conform-cell--ok">✓ Conforme</span></div>
+        </div>
+        <div class="releve-row">
+          <div class="time">11:08</div>
+          <div class="mission">Relevé T° congélateur<small>Bar</small></div>
+          <div class="type"><span class="type-badge type-badge--temp">🌡️ T°</span></div>
+          <div class="value"><span class="value-cell ok">−21.0 °C <small>/ −22 à −18</small></span></div>
+          <div class="user user-cell"><div class="user-avatar">CH</div><span class="user-name">Chloé R.</span></div>
+          <div class="conform"><span class="conform-cell conform-cell--ok">✓ Conforme</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+</html>

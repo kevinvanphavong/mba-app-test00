@@ -587,3 +587,98 @@ CREATE TABLE event_log (
 --     { "titre": "Étape 2", "texte": "...", "tips": [] }
 --   ]
 -- }
+
+-- ============================================================
+-- TABLE : haccp_equipement
+-- Équipement froid d'un centre (frigo, congélateur, vitrine…).
+-- Source de vérité des seuils T° → alimente HaccpMissionGenerator
+-- qui crée 2 missions T° par équipement actif (début + fin service).
+-- type : 'FRIGO' | 'CONGELATEUR' | 'VITRINE' | 'AUTRE'
+-- ============================================================
+
+CREATE TABLE haccp_equipement (
+    id          INT AUTO_INCREMENT NOT NULL,
+    centre_id   INT          NOT NULL,
+    zone_id     INT          DEFAULT NULL,
+    nom         VARCHAR(120) NOT NULL,
+    type        VARCHAR(20)  NOT NULL,
+    seuil_min   NUMERIC(5,2) NOT NULL,
+    seuil_max   NUMERIC(5,2) NOT NULL,
+    unite       VARCHAR(10)  NOT NULL DEFAULT '°C',
+    ordre       INT          NOT NULL DEFAULT 0,
+    actif       TINYINT(1)   NOT NULL DEFAULT 1,
+    created_at  DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    updated_at  DATETIME     NOT NULL,
+    PRIMARY KEY (id),
+    INDEX idx_haccp_equip_centre (centre_id, actif),
+    INDEX idx_haccp_equip_zone   (zone_id),
+    CONSTRAINT FK_haccp_equip_centre FOREIGN KEY (centre_id) REFERENCES centre (id),
+    CONSTRAINT FK_haccp_equip_zone   FOREIGN KEY (zone_id)   REFERENCES zone   (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLE : mission_haccp_spec
+-- Extension HACCP optionnelle d'une mission (1-1, ON DELETE CASCADE).
+-- 0 colonne ajoutée sur mission : la relation est portée par la spec.
+-- archivee = drapeau du générateur pour désactiver les missions T° d'un
+--            équipement inactif sans toucher à la table mission.
+-- type_releve : 'TEMPERATURE' | 'DLC' | 'PHOTO' | 'RECEPTION'
+-- moment      : 'DEBUT_SERVICE' | 'FIN_SERVICE' | NULL
+-- ============================================================
+
+CREATE TABLE mission_haccp_spec (
+    id                      INT AUTO_INCREMENT NOT NULL,
+    mission_id              INT          NOT NULL,
+    centre_id               INT          NOT NULL,
+    equipement_id           INT          DEFAULT NULL,
+    type_releve             VARCHAR(20)  NOT NULL,
+    moment                  VARCHAR(20)  DEFAULT NULL,
+    seuil_min               NUMERIC(5,2) DEFAULT NULL,
+    seuil_max               NUMERIC(5,2) DEFAULT NULL,
+    unite                   VARCHAR(10)  DEFAULT NULL,
+    photo_obligatoire       TINYINT(1)   NOT NULL DEFAULT 0,
+    commentaire_obligatoire TINYINT(1)   NOT NULL DEFAULT 0,
+    archivee                TINYINT(1)   NOT NULL DEFAULT 0,
+    created_at              DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    updated_at              DATETIME     NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uniq_haccp_spec_mission (mission_id),
+    INDEX idx_haccp_spec_centre     (centre_id),
+    INDEX idx_haccp_spec_equipement (equipement_id),
+    CONSTRAINT FK_haccp_spec_mission    FOREIGN KEY (mission_id)    REFERENCES mission           (id) ON DELETE CASCADE,
+    CONSTRAINT FK_haccp_spec_centre     FOREIGN KEY (centre_id)     REFERENCES centre            (id),
+    CONSTRAINT FK_haccp_spec_equipement FOREIGN KEY (equipement_id) REFERENCES haccp_equipement  (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================================
+-- TABLE : completion_haccp_proof
+-- Preuve HACCP attachée à une completion (1-1, ON DELETE CASCADE).
+-- 0 colonne ajoutée sur completion : la relation est portée par la preuve.
+-- est_conforme calculé à l'insert par HaccpProofConformityChecker.
+-- photo_path : clé R2 'haccp/{YYYY}/{MM}/{uuid}.{ext}'
+-- ============================================================
+
+CREATE TABLE completion_haccp_proof (
+    id                  INT AUTO_INCREMENT NOT NULL,
+    completion_id       INT          NOT NULL,
+    centre_id           INT          NOT NULL,
+    valeur_numerique    NUMERIC(5,2) DEFAULT NULL,
+    date_releve         DATE         DEFAULT NULL,
+    photo_path          VARCHAR(255) DEFAULT NULL,
+    photo_mime_type     VARCHAR(50)  DEFAULT NULL,
+    note                LONGTEXT     DEFAULT NULL,
+    est_conforme        TINYINT(1)   DEFAULT NULL,
+    releve_par_id       INT          DEFAULT NULL,
+    created_at          DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    PRIMARY KEY (id),
+    UNIQUE KEY uniq_haccp_proof_completion (completion_id),
+    INDEX idx_haccp_proof_centre_date (centre_id, created_at),
+    INDEX idx_haccp_proof_releveur    (releve_par_id),
+    CONSTRAINT FK_haccp_proof_completion FOREIGN KEY (completion_id) REFERENCES completion (id) ON DELETE CASCADE,
+    CONSTRAINT FK_haccp_proof_centre     FOREIGN KEY (centre_id)     REFERENCES centre     (id),
+    CONSTRAINT FK_haccp_proof_user       FOREIGN KEY (releve_par_id) REFERENCES `user`     (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Pas de fixture sur les 3 tables HACCP : alimentées au runtime par les
+-- listeners (CentreHaccpSeedListener à la création d'un centre, puis le
+-- staff via /service ou le manager via /haccp/equipements).

@@ -759,3 +759,108 @@ les routes EventLog.
 
 Export PDF/CSV, vue SuperAdmin cross-centre, instrumentation HACCP/Pointage/Incident,
 webhook sortant, job cron rétention 3 ans.
+
+---
+
+## Module HACCP — équipements + specs + preuves
+
+> Spec source : [`docs/HACCP_MVP_SCHEMA.md`](../HACCP_MVP_SCHEMA.md).
+
+Trois nouvelles entités isolées en bounded context HACCP. **Aucune colonne SQL
+ajoutée sur Mission / Completion** : les relations 1-1 sont côté inverse (cf.
+règle "0 modif structurelle").
+
+### HaccpEquipement
+
+Équipement froid d'un centre (frigo, congélateur, vitrine, autre). Porte les
+seuils T° (source de vérité pour le calcul de conformité).
+
+| Champ | Type | Notes |
+|---|---|---|
+| `centre` | FK Centre NOT NULL | multi-tenant |
+| `nom` | string(120) | "Frigo bar principal" |
+| `type` | enum FRIGO / CONGELATEUR / VITRINE / AUTRE | |
+| `zone` | FK Zone nullable, SET NULL | rattachement optionnel |
+| `seuilMin/Max` | decimal(5,2) | bornes T° |
+| `unite` | string(10) | défaut `°C` |
+| `actif` | bool | inactif = exclu du générateur |
+
+**Voter :** VIEW tout user du centre, EDIT/CREATE/DELETE MANAGER.
+
+### MissionHaccpSpec
+
+Extension HACCP optionnelle d'une Mission (1-1, ON DELETE CASCADE).
+
+| Champ | Type | Notes |
+|---|---|---|
+| `mission` | OneToOne Mission, CASCADE | propriétaire |
+| `centre` | FK Centre NOT NULL | dénormalisé Voter |
+| `equipement` | FK HaccpEquipement nullable, CASCADE | TEMPERATURE-équipement |
+| `typeReleve` | enum TEMPERATURE / DLC / PHOTO / RECEPTION | |
+| `moment` | enum DEBUT_SERVICE / FIN_SERVICE / null | label informatif V1 |
+| `seuilMin/Max/unite` | decimal/varchar nullable | ignorés si `equipement` défini |
+| `photoObligatoire`, `commentaireObligatoire` | bool | |
+| `archivee` | bool | drapeau utilisé par `HaccpMissionGenerator` pour désactiver les missions T° d'un équipement inactif (sans toucher à `Mission`) |
+
+`getEffectiveSeuils()` retourne les seuils de l'équipement si dispo, sinon ceux
+portés par la spec.
+
+**Voter :** VIEW tout user, EDIT/CREATE/DELETE MANAGER.
+
+### CompletionHaccpProof
+
+Preuve attachée à une Completion (1-1, CASCADE). Créée en cascade par
+`POST /api/completions/haccp`. `estConforme` calculé à l'insert par
+`HaccpProofConformityChecker` (listener prePersist).
+
+| Champ | Type | Notes |
+|---|---|---|
+| `completion` | OneToOne, CASCADE | propriétaire |
+| `centre` | FK NOT NULL | dénormalisé |
+| `valeurNumerique` | decimal(5,2) nullable | T° (TEMPERATURE / RECEPTION) |
+| `dateReleve` | date nullable | DLC saisie |
+| `photoPath`/`photoMimeType` | string nullable | clé R2 `haccp/YYYY/MM/uuid.ext` |
+| `note` | text nullable | |
+| `estConforme` | bool nullable | `null` = N/A (PHOTO, manque de seuil) |
+| `relevePar` | FK User nullable SET NULL | |
+
+**Voter :** VIEW + CREATE tout user du centre, EDIT/DELETE MANAGER.
+
+### Services & listeners
+
+- `HaccpMissionGenerator::synchronizeForCentre()` — idempotent, transactionnel.
+  Crée 2 missions T° par équipement actif (DEBUT_SERVICE + FIN_SERVICE),
+  archive les specs T° des équipements inactifs, réactive si rallumés.
+- `HaccpProofConformityChecker` (prePersist) — calcule `estConforme` à partir
+  des seuils effectifs (équipement prioritaire sur spec).
+- `HaccpEquipementSyncListener` (postPersist/postUpdate/preRemove + postFlush) —
+  rejoue automatiquement la sync après chaque CRUD équipement.
+- `CentreHaccpSeedListener` (postPersist Centre) — seed 2 équipements types +
+  3 missions standalone (DLC, étiquetage photo, réception) + sync.
+
+### Endpoints
+
+| Méthode | Route | Accès | Description |
+|---|---|---|---|
+| GET / POST / PATCH / DELETE | `/api/haccp_equipements` | MANAGER (write) | API Platform CRUD |
+| GET / POST / PATCH / DELETE | `/api/mission_haccp_specs` | MANAGER (write) | API Platform CRUD |
+| GET / PATCH / DELETE | `/api/completion_haccp_proofs` | EDIT/DELETE MANAGER | API Platform read + correction |
+| POST | `/api/completions/haccp` | tout user du centre | Cascade Completion + Proof (multipart) |
+| GET | `/api/haccp/proofs/{id}/photo` | tout user du centre (voter) | Proxy R2 auth-guarded |
+| POST | `/api/haccp/equipements/{id}/sync-missions` | MANAGER | Sync manuel par équipement |
+| POST | `/api/haccp/sync-missions` | MANAGER | Sync manuel global centre |
+| GET | `/api/haccp/registre?mois=&type=&conforme=` | tout user du centre | Registre filtré + KPIs |
+| GET | `/api/haccp/export?mois=YYYY-MM` | MANAGER | Export PDF dompdf, A4 paysage |
+
+### Pages front
+
+- `/haccp` (registre, défaut) — manager **et** employé.
+- `/haccp/equipements` — manager uniquement (employé redirigé).
+- `/service` — un `mission.haccpSpec` ouvre `HaccpCheckModal` (dispatch
+  vers TEMPERATURE / DLC / PHOTO / RECEPTION) au lieu du toggle direct.
+
+### Hors scope V1 (cf. PROMPT)
+
+Matrice allergènes, plan de nettoyage par zone, bibliothèque PMS, formations
+staff, configuration sondes IoT, dashboard HACCP autonome, création d'Incident
+auto sur non-conformité, logique horaire DEBUT/FIN, notifications push.
