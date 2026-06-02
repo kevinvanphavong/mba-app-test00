@@ -21,12 +21,14 @@ interface ZoneCardProps {
   onOpenPhoto?:     (completionId: number) => void
   /** Décochage d'une mission requiresPhoto déjà validée — déclenche la confirmation côté parent. */
   onConfirmUncheck?: (mission: ServiceMission, zoneId: number) => void
+  /** Validation d'une mission HACCP (ouvre HaccpCheckModal côté parent). */
+  onHaccp?: (mission: ServiceMission, posteId: number) => void
 }
 
 export default function ZoneCard({
   zone, completions, loadingMissions, onToggle,
   onAddPonctuelle, onAssign, onRemoveStaff,
-  onCapturePhoto, onOpenPhoto, onConfirmUncheck,
+  onCapturePhoto, onOpenPhoto, onConfirmUncheck, onHaccp,
 }: ZoneCardProps) {
   const totalMissions = zone.missions.length
   const doneMissions  = zone.missions.filter(m => completions[m.id]).length
@@ -145,6 +147,7 @@ export default function ZoneCard({
                     onCapturePhoto={() => onCapturePhoto?.(mission, firstPosteId)}
                     onOpenPhoto={onOpenPhoto}
                     onConfirmUncheck={() => onConfirmUncheck?.(mission, zone.id)}
+                    onHaccp={() => onHaccp?.(mission, firstPosteId)}
                   />
                 )
               })}

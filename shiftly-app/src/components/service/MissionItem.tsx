@@ -18,6 +18,9 @@ interface MissionItemProps {
   /** Appelé quand l'user veut DÉCOCHER une mission requiresPhoto déjà validée.
    *  Le parent affiche un modal de confirmation avant de réellement décocher. */
   onConfirmUncheck?: (mission: ServiceMission) => void
+  /** Appelé quand l'user veut valider une mission HACCP (typeReleve = ...).
+   *  Le parent ouvre HaccpCheckModal. */
+  onHaccp?: (mission: ServiceMission) => void
 }
 
 const PRIORITE_CONFIG: Record<string, { dot: string; label: string }> = {
@@ -34,6 +37,7 @@ export default function MissionItem({
   onCapturePhoto,
   onOpenPhoto,
   onConfirmUncheck,
+  onHaccp,
 }: MissionItemProps) {
   const { data: categories = [] } = useMissionCategories()
   const cat = categories.find(c => c.nom === mission.categorie)
@@ -49,6 +53,11 @@ export default function MissionItem({
   //  - sinon                       → toggle direct
   function handleClick() {
     if (loading) return
+    // HACCP : ouvre le modal de saisie (pas de toggle direct)
+    if (mission.haccpSpec && !completed) {
+      onHaccp?.(mission)
+      return
+    }
     if (mission.requiresPhoto && !completed) {
       onCapturePhoto?.(mission)
       return
@@ -143,6 +152,13 @@ export default function MissionItem({
           {mission.requiresPhoto && !completed && (
             <span className="text-[9px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-[4px] border text-accent bg-accent/10 border-accent/20 inline-flex items-center gap-0.5">
               📷 Photo
+            </span>
+          )}
+
+          {/* Badge HACCP (visible tant que pas validée) */}
+          {mission.haccpSpec && !completed && (
+            <span className="text-[9px] font-extrabold uppercase tracking-wide px-1.5 py-0.5 rounded-[4px] border text-red bg-red/10 border-red/20 inline-flex items-center gap-0.5">
+              🍔 HACCP {mission.haccpSpec.typeReleve === 'TEMPERATURE' ? 'T°' : mission.haccpSpec.typeReleve}
             </span>
           )}
         </div>

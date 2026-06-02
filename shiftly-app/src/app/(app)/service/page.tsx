@@ -12,6 +12,7 @@ import ModalAssignerStaff       from '@/components/service/ModalAssignerStaff'
 import MissionPhotoCaptureModal from '@/components/service/MissionPhotoCaptureModal'
 import ModalConfirmUncheckPhoto from '@/components/service/ModalConfirmUncheckPhoto'
 import PhotoLightbox            from '@/components/shared/PhotoLightbox'
+import HaccpCheckModal          from '@/components/haccp/HaccpCheckModal'
 import { useServiceToday }      from '@/hooks/useService'
 import { useDeletePoste }       from '@/hooks/useService'
 import { useToggleCompletion }  from '@/hooks/useMissions'
@@ -47,6 +48,7 @@ export default function ServicePage() {
   const [lightboxSrc,    setLightboxSrc]    = useState<string | null>(null)
   // Confirmation décochage d'une mission requiresPhoto déjà validée
   const [uncheckTarget,  setUncheckTarget]  = useState<{ mission: ServiceMission; zoneId: number } | null>(null)
+  const [haccpTarget,    setHaccpTarget]    = useState<{ mission: ServiceMission; posteId: number } | null>(null)
 
   // ── Mutations ──────────────────────────────────────────────────────────────
   const toggleCompletion = useToggleCompletion()
@@ -202,6 +204,7 @@ export default function ServicePage() {
               onCapturePhoto={(mission, posteId) => setPhotoTarget({ mission, posteId })}
               onOpenPhoto={(completionId) => setLightboxSrc(`/completions/${completionId}/photo`)}
               onConfirmUncheck={(mission, zoneId) => setUncheckTarget({ mission, zoneId })}
+              onHaccp={(mission, posteId) => setHaccpTarget({ mission, posteId })}
             />
           ))}
 
@@ -258,6 +261,17 @@ export default function ServicePage() {
         src={lightboxSrc}
         onClose={() => setLightboxSrc(null)}
       />
+
+      {haccpTarget?.mission.haccpSpec && (
+        <HaccpCheckModal
+          open
+          posteId={haccpTarget.posteId}
+          missionId={haccpTarget.mission.id}
+          missionTexte={haccpTarget.mission.texte}
+          spec={haccpTarget.mission.haccpSpec}
+          onClose={() => setHaccpTarget(null)}
+        />
+      )}
     </>
   )
 }
