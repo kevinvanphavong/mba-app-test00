@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Registre HACCP — {{ centre.nom }} — {{ mois }}</title>
+<style>
+@page { margin: 18mm 14mm; }
+body { font-family: DejaVu Sans, sans-serif; font-size: 10pt; color: #1f2937; }
+h1 { font-size: 16pt; margin: 0 0 6pt; }
+.meta { color: #6b7280; font-size: 9pt; margin-bottom: 8pt; }
+.day-header { background: #eef2ff; padding: 4pt 6pt; font-weight: bold; margin-top: 10pt; border-left: 3pt solid #6366f1; }
+table { width: 100%; border-collapse: collapse; margin-top: 4pt; }
+th { background: #f3f4f6; text-align: left; padding: 4pt; font-size: 9pt; border: 1pt solid #d1d5db; }
+td { padding: 4pt; vertical-align: top; font-size: 9pt; border: 1pt solid #e5e7eb; }
+.ok    { color: #15803d; font-weight: bold; }
+.ko    { color: #b91c1c; font-weight: bold; }
+.muted { color: #6b7280; }
+.footer { margin-top: 18pt; border-top: 1pt solid #d1d5db; padding-top: 8pt; font-size: 9pt; }
+.sign { margin-top: 30pt; }
+</style>
+</head>
+<body>
+<h1>Registre HACCP — {{ mois }}</h1>
+<div class="meta">
+  {{ centre.nom }}{% if centre.adresse %} · {{ centre.adresse }}{% endif %}
+  <br>Total relevés : {{ total }}
+  &nbsp;·&nbsp; Édité le {{ "now"|date("d/m/Y H:i") }}
+</div>
+
+{% if byDay is empty %}
+  <p class="muted">Aucun relevé pour ce mois.</p>
+{% else %}
+  {% for day, items in byDay %}
+    <div class="day-header">{{ day|date("l d F Y") }}</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:8%">Heure</th>
+          <th style="width:14%">Type</th>
+          <th style="width:24%">Mission</th>
+          <th style="width:14%">Équipement</th>
+          <th style="width:10%">Valeur</th>
+          <th style="width:10%">Conforme</th>
+          <th style="width:10%">Relevé par</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in items %}
+          <tr>
+            <td>{{ it.createdAt ? it.createdAt|date("H:i") : "—" }}</td>
+            <td>{{ it.spec.typeReleve ?? "—" }}{% if it.spec.moment %} ({{ it.spec.moment }}){% endif %}</td>
+            <td>{{ it.mission.texte ?? "—" }}</td>
+            <td>{{ it.equipement.nom ?? "—" }}</td>
+            <td>
+              {% if it.valeurNumerique is not null %}{{ it.valeurNumerique }}°C{% endif %}
+              {% if it.dateReleve %}DLC {{ it.dateReleve }}{% endif %}
+            </td>
+            <td>
+              {% if it.estConforme is null %}<span class="muted">N/A</span>
+              {% elseif it.estConforme %}<span class="ok">OK</span>
+              {% else %}<span class="ko">Non conforme</span>
+              {% endif %}
+            </td>
+            <td>{% if it.relevePar %}{{ it.relevePar.prenom }} {{ it.relevePar.nom|first }}.{% else %}—{% endif %}</td>
+            <td>{{ it.note ?? "" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
+{% endif %}
+
+<div class="footer">
+  <div>Manager responsable : {{ manager.prenom }} {{ manager.nom }}</div>
+  <div class="sign">Signature : ____________________________</div>
+</div>
+</body>
+</html>

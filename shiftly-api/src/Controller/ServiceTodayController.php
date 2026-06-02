@@ -129,10 +129,12 @@ class ServiceTodayController extends AbstractController
                 ];
             }, $postes);
 
-            // Missions dédupliquées avec completedBy + flag photo
+            // Missions dédupliquées avec completedBy + flag photo + spec HACCP éventuelle
             $missionsData = array_map(function ($m) use ($completionMap) {
                 $completion   = $completionMap[$m->getId()] ?? null;
                 $completedBy  = $completion ? $completion['user'] : null;
+                $haccpSpec    = $m->getHaccpSpec();
+                $haccpEquip   = $haccpSpec?->getEquipement();
 
                 return [
                     'id'            => $m->getId(),
@@ -149,6 +151,25 @@ class ServiceTodayController extends AbstractController
                         'nom'         => $completedBy->getNom(),
                         'prenom'      => $completedBy->getPrenom(),
                         'avatarColor' => $completedBy->getAvatarColor() ?? '#6b7280',
+                    ] : null,
+                    'haccpSpec'     => $haccpSpec ? [
+                        'id'                     => $haccpSpec->getId(),
+                        'typeReleve'             => $haccpSpec->getTypeReleve(),
+                        'moment'                 => $haccpSpec->getMoment(),
+                        'seuilMin'               => $haccpSpec->getSeuilMin(),
+                        'seuilMax'               => $haccpSpec->getSeuilMax(),
+                        'unite'                  => $haccpSpec->getUnite(),
+                        'photoObligatoire'       => $haccpSpec->isPhotoObligatoire(),
+                        'commentaireObligatoire' => $haccpSpec->isCommentaireObligatoire(),
+                        'archivee'               => $haccpSpec->isArchivee(),
+                        'equipement'             => $haccpEquip ? [
+                            'id'       => $haccpEquip->getId(),
+                            'nom'      => $haccpEquip->getNom(),
+                            'type'     => $haccpEquip->getType(),
+                            'seuilMin' => $haccpEquip->getSeuilMin(),
+                            'seuilMax' => $haccpEquip->getSeuilMax(),
+                            'unite'    => $haccpEquip->getUnite(),
+                        ] : null,
                     ] : null,
                 ];
             }, $missions);
