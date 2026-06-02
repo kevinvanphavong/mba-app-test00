@@ -38,10 +38,13 @@ class MissionRepository extends ServiceEntityRepository
     public function findForService(int $zoneId, int $serviceId): array
     {
         return $this->createQueryBuilder('m')
+            ->leftJoin('m.haccpSpec', 'hs')
             ->andWhere('m.zone = :zoneId')
             ->andWhere(
                 '(m.frequence = :fixe) OR (m.frequence = :ponct AND m.service = :serviceId)'
             )
+            // Exclut les missions HACCP dont la spec est archivée (équipement off)
+            ->andWhere('hs IS NULL OR hs.archivee = false')
             ->setParameter('zoneId', $zoneId)
             ->setParameter('fixe', 'FIXE')
             ->setParameter('ponct', 'PONCTUELLE')

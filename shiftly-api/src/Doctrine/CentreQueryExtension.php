@@ -10,8 +10,11 @@ use App\Entity\Absence;
 use App\Entity\Centre;
 use App\Entity\Competence;
 use App\Entity\Completion;
+use App\Entity\CompletionHaccpProof;
 use App\Entity\EventLog;
+use App\Entity\HaccpEquipement;
 use App\Entity\Incident;
+use App\Entity\MissionHaccpSpec;
 use App\Entity\LegalConfig;
 use App\Entity\Mission;
 use App\Entity\PlanningSnapshot;
@@ -97,6 +100,9 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
                 PointageCorrection::class,
                 Absence::class,
                 EventLog::class,
+                HaccpEquipement::class,
+                MissionHaccpSpec::class,
+                CompletionHaccpProof::class,
             ], true) => $queryBuilder
                 ->andWhere("{$alias}.centre = :{$paramName}")
                 ->setParameter($paramName, $centreId),

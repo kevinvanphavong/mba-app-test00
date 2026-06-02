@@ -102,7 +102,24 @@ class Mission
     #[Groups(['mission:read', 'mission:write', 'completion:read'])]
     private bool $requiresPhoto = false;
 
+    /**
+     * Extension HACCP optionnelle (1-1, inverse). Présente uniquement pour les
+     * missions qui réclament un relevé sanitaire. cascade=persist+remove
+     * pour qu'une suppression de mission emporte sa spec.
+     */
+    #[ORM\OneToOne(mappedBy: 'mission', targetEntity: MissionHaccpSpec::class, cascade: ['persist', 'remove'])]
+    #[Groups(['mission:read', 'completion:read'])]
+    private ?MissionHaccpSpec $haccpSpec = null;
+
     public function getId(): ?int { return $this->id; }
+
+    public function getHaccpSpec(): ?MissionHaccpSpec { return $this->haccpSpec; }
+    public function setHaccpSpec(?MissionHaccpSpec $s): static
+    {
+        if ($s !== null && $s->getMission() !== $this) $s->setMission($this);
+        $this->haccpSpec = $s;
+        return $this;
+    }
 
     public function getZone(): ?Zone { return $this->zone; }
     public function setZone(?Zone $zone): static { $this->zone = $zone; return $this; }

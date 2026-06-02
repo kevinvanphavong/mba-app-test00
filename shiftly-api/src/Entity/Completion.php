@@ -89,6 +89,15 @@ class Completion
     #[Groups(['completion:read'])]
     private ?\DateTimeImmutable $photoTakenAt = null;
 
+    /**
+     * Preuve HACCP attachée (1-1, inverse). Présente uniquement quand la
+     * mission liée a une `haccpSpec`. cascade=persist+remove pour que la
+     * suppression de la Completion entraîne la suppression de la preuve.
+     */
+    #[ORM\OneToOne(mappedBy: 'completion', targetEntity: CompletionHaccpProof::class, cascade: ['persist', 'remove'])]
+    #[Groups(['completion:read'])]
+    private ?CompletionHaccpProof $haccpProof = null;
+
     public function __construct()
     {
         $this->completedAt = new \DateTimeImmutable();
@@ -112,4 +121,12 @@ class Completion
 
     public function getPhotoTakenAt(): ?\DateTimeImmutable { return $this->photoTakenAt; }
     public function setPhotoTakenAt(?\DateTimeImmutable $dt): static { $this->photoTakenAt = $dt; return $this; }
+
+    public function getHaccpProof(): ?CompletionHaccpProof { return $this->haccpProof; }
+    public function setHaccpProof(?CompletionHaccpProof $p): static
+    {
+        if ($p !== null && $p->getCompletion() !== $this) $p->setCompletion($this);
+        $this->haccpProof = $p;
+        return $this;
+    }
 }
