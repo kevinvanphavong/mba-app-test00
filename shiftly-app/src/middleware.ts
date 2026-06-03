@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Routes accessibles sans authentification (app classique)
-const PUBLIC_PATHS = ['/login']
+// Routes accessibles sans authentification (landing publique + pages légales + auth)
+const PUBLIC_PATHS = ['/', '/login', '/cgu', '/confidentialite', '/mentions-legales']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -19,8 +19,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/service', request.url))
   }
 
+  // Pour la racine "/", on laisse passer même si JWT présent ; la redirection vers /service
+  // est gérée côté client (LandingPage) après lecture du token localStorage — évite la race
+  // condition cookie-only vs localStorage et permet à un visiteur de revisiter la marketing.
+  if (PUBLIC_PATHS.includes(pathname)) {
+    return NextResponse.next()
+  }
+
   // Non connecté et accède à une route protégée → rediriger vers /login
-  if (!PUBLIC_PATHS.includes(pathname) && !token) {
+  if (!token) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
