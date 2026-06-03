@@ -1,0 +1,2299 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="sand">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shiftly — Le logiciel de management pour parcs de loisirs</title>
+  <meta name="description" content="Bowling, laser game, arcade, karaoké, VR. Shiftly fait gagner 6h par semaine à vos managers — services, postes, pointages, HACCP. Conforme IDCC 1790." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       TOKENS — Thème SAND (Bone & Ember) extrait de globals.css
+       ═══════════════════════════════════════════════════════════════ */
+    :root {
+      --bg: rgb(245, 239, 230);
+      --surface: rgb(251, 247, 240);
+      --surface2: rgb(236, 228, 214);
+      --surface3: rgb(240, 233, 220);
+      --border: rgb(227, 217, 199);
+      --border-strong: rgb(212, 199, 176);
+      --text: rgb(42, 37, 32);
+      --text-soft: rgb(74, 66, 57);
+      --muted: rgb(140, 127, 110);
+      --accent: rgb(217, 83, 26);
+      --accent2: rgb(249, 115, 22);
+      --on-accent: rgb(255, 248, 237);
+      --green: rgb(74, 124, 42);
+      --red: rgb(179, 50, 30);
+      --yellow: rgb(168, 122, 12);
+      --blue: rgb(42, 95, 179);
+      --purple: rgb(122, 63, 179);
+      --zone-accueil: var(--blue);
+      --zone-bar: var(--purple);
+      --zone-salle: var(--green);
+      --zone-manager: var(--accent);
+      --shadow-card: 0 1px 2px rgba(80, 60, 30, 0.05), 0 1px 3px rgba(80, 60, 30, 0.04);
+      --shadow-pop: 0 12px 28px -14px rgba(80, 60, 30, 0.22), 0 4px 10px -4px rgba(80, 60, 30, 0.10);
+      --shadow-hero: 0 24px 60px -30px rgba(217, 83, 26, 0.35), 0 8px 20px -10px rgba(80, 60, 30, 0.15);
+
+      /* Pour blocs sombres rythme */
+      --dark-bg: #1a1410;
+      --dark-surface: #221a14;
+      --dark-text: #f5efe6;
+      --dark-muted: #a89888;
+      --dark-border: #3a2c20;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-syne { font-family: 'Syne', sans-serif; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    @media (max-width: 600px) { .container { padding: 0 18px; } }
+
+    a { color: inherit; text-decoration: none; }
+    img, svg { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       BOUTONS
+       ═══════════════════════════════════════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.3px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: var(--on-accent);
+      box-shadow: 0 4px 14px -4px rgba(217, 83, 26, 0.45);
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 22px -6px rgba(217, 83, 26, 0.55); }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1.5px solid var(--border-strong);
+    }
+    .btn-secondary:hover { background: var(--surface2); }
+    .btn-ghost { color: var(--text); padding: 10px 16px; font-size: 13px; }
+    .btn-ghost:hover { background: var(--surface2); border-radius: 10px; }
+    .btn-lg { padding: 17px 30px; font-size: 14px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MODALE FORMULAIRE LEAD — Essai / Démo / Sur-mesure
+       ═══════════════════════════════════════════════════════════════ */
+    .lead-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(42, 37, 32, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .lead-modal.open { display: flex; opacity: 1; }
+    .lead-sheet {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow-pop);
+      width: 100%;
+      max-width: 580px;
+      max-height: 92vh;
+      overflow-y: auto;
+      transform: translateY(20px) scale(0.98);
+      transition: transform 0.3s cubic-bezier(.5,.05,.1,1);
+    }
+    .lead-modal.open .lead-sheet { transform: translateY(0) scale(1); }
+    @media (max-width: 600px) {
+      .lead-modal { padding: 0; align-items: flex-end; }
+      .lead-sheet { border-radius: 24px 24px 0 0; max-height: 95vh; }
+    }
+
+    .lead-head {
+      padding: 26px 28px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 14px;
+    }
+    .lead-head h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .lead-head p { font-size: 13px; color: var(--text-soft); line-height: 1.5; }
+    .lead-close {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--surface2);
+      color: var(--muted);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s;
+    }
+    .lead-close:hover { background: rgba(179, 50, 30, 0.12); color: var(--red); }
+
+    .lead-body { padding: 24px 28px 28px; }
+
+    .lead-section { margin-bottom: 22px; }
+    .lead-section:last-child { margin-bottom: 0; }
+    .lead-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .lead-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .lead-chip {
+      flex: 1; min-width: 130px;
+      padding: 11px 14px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-align: left;
+      display: flex; align-items: center; gap: 8px;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .lead-chip:hover { border-color: var(--border-strong); }
+    .lead-chip.active {
+      background: rgba(217, 83, 26, 0.10);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .lead-chip .emoji { font-size: 16px; }
+
+    .lead-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 500px) { .lead-grid { grid-template-columns: 1fr; } }
+
+    .lead-field { display: flex; flex-direction: column; gap: 6px; }
+    .lead-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-soft);
+    }
+    .lead-field label .req { color: var(--accent); }
+    .lead-field input, .lead-field select, .lead-field textarea {
+      padding: 11px 14px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 11px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    .lead-field input:focus, .lead-field select:focus, .lead-field textarea:focus {
+      border-color: var(--accent);
+    }
+    .lead-field textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+    .lead-field select { cursor: pointer; }
+
+    .lead-conditional { display: none; }
+    .lead-conditional.show { display: block; }
+
+    .lead-foot {
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+      margin-top: 22px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .lead-foot .btn { width: 100%; }
+    .lead-foot-note {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+    .lead-foot-note a { color: var(--accent); }
+
+    /* Checkbox RGPD */
+    .lead-consent {
+      display: flex; align-items: flex-start; gap: 11px;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .lead-consent:hover { border-color: var(--border-strong); }
+    .lead-consent.checked { border-color: var(--accent); background: rgba(217, 83, 26, 0.06); }
+    .lead-consent input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      flex-shrink: 0;
+      width: 18px; height: 18px;
+      border: 2px solid var(--border-strong);
+      border-radius: 5px;
+      background: var(--surface);
+      cursor: pointer;
+      position: relative;
+      margin-top: 1px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .lead-consent input[type="checkbox"]:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .lead-consent input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--on-accent);
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .lead-consent-text {
+      font-size: 12px;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+    .lead-consent-text a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .lead-consent-text strong { color: var(--text); font-weight: 600; }
+
+    .lead-error {
+      font-size: 12px;
+      color: var(--red);
+      background: rgba(179, 50, 30, 0.10);
+      border: 1px solid rgba(179, 50, 30, 0.25);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .lead-error.show { display: flex; }
+    .lead-error::before { content: '⚠️'; font-size: 14px; }
+
+    .lead-success {
+      padding: 36px 28px;
+      text-align: center;
+      display: none;
+    }
+    .lead-success.show { display: block; }
+    .lead-success-emoji {
+      font-size: 56px;
+      margin-bottom: 16px;
+    }
+    .lead-success h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .lead-success p { font-size: 14px; color: var(--text-soft); line-height: 1.55; margin-bottom: 22px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HEADER STICKY
+       ═══════════════════════════════════════════════════════════════ */
+    .header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(245, 239, 230, 0.85);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; gap: 24px;
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+    .logo .dot { color: var(--text); }
+    .nav { display: flex; align-items: center; gap: 2px; }
+    .nav a {
+      padding: 9px 14px;
+      font-family: 'Syne', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-soft);
+      border-radius: 8px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav a:hover { background: var(--surface2); color: var(--accent); }
+    .header-cta { display: flex; align-items: center; gap: 10px; }
+    @media (max-width: 900px) {
+      .nav { display: none; }
+      .header-cta .btn-ghost { display: none; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════════════════════ */
+    .hero {
+      padding: 80px 0 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px; right: -100px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(217, 83, 26, 0.12), transparent 70%);
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative;
+    }
+    @media (max-width: 900px) {
+      .hero { padding: 50px 0 40px; }
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 12px;
+      background: rgba(217, 83, 26, 0.10);
+      border: 1px solid rgba(217, 83, 26, 0.20);
+      color: var(--accent);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin-bottom: 22px;
+    }
+    .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.6s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: clamp(36px, 5.2vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      color: var(--text);
+      margin-bottom: 22px;
+    }
+    .hero h1 .highlight {
+      background: linear-gradient(120deg, var(--accent) 0%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 17px;
+      color: var(--text-soft);
+      line-height: 1.55;
+      margin-bottom: 32px;
+      max-width: 520px;
+    }
+    .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+    .hero-meta { display: flex; align-items: center; gap: 18px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+    .hero-meta-item { display: flex; align-items: center; gap: 6px; }
+    .check {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(74, 124, 42, 0.18);
+      color: var(--green);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+    }
+
+    /* Hero visual mock */
+    .hero-visual {
+      position: relative;
+      aspect-ratio: 4/3;
+      background: linear-gradient(180deg, var(--surface) 0%, var(--surface2) 100%);
+      border: 1px solid var(--border-strong);
+      border-radius: 18px;
+      box-shadow: var(--shadow-hero);
+      overflow: hidden;
+      padding: 24px;
+    }
+    .hv-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      margin-bottom: 18px;
+      width: 60%;
+    }
+    .hv-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .hv-subtitle { font-size: 11px; color: var(--muted); margin-bottom: 18px; }
+    .hv-zones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+    .hv-zone {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 11px;
+    }
+    .hv-zone-name { display: flex; align-items: center; gap: 6px; font-weight: 700; margin-bottom: 6px; font-size: 11px; }
+    .hv-zone-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .hv-zone-progress { height: 4px; background: var(--surface2); border-radius: 999px; overflow: hidden; margin-top: 6px; }
+    .hv-zone-progress span { display: block; height: 100%; border-radius: 999px; }
+    .hv-staff { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .hv-avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--on-accent);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 800;
+      border: 2px solid var(--surface);
+      margin-left: -6px;
+    }
+    .hv-avatar:first-child { margin-left: 0; }
+    .hv-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .hv-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+    .hv-stat-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--text); }
+    .hv-stat-lbl { font-size: 9px; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TRUST BAR
+       ═══════════════════════════════════════════════════════════════ */
+    .trust {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .trust-inner {
+      display: flex; justify-content: space-between; align-items: center; gap: 24px;
+      flex-wrap: wrap;
+    }
+    .trust-label {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+    .trust-stats { display: flex; gap: 40px; flex-wrap: wrap; }
+    .trust-stat { text-align: left; }
+    .trust-stat-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; color: var(--accent); line-height: 1; }
+    .trust-stat-lbl { font-size: 12px; color: var(--text-soft); margin-top: 4px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SECTION GÉNÉRIQUE
+       ═══════════════════════════════════════════════════════════════ */
+    .section { padding: 90px 0; }
+    @media (max-width: 700px) { .section { padding: 60px 0; } }
+    .section-label {
+      display: inline-block;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .section-subtitle {
+      font-size: 17px;
+      color: var(--text-soft);
+      max-width: 640px;
+      line-height: 1.55;
+    }
+    .section-head { text-align: center; margin-bottom: 56px; max-width: 720px; margin-left: auto; margin-right: auto; }
+    .section-head .section-subtitle { margin-left: auto; margin-right: auto; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SANS / AVEC — Version dirigeant
+       ═══════════════════════════════════════════════════════════════ */
+    .sansavec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    @media (max-width: 900px) { .sansavec-grid { grid-template-columns: 1fr; gap: 20px; } }
+
+    .sansavec-card {
+      position: relative;
+      border-radius: 22px;
+      padding: 36px 30px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .sansavec-card.sans {
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .sansavec-card.sans::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(45deg, transparent 0 18px, rgba(179, 50, 30, 0.025) 18px 36px);
+      pointer-events: none;
+    }
+    .sansavec-card.avec {
+      background: linear-gradient(155deg, rgba(217, 83, 26, 0.08) 0%, var(--surface) 60%);
+      border: 1.5px solid rgba(217, 83, 26, 0.30);
+      box-shadow: var(--shadow-hero);
+    }
+    .sansavec-card.avec::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(217, 83, 26, 0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .sansavec-head {
+      position: relative;
+      display: flex; align-items: center; gap: 14px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+    .sansavec-card.sans .sansavec-head { color: var(--text); }
+    .sansavec-card.avec .sansavec-head { color: var(--accent); }
+    .sansavec-emoji {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 42px; height: 42px;
+      border-radius: 12px;
+      font-size: 22px;
+    }
+    .sansavec-card.sans .sansavec-emoji { background: rgba(179, 50, 30, 0.10); }
+    .sansavec-card.avec .sansavec-emoji { background: rgba(217, 83, 26, 0.18); }
+    .sansavec-tagline {
+      position: relative;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 26px;
+      padding-bottom: 22px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .sansavec-card.avec .sansavec-tagline { color: var(--text-soft); border-color: rgba(217, 83, 26, 0.25); }
+
+    .sansavec-list {
+      position: relative;
+      display: flex; flex-direction: column; gap: 16px;
+      flex-grow: 1;
+    }
+    .sansavec-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      font-size: 14px;
+      color: var(--text-soft);
+      line-height: 1.55;
+    }
+    .sansavec-item strong { color: var(--text); font-weight: 700; }
+    .sansavec-icon {
+      flex-shrink: 0;
+      width: 30px; height: 30px; border-radius: 9px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      margin-top: -2px;
+    }
+    .sansavec-card.sans .sansavec-icon { background: rgba(179, 50, 30, 0.10); }
+    .sansavec-card.avec .sansavec-icon { background: rgba(217, 83, 26, 0.14); }
+
+    .sansavec-kpi {
+      position: relative;
+      margin-top: 26px;
+      padding: 18px 22px;
+      border-radius: 14px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .sansavec-card.sans .sansavec-kpi { background: rgba(179, 50, 30, 0.06); border: 1px solid rgba(179, 50, 30, 0.18); }
+    .sansavec-card.avec .sansavec-kpi { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: var(--on-accent); }
+    .sansavec-kpi-val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: -0.5px;
+    }
+    .sansavec-card.sans .sansavec-kpi-val { color: var(--red); }
+    .sansavec-kpi-lbl { font-size: 12px; line-height: 1.4; }
+    .sansavec-card.sans .sansavec-kpi-lbl { color: var(--text-soft); }
+    .sansavec-card.avec .sansavec-kpi-lbl { color: rgba(255, 248, 237, 0.92); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       3 ÉTAPES
+       ═══════════════════════════════════════════════════════════════ */
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+    @media (max-width: 800px) { .steps-grid { grid-template-columns: 1fr; gap: 32px; } }
+    .step {
+      position: relative;
+      padding: 32px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow-card);
+    }
+    .step-num {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--on-accent);
+      border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .step h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 19px;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+    .step p { font-size: 14px; color: var(--text-soft); line-height: 1.55; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MODULES — section sombre pour rythme
+       ═══════════════════════════════════════════════════════════════ */
+    .section-dark {
+      background: var(--dark-bg);
+      color: var(--dark-text);
+      border-top: 1px solid var(--dark-border);
+      border-bottom: 1px solid var(--dark-border);
+    }
+    .section-dark .section-title { color: var(--dark-text); }
+    .section-dark .section-subtitle { color: var(--dark-muted); }
+    .section-dark .section-label { color: var(--accent2); }
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 900px) { .modules-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .modules-grid { grid-template-columns: 1fr; } }
+    .module-card {
+      background: var(--dark-surface);
+      border: 1px solid var(--dark-border);
+      border-radius: 16px;
+      padding: 26px 22px;
+      transition: transform 0.18s ease, border-color 0.2s;
+    }
+    .module-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+    .module-icon {
+      width: 44px; height: 44px;
+      background: rgba(249, 115, 22, 0.12);
+      border: 1px solid rgba(249, 115, 22, 0.22);
+      border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: var(--accent2);
+      margin-bottom: 18px;
+    }
+    .module-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--dark-text);
+      margin-bottom: 8px;
+    }
+    .module-card p { font-size: 13px; color: var(--dark-muted); line-height: 1.55; }
+    .module-tag {
+      display: inline-block;
+      margin-top: 14px;
+      padding: 3px 10px;
+      background: rgba(74, 124, 42, 0.18);
+      color: #6fbf3a;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .module-tag.soon { background: rgba(168, 122, 12, 0.18); color: #d9b32e; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       COMPARATIF — section sombre
+       ═══════════════════════════════════════════════════════════════ */
+    .compare-wrap { overflow-x: auto; }
+    .compare-table {
+      width: 100%;
+      min-width: 600px;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: var(--dark-surface);
+      border: 1px solid var(--dark-border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .compare-table th, .compare-table td {
+      padding: 18px 22px;
+      text-align: left;
+      font-size: 14px;
+      border-bottom: 1px solid var(--dark-border);
+    }
+    .compare-table th {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--dark-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(0,0,0,0.15);
+    }
+    .compare-table th.shiftly-col { color: var(--accent2); }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table td.feat { font-weight: 600; color: var(--dark-text); }
+    .compare-table .yes { color: var(--green); font-weight: 700; }
+    .compare-table .no { color: #a89888; opacity: 0.5; }
+    .compare-table .star { color: var(--accent2); font-weight: 700; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TÉMOIGNAGES
+       ═══════════════════════════════════════════════════════════════ */
+    .testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    @media (max-width: 900px) { .testimonials { grid-template-columns: 1fr; } }
+    .testimonial {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: var(--shadow-card);
+      display: flex; flex-direction: column;
+    }
+    .testimonial-quote {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.65;
+      margin-bottom: 22px;
+      flex-grow: 1;
+    }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--on-accent);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    .testimonial-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: var(--text); }
+    .testimonial-role { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TARIFS — Switcher Mensuel / Annuel + 3 plans
+       ═══════════════════════════════════════════════════════════════ */
+
+    /* Switcher */
+    .billing-switch-wrap {
+      display: flex; justify-content: center;
+      margin-bottom: 44px;
+    }
+    .billing-switch {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+    .billing-switch button {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 11px 22px;
+      border-radius: 999px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      position: relative;
+      z-index: 2;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .billing-switch button.active { color: var(--on-accent); }
+    .billing-switch-thumb {
+      position: absolute;
+      top: 5px; bottom: 5px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: left 0.28s cubic-bezier(.5,.05,.1,1), width 0.28s cubic-bezier(.5,.05,.1,1);
+      z-index: 1;
+      box-shadow: 0 4px 12px -4px rgba(217, 83, 26, 0.55);
+    }
+    .billing-save {
+      font-size: 10px;
+      background: var(--green);
+      color: var(--on-accent);
+      padding: 3px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
+      font-weight: 700;
+    }
+    .billing-switch button:not(.active) .billing-save { background: rgba(74, 124, 42, 0.18); color: var(--green); }
+
+    /* Grid plans */
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
+    @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+    .plan {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 34px 30px;
+      display: flex; flex-direction: column;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      transition: transform 0.18s ease, box-shadow 0.2s;
+    }
+    .plan:hover { transform: translateY(-3px); box-shadow: var(--shadow-pop); }
+    .plan.featured {
+      border: 2px solid var(--accent);
+      box-shadow: var(--shadow-hero);
+      transform: scale(1.03);
+    }
+    .plan.featured:hover { transform: scale(1.03) translateY(-3px); }
+    @media (max-width: 900px) { .plan.featured, .plan.featured:hover { transform: none; } }
+    .plan.premium {
+      background: linear-gradient(155deg, var(--dark-bg) 0%, #2a1810 100%);
+      color: var(--dark-text);
+      border-color: var(--dark-border);
+    }
+    .plan.premium .plan-desc, .plan.premium .plan-list li { color: var(--dark-muted); }
+    .plan.premium .plan-list li::before { color: var(--accent2); }
+    .plan.premium .plan-price-val { color: var(--dark-text); }
+    .plan.premium .plan-price-unit { color: var(--dark-muted); }
+    .plan.premium .plan-foot { color: var(--dark-muted); }
+    .plan.premium .plan-name { color: var(--accent2); }
+    .plan.premium .plan-list li strong { color: var(--dark-text); }
+    .plan.premium .btn-secondary { background: transparent; color: var(--dark-text); border-color: rgba(245, 239, 230, 0.25); }
+    .plan.premium .btn-secondary:hover { background: rgba(245, 239, 230, 0.08); }
+
+    .plan-badge {
+      position: absolute;
+      top: -14px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: var(--on-accent);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 7px 16px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 0 6px 14px -4px rgba(217, 83, 26, 0.55);
+      white-space: nowrap;
+    }
+    .plan.premium .plan-badge { background: linear-gradient(135deg, var(--accent2), #ffd700); color: var(--dark-bg); }
+    .plan-emoji { font-size: 28px; margin-bottom: 10px; display: block; }
+    .plan-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 14px;
+    }
+    .plan-price {
+      display: flex; align-items: baseline; gap: 6px;
+      margin-bottom: 4px;
+      min-height: 48px;
+    }
+    .plan-price-val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 44px;
+      color: var(--text);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+    .plan-price-unit { font-size: 13px; color: var(--muted); }
+    .plan-price-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 18px;
+      min-height: 16px;
+    }
+    .plan.premium .plan-price-sub { color: var(--dark-muted); }
+    .plan-desc { font-size: 13px; color: var(--text-soft); margin-bottom: 24px; line-height: 1.5; min-height: 60px; }
+    .plan-list {
+      display: flex; flex-direction: column; gap: 11px;
+      margin-bottom: 28px;
+      flex-grow: 1;
+    }
+    .plan-list li {
+      list-style: none;
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px;
+      color: var(--text-soft);
+      line-height: 1.5;
+    }
+    .plan-list li strong { color: var(--text); font-weight: 700; }
+    .plan-list li::before {
+      content: '✓';
+      flex-shrink: 0;
+      color: var(--green);
+      font-weight: 700;
+      margin-top: -1px;
+    }
+    /* Bloc dédié pack accompagnement (Premium) */
+    .plan-pack {
+      margin-top: 18px;
+      padding: 18px 16px;
+      background: rgba(249, 115, 22, 0.08);
+      border: 1px solid rgba(249, 115, 22, 0.25);
+      border-radius: 14px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .plan-pack-head {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--accent2);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .plan-pack-head::before {
+      content: '🤝';
+      font-size: 16px;
+    }
+    .plan-pack-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+    }
+    .plan-pack-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--dark-muted);
+    }
+    .plan.premium .plan-pack-item strong { color: var(--dark-text); font-weight: 700; }
+    .plan-pack-icon {
+      flex-shrink: 0;
+      font-size: 14px;
+      line-height: 1.2;
+      margin-top: 1px;
+    }
+    .plan .btn { width: 100%; }
+    .plan-foot {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .pricing-note {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+    .pricing-note strong { color: var(--text); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FOUNDER
+       ═══════════════════════════════════════════════════════════════ */
+    .founder {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface3) 100%);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 40px;
+      align-items: center;
+      box-shadow: var(--shadow-card);
+    }
+    @media (max-width: 800px) {
+      .founder { grid-template-columns: 1fr; padding: 32px; text-align: center; }
+    }
+    .founder-photo {
+      width: 200px; height: 200px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--on-accent);
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 64px;
+      box-shadow: var(--shadow-hero);
+      margin: 0 auto;
+    }
+    .founder-content h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      margin-bottom: 18px;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+    .founder-content p { font-size: 15px; color: var(--text-soft); line-height: 1.65; margin-bottom: 14px; }
+    .founder-sign {
+      margin-top: 8px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--accent);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FAQ
+       ═══════════════════════════════════════════════════════════════ */
+    .faq-list { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .faq-item[open] { border-color: var(--border-strong); box-shadow: var(--shadow-card); }
+    .faq-item summary {
+      padding: 20px 24px;
+      cursor: pointer;
+      list-style: none;
+      display: flex; justify-content: space-between; align-items: center; gap: 18px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '＋';
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--accent);
+      transition: transform 0.2s;
+    }
+    .faq-item[open] summary::after { content: '−'; }
+    .faq-answer {
+      padding: 0 24px 22px;
+      font-size: 14px;
+      color: var(--text-soft);
+      line-height: 1.65;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CTA FINAL
+       ═══════════════════════════════════════════════════════════════ */
+    .cta-final {
+      background: linear-gradient(135deg, var(--dark-bg) 0%, #2a1810 100%);
+      color: var(--dark-text);
+      padding: 80px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-final::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(217, 83, 26, 0.25), transparent 60%);
+      pointer-events: none;
+    }
+    .cta-final h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: clamp(30px, 4.5vw, 46px);
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .cta-final p {
+      font-size: 17px;
+      color: var(--dark-muted);
+      max-width: 560px;
+      margin: 0 auto 30px;
+      line-height: 1.55;
+      position: relative;
+    }
+    .cta-final .hero-ctas { justify-content: center; position: relative; }
+    .cta-final .btn-secondary { background: transparent; color: var(--dark-text); border-color: rgba(245, 239, 230, 0.2); }
+    .cta-final .btn-secondary:hover { background: rgba(245, 239, 230, 0.08); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════════════ */
+    .footer {
+      background: var(--dark-bg);
+      color: var(--dark-muted);
+      padding: 48px 0 32px;
+      border-top: 1px solid var(--dark-border);
+    }
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(3, 1fr);
+      gap: 40px;
+      margin-bottom: 36px;
+    }
+    @media (max-width: 800px) { .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; } }
+    .footer-brand .logo { color: var(--accent2); }
+    .footer-brand .logo .dot { color: var(--dark-text); }
+    .footer-brand p { font-size: 13px; margin-top: 12px; line-height: 1.55; max-width: 280px; }
+    .footer-col h4 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 11px;
+      color: var(--dark-text);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col a { font-size: 13px; color: var(--dark-muted); transition: color 0.15s; }
+    .footer-col a:hover { color: var(--accent2); }
+    .footer-bottom {
+      border-top: 1px solid var(--dark-border);
+      padding-top: 24px;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      flex-wrap: wrap;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       HEADER
+       ═══════════════════════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="#" class="logo">Shiftly<span class="dot">.</span></a>
+      <nav class="nav">
+        <a href="#modules">Modules</a>
+        <a href="#tarifs">Tarifs</a>
+        <a href="#demo">Démo</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="header-cta">
+        <!-- Lien Connexion : en monorepo, pointe vers la route /login de shiftly-app.
+             En prod (sous-domaine) : https://app.shiftly.fr/login
+             En dev local : http://localhost:3000/login -->
+        <a href="https://app.shiftly.fr/login" class="btn btn-ghost">Connexion</a>
+        <button type="button" class="btn btn-primary" data-open-lead data-intent="demo" data-plan="pro">Réserver une démo</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="hero-eyebrow">
+          <span class="dot"></span>
+          🎳 Le 1er logiciel pensé pour les parcs de loisirs
+        </div>
+        <h1>
+          Vos managers perdent <span class="highlight">8h par semaine</span> à organiser le service.
+        </h1>
+        <p>
+          Shiftly leur en rend 6. Services, postes, pointages, compétences, HACCP — un seul outil pensé pour les bowlings, laser games, arcades, karaokés et VR. Conforme IDCC 1790.
+        </p>
+        <div class="hero-ctas">
+          <button type="button" class="btn btn-primary btn-lg" data-open-lead data-intent="demo" data-plan="pro">📅 Réserver une démo de 20 min</button>
+          <button type="button" class="btn btn-secondary btn-lg" data-open-lead data-intent="trial" data-plan="starter">Essai gratuit 14 jours</button>
+        </div>
+        <div class="hero-meta">
+          <span class="hero-meta-item"><span class="check">✓</span> Sans carte bancaire</span>
+          <span class="hero-meta-item"><span class="check">✓</span> Installation en 1h</span>
+          <span class="hero-meta-item"><span class="check">✓</span> Données en France</span>
+        </div>
+      </div>
+
+      <!-- Visuel app (mock du Service du Jour) -->
+      <div class="hero-visual">
+        <div class="hv-bar"></div>
+        <div class="hv-title">Service du soir · Vendredi 12 juin</div>
+        <div class="hv-subtitle">17h00 → 02h00 · 8 staff actifs · Léa responsable</div>
+        <div class="hv-zones">
+          <div class="hv-zone">
+            <div class="hv-zone-name"><span class="hv-zone-dot" style="background: var(--zone-accueil)"></span>Accueil</div>
+            <div class="hv-staff">
+              <span class="hv-avatar">LM</span>
+              <span class="hv-avatar" style="background: linear-gradient(135deg, var(--zone-accueil), var(--purple))">TC</span>
+            </div>
+            <div class="hv-zone-progress"><span style="width: 78%; background: var(--zone-accueil)"></span></div>
+          </div>
+          <div class="hv-zone">
+            <div class="hv-zone-name"><span class="hv-zone-dot" style="background: var(--zone-bar)"></span>Bar</div>
+            <div class="hv-staff">
+              <span class="hv-avatar" style="background: linear-gradient(135deg, var(--zone-bar), var(--accent))">SD</span>
+              <span class="hv-avatar" style="background: linear-gradient(135deg, var(--purple), var(--accent))">JR</span>
+            </div>
+            <div class="hv-zone-progress"><span style="width: 62%; background: var(--zone-bar)"></span></div>
+          </div>
+          <div class="hv-zone">
+            <div class="hv-zone-name"><span class="hv-zone-dot" style="background: var(--zone-salle)"></span>Salle</div>
+            <div class="hv-staff">
+              <span class="hv-avatar" style="background: linear-gradient(135deg, var(--zone-salle), var(--accent2))">AB</span>
+              <span class="hv-avatar" style="background: linear-gradient(135deg, var(--green), var(--accent))">MR</span>
+              <span class="hv-avatar" style="background: linear-gradient(135deg, var(--accent2), var(--zone-salle))">+2</span>
+            </div>
+            <div class="hv-zone-progress"><span style="width: 91%; background: var(--zone-salle)"></span></div>
+          </div>
+          <div class="hv-zone">
+            <div class="hv-zone-name"><span class="hv-zone-dot" style="background: var(--zone-manager)"></span>Manager</div>
+            <div class="hv-staff">
+              <span class="hv-avatar">LP</span>
+            </div>
+            <div class="hv-zone-progress"><span style="width: 100%; background: var(--zone-manager)"></span></div>
+          </div>
+        </div>
+        <div class="hv-stats">
+          <div class="hv-stat">
+            <div class="hv-stat-val">76%</div>
+            <div class="hv-stat-lbl">Avancement</div>
+          </div>
+          <div class="hv-stat">
+            <div class="hv-stat-val">23/30</div>
+            <div class="hv-stat-lbl">Missions</div>
+          </div>
+          <div class="hv-stat">
+            <div class="hv-stat-val">0</div>
+            <div class="hv-stat-lbl">Incidents</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SANS / AVEC SHIFTLY
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">⚡ Le constat</div>
+        <h2 class="section-title">Gérer un parc de loisirs <em style="font-style: normal; color: var(--accent);">comme un resto</em>, ça ne marche pas.</h2>
+        <p class="section-subtitle">Vos zones, vos postes, vos services, vos pics du week-end — ce métier a ses codes. Vos outils doivent les suivre.</p>
+      </div>
+      <div class="sansavec-grid">
+
+        <!-- ─── Sans Shiftly ─── -->
+        <div class="sansavec-card sans">
+          <div class="sansavec-head">
+            <span class="sansavec-emoji">😩</span>
+            Sans Shiftly
+          </div>
+          <div class="sansavec-tagline">Le quotidien d'un patron en mode pompier.</div>
+
+          <div class="sansavec-list">
+            <div class="sansavec-item">
+              <span class="sansavec-icon">⏰</span>
+              <span><strong>8h par semaine perdues</strong> à griffonner des plannings et relancer l'équipe par SMS</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">📋</span>
+              <span><strong>Aucune visibilité</strong> sur ce qui est fait, par qui, à quelle heure — vous découvrez le lundi matin</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">⚖️</span>
+              <span><strong>Risque Prud'hommes</strong> sur les heures supp non tracées et les pointages contestés</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">🔥</span>
+              <span><strong>Risque DDPP</strong> avec un classeur HACCP que personne n'a ouvert depuis 3 mois</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">😤</span>
+              <span><strong>Turnover qui grimpe</strong> parce que le staff ne sait jamais à quoi s'attendre</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">🚫</span>
+              <span><strong>Combo, Skello, Excel</strong> — pas un seul ne comprend une zone de jeu</span>
+            </div>
+          </div>
+
+          <div class="sansavec-kpi">
+            <div class="sansavec-kpi-val">-15K€</div>
+            <div class="sansavec-kpi-lbl">
+              <strong style="color: var(--text);">par an et par centre</strong><br>
+              en temps managérial perdu, missions oubliées et risques cachés
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Avec Shiftly ─── -->
+        <div class="sansavec-card avec">
+          <div class="sansavec-head">
+            <span class="sansavec-emoji">🎯</span>
+            Avec Shiftly
+          </div>
+          <div class="sansavec-tagline">Le centre piloté comme une vraie entreprise.</div>
+
+          <div class="sansavec-list">
+            <div class="sansavec-item">
+              <span class="sansavec-icon">📊</span>
+              <span><strong>Pilotage temps réel</strong> — vous voyez l'avancement, les KPI, les incidents depuis votre canapé</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">⚡</span>
+              <span><strong>Service du Jour</strong> — chaque mission est cochée, tracée, horodatée. Plus rien ne passe à la trappe</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">🛡️</span>
+              <span><strong>Conformité IDCC 1790</strong> native — pointages, validation hebdo, export paie irréprochables</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">🧼</span>
+              <span><strong>HACCP intégré</strong> — relevés, traçabilité, dossier sanitaire toujours prêt pour la DDPP</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">🎓</span>
+              <span><strong>Montée en compétence</strong> automatique — tutoriels, compétences validées, staff fidélisé</span>
+            </div>
+            <div class="sansavec-item">
+              <span class="sansavec-icon">🎳</span>
+              <span><strong>Pensé pour vous</strong> — zones Accueil / Bar / Salle / Manager, week-ends, événements, CSE</span>
+            </div>
+          </div>
+
+          <div class="sansavec-kpi">
+            <div class="sansavec-kpi-val">+6h</div>
+            <div class="sansavec-kpi-lbl">
+              <strong>rendues à vos managers</strong><br>
+              chaque semaine, dès la première semaine d'utilisation
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       3 ÉTAPES
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section" style="background: var(--surface);">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">🚀 Comment ça marche</div>
+        <h2 class="section-title">Opérationnel en moins d'une heure.</h2>
+        <p class="section-subtitle">Pas de chef de projet, pas d'intégrateur. Vous créez votre centre et vous lancez votre premier service le soir même.</p>
+      </div>
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Vous créez votre centre</h3>
+          <p>5 minutes : nom, horaires, zones de jeu (Accueil, Bar, Salle, et tout ce que vous voulez). Pas d'engagement, essai gratuit 14 jours sans CB.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Vous importez votre équipe</h3>
+          <p>Saisie manuelle ou import CSV. Chaque collaborateur reçoit ses identifiants. Les rôles MANAGER / EMPLOYÉ sont gérés automatiquement.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Vous lancez le premier service</h3>
+          <p>Le manager planifie les postes, le staff coche ses missions, vous voyez tout en temps réel sur le dashboard. C'est plié.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MODULES — bloc sombre
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section section-dark" id="modules">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">🧩 Les modules</div>
+        <h2 class="section-title">Tout ce qu'il faut pour faire tourner un parc.</h2>
+        <p class="section-subtitle">9 modules connectés. Chacun pensé pour un cas d'usage précis du métier. Aucun gras inutile.</p>
+      </div>
+      <div class="modules-grid">
+
+        <div class="module-card">
+          <div class="module-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <h3>Service du Jour</h3>
+          <p>La page la plus utilisée. Live des zones, missions cochables, avancement temps réel, incidents en un clic. Mobile-first.</p>
+          <span class="module-tag">Production</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <h3>Planning & Services</h3>
+          <p>Plannification semaine, services type, duplication intelligente. Vue manager et vue équipe. Conflits de zones détectés.</p>
+          <span class="module-tag">Production</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <h3>Pointage temps réel</h3>
+          <p>Tablette en kiosk-mode, code PIN, photo de pointage. Validation hebdo conforme IDCC 1790. Export paie en 2 clics.</p>
+          <span class="module-tag">Production</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 17l9 4 9-4M3 12l9 4 9-4"/></svg>
+          </div>
+          <h3>Postes & Missions</h3>
+          <p>Catalogue de zones, missions et compétences. Drag & drop des affectations. Catégories Ouverture / Pendant / Ménage / Fermeture.</p>
+          <span class="module-tag">Production</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <h3>Staff & Compétences</h3>
+          <p>Fiches équipe, validation des compétences par zone, niveaux, progression. Système de points pour fidéliser.</p>
+          <span class="module-tag">Production</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
+          </div>
+          <h3>HACCP intégré</h3>
+          <p>Relevés de températures, traçabilité produit, plan de nettoyage, alertes DDPP. Dossier sanitaire toujours prêt.</p>
+          <span class="module-tag soon">Bientôt</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+          </div>
+          <h3>Tutoriels & Formation</h3>
+          <p>Formation interne intégrée. Chaque collaborateur apprend ses postes à son rythme. Vous voyez qui a lu quoi.</p>
+          <span class="module-tag">Production</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M9 9h6v6H9z"/></svg>
+          </div>
+          <h3>Réservations & CSE</h3>
+          <p>Gestion des entreprises clientes, réservations groupes, anniversaires, CSE. Pour ne plus rien laisser passer.</p>
+          <span class="module-tag">Production</span>
+        </div>
+
+        <div class="module-card">
+          <div class="module-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </div>
+          <h3>Multi-centre</h3>
+          <p>Pilotez 2, 5, 20 centres depuis un seul compte. Vues consolidées, KPI par centre, accès cloisonnés. Pensé pour le scaling.</p>
+          <span class="module-tag">Production</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COMPARATIF VS COMBO/SKELLO — bloc sombre suite
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section section-dark">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">⚔️ Pourquoi Shiftly</div>
+        <h2 class="section-title">Combo et Skello servent la resto.<br>Shiftly sert votre métier.</h2>
+        <p class="section-subtitle">Aucun généraliste n'a été conçu pour 4 zones de jeu, un bar, un accueil, des pics de samedi soir et une convention IDCC 1790. Nous, si.</p>
+      </div>
+
+      <div class="compare-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Ce qui compte pour vous</th>
+              <th class="shiftly-col">🎯 Shiftly</th>
+              <th>Combo / Skello</th>
+              <th>Excel + WhatsApp</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="feat">🎳 Zones de jeu natives (Accueil · Bar · Salle · Manager)</td>
+              <td class="yes star">★ Pensé loisirs</td>
+              <td class="no">Bricolage</td>
+              <td class="no">✕</td>
+            </tr>
+            <tr>
+              <td class="feat">⚡ Service du Jour temps réel + missions cochables</td>
+              <td class="yes star">★ Module phare</td>
+              <td class="no">✕</td>
+              <td class="no">✕</td>
+            </tr>
+            <tr>
+              <td class="feat">🎓 Compétences validées par zone + tutoriels intégrés</td>
+              <td class="yes star">★ Intégré</td>
+              <td class="no">✕</td>
+              <td class="no">✕</td>
+            </tr>
+            <tr>
+              <td class="feat">⏱️ Pointage kiosk + validation hebdo IDCC 1790</td>
+              <td class="yes star">★ Natif loisirs</td>
+              <td class="yes">✓ (resto)</td>
+              <td class="no">✕</td>
+            </tr>
+            <tr>
+              <td class="feat">🧼 HACCP intégré (relevés, traçabilité, DDPP)</td>
+              <td class="yes star">★ Sept. 2026</td>
+              <td class="no">Outil tiers payant</td>
+              <td class="no">✕</td>
+            </tr>
+            <tr>
+              <td class="feat">🎉 Réservations groupes, CSE, anniversaires</td>
+              <td class="yes star">★ Inclus</td>
+              <td class="no">✕</td>
+              <td class="no">Outil tiers</td>
+            </tr>
+            <tr>
+              <td class="feat">🏢 Multi-centre consolidé + back-office groupe</td>
+              <td class="yes">✓</td>
+              <td class="yes">✓</td>
+              <td class="no">✕</td>
+            </tr>
+            <tr>
+              <td class="feat">📱 Mobile-first pour le staff (pas un truc desktop)</td>
+              <td class="yes star">★ Conçu mobile</td>
+              <td class="yes">Responsive</td>
+              <td class="no">✕</td>
+            </tr>
+            <tr>
+              <td class="feat">🇫🇷 Données hébergées en France · RGPD</td>
+              <td class="yes star">★ FR / UE</td>
+              <td class="yes">UE</td>
+              <td class="no">Hors contrôle</td>
+            </tr>
+            <tr>
+              <td class="feat">🤝 Support direct par le fondateur, en français</td>
+              <td class="yes star">★ Kévin répond</td>
+              <td class="no">Tickets génériques</td>
+              <td class="no">—</td>
+            </tr>
+            <tr>
+              <td class="feat">🔓 Sans engagement · résiliation 1 clic</td>
+              <td class="yes star">★ Aucun lock-in</td>
+              <td class="no">Engagement annuel</td>
+              <td class="yes">Gratuit</td>
+            </tr>
+            <tr>
+              <td class="feat">💶 Prix d'entrée par centre</td>
+              <td class="yes star">79€ / mois HT</td>
+              <td>~149€ / mois HT</td>
+              <td>0€ (mais 15K€ cachés)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TARIFS
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section" style="background: var(--surface);" id="tarifs">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">💶 Tarifs</div>
+        <h2 class="section-title">Un prix par centre.<br>Pas de surprise.</h2>
+        <p class="section-subtitle">Sans engagement, annulable en un clic. 14 jours d'essai gratuit sans carte bancaire. Payez au mois ou à l'année et économisez 2 mois.</p>
+      </div>
+
+      <!-- ─── Switcher Mensuel / Annuel ─── -->
+      <div class="billing-switch-wrap">
+        <div class="billing-switch" id="billingSwitch">
+          <span class="billing-switch-thumb" id="billingThumb"></span>
+          <button type="button" class="active" data-period="monthly">Mensuel</button>
+          <button type="button" data-period="yearly">
+            Annuel
+            <span class="billing-save">−2 mois 🎁</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="pricing-grid">
+
+        <!-- Plan 1 — Starter -->
+        <div class="plan">
+          <span class="plan-emoji">🌱</span>
+          <div class="plan-name">Starter</div>
+          <div class="plan-price">
+            <span class="plan-price-val" data-monthly="79€" data-yearly="790€">79€</span>
+            <span class="plan-price-unit" data-monthly="/mois HT" data-yearly="/an HT">/mois HT</span>
+          </div>
+          <div class="plan-price-sub" data-monthly="par centre · facturation mensuelle" data-yearly="par centre · paiement en 1 fois">par centre · facturation mensuelle</div>
+          <div class="plan-desc">Pour un centre indépendant qui veut structurer ses services et son équipe.</div>
+          <ul class="plan-list">
+            <li>Jusqu'à <strong>15 collaborateurs</strong></li>
+            <li>Modules <strong>Service, Postes, Staff, Tutoriels</strong></li>
+            <li><strong>Pointage temps réel</strong> + export paie</li>
+            <li>Support email sous 24h</li>
+            <li>Mises à jour incluses</li>
+          </ul>
+          <button type="button" class="btn btn-secondary" data-open-lead data-intent="trial" data-plan="starter">Essayer 14 jours →</button>
+          <div class="plan-foot">Sans carte bancaire</div>
+        </div>
+
+        <!-- Plan 2 — Pro -->
+        <div class="plan featured">
+          <div class="plan-badge">⭐ Le plus choisi</div>
+          <span class="plan-emoji">🚀</span>
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">
+            <span class="plan-price-val" data-monthly="129€" data-yearly="1 290€">129€</span>
+            <span class="plan-price-unit" data-monthly="/mois HT" data-yearly="/an HT">/mois HT</span>
+          </div>
+          <div class="plan-price-sub" data-monthly="par centre · facturation mensuelle" data-yearly="par centre · paiement en 1 fois">par centre · facturation mensuelle</div>
+          <div class="plan-desc">Le standard pour un centre qui veut tout : opérationnel, conformité et pilotage.</div>
+          <ul class="plan-list">
+            <li><strong>Collaborateurs illimités</strong></li>
+            <li>Tout Starter +</li>
+            <li><strong>Dashboard manager</strong> + KPI temps réel</li>
+            <li><strong>Validation hebdo IDCC 1790</strong></li>
+            <li>HACCP intégré (sept. 2026)</li>
+            <li>Réservations & CSE</li>
+            <li>Support email + visio sous 4h</li>
+          </ul>
+          <button type="button" class="btn btn-primary" data-open-lead data-intent="demo" data-plan="pro">Réserver une démo</button>
+          <div class="plan-foot">Le plan recommandé</div>
+        </div>
+
+        <!-- Plan 3 — Sur Mesure (Premium) -->
+        <div class="plan premium">
+          <div class="plan-badge">✨ Sur mesure</div>
+          <span class="plan-emoji">👑</span>
+          <div class="plan-name">Premium</div>
+          <div class="plan-price">
+            <span class="plan-price-val" data-monthly="199€" data-yearly="1 990€">199€</span>
+            <span class="plan-price-unit" data-monthly="/mois HT" data-yearly="/an HT">/mois HT</span>
+          </div>
+          <div class="plan-price-sub" data-monthly="+ pack accompagnement (devis)" data-yearly="+ pack accompagnement (devis)">+ pack accompagnement (devis)</div>
+          <div class="plan-desc">Pour les centres qui veulent du sur-mesure : audit, intégration, fonctionnalités exclusives.</div>
+          <ul class="plan-list">
+            <li><strong>Tout le plan Pro</strong>, sans limite</li>
+            <li>🎨 <strong>Personnalisation</strong> de votre app aux besoins de votre centre</li>
+            <li>🎯 Support prioritaire + SLA dédié</li>
+          </ul>
+
+          <div class="plan-pack">
+            <div class="plan-pack-head">Pack accompagnement inclus</div>
+            <div class="plan-pack-grid">
+              <div class="plan-pack-item">
+                <span class="plan-pack-icon">📞</span>
+                <span><strong>Analyse</strong> des besoins approfondie</span>
+              </div>
+              <div class="plan-pack-item">
+                <span class="plan-pack-icon">🏢</span>
+                <span><strong>Audit sur place</strong> dans votre centre</span>
+              </div>
+              <div class="plan-pack-item">
+                <span class="plan-pack-icon">📑</span>
+                <span><strong>Retour</strong> + plan d'attaque détaillé</span>
+              </div>
+              <div class="plan-pack-item">
+                <span class="plan-pack-icon">🔧</span>
+                <span><strong>Installation</strong> sur place par Kévin</span>
+              </div>
+              <div class="plan-pack-item" style="grid-column: 1 / -1;">
+                <span class="plan-pack-icon">📊</span>
+                <span><strong>Intégration</strong> de vos données existantes (plannings, équipe, historique)</span>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" data-open-lead data-intent="custom" data-plan="premium">Parler à Kévin →</button>
+          <div class="plan-foot">Devis personnalisé sous 48h</div>
+        </div>
+
+      </div>
+
+      <div class="pricing-note">
+        <strong>💬 Hésitation sur la formule ?</strong> Réservez 20 minutes avec Kévin, il vous oriente vers le bon plan — sans baratin.
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FOUNDER STORY
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="container">
+      <div class="founder">
+        <div class="founder-photo">KV</div>
+        <div class="founder-content">
+          <h3>Salut, c'est Kévin. 👋</h3>
+          <p>
+            J'ai grandi entre les pistes de bowling et les bornes d'arcade. J'ai vu mes parents passer leurs dimanches à griffonner des plannings, gérer les retards par SMS, courir après les feuilles de pointage. J'ai vu des managers brûlés, des équipes démotivées, des clients déçus.
+          </p>
+          <p>
+            En 2024 j'ai lancé Shiftly avec une obsession : faire un outil <em>réellement</em> conçu pour les parcs de loisirs. Pas un clone de Combo. Pas un Excel déguisé. Un vrai produit, déployé au quotidien dans nos centres pilotes Family Games Center et Bowling Central à Blois.
+          </p>
+          <p>
+            Aujourd'hui, 12 centres l'utilisent tous les soirs. Demain, j'aimerais que ce soit le vôtre. Réservez une démo, je la fais moi-même.
+          </p>
+          <div class="founder-sign">— Kévin Vanphavong, fondateur</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FAQ
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="section" style="background: var(--surface);" id="faq">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-label">💬 Questions fréquentes</div>
+        <h2 class="section-title">Tout ce que vous voulez savoir avant de signer.</h2>
+      </div>
+
+      <div class="faq-list">
+
+        <details class="faq-item">
+          <summary>Combien de temps pour démarrer ?</summary>
+          <div class="faq-answer">Moins d'une heure. Vous créez votre centre, vous importez votre équipe (CSV ou manuel), vous lancez votre premier service. Pas besoin d'intégrateur ni de chef de projet. La grande majorité de nos clients sont opérationnels le soir même.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Est-ce que c'est conforme à la convention IDCC 1790 ?</summary>
+          <div class="faq-answer">Oui, nativement. Le module pointage et la validation hebdomadaire sont conçus avec la convention collective des Espaces de loisirs en tête : majoration des heures supp, repos dominical, heures de nuit. Vos exports paie sont conformes en sortie.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Mes données sont-elles hébergées en France ?</summary>
+          <div class="faq-answer">Oui. Hébergement sur infrastructure européenne RGPD compliant (Railway Frankfurt). Aucune donnée n'est transmise hors UE. DPA à disposition sur demande.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Je gère plusieurs centres, comment ça marche ?</summary>
+          <div class="faq-answer">Le plan Enterprise permet de piloter plusieurs centres depuis un seul compte. Chaque centre garde ses données isolées (multi-tenant), mais vous avez une vue consolidée KPI et une bascule en 1 clic entre vos établissements.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Quelle différence avec Combo, Skello ou Planning Shaker ?</summary>
+          <div class="faq-answer">Ces outils sont conçus pour la restauration. Ils gèrent tables, couverts, services en deux temps. Nous, nous gérons zones de jeu, postes par zone, compétences par zone, pics de week-end et soirées événementielles. C'est un autre métier, et donc un autre produit.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Peut-on essayer sans carte bancaire ?</summary>
+          <div class="faq-answer">Oui. 14 jours gratuits, accès complet aux modules Service, Postes, Staff, Tutoriels. Aucune carte demandée. À la fin, vous choisissez un plan ou vous arrêtez tout — pas de prélèvement surprise.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Comment se passe la résiliation ?</summary>
+          <div class="faq-answer">Sans engagement. Vous arrêtez en 1 clic depuis vos réglages. Pas de frais de sortie. Vous récupérez vos données (export CSV) à tout moment.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Mes équipes vont-elles s'y mettre ?</summary>
+          <div class="faq-answer">Oui — c'est notre obsession. Shiftly est mobile-first, design clair, gestes intuitifs. Nos centres pilotes rapportent une adoption complète en 2 à 5 jours, sans formation. Et le module Tutoriels permet d'embarquer les nouvelles recrues en quelques minutes.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Le HACCP, c'est pour quand ?</summary>
+          <div class="faq-answer">Module en cours de production, livraison prévue septembre 2026. Il couvrira les relevés de températures, la traçabilité produit, le plan de nettoyage et la génération automatique du dossier sanitaire pour la DDPP. Inclus dans le plan Pro.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Je migre depuis Excel, c'est compliqué ?</summary>
+          <div class="faq-answer">Non. Vous nous envoyez vos plannings et listes d'équipes en CSV ou capture d'écran, on s'occupe du reste lors de l'onboarding. Inclus dans toutes les formules.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Le support, c'est qui ?</summary>
+          <div class="faq-answer">C'est moi, Kévin, le fondateur. Pour le moment, je réponds personnellement à chaque demande. Email sous 24h en Starter, sous 4h en Pro, SLA dédié en Enterprise.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Et si je ne suis pas satisfait ?</summary>
+          <div class="faq-answer">Garantie satisfait ou remboursé sur le premier mois. Si Shiftly ne tient pas ses promesses, vous récupérez votre paiement et on en discute pour comprendre ce qu'on aurait pu faire mieux.</div>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CTA FINAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="cta-final" id="demo">
+    <div class="container">
+      <h2>Récupérez 6 heures par semaine.<br />Dès ce soir.</h2>
+      <p>Réservez 20 minutes avec Kévin, montrez-nous votre centre, on vous montre comment Shiftly s'y intègre. Sans engagement, sans baratin.</p>
+      <div class="hero-ctas">
+        <button type="button" class="btn btn-primary btn-lg" data-open-lead data-intent="demo" data-plan="pro">📅 Réserver ma démo de 20 min</button>
+        <button type="button" class="btn btn-secondary btn-lg" data-open-lead data-intent="trial" data-plan="starter">Essayer 14 jours gratuit →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+
+        <div class="footer-brand">
+          <a href="#" class="logo">Shiftly<span class="dot">.</span></a>
+          <p>Le logiciel de management opérationnel pensé pour les parcs de loisirs. Fait à Blois, France.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Produit</h4>
+          <ul>
+            <li><a href="#modules">Modules</a></li>
+            <li><a href="#tarifs">Tarifs</a></li>
+            <li><a href="#demo">Démo</a></li>
+            <li><a href="#">Nouveautés</a></li>
+            <li><a href="#">Roadmap</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Ressources</h4>
+          <ul>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#">Guide IDCC 1790</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="https://app.shiftly.fr/login">Connexion app</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Légal</h4>
+          <ul>
+            <li><a href="#">Mentions légales</a></li>
+            <li><a href="#">CGU & CGV</a></li>
+            <li><a href="#">Politique de confidentialité</a></li>
+            <li><a href="#">Cookies</a></li>
+            <li><a href="mailto:hello@shiftly.fr">hello@shiftly.fr</a></li>
+          </ul>
+        </div>
+
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Shiftly · Tous droits réservés</span>
+        <span>Fait avec 🎳 à Blois, France</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MODALE FORMULAIRE LEAD — Essai / Démo / Sur-mesure
+       Les soumissions partent vers /api/superadmin/leads → back-office Kévin
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="lead-modal" id="leadModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="leadTitle">
+    <div class="lead-sheet">
+
+      <div class="lead-head">
+        <div>
+          <h3 id="leadTitle"><span id="leadEmoji">🎯</span><span id="leadHeadTitle">Réservez votre démo</span></h3>
+          <p id="leadHeadSubtitle">20 minutes avec Kévin pour découvrir Shiftly et voir si ça colle à votre centre.</p>
+        </div>
+        <button type="button" class="lead-close" data-close-lead aria-label="Fermer">×</button>
+      </div>
+
+      <!-- Vue formulaire -->
+      <form class="lead-body" id="leadForm" novalidate>
+
+        <!-- Type de demande -->
+        <div class="lead-section">
+          <label class="lead-label">Type de demande</label>
+          <div class="lead-chips" id="intentChips">
+            <button type="button" class="lead-chip" data-intent-chip="trial">
+              <span class="emoji">🎁</span> Essai gratuit
+            </button>
+            <button type="button" class="lead-chip" data-intent-chip="demo">
+              <span class="emoji">📅</span> Démo en visio
+            </button>
+            <button type="button" class="lead-chip" data-intent-chip="custom">
+              <span class="emoji">👑</span> Sur mesure
+            </button>
+          </div>
+          <input type="hidden" name="intent" id="leadIntent" value="demo" />
+        </div>
+
+        <!-- Plan choisi -->
+        <div class="lead-section">
+          <label class="lead-label">Formule d'intérêt</label>
+          <div class="lead-field">
+            <select name="plan" id="leadPlan">
+              <option value="starter">🌱 Starter — 79€/mois</option>
+              <option value="pro" selected>🚀 Pro — 129€/mois</option>
+              <option value="premium">👑 Premium — 199€/mois + pack</option>
+              <option value="undecided">🤔 Je ne sais pas encore</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Coordonnées -->
+        <div class="lead-section">
+          <label class="lead-label">Vos coordonnées</label>
+          <div class="lead-grid">
+            <div class="lead-field">
+              <label for="leadName">Nom complet <span class="req">*</span></label>
+              <input type="text" id="leadName" name="name" placeholder="Marie Dupont" required />
+            </div>
+            <div class="lead-field">
+              <label for="leadPhone">Téléphone <span class="req">*</span></label>
+              <input type="tel" id="leadPhone" name="phone" placeholder="06 12 34 56 78" required />
+            </div>
+            <div class="lead-field" style="grid-column: 1 / -1;">
+              <label for="leadEmail">Email pro <span class="req">*</span></label>
+              <input type="email" id="leadEmail" name="email" placeholder="marie@bowling-central.fr" required />
+            </div>
+          </div>
+        </div>
+
+        <!-- Centre -->
+        <div class="lead-section">
+          <label class="lead-label">Votre centre</label>
+          <div class="lead-grid">
+            <div class="lead-field" style="grid-column: 1 / -1;">
+              <label for="leadCentre">Nom du centre <span class="req">*</span></label>
+              <input type="text" id="leadCentre" name="centre" placeholder="Family Games Center Blois" required />
+            </div>
+            <div class="lead-field">
+              <label for="leadActivity">Type d'activité</label>
+              <select id="leadActivity" name="activity">
+                <option value="bowling">🎳 Bowling</option>
+                <option value="laser">🔫 Laser game</option>
+                <option value="arcade">🕹️ Arcade</option>
+                <option value="karaoke">🎤 Karaoké</option>
+                <option value="vr">🥽 VR</option>
+                <option value="mixte">🎪 Centre mixte</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+            <div class="lead-field">
+              <label for="leadStaff">Taille équipe</label>
+              <select id="leadStaff" name="staff_size">
+                <option value="1-10">1 à 10 collaborateurs</option>
+                <option value="11-30" selected>11 à 30 collaborateurs</option>
+                <option value="31-50">31 à 50 collaborateurs</option>
+                <option value="50+">Plus de 50</option>
+              </select>
+            </div>
+            <div class="lead-field">
+              <label for="leadCity">Ville</label>
+              <input type="text" id="leadCity" name="city" placeholder="Blois" />
+            </div>
+            <div class="lead-field">
+              <label for="leadZip">Code postal</label>
+              <input type="text" id="leadZip" name="zip" placeholder="41000" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Champ conditionnel : Démo (créneaux + canal) -->
+        <div class="lead-section lead-conditional" data-show-if="demo">
+          <label class="lead-label">📅 Disponibilités pour la démo</label>
+          <div class="lead-grid">
+            <div class="lead-field" style="grid-column: 1 / -1;">
+              <label for="leadSlot">Vos créneaux préférés</label>
+              <input type="text" id="leadSlot" name="preferred_slot" placeholder="Lundi matin, mardi 14h-17h…" />
+            </div>
+            <div class="lead-field" style="grid-column: 1 / -1;">
+              <label for="leadChannel">Canal préféré</label>
+              <select id="leadChannel" name="channel">
+                <option value="meet">📞 Google Meet</option>
+                <option value="zoom">📞 Zoom</option>
+                <option value="teams">📞 Microsoft Teams</option>
+                <option value="phone">☎️ Téléphone simple</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Champ conditionnel : Sur mesure (besoins + audit) -->
+        <div class="lead-section lead-conditional" data-show-if="custom">
+          <label class="lead-label">✨ Vos besoins spécifiques</label>
+          <div class="lead-field">
+            <label for="leadNeeds">Décrivez vos enjeux (multi-centre, intégration existante, contraintes métier…)</label>
+            <textarea id="leadNeeds" name="custom_needs" placeholder="Ex : 3 bowlings à piloter en parallèle, ERP Sage à intégrer, ouverture nouveau site en juillet…"></textarea>
+          </div>
+        </div>
+
+        <!-- Message libre -->
+        <div class="lead-section">
+          <label class="lead-label">💬 Un message ? <span style="text-transform: none; letter-spacing: 0; color: var(--muted); font-weight: 400; font-family: 'DM Sans', sans-serif;">(facultatif)</span></label>
+          <div class="lead-field">
+            <textarea name="message" placeholder="Une question, un contexte, un besoin particulier…"></textarea>
+          </div>
+        </div>
+
+        <div class="lead-foot">
+
+          <!-- Consentement RGPD obligatoire -->
+          <label class="lead-consent" id="leadConsentWrap">
+            <input type="checkbox" id="leadConsent" name="consent" required />
+            <span class="lead-consent-text">
+              <strong>J'accepte</strong> que Shiftly traite mes données pour me recontacter dans le cadre de cette demande. Données hébergées en France, conservées 24 mois, jamais revendues. Voir notre <a href="#" target="_blank">politique de confidentialité</a> et nos <a href="#" target="_blank">CGU</a>.
+            </span>
+          </label>
+
+          <div class="lead-error" id="leadError">Merci de cocher la case pour accepter le traitement de vos données.</div>
+
+          <button type="submit" class="btn btn-primary btn-lg" id="leadSubmit">
+            Envoyer ma demande →
+          </button>
+          <p class="lead-foot-note">
+            🔒 Données hébergées en France · Kévin vous répond sous 4h ouvrées
+          </p>
+        </div>
+
+      </form>
+
+      <!-- Vue succès -->
+      <div class="lead-success" id="leadSuccess">
+        <div class="lead-success-emoji">🎉</div>
+        <h3>Demande envoyée !</h3>
+        <p>
+          Merci, j'ai bien reçu votre demande. Je vous recontacte personnellement <strong>sous 4h ouvrées</strong> par téléphone ou email selon ce que vous avez indiqué.<br><br>
+          — Kévin, fondateur
+        </p>
+        <button type="button" class="btn btn-secondary" data-close-lead>Fermer</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SCRIPTS — Switcher tarifs + Modale formulaire lead
+       ═══════════════════════════════════════════════════════════════ -->
+  <script>
+    /* ─── Switcher tarifs Mensuel / Annuel ─── */
+    (function () {
+      const switchEl = document.getElementById('billingSwitch');
+      if (!switchEl) return;
+      const thumb = document.getElementById('billingThumb');
+      const buttons = switchEl.querySelectorAll('button');
+
+      function positionThumb(activeBtn) {
+        const rect = activeBtn.getBoundingClientRect();
+        const parentRect = switchEl.getBoundingClientRect();
+        thumb.style.left = (rect.left - parentRect.left) + 'px';
+        thumb.style.width = rect.width + 'px';
+      }
+
+      function applyPeriod(period) {
+        document.querySelectorAll('[data-monthly]').forEach(el => {
+          el.textContent = el.dataset[period];
+        });
+      }
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          applyPeriod(btn.dataset.period);
+          positionThumb(btn);
+        });
+      });
+
+      const active = switchEl.querySelector('button.active');
+      positionThumb(active);
+      window.addEventListener('resize', () => positionThumb(switchEl.querySelector('button.active')));
+    })();
+
+    /* ─── Modale formulaire lead (Essai / Démo / Sur-mesure) ─── */
+    (function () {
+      const modal = document.getElementById('leadModal');
+      const form = document.getElementById('leadForm');
+      const success = document.getElementById('leadSuccess');
+      const intentInput = document.getElementById('leadIntent');
+      const planSelect = document.getElementById('leadPlan');
+      const intentChips = document.querySelectorAll('[data-intent-chip]');
+      const headTitle = document.getElementById('leadHeadTitle');
+      const headSubtitle = document.getElementById('leadHeadSubtitle');
+      const headEmoji = document.getElementById('leadEmoji');
+
+      // Textes de titre selon intent
+      const INTENT_COPY = {
+        trial: {
+          emoji: '🎁',
+          title: 'Démarrez votre essai gratuit',
+          subtitle: '14 jours sans carte bancaire. Kévin active votre compte sous 4h ouvrées et vous accompagne au démarrage.'
+        },
+        demo: {
+          emoji: '📅',
+          title: 'Réservez votre démo de 20 min',
+          subtitle: '20 minutes avec Kévin pour découvrir Shiftly et voir si ça colle à votre centre.'
+        },
+        custom: {
+          emoji: '👑',
+          title: 'Parlons de votre projet sur mesure',
+          subtitle: 'Audit, intégration, fonctionnalités exclusives. Kévin vous envoie un devis personnalisé sous 48h.'
+        }
+      };
+
+      function setIntent(intent) {
+        if (!INTENT_COPY[intent]) intent = 'demo';
+        intentInput.value = intent;
+        headEmoji.textContent = INTENT_COPY[intent].emoji;
+        headTitle.textContent = INTENT_COPY[intent].title;
+        headSubtitle.textContent = INTENT_COPY[intent].subtitle;
+
+        // Active chip
+        intentChips.forEach(c => c.classList.toggle('active', c.dataset.intentChip === intent));
+
+        // Sections conditionnelles
+        document.querySelectorAll('.lead-conditional').forEach(s => {
+          s.classList.toggle('show', s.dataset.showIf === intent);
+        });
+      }
+
+      function openModal(intent, plan) {
+        setIntent(intent || 'demo');
+        if (plan && planSelect.querySelector('option[value="' + plan + '"]')) {
+          planSelect.value = plan;
+        }
+        form.style.display = '';
+        success.classList.remove('show');
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+
+      // Triggers d'ouverture
+      document.querySelectorAll('[data-open-lead]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          openModal(btn.dataset.intent, btn.dataset.plan);
+        });
+      });
+
+      // Triggers de fermeture
+      document.querySelectorAll('[data-close-lead]').forEach(btn => {
+        btn.addEventListener('click', closeModal);
+      });
+      modal.addEventListener('click', e => {
+        if (e.target === modal) closeModal();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+      });
+
+      // Switch intent via chips
+      intentChips.forEach(chip => {
+        chip.addEventListener('click', () => setIntent(chip.dataset.intentChip));
+      });
+
+      // Consentement RGPD : toggle visuel + clear erreur
+      const consent = document.getElementById('leadConsent');
+      const consentWrap = document.getElementById('leadConsentWrap');
+      const consentError = document.getElementById('leadError');
+      consent.addEventListener('change', () => {
+        consentWrap.classList.toggle('checked', consent.checked);
+        if (consent.checked) consentError.classList.remove('show');
+      });
+
+      // Soumission du formulaire → POST /api/leads → back-office Kévin
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+
+        // Validation RGPD obligatoire
+        if (!consent.checked) {
+          consentError.classList.add('show');
+          consentWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        const submit = document.getElementById('leadSubmit');
+        submit.disabled = true;
+        submit.textContent = 'Envoi en cours…';
+
+        const data = Object.fromEntries(new FormData(form).entries());
+        data.consent = true;
+        data.source = 'shiftly.fr (landing /)';
+        data.created_at = new Date().toISOString();
+
+        // TODO Phase d'implémentation Next.js :
+        //   fetch('/api/leads', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(data)
+        //   })
+        // Côté Symfony : LeadController POST /api/leads (public)
+        //                → persiste l'entité Lead
+        //                → envoie un email à hello@shiftly.fr (Gmail SMTP / Resend)
+        //                → notification dans /superadmin/leads
+        console.log('[Shiftly Lead]', data);
+
+        await new Promise(r => setTimeout(r, 700));
+
+        form.style.display = 'none';
+        success.classList.add('show');
+        submit.disabled = false;
+        submit.textContent = 'Envoyer ma demande →';
+      });
+    })();
+  </script>
+
+</body>
+</html>
