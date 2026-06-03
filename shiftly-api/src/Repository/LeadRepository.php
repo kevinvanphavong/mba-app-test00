@@ -38,16 +38,18 @@ class LeadRepository extends ServiceEntityRepository
                ->setParameter('q', "%{$filters['q']}%");
         }
 
+        // Count AVANT d'ajouter le ORDER BY CASE — sinon le paramètre :st_nouveau
+        // reste bound sur le clone alors qu'aucune clause ne le consomme,
+        // ce qui fait planter Doctrine ("Too many parameters: ... bound 1").
+        $total = (int) (clone $qb)
+            ->select('COUNT(l.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
         // priorise "nouveau" en haut puis tri date desc
         $qb->orderBy('CASE WHEN l.status = :st_nouveau THEN 0 ELSE 1 END', 'ASC')
            ->addOrderBy('l.createdAt', 'DESC')
            ->setParameter('st_nouveau', Lead::STATUS_NOUVEAU);
-
-        $total = (int) (clone $qb)
-            ->select('COUNT(l.id)')
-            ->resetDQLPart('orderBy')
-            ->getQuery()
-            ->getSingleScalarResult();
 
         $items = $qb
             ->setFirstResult(max(0, ($page - 1) * $perPage))
