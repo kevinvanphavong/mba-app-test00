@@ -48,5 +48,7 @@ security:
         - { path: ^/api/superadmin/auth/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/superadmin, roles: ROLE_SUPERADMIN }
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
+        # Endpoint public de capture des leads (landing shiftly.fr)
+        - { path: ^/api/leads$, roles: PUBLIC_ACCESS, methods: [POST] }
         - { path: ^/api/docs, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
