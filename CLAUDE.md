@@ -89,6 +89,8 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 
 | Module | Route | Accès |
 |---|---|---|
+| Landing publique | `/` | Public (redirect `/service` si JWT en localStorage) — thème sand, CTAs → modale lead |
+| CGU / Confidentialité / Mentions légales | `/cgu` · `/confidentialite` · `/mentions-legales` | Public (placeholder) |
 | Login | `/login` | Public |
 | Dashboard | `/dashboard` | Manager uniquement |
 | Service du Jour | `/service` | Manager + Employé |
@@ -100,16 +102,21 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 | Tutoriels | `/tutoriels` | Manager + Employé |
 | Réglages | `/reglages` | Manager (tout) / Employé (profil + notifs) |
 | Tutoriels (gestion) | `/reglages/editeur` | Manager uniquement — zones/missions/compétences ont migré sur /postes |
+| Leads (back-office) | `/superadmin/leads` | SuperAdmin uniquement — capture landing publique |
+| Leads (public)      | `POST /api/leads` | Public (anonyme) — capture depuis shiftly.fr |
 
-Redirection par défaut : `/` → `/service`
+Redirection par défaut : `/` sert la **landing publique** ; si l'utilisateur a un JWT en localStorage, le composant client redirige vers `/service` (anti-flash via splash inline). Le middleware autorise `/` même quand un JWT cookie est présent, pour permettre à un compte connecté de revisiter la marketing sans race condition SSR.
 
 ---
 
-## Entités (16)
+## Entités (17)
 
 Centre, User, Zone, Mission, **MissionCategorie**, Competence, StaffCompetence,
 Service, Poste, Completion, Incident, Tutoriel, TutoRead,
-**HaccpEquipement**, **MissionHaccpSpec**, **CompletionHaccpProof**
+**HaccpEquipement**, **MissionHaccpSpec**, **CompletionHaccpProof**, **Lead**
+
+> `Lead` est hors multi-tenant (pas de `centre_id`) : c'est un prospect public
+> capturé depuis la landing shiftly.fr. Visible uniquement par les SuperAdmin.
 
 > `MissionCategorie` (par centre, multi-tenant) est le catalogue administrable
 > des catégories de mission. Le champ `Mission.categorie` est un slug texte

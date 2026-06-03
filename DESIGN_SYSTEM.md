@@ -723,3 +723,54 @@ Padding `2px 8px`, radius `6px`, font-size 10px, uppercase bold.
 - Titre Syne 13px rouge uppercase tracking 1px
 - Boutons : fond transparent + bordure `red/30` + texte rouge 12px bold
 - Hover : fond `red/10`
+
+## 12. Landing publique (route group `(marketing)`)
+
+La page racine `/` est une landing marketing servie en thème **sand** (Bone & Ember), indépendante du thème utilisateur de l'app. Tous les styles sont préfixés `.mkt-` et isolés dans `shiftly-app/src/app/(marketing)/marketing.css` (importé uniquement par le layout marketing).
+
+### 12.1 Tokens spécifiques marketing
+
+Définis dans `.mkt-root` (en plus de ceux hérités de `[data-theme="sand"]`) :
+
+```
+--mkt-dark-bg:       #1a1410   /* fond sombre des sections rythme (Modules / Comparatif / CtaFinal) */
+--mkt-dark-surface:  #221a14   /* cartes modules / lignes table comparative */
+--mkt-dark-text:     #f5efe6
+--mkt-dark-muted:    #a89888
+--mkt-dark-border:   #3a2c20
+--mkt-shadow-hero:   ombre tiède ember pour le hero visual et les cartes avec
+```
+
+### 12.2 Composants
+
+| Composant | Rôle |
+|---|---|
+| `MarketingHeader` | Sticky glass blur, logo Syne 800, nav ancres (Modules / Tarifs / Démo / FAQ), Connexion + CTA démo |
+| `MarketingFooter` | 4 colonnes (brand + Produit + Ressources + Légal), fond dark |
+| `HeroSection` + `HeroVisualMock` | H1 promesse "8h perdues" + 2 CTAs ; visuel mock du Service du Jour reproduit en CSS pur (pas d'image) |
+| `SansAvecSection` | 2 cartes contrastées + KPI `-15K€` / `+6h`, motif rayé rouge sur "Sans", gradient ember sur "Avec" |
+| `ProcessSteps` | 3 étapes onboarding (création centre / import équipe / 1er service), fond surface |
+| `ModulesGrid` | 9 modules SVG sur fond `--mkt-dark-bg`, hover translateY + border accent, tag Production/Bientôt |
+| `ComparisonTable` | Table 12 lignes Shiftly vs Combo/Skello vs Excel, overflow-x sur mobile |
+| `PricingSection` + `BillingSwitch` + `PlanCard` | Switcher Mensuel/Annuel (thumb auto-positionné via `useLayoutEffect`), 3 plans (Starter / Pro featured / Premium dark) |
+| `FounderStory` | Bloc fondateur avec avatar gradient, ton humain |
+| `FaqAccordion` | 12 `<details>` natifs (a11y + JS-less fallback), icône `+` rotative |
+| `CtaFinal` | Bloc terminal sombre avec gradient ember radial |
+| `LeadModal` + `LeadModalForm` + `LeadModalParts` | Modale formulaire orchestrée par `useLeadModal` (Zustand), 3 intents (trial/demo/custom) avec chips + sections conditionnelles, consent RGPD bloquant, POST `/api/leads` |
+| `RevealSection` | Wrapper Framer Motion `fadeUp` viewport-once pour révéler chaque section au scroll (respecte `prefers-reduced-motion`) |
+| `LegalPlaceholder` | Layout commun aux 3 pages légales placeholder |
+
+### 12.3 Animations
+
+- **Reveal scroll** : `RevealSection` applique `initial=hidden / whileInView=visible` avec `viewport.once=true` et amount `0.15`. Variant désactivé via `useReducedMotion`.
+- **Hero pulse** : le dot orange du eyebrow utilise un `motion.span` qui oscille opacité 1 → 0.35 → 1 (1.6s loop). Remplace le `@keyframes pulse` interdit par la règle absolue #12.
+- **Modale lead** : `AnimatePresence` + backdrop opacity 200ms + sheet `y: 20 → 0` + `scale 0.98 → 1` sur 280ms (cubic-bezier 0.5,0.05,0.1,1).
+- **BillingSwitch thumb** : transition CSS `left/width` 280ms cubic-bezier — recalculé via `useLayoutEffect` au mount et resize.
+
+### 12.4 Modale lead — comportements clés
+
+- `data-plan` du CTA cliqué (Starter / Pro / Premium) préselectionne la formule dans le `<select>`, modifiable par l'utilisateur.
+- Le chip d'intent change le titre, le sous-titre et active la section conditionnelle (créneaux + canal pour `demo`, besoins libres pour `custom`).
+- Consent RGPD obligatoire — sinon `mkt-lead-error` rouge + scroll vers le bloc, pas de POST.
+- POST échoué (404 ou autre) → message d'erreur réseau propre, pas de crash. Quand `PROMPT_CLAUDE_CODE_LEADS.md` n'a pas encore été exécuté côté back, la modale renvoie un message guidant vers `hello@shiftly.fr`.
+- Body `overflow: hidden` à l'ouverture, restauré à la fermeture. Fermeture par backdrop, Escape ou bouton ×.

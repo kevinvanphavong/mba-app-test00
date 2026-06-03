@@ -39,6 +39,14 @@ mba-app-test00/
 ├── shiftly-app/                       # Next.js 14 — Frontend
 │   ├── src/
 │   │   ├── app/
+│   │   │   ├── (marketing)/             # Landing publique (thème sand local, sans Sidebar)
+│   │   │   │   ├── layout.tsx           # Wrapper data-theme="sand" + Header/Footer marketing + LeadModal
+│   │   │   │   ├── marketing.css        # Styles dédiés à la landing (préfixe `.mkt-`)
+│   │   │   │   ├── page.tsx             # Racine `/` — auth-aware (redirect /service si JWT)
+│   │   │   │   ├── cgu/page.tsx         # Placeholder légal
+│   │   │   │   ├── confidentialite/page.tsx
+│   │   │   │   └── mentions-legales/page.tsx
+│   │   │   │
 │   │   │   ├── (auth)/
 │   │   │   │   └── login/
 │   │   │   │       └── page.tsx
@@ -71,7 +79,9 @@ mba-app-test00/
 │   │   │   │       └── [id]/page.tsx  # Détail + impersonation + actions
 │   │   │   │
 │   │   │   ├── globals.css            # Variables CSS + reset Tailwind
-│   │   │   └── layout.tsx             # Root layout (fonts, metadata, providers)
+│   │   │   ├── layout.tsx             # Root layout (fonts, metadata, providers)
+│   │   │   ├── sitemap.ts             # Sitemap public (landing + pages légales)
+│   │   │   └── robots.ts              # Allow landing/légal, disallow espace authentifié
 │   │   │
 │   │   ├── components/
 │   │   │   ├── ui/                    # Composants atomiques réutilisables
@@ -89,6 +99,27 @@ mba-app-test00/
 │   │   │   │   ├── PriorityTag.tsx    # Badge priorité/difficulté
 │   │   │   │   ├── EmptyState.tsx     # État vide générique
 │   │   │   │   └── StatCard.tsx       # Carte KPI dashboard
+│   │   │   │
+│   │   │   ├── marketing/              # Composants landing publique `/` (thème sand)
+│   │   │   │   ├── MarketingHeader.tsx        # Sticky glass blur, logo Syne 800, nav ancres, CTA démo
+│   │   │   │   ├── MarketingFooter.tsx        # 4 colonnes (brand + Produit + Ressources + Légal)
+│   │   │   │   ├── HeroSection.tsx            # H1 promesse "8h perdues" + 2 CTAs + meta trust
+│   │   │   │   ├── HeroVisualMock.tsx         # Mock CSS du Service du Jour (pas d'image)
+│   │   │   │   ├── SansAvecSection.tsx        # 2 cartes contrastées Sans/Avec + KPI -15K€/+6h
+│   │   │   │   ├── ProcessSteps.tsx           # 3 étapes onboarding (centre / équipe / 1er service)
+│   │   │   │   ├── ModulesGrid.tsx            # 9 cartes modules sur fond sombre
+│   │   │   │   ├── ComparisonTable.tsx        # 12 lignes Shiftly vs Combo/Skello vs Excel
+│   │   │   │   ├── PricingSection.tsx         # 3 plans + switcher mensuel/annuel
+│   │   │   │   ├── BillingSwitch.tsx          # Switcher animé (thumb auto-positionné)
+│   │   │   │   ├── PlanCard.tsx               # Carte tarif (CTA → modale lead avec intent/plan)
+│   │   │   │   ├── FounderStory.tsx           # Bloc "Salut, c'est Kévin"
+│   │   │   │   ├── FaqAccordion.tsx           # 12 questions <details> natifs
+│   │   │   │   ├── CtaFinal.tsx               # CTA terminal fond sombre + gradient ember
+│   │   │   │   ├── LeadModal.tsx              # Modale form lead (orchestration + POST /api/leads)
+│   │   │   │   ├── LeadModalForm.tsx          # Champs coordonnées/centre + sections conditionnelles
+│   │   │   │   ├── LeadModalParts.tsx         # IntentChips + PlanSelect + ConsentFoot + SuccessView
+│   │   │   │   ├── LegalPlaceholder.tsx       # Mise en page des pages légales placeholder
+│   │   │   │   └── RevealSection.tsx          # Wrapper Framer Motion fadeUp viewport-once
 │   │   │   │
 │   │   │   ├── layout/
 │   │   │   │   ├── Sidebar.tsx               # Sidebar desktop ≥ 900px (240px expanded / 64px collapsed)
@@ -676,3 +707,89 @@ GET    /api/tutoriels/{id}/medias         liste les médias d'un tutoriel       
 
 - **Photos Completion** : 90 jours via `app:purge-old-completion-photos` (à planifier en cron Railway, quotidien 03:00 UTC). Idempotente, batch 50.
 - **Module Media** + **SupportAttachment** : pas de purge automatique aujourd'hui — à ajouter si le volume devient significatif.
+
+---
+
+## 13. Module Leads — capture publique
+
+Capture des prospects depuis la landing publique `shiftly.fr` (`/`) jusqu'au
+back-office `/superadmin/leads` pour qualification commerciale.
+
+### Architecture
+
+```
+Landing /  →  fetch POST /api/leads (anonyme)
+                      ↓
+              LeadController::create
+                · validation (Assert\Collection)
+                · throttling 3/email/24h
+                · persist
+                · dispatch LeadCreatedEvent
+                      ↓
+              LeadNotifier (listener)
+                · render email HTML
+                · Symfony Mailer → Gmail SMTP
+                · destinataire LEAD_NOTIFICATION_EMAIL
+                · try/catch silencieux (log only)
+                      ↓
+              kevin@shiftly.fr (Gmail)
+```
+
+### Backend (`shiftly-api/`)
+
+- `src/Entity/Lead.php` — entité hors multi-tenant, status workflow, FK nullable `handledBy → User`
+- `src/Repository/LeadRepository.php` — `findFilteredForSuperAdmin`, `countRecentByEmail`, stats
+- `src/Event/LeadCreatedEvent.php`
+- `src/Service/Mail/LeadNotifier.php` — `#[AsEventListener]` sur `LeadCreatedEvent`
+- `src/Controller/LeadController.php` — `POST /api/leads` (public)
+- `src/Controller/SuperAdminLeadController.php` — endpoints back-office (`ROLE_SUPERADMIN`)
+- `src/Security/Voter/LeadVoter.php` — `LEAD_VIEW` / `LEAD_EDIT` réservés à `ROLE_SUPERADMIN`
+- `config/packages/security.yaml` — whitelist `^/api/leads$` (POST) en `PUBLIC_ACCESS`
+- `config/services.yaml` — wiring `$notificationEmail` + `$appBaseUrl`
+- `migrations/Version20260603005601.php` — table `lead` (MySQL · PostgreSQL · SQLite)
+
+### Endpoints API
+
+| Méthode | Route | Accès |
+|---|---|---|
+| POST  | `/api/leads`                       | **PUBLIC** (landing) |
+| GET   | `/api/superadmin/leads/stats`      | SuperAdmin |
+| GET   | `/api/superadmin/leads`            | SuperAdmin |
+| GET   | `/api/superadmin/leads/{id}`       | SuperAdmin |
+| PATCH | `/api/superadmin/leads/{id}`       | SuperAdmin |
+
+### Frontend (`shiftly-app/`)
+
+- `src/types/lead.ts` — types stricts alignés sur l'entité Symfony
+- `src/hooks/useLeads.ts` — `useLeads`, `useLead`, `useLeadsStats`, `useUpdateLeadStatus`, `useUpdateLeadNotes`
+- `src/components/superadmin/leads/` :
+  - `leadMeta.ts` — libellés/couleurs/emojis (source de vérité UI)
+  - `LeadsKpiBar.tsx` · `LeadsFilters.tsx` · `LeadsTable.tsx`
+  - `LeadStatusBadge.tsx` · `LeadActionsRow.tsx` · `LeadDetailPanel.tsx`
+- `src/app/superadmin/leads/page.tsx` — liste paginée
+- `src/app/superadmin/leads/[id]/page.tsx` — détail (workflow + notes)
+- `src/components/superadmin/SuperAdminSidebar.tsx` — item "Leads" dans Phase 3 avec badge `nouveauxNonTraités`
+
+### Variables d'environnement (Backend)
+
+```
+GMAIL_USER=vanphavongk45@gmail.com
+GMAIL_APP_PASSWORD=xxxxxxxxxxxxxxxx    # App Password Google (16 caractères)
+LEAD_NOTIFICATION_EMAIL=vanphavongk45@gmail.com
+APP_BASE_URL=https://app.shiftly.fr    # utilisé pour le lien profond dans l'email
+MAILER_DSN=gmail+smtp://${GMAIL_USER}:${GMAIL_APP_PASSWORD}@default
+```
+
+Procédure complète App Password : `docs/SETUP_EMAIL.md`.
+
+### Anti-flood
+
+`LeadRepository::countRecentByEmail()` — si ≥ 3 leads avec le même email dans
+les dernières 24h, le POST renvoie **429**. Garde-fou simple sans dépendance au
+`RateLimiter` Symfony (qui ciblerait l'IP plutôt que l'email).
+
+### Multi-tenancy
+
+`Lead` est volontairement HORS multi-tenant : pas de `centre_id`. Le `LeadVoter`
+teste uniquement `ROLE_SUPERADMIN`, donc seul Kévin voit les leads. Aucun
+manager / employé ne peut accéder aux endpoints back-office.
