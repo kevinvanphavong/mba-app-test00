@@ -41,7 +41,12 @@ export default function PlanCard({ plan, period }: { plan: Plan; period: Billing
 
       <ul className="mkt-plan-list">
         {plan.features.map((f) => (
-          <li key={f} dangerouslySetInnerHTML={{ __html: f }} />
+          <li key={f}>
+            {/* span obligatoire : sans wrapper, le HTML inséré (texte + <strong>)
+                devient plusieurs flex items dans le li (display:flex, gap:10px) et
+                "Personnalisation" se détache du reste de la phrase. */}
+            <span dangerouslySetInnerHTML={{ __html: f }} />
+          </li>
         ))}
       </ul>
 
