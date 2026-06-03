@@ -46,7 +46,7 @@ export default function LeadModalForm({ intent }: { intent: LeadIntent }) {
           </div>
           <div className="mkt-lead-field">
             <label htmlFor="leadStaff">Taille équipe</label>
-            <select id="leadStaff" name="staff_size" defaultValue="11-30">
+            <select id="leadStaff" name="staffSize" defaultValue="11-30">
               <option value="1-10">1 à 10 collaborateurs</option>
               <option value="11-30">11 à 30 collaborateurs</option>
               <option value="31-50">31 à 50 collaborateurs</option>
@@ -73,7 +73,7 @@ export default function LeadModalForm({ intent }: { intent: LeadIntent }) {
               <input
                 type="text"
                 id="leadSlot"
-                name="preferred_slot"
+                name="preferredSlot"
                 placeholder="Lundi matin, mardi 14h-17h…"
               />
             </div>
@@ -99,7 +99,7 @@ export default function LeadModalForm({ intent }: { intent: LeadIntent }) {
             </label>
             <textarea
               id="leadNeeds"
-              name="custom_needs"
+              name="customNeeds"
               placeholder="Ex : 3 bowlings à piloter en parallèle, ERP Sage à intégrer, ouverture nouveau site en juillet…"
             />
           </div>
