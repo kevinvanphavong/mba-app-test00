@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSuperAdminStore } from '@/store/superAdminStore'
 import { useSupportStats } from '@/hooks/useSuperAdminSupport'
+import { useLeadsStats } from '@/hooks/useLeads'
 
 interface NavItem {
   label:    string
@@ -40,6 +41,7 @@ const sections: NavSection[] = [
     items: [
       { label: 'Utilisateurs', href: '/superadmin/users',   icon: '👤' },
       { label: 'Support',      href: '/superadmin/support', icon: '🎧' },
+      { label: 'Leads',        href: '/superadmin/leads',   icon: '🎯' },
     ],
   },
   {
@@ -55,12 +57,14 @@ export default function SuperAdminSidebar() {
   const pathname  = usePathname()
   const user      = useSuperAdminStore(s => s.user)
   const stats     = useSupportStats()
+  const leadStats = useLeadsStats()
 
   const initials = user
     ? `${(user.prenom ?? '').charAt(0)}${user.nom.charAt(0)}`.toUpperCase()
     : 'SA'
 
   const supportBadge = stats.data?.ouverts ?? 0
+  const leadsBadge   = leadStats.data?.nouveaux ?? 0
 
   return (
     <nav className="w-60 h-screen fixed top-0 left-0 bg-surface3 border-r border-border flex flex-col z-50 overflow-y-auto">
@@ -94,12 +98,15 @@ export default function SuperAdminSidebar() {
                 item.disabled ? 'opacity-50 pointer-events-none' : '',
               ].join(' ')
 
-              // Badge dynamique pour Support
-              const liveBadge = item.href === '/superadmin/support' && supportBadge > 0
-                ? { value: supportBadge, muted: false }
-                : item.badge !== undefined
-                  ? { value: item.badge, muted: item.badgeMuted ?? false }
-                  : null
+              // Badges dynamiques (Support · Leads)
+              let liveBadge: { value: string | number; muted: boolean } | null = null
+              if (item.href === '/superadmin/support' && supportBadge > 0) {
+                liveBadge = { value: supportBadge, muted: false }
+              } else if (item.href === '/superadmin/leads' && leadsBadge > 0) {
+                liveBadge = { value: leadsBadge, muted: false }
+              } else if (item.badge !== undefined) {
+                liveBadge = { value: item.badge, muted: item.badgeMuted ?? false }
+              }
 
               return (
                 <Link
