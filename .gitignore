@@ -37,3 +37,11 @@ haccp-formations.html
 haccp-nettoyage.html
 .gitignore
 haccp-tracabilite.html
+
+# Secrets — backup files de .env qui ont fuité une fois (incident 2026-06-03)
+.env.local
+.env.local.bak*
+.env.*.local
+.env.production.local
+*.bak
+*.bak.*
