@@ -724,6 +724,53 @@ Padding `2px 8px`, radius `6px`, font-size 10px, uppercase bold.
 - Boutons : fond transparent + bordure `red/30` + texte rouge 12px bold
 - Hover : fond `red/10`
 
+### 11.11 Module Leads (`/superadmin/leads`)
+
+Module de gestion des prospects capturés via la landing publique. Réutilise
+les patterns existants (KPI Card §11.2, Filters §11.3, Status Badges §11.6,
+Plan Badges §11.7) avec quelques spécificités.
+
+**Lead KPI Bar** (4 cartes, grille 4 colonnes)
+
+- Nouveaux ce mois — Syne extrabold 20px, `text-text`, caption "X non traités"
+- Taux de conversion — Syne extrabold 20px, `text-green`
+- Leads > 48h non traités — bascule sur `text-yellow` si > 0 (signal d'attention)
+- MRR potentiel — somme des plans choisis × prix mensuel, `text-accent`
+
+**Status Badges Lead** (badge + dot animé)
+
+```
+Nouveau   → bg-accent/15 text-accent  · dot accent (à traiter en priorité)
+Contacté  → bg-blue/15   text-blue    · dot blue
+Qualifié  → bg-yellow/15 text-yellow  · dot yellow
+Converti  → bg-green/15  text-green   · dot green (deal signé)
+Perdu     → bg-red/15    text-red     · dot red
+```
+
+**LeadDetailPanel** — page `/superadmin/leads/[id]`
+
+- Hero : titre Syne extrabold 26px (nom du prospect) + status badge + plan badge
+- Workflow strip : 5 boutons (un par status) — l'actif prend la couleur du status, les autres sont neutres
+- Grid 2 colonnes des champs (sm 1 col, lg 2 col) — labels uppercase 10px muted
+- Notes internes : textarea `surface2` 6 rows + flash "Enregistré ✓" 1.8s en `text-green`
+- Actions inline : `mailto:` (accent) + `tel:` (green) en boutons pill
+
+**LeadsTable** — listing principal
+
+- Colonnes : Reçu (formatDistance fr) · Intent (emoji + label) · Plan (badge) · Contact (nom + email) · Centre · Ville · Statut · Actions
+- Pas de zebra strip — bordure 1px `border/50` entre les rows
+- Hover row : `bg-accent/5`
+
+**LeadsFilters** — chips multi-sélection (status / intent / plan) + search input
+
+- Pattern identique aux filters Centres (`/superadmin/centres`) : chip neutre →
+  on click bascule sur `bg-accent/10 text-accent border-accent/30`
+- Bouton "Réinitialiser" en `text-muted hover:text-accent` quand au moins
+  un filtre est actif
+
+**Badge sidebar** — l'item "Leads" affiche un badge rouge avec le nombre de
+leads `status=nouveau` (récupéré via `useLeadsStats`, refetch 60s).
+
 ## 12. Landing publique (route group `(marketing)`)
 
 La page racine `/` est une landing marketing servie en thème **sand** (Bone & Ember), indépendante du thème utilisateur de l'app. Tous les styles sont préfixés `.mkt-` et isolés dans `shiftly-app/src/app/(marketing)/marketing.css` (importé uniquement par le layout marketing).

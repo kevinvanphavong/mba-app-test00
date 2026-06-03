@@ -682,3 +682,48 @@ CREATE TABLE completion_haccp_proof (
 -- Pas de fixture sur les 3 tables HACCP : alimentées au runtime par les
 -- listeners (CentreHaccpSeedListener à la création d'un centre, puis le
 -- staff via /service ou le manager via /haccp/equipements).
+
+-- ============================================================
+-- TABLE : `lead`  (mot réservé MySQL/PostgreSQL — toujours quoté)
+-- Prospects capturés via la landing publique shiftly.fr → POST /api/leads.
+-- HORS multi-tenant : pas de centre_id, c'est un prospect, pas un user.
+-- Workflow : nouveau → contacte → qualifie → converti | perdu
+-- Notifie Kévin par email Gmail SMTP à chaque création (LeadNotifier).
+-- ============================================================
+
+CREATE TABLE `lead` (
+    id              INT AUTO_INCREMENT NOT NULL,
+    intent          VARCHAR(20)  NOT NULL,            -- trial | demo | custom
+    plan            VARCHAR(20)  NOT NULL,            -- starter | pro | premium | undecided
+    name            VARCHAR(120) NOT NULL,
+    email           VARCHAR(180) NOT NULL,
+    phone           VARCHAR(30)  NOT NULL,
+    centre          VARCHAR(180) NOT NULL,            -- nom du centre prospect (saisie libre)
+    activity        VARCHAR(30)  NOT NULL,            -- bowling | laser | arcade | karaoke | vr | mixte | autre
+    staff_size      VARCHAR(20)  NOT NULL,
+    city            VARCHAR(120) DEFAULT NULL,
+    zip             VARCHAR(10)  DEFAULT NULL,
+    preferred_slot  LONGTEXT     DEFAULT NULL,        -- intent=demo : créneau souhaité
+    channel         VARCHAR(20)  DEFAULT NULL,        -- intent=demo : meet | zoom | teams | phone
+    custom_needs    LONGTEXT     DEFAULT NULL,        -- intent=custom : besoins spécifiques
+    message         LONGTEXT     DEFAULT NULL,
+    consent         TINYINT      NOT NULL,            -- RGPD : preuve obligatoire
+    consent_at      DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    source          VARCHAR(80)  NOT NULL,            -- ex 'shiftly.fr (landing /)'
+    status          VARCHAR(20)  NOT NULL,            -- nouveau | contacte | qualifie | converti | perdu
+    notes           LONGTEXT     DEFAULT NULL,        -- journal interne Kévin
+    handled_by_id   INT          DEFAULT NULL,        -- SuperAdmin qui prend en charge
+    handled_at      DATETIME     DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
+    created_at      DATETIME     NOT NULL COMMENT '(DC2Type:datetime_immutable)',
+    updated_at      DATETIME     DEFAULT NULL COMMENT '(DC2Type:datetime_immutable)',
+    PRIMARY KEY (id),
+    INDEX idx_lead_status     (status),
+    INDEX idx_lead_created_at (created_at),
+    INDEX idx_lead_intent     (intent),
+    INDEX IDX_289161CBFE65AF40 (handled_by_id),
+    CONSTRAINT FK_289161CBFE65AF40 FOREIGN KEY (handled_by_id) REFERENCES `user` (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Pas de fixture sur la table lead : alimentée exclusivement par le POST public
+-- depuis la landing shiftly.fr. Le back-office /superadmin/leads sert à
+-- qualifier / contacter / convertir les prospects manuellement.

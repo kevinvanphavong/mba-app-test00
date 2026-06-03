@@ -864,3 +864,68 @@ Preuve attachée à une Completion (1-1, CASCADE). Créée en cascade par
 Matrice allergènes, plan de nettoyage par zone, bibliothèque PMS, formations
 staff, configuration sondes IoT, dashboard HACCP autonome, création d'Incident
 auto sur non-conformité, logique horaire DEBUT/FIN, notifications push.
+
+---
+
+## Module Leads — capture publique depuis la landing
+
+### Entité `Lead` (HORS multi-tenant)
+
+Prospect public capturé depuis la landing `shiftly.fr`. Pas de FK vers `Centre`
+ni `User` — c'est un prospect, pas un utilisateur. Visible uniquement par les
+SuperAdmin (filtre via `LeadVoter`, jamais de fuite cross-tenant car pas de
+tenant).
+
+**Champs principaux :**
+
+| Champ | Type | Notes |
+|---|---|---|
+| `intent` | string(20) | `trial` · `demo` · `custom` |
+| `plan` | string(20) | `starter` · `pro` · `premium` · `undecided` |
+| `name`, `email`, `phone`, `centre` | strings | obligatoires (validés POST) |
+| `activity` | string(30) | `bowling` · `laser` · `arcade` · `karaoke` · `vr` · `mixte` · `autre` |
+| `staffSize`, `city`, `zip` | strings | optionnels |
+| `preferredSlot`, `channel` | text/string | présents si `intent=demo` |
+| `customNeeds` | text | présent si `intent=custom` |
+| `consent`, `consentAt` | bool + datetime_immutable | preuve RGPD obligatoire |
+| `source` | string(80) | ex `shiftly.fr (landing /)` |
+| `status` | string(20) | `nouveau` → `contacte` → `qualifie` → `converti` \| `perdu` |
+| `notes` | text | journal interne (commercial) |
+| `handledBy` | ManyToOne User (nullable, ON DELETE SET NULL) | SuperAdmin qui prend en charge |
+| `handledAt` | datetime_immutable | horodaté au premier changement de statut |
+| `createdAt`, `updatedAt` | datetime_immutable | lifecycle callbacks |
+
+Index : `idx_lead_status`, `idx_lead_created_at`, `idx_lead_intent`,
+`IDX_289161CBFE65AF40` (handled_by_id).
+
+### Endpoints
+
+| Méthode | Route | Accès | Description |
+|---|---|---|---|
+| POST | `/api/leads` | PUBLIC | Capture depuis landing — validation + throttle 3/email/24h |
+| GET  | `/api/superadmin/leads/stats` | SuperAdmin | KPI : nouveaux, conversion, > 48h, MRR potentiel |
+| GET  | `/api/superadmin/leads` | SuperAdmin | Liste paginée (30/page), filtres `status` / `intent` / `plan` / `q` |
+| GET  | `/api/superadmin/leads/{id}` | SuperAdmin | Détail |
+| PATCH| `/api/superadmin/leads/{id}` | SuperAdmin | Update `status` (+ horodate `handledBy`/`handledAt`) ou `notes` |
+
+### Voter
+
+`LeadVoter` n'accorde `VIEW` / `EDIT` qu'aux utilisateurs avec `ROLE_SUPERADMIN`.
+
+### Service `LeadNotifier`
+
+Listener sur `LeadCreatedEvent` → envoie un email HTML via Symfony Mailer +
+transport Gmail SMTP (`gmail+smtp://` — App Password Google obligatoire).
+Try/catch silencieux : un échec d'envoi log seulement, ne plante jamais la
+création du Lead. Procédure App Password : `docs/SETUP_EMAIL.md`.
+
+### Pages front
+
+- `/superadmin/leads` — liste paginée + KPI bar + filtres chips
+- `/superadmin/leads/[id]` — détail + workflow + notes commerciales
+
+### Hors scope V1
+
+Export CSV, intégration Slack/Notion, scoring auto, séquences email,
+webhook entrant depuis le formulaire HTML brut (le JS de la landing pousse
+directement vers `/api/leads`).
