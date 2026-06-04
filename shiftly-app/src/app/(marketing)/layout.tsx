@@ -9,15 +9,15 @@ import './marketing.css'
 // laisse intact le thème utilisateur de l'app (gérée par /(app)/layout.tsx).
 export const metadata: Metadata = {
   title: {
-    default: 'Shiftly — Le logiciel de management pour parcs de loisirs',
+    default: 'Shiftly — Pilotage opérationnel pour parcs de loisirs et commerces',
     template: '%s · Shiftly',
   },
   description:
-    "Bowling, laser game, arcade, karaoké, VR. Shiftly fait gagner 6h par semaine à vos managers — services, postes, pointages, HACCP. Conforme IDCC 1790.",
+    "Pilotage opérationnel pour parcs de loisirs et commerces de proximité. Service du jour, planning, postes, pointage et validation hebdo, formation interne — 6h/semaine rendues à vos managers.",
   openGraph: {
-    title: 'Shiftly — Le logiciel de management pour parcs de loisirs',
+    title: 'Shiftly — Pilotage opérationnel pour parcs de loisirs et commerces',
     description:
-      "Bowling, laser game, arcade, karaoké. 6h/semaine rendues à vos managers, pointage conforme IDCC 1790, HACCP intégré.",
+      "Service du jour, planning, postes, pointage, formation. 6h/semaine rendues à vos managers. Pensé pour la convention IDCC 1790.",
     type: 'website',
     locale: 'fr_FR',
     siteName: 'Shiftly',
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Shiftly — Management opérationnel pour parcs de loisirs',
-    description: '6h/semaine rendues à vos managers. Conforme IDCC 1790. Sans engagement.',
+    title: 'Shiftly — Pilotage opérationnel pour loisirs et commerces',
+    description: '6h/semaine rendues à vos managers. Règles IDCC 1790 paramétrables. Sans engagement.',
     images: ['/og-shiftly.png'],
   },
 }

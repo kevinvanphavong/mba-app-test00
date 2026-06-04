@@ -11,8 +11,8 @@ export default function MarketingFooter() {
               Shiftly<span className="mkt-logo-dot">.</span>
             </Link>
             <p>
-              Le logiciel de management opérationnel pensé pour les parcs de loisirs.
-              Fait à Blois, France.
+              Le logiciel de pilotage opérationnel pour les parcs de loisirs et les
+              commerces de proximité. Fait à Blois, France.
             </p>
           </div>
 
