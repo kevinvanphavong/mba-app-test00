@@ -1,34 +1,55 @@
 'use client'
 
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useLeadModal } from '@/store/leadModalStore'
+import { useAudience } from '@/store/audienceStore'
+import AudienceSwitch from './AudienceSwitch'
 import HeroVisualMock from './HeroVisualMock'
 
-// Hero principal : promesse forte + 2 CTAs (démo / essai) + mock app.
+// Textes alternatifs eyebrow / H1 / sous-titre selon l'audience.
+// Source : `docs/maquettes/landing-shiftly.html` lignes 1312-1319.
+const HERO_TEXTS = {
+  loisirs: {
+    eyebrow: 'Le logiciel pensé pour les parcs de loisirs',
+    h1Lead:  'Pilotez votre parc de loisirs',
+    p:       'Vos managers perdent 8h par semaine à éteindre des feux : plannings griffonnés, missions oubliées, pointages contestés. Shiftly leur rend 6h — service du jour, postes, pointage, formation, équipe. Pensé pour bowling, laser, arcade, karaoké, VR.',
+  },
+  commerce: {
+    eyebrow: "L'outil de pilotage pour les commerces de proximité",
+    h1Lead:  'Pilotez votre commerce',
+    p:       'Vos managers perdent 8h par semaine à éteindre des feux : plannings griffonnés, missions oubliées, pointages contestés. Shiftly leur rend 6h — service du jour, postes, pointage, formation, équipe. Pensé pour cafés, restos, salons, garages, boutiques.',
+  },
+} as const
+
 export default function HeroSection() {
   const openLead = useLeadModal((s) => s.open)
+  const audience = useAudience((s) => s.audience)
+  const hydrate  = useAudience((s) => s.hydrate)
+
+  // Hydratation depuis localStorage au mount (évite le mismatch SSR).
+  useEffect(() => { hydrate() }, [hydrate])
+
+  const texts = HERO_TEXTS[audience]
 
   return (
     <section className="mkt-hero">
       <div className="mkt-container mkt-hero-grid">
         <div>
+          <AudienceSwitch />
+
           <div className="mkt-hero-eyebrow">
             <motion.span
               className="mkt-hero-dot"
               animate={{ opacity: [1, 0.35, 1] }}
               transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
             />
-            🎳 Le 1er logiciel pensé pour les parcs de loisirs
+            <span>{texts.eyebrow}</span>
           </div>
           <h1>
-            Vos managers perdent <span className="mkt-highlight">8h par semaine</span> à
-            organiser le service.
+            {texts.h1Lead} <span className="mkt-highlight">comme une vraie entreprise.</span>
           </h1>
-          <p>
-            Shiftly leur en rend 6. Services, postes, pointages, compétences, HACCP — un seul
-            outil pensé pour les bowlings, laser games, arcades, karaokés et VR. Conforme
-            IDCC 1790.
-          </p>
+          <p>{texts.p}</p>
           <div className="mkt-hero-ctas">
             <button
               type="button"
