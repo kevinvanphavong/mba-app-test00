@@ -89,7 +89,7 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 
 | Module | Route | Accès |
 |---|---|---|
-| Landing publique | `/` | Public (redirect `/service` si JWT en localStorage) — thème sand, CTAs → modale lead |
+| Landing publique | `/` | Public (redirect `/service` si JWT en localStorage) — thème sand, switcher audience Loisirs/Commerce, CTAs → modale lead |
 | CGU / Confidentialité / Mentions légales | `/cgu` · `/confidentialite` · `/mentions-legales` | Public (placeholder) |
 | Login | `/login` | Public |
 | Dashboard | `/dashboard` | Manager uniquement |
@@ -106,6 +106,12 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 | Leads (public)      | `POST /api/leads` | Public (anonyme) — capture depuis shiftly.fr |
 
 Redirection par défaut : `/` sert la **landing publique** ; si l'utilisateur a un JWT en localStorage, le composant client redirige vers `/service` (anti-flash via splash inline). Le middleware autorise `/` même quand un JWT cookie est présent, pour permettre à un compte connecté de revisiter la marketing sans race condition SSR.
+
+**Landing V2 — décisions actées :**
+- Double audience via `audienceStore` (Zustand) : `loisirs` (défaut) / `commerce` — persisté dans `localStorage['shiftly-audience']`. Seul le Hero swap son texte.
+- Plan **Premium** masqué V1 (`hidden: true` dans `plansData.ts` → `style.display = 'none'`). Carte conservée en DOM pour réactivation rapide post-audit IDCC + offre stabilisée. L'option reste sélectionnable dans le `<select>` de la modale lead.
+- Mentions IDCC 1790 obligatoirement adoucies dans le copy public : "pensé pour la convention IDCC 1790" ou "règles paramétrables". Jamais "conforme IDCC 1790" tant que l'audit code/avocat n'est pas bouclé.
+- Modules / Comparatif / FAQ : **pas de HACCP, pas de Réservations, pas de CSE** sur la landing (gestion interne pure).
 
 ---
 

@@ -821,3 +821,44 @@ Définis dans `.mkt-root` (en plus de ceux hérités de `[data-theme="sand"]`) :
 - Consent RGPD obligatoire — sinon `mkt-lead-error` rouge + scroll vers le bloc, pas de POST.
 - POST échoué (404 ou autre) → message d'erreur réseau propre, pas de crash. Quand `PROMPT_CLAUDE_CODE_LEADS.md` n'a pas encore été exécuté côté back, la modale renvoie un message guidant vers `hello@shiftly.fr`.
 - Body `overflow: hidden` à l'ouverture, restauré à la fermeture. Fermeture par backdrop, Escape ou bouton ×.
+
+### 12.5 Landing V2 — composants & classes ajoutés
+
+**Refonte V2** (cf. `docs/prompts/PROMPT_CLAUDE_CODE_LANDING_V2.md`) — double
+audience + storytelling problème → solution.
+
+**Nouveau composant** `AudienceSwitch` — switch double porte en haut du Hero :
+
+- Pill rounded-full avec 2 boutons (`🎳 Parc de loisirs` / `🏪 Commerce de proximité`)
+- Thumb gradient ember positionné via Framer Motion `layoutId="audienceThumb"`
+  (transition spring 380/32) — pas de calcul left/width
+- Mobile (≤ 500px) : padding réduit + font-size 11px
+
+**Classes CSS ajoutées** (`.mkt-` prefix obligatoire) :
+
+- `.mkt-audience-switch`, `.mkt-audience-switch-btn`, `.mkt-audience-switch-thumb`, `.mkt-audience-switch-label`
+- `.mkt-module-problem` — bordure gauche rouge `var(--red)`, fond `rgba(217,60,60,0.06)`, padding 10×12×14
+- `.mkt-module-solution` — bordure gauche `var(--accent2)`, fond `rgba(249,115,22,0.07)`, `<strong>` accent2 700
+- `.mkt-modules-footnote` — paragraphe centré sous la grille modules (multi-établissement)
+- `.mkt-compare-footnote` — paragraphe centré sous la table comparatif (migration douce)
+
+**Grille pricing adaptative** :
+
+```css
+.mkt-pricing-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  max-width: 820px; margin: 0 auto;
+}
+```
+
+Tient 2 cartes (Premium masqué V1) ou 3 cartes (Premium réactivé) sans
+changement de structure.
+
+**Plan Premium masqué V1** : `plansData.ts` expose un flag `hidden?: boolean`
+sur la carte. `PricingSection` wrappe chaque carte dans un `<div style={hidden ? {display:'none'} : undefined}>`. La carte reste dans le `<select>` de la
+modale lead (utile si Kévin envoie un lien à un prospect haut de gamme).
+
+**Copy IDCC 1790 adouci** : aucune mention "conforme IDCC 1790" dans le DOM
+rendu. Seules formulations autorisées : "pensé pour la convention IDCC 1790"
+ou "règles IDCC 1790 paramétrables". La FAQ détaille la clause expert-comptable
+pour les spécificités d'accord d'entreprise.

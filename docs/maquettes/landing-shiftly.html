@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shiftly — Le logiciel de management pour parcs de loisirs</title>
-  <meta name="description" content="Bowling, laser game, arcade, karaoké, VR. Shiftly fait gagner 6h par semaine à vos managers — services, postes, pointages, HACCP. Conforme IDCC 1790." />
+  <meta name="description" content="Pilotage opérationnel pour parcs de loisirs et commerces de proximité. Service du jour, planning, postes, pointage et validation hebdo, formation interne — 6h/semaine rendues à vos managers." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -405,6 +405,47 @@
     }
     .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.6s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SWITCHER DOUBLE PORTE — Loisirs / Commerce
+       ═══════════════════════════════════════════════════════════════ */
+    .audience-switch {
+      display: inline-flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px;
+      margin-bottom: 26px;
+      position: relative;
+      box-shadow: var(--shadow-card);
+    }
+    .audience-switch button {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 10px 18px;
+      border-radius: 999px;
+      letter-spacing: 0.4px;
+      transition: color 0.2s;
+      position: relative;
+      z-index: 2;
+      display: inline-flex; align-items: center; gap: 6px;
+      white-space: nowrap;
+    }
+    .audience-switch button.active { color: var(--on-accent); }
+    .audience-switch-thumb {
+      position: absolute;
+      top: 5px; bottom: 5px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 999px;
+      transition: left 0.28s cubic-bezier(.5,.05,.1,1), width 0.28s cubic-bezier(.5,.05,.1,1);
+      z-index: 1;
+      box-shadow: 0 4px 12px -4px rgba(217, 83, 26, 0.55);
+    }
+    @media (max-width: 500px) {
+      .audience-switch button { padding: 9px 12px; font-size: 11px; }
+    }
     .hero h1 {
       font-family: 'Syne', sans-serif;
       font-weight: 700;
@@ -745,6 +786,19 @@
       margin-bottom: 8px;
     }
     .module-card p { font-size: 13px; color: var(--dark-muted); line-height: 1.55; }
+    .module-problem {
+      margin-bottom: 10px;
+      padding-left: 10px;
+      border-left: 2px solid rgba(179, 50, 30, 0.45);
+    }
+    .module-solution {
+      padding-left: 10px;
+      border-left: 2px solid var(--accent2);
+    }
+    .module-solution strong {
+      color: var(--accent2);
+      font-weight: 700;
+    }
     .module-tag {
       display: inline-block;
       margin-top: 14px;
@@ -882,9 +936,16 @@
     }
     .billing-switch button:not(.active) .billing-save { background: rgba(74, 124, 42, 0.18); color: var(--green); }
 
-    /* Grid plans */
-    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
-    @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; gap: 32px; } }
+    /* Grid plans — adaptatif (s'aligne sur le nombre de cards visibles) */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+      align-items: stretch;
+      max-width: 820px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; gap: 32px; max-width: 480px; } }
 
     .plan {
       background: var(--surface);
@@ -1238,15 +1299,24 @@
   <section class="hero">
     <div class="container hero-grid">
       <div>
+
+        <!-- Switcher double porte : Loisirs / Commerce -->
+        <div class="audience-switch" id="audienceSwitch" role="tablist" aria-label="Choisissez votre type d'activité">
+          <span class="audience-switch-thumb" id="audienceThumb"></span>
+          <button type="button" class="active" data-audience="loisirs" role="tab" aria-selected="true">🎳 Parc de loisirs</button>
+          <button type="button" data-audience="commerce" role="tab" aria-selected="false">🏪 Commerce de proximité</button>
+        </div>
+
         <div class="hero-eyebrow">
           <span class="dot"></span>
-          🎳 Le 1er logiciel pensé pour les parcs de loisirs
+          <span data-audience-text data-loisirs="Le logiciel pensé pour les parcs de loisirs" data-commerce="L'outil de pilotage pour les commerces de proximité">Le logiciel pensé pour les parcs de loisirs</span>
         </div>
+
         <h1>
-          Vos managers perdent <span class="highlight">8h par semaine</span> à organiser le service.
+          <span data-audience-text data-loisirs="Pilotez votre parc de loisirs" data-commerce="Pilotez votre commerce">Pilotez votre parc de loisirs</span> <span class="highlight">comme une vraie entreprise.</span>
         </h1>
-        <p>
-          Shiftly leur en rend 6. Services, postes, pointages, compétences, HACCP — un seul outil pensé pour les bowlings, laser games, arcades, karaokés et VR. Conforme IDCC 1790.
+        <p data-audience-text data-loisirs="Vos managers perdent 8h par semaine à éteindre des feux : plannings griffonnés, missions oubliées, pointages contestés. Shiftly leur rend 6h — service du jour, postes, pointage, formation, équipe. Pensé pour bowling, laser, arcade, karaoké, VR." data-commerce="Vos managers perdent 8h par semaine à éteindre des feux : plannings griffonnés, missions oubliées, pointages contestés. Shiftly leur rend 6h — service du jour, postes, pointage, formation, équipe. Pensé pour cafés, restos, salons, garages, boutiques.">
+          Vos managers perdent 8h par semaine à éteindre des feux : plannings griffonnés, missions oubliées, pointages contestés. Shiftly leur rend 6h — service du jour, postes, pointage, formation, équipe. Pensé pour bowling, laser, arcade, karaoké, VR.
         </p>
         <div class="hero-ctas">
           <button type="button" class="btn btn-primary btn-lg" data-open-lead data-intent="demo" data-plan="pro">📅 Réserver une démo de 20 min</button>
@@ -1323,8 +1393,8 @@
     <div class="container">
       <div class="section-head">
         <div class="section-label">⚡ Le constat</div>
-        <h2 class="section-title">Gérer un parc de loisirs <em style="font-style: normal; color: var(--accent);">comme un resto</em>, ça ne marche pas.</h2>
-        <p class="section-subtitle">Vos zones, vos postes, vos services, vos pics du week-end — ce métier a ses codes. Vos outils doivent les suivre.</p>
+        <h2 class="section-title">Vos managers <em style="font-style: normal; color: var(--accent);">éteignent des feux</em>. Ils ne pilotent pas.</h2>
+        <p class="section-subtitle">Tous les jours, les mêmes douleurs reviennent. Shiftly les résout une bonne fois pour toutes — par module, par cas concret.</p>
       </div>
       <div class="sansavec-grid">
 
@@ -1334,40 +1404,40 @@
             <span class="sansavec-emoji">😩</span>
             Sans Shiftly
           </div>
-          <div class="sansavec-tagline">Le quotidien d'un patron en mode pompier.</div>
+          <div class="sansavec-tagline">Le manager est un pompier. Il subit, il ne pilote rien.</div>
 
           <div class="sansavec-list">
             <div class="sansavec-item">
-              <span class="sansavec-icon">⏰</span>
-              <span><strong>8h par semaine perdues</strong> à griffonner des plannings et relancer l'équipe par SMS</span>
+              <span class="sansavec-icon">📞</span>
+              <span><strong>8h/semaine au téléphone</strong> à relancer les retardataires, refaire les plannings au stylo, briefer le staff à l'oral</span>
             </div>
             <div class="sansavec-item">
-              <span class="sansavec-icon">📋</span>
-              <span><strong>Aucune visibilité</strong> sur ce qui est fait, par qui, à quelle heure — vous découvrez le lundi matin</span>
+              <span class="sansavec-icon">❓</span>
+              <span><strong>Le staff arrive et demande "je commence par quoi ?"</strong> — chaque matin, on ré-explique la même chose</span>
             </div>
             <div class="sansavec-item">
               <span class="sansavec-icon">⚖️</span>
-              <span><strong>Risque Prud'hommes</strong> sur les heures supp non tracées et les pointages contestés</span>
+              <span><strong>Les heures supp sont contestées</strong> en fin de mois — pointage au stylo, oublis, risque Prud'hommes</span>
             </div>
             <div class="sansavec-item">
-              <span class="sansavec-icon">🔥</span>
-              <span><strong>Risque DDPP</strong> avec un classeur HACCP que personne n'a ouvert depuis 3 mois</span>
+              <span class="sansavec-icon">🕳️</span>
+              <span><strong>Les missions critiques tombent à la trappe</strong> — vous découvrez le lundi que la fermeture du vendredi a été bâclée</span>
             </div>
             <div class="sansavec-item">
-              <span class="sansavec-icon">😤</span>
-              <span><strong>Turnover qui grimpe</strong> parce que le staff ne sait jamais à quoi s'attendre</span>
+              <span class="sansavec-icon">🚪</span>
+              <span><strong>Le staff part au bout de 6 mois</strong> — pas de progression visible, pas de reconnaissance, turnover qui explose</span>
             </div>
             <div class="sansavec-item">
-              <span class="sansavec-icon">🚫</span>
-              <span><strong>Combo, Skello, Excel</strong> — pas un seul ne comprend une zone de jeu</span>
+              <span class="sansavec-icon">🔁</span>
+              <span><strong>Chaque embauche = 4h de formation à l'oral</strong> que vous recommencez à zéro à chaque fois</span>
             </div>
           </div>
 
           <div class="sansavec-kpi">
             <div class="sansavec-kpi-val">-15K€</div>
             <div class="sansavec-kpi-lbl">
-              <strong style="color: var(--text);">par an et par centre</strong><br>
-              en temps managérial perdu, missions oubliées et risques cachés
+              <strong style="color: var(--text);">par an et par établissement</strong><br>
+              en temps managérial perdu, missions oubliées et turnover non maîtrisé
             </div>
           </div>
         </div>
@@ -1378,32 +1448,32 @@
             <span class="sansavec-emoji">🎯</span>
             Avec Shiftly
           </div>
-          <div class="sansavec-tagline">Le centre piloté comme une vraie entreprise.</div>
+          <div class="sansavec-tagline">Le manager pilote. Le staff exécute, progresse, reste.</div>
 
           <div class="sansavec-list">
             <div class="sansavec-item">
               <span class="sansavec-icon">📊</span>
-              <span><strong>Pilotage temps réel</strong> — vous voyez l'avancement, les KPI, les incidents depuis votre canapé</span>
+              <span><strong>Le manager pilote depuis son canapé</strong> — Service du Jour temps réel, qui fait quoi, où, à la minute</span>
             </div>
             <div class="sansavec-item">
-              <span class="sansavec-icon">⚡</span>
-              <span><strong>Service du Jour</strong> — chaque mission est cochée, tracée, horodatée. Plus rien ne passe à la trappe</span>
+              <span class="sansavec-icon">📋</span>
+              <span><strong>Chacun sait quoi faire dès l'arrivée</strong> — fiche de poste sur mobile, missions du jour cochables, briefing zéro</span>
             </div>
             <div class="sansavec-item">
-              <span class="sansavec-icon">🛡️</span>
-              <span><strong>Conformité IDCC 1790</strong> native — pointages, validation hebdo, export paie irréprochables</span>
+              <span class="sansavec-icon">⏱️</span>
+              <span><strong>Le pointage est incontestable</strong> — kiosk, horodatage à la seconde, validation hebdo pensée pour la convention IDCC 1790, export paie en 10 min</span>
             </div>
             <div class="sansavec-item">
-              <span class="sansavec-icon">🧼</span>
-              <span><strong>HACCP intégré</strong> — relevés, traçabilité, dossier sanitaire toujours prêt pour la DDPP</span>
+              <span class="sansavec-icon">✅</span>
+              <span><strong>Chaque mission cochée laisse une trace</strong> — qui, quand, quoi. Plus rien ne passe à la trappe</span>
             </div>
             <div class="sansavec-item">
               <span class="sansavec-icon">🎓</span>
-              <span><strong>Montée en compétence</strong> automatique — tutoriels, compétences validées, staff fidélisé</span>
+              <span><strong>Le staff progresse et reste</strong> — compétences validables, tutos intégrés, points, niveaux, reconnaissance</span>
             </div>
             <div class="sansavec-item">
-              <span class="sansavec-icon">🎳</span>
-              <span><strong>Pensé pour vous</strong> — zones Accueil / Bar / Salle / Manager, week-ends, événements, CSE</span>
+              <span class="sansavec-icon">🧠</span>
+              <span><strong>Vos SOP vivent dans l'outil</strong> — un nouvel arrivant lit, valide, opérationnel sous 48h sans vous</span>
             </div>
           </div>
 
@@ -1456,93 +1526,82 @@
   <section class="section section-dark" id="modules">
     <div class="container">
       <div class="section-head">
-        <div class="section-label">🧩 Les modules</div>
-        <h2 class="section-title">Tout ce qu'il faut pour faire tourner un parc.</h2>
-        <p class="section-subtitle">9 modules connectés. Chacun pensé pour un cas d'usage précis du métier. Aucun gras inutile.</p>
+        <div class="section-label">🧩 Les 6 modules cœur</div>
+        <h2 class="section-title">Six douleurs racines. Six réponses précises.</h2>
+        <p class="section-subtitle">Chaque module répond à un problème quotidien concret. Pas de feature gratuite, pas de gras inutile. La gestion interne pure.</p>
       </div>
       <div class="modules-grid">
 
+        <!-- 1. Service du Jour -->
         <div class="module-card">
           <div class="module-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
           </div>
-          <h3>Service du Jour</h3>
-          <p>La page la plus utilisée. Live des zones, missions cochables, avancement temps réel, incidents en un clic. Mobile-first.</p>
+          <h3>⚡ Service du Jour</h3>
+          <p class="module-problem">Le matin, votre manager passe 45 min à appeler les retardataires, briefer le staff à l'oral et gribouiller un planning au tableau.</p>
+          <p class="module-solution"><strong>Avec Shiftly :</strong> il ouvre l'app et voit qui est là, qui fait quoi, où en sont les missions. Le pilotage remplace le pompiérisme.</p>
           <span class="module-tag">Production</span>
         </div>
 
+        <!-- 2. Planning & Services -->
         <div class="module-card">
           <div class="module-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
           </div>
-          <h3>Planning & Services</h3>
-          <p>Plannification semaine, services type, duplication intelligente. Vue manager et vue équipe. Conflits de zones détectés.</p>
+          <h3>📅 Planning & Services</h3>
+          <p class="module-problem">Vos plannings vivent sur un tableau effaçable, un Excel partagé, un groupe WhatsApp. Personne ne sait jamais qui est de fermeture le vendredi.</p>
+          <p class="module-solution"><strong>Avec Shiftly :</strong> planning hebdo digital, services-type duplicables, vue manager et vue staff. Les conflits sont détectés avant qu'ils ne deviennent un problème.</p>
           <span class="module-tag">Production</span>
         </div>
 
+        <!-- 3. Pointage & Validation hebdo -->
         <div class="module-card">
           <div class="module-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
           </div>
-          <h3>Pointage temps réel</h3>
-          <p>Tablette en kiosk-mode, code PIN, photo de pointage. Validation hebdo conforme IDCC 1790. Export paie en 2 clics.</p>
+          <h3>⏱️ Pointage & Validation hebdo</h3>
+          <p class="module-problem">Pointage au stylo, oublis, heures supp contestées, paie qui prend 4h chaque fin de mois. Et le risque Prud'hommes en bruit de fond.</p>
+          <p class="module-solution"><strong>Avec Shiftly :</strong> kiosk-mode, code PIN, horodatage à la seconde, validation hebdo en 10 min, règles pensées pour la convention IDCC 1790 (heures supp, nuit, dimanche). Export paie en 2 clics.</p>
           <span class="module-tag">Production</span>
         </div>
 
+        <!-- 4. Postes & Missions -->
         <div class="module-card">
           <div class="module-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 17l9 4 9-4M3 12l9 4 9-4"/></svg>
           </div>
-          <h3>Postes & Missions</h3>
-          <p>Catalogue de zones, missions et compétences. Drag & drop des affectations. Catégories Ouverture / Pendant / Ménage / Fermeture.</p>
+          <h3>📋 Postes & Missions</h3>
+          <p class="module-problem">Le staff arrive et demande "je commence par quoi ?". Le manager rebriefe la même chose tous les matins. Les missions critiques tombent à la trappe.</p>
+          <p class="module-solution"><strong>Avec Shiftly :</strong> fiche de poste digitale, missions du jour cochables sur mobile, organisées par moment du service (ouverture, pendant, fermeture).</p>
           <span class="module-tag">Production</span>
         </div>
 
+        <!-- 5. Staff & Compétences -->
         <div class="module-card">
           <div class="module-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
           </div>
-          <h3>Staff & Compétences</h3>
-          <p>Fiches équipe, validation des compétences par zone, niveaux, progression. Système de points pour fidéliser.</p>
+          <h3>🎓 Staff & Compétences</h3>
+          <p class="module-problem">Le staff stagne, ne sait pas ce qu'on attend de lui, ne voit aucune progression, et part au bout de 6 mois. Vous re-recrutez en boucle.</p>
+          <p class="module-solution"><strong>Avec Shiftly :</strong> compétences validables par zone, niveaux, points, progression visible. Le staff voit qu'il monte, vous voyez qui peut prendre quoi.</p>
           <span class="module-tag">Production</span>
         </div>
 
-        <div class="module-card">
-          <div class="module-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
-          </div>
-          <h3>HACCP intégré</h3>
-          <p>Relevés de températures, traçabilité produit, plan de nettoyage, alertes DDPP. Dossier sanitaire toujours prêt.</p>
-          <span class="module-tag soon">Bientôt</span>
-        </div>
-
+        <!-- 6. Tutoriels & Formation -->
         <div class="module-card">
           <div class="module-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
           </div>
-          <h3>Tutoriels & Formation</h3>
-          <p>Formation interne intégrée. Chaque collaborateur apprend ses postes à son rythme. Vous voyez qui a lu quoi.</p>
+          <h3>📚 Tutoriels & Formation</h3>
+          <p class="module-problem">Chaque embauche = 4h de formation à l'oral que vous recommencez à zéro. Vos SOP vivent dans votre tête et celle de 2 managers.</p>
+          <p class="module-solution"><strong>Avec Shiftly :</strong> tutoriels internes intégrés, lisibles en 3 min sur mobile. Un nouvel arrivant lit, valide ses acquis, opérationnel sous 48h sans vous accaparer.</p>
           <span class="module-tag">Production</span>
         </div>
 
-        <div class="module-card">
-          <div class="module-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v18H3z"/><path d="M9 9h6v6H9z"/></svg>
-          </div>
-          <h3>Réservations & CSE</h3>
-          <p>Gestion des entreprises clientes, réservations groupes, anniversaires, CSE. Pour ne plus rien laisser passer.</p>
-          <span class="module-tag">Production</span>
-        </div>
+      </div>
 
-        <div class="module-card">
-          <div class="module-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-          </div>
-          <h3>Multi-centre</h3>
-          <p>Pilotez 2, 5, 20 centres depuis un seul compte. Vues consolidées, KPI par centre, accès cloisonnés. Pensé pour le scaling.</p>
-          <span class="module-tag">Production</span>
-        </div>
-
+      <div style="margin-top: 28px; text-align: center; color: var(--dark-muted); font-size: 13px;">
+        ➕ <strong style="color: var(--dark-text);">Multi-centre consolidé</strong> inclus dès le plan Pro pour piloter plusieurs établissements depuis un seul compte.
       </div>
     </div>
   </section>
@@ -1553,96 +1612,100 @@
   <section class="section section-dark">
     <div class="container">
       <div class="section-head">
-        <div class="section-label">⚔️ Pourquoi Shiftly</div>
-        <h2 class="section-title">Combo et Skello servent la resto.<br>Shiftly sert votre métier.</h2>
-        <p class="section-subtitle">Aucun généraliste n'a été conçu pour 4 zones de jeu, un bar, un accueil, des pics de samedi soir et une convention IDCC 1790. Nous, si.</p>
+        <div class="section-label">✨ Pourquoi Shiftly</div>
+        <h2 class="section-title">Ce qui change quand vous passez à Shiftly.</h2>
+        <p class="section-subtitle">Pas une promesse de plus. Des changements concrets dans votre quotidien, dès la première semaine d'utilisation.</p>
       </div>
 
       <div class="compare-wrap">
         <table class="compare-table">
           <thead>
             <tr>
-              <th>Ce qui compte pour vous</th>
-              <th class="shiftly-col">🎯 Shiftly</th>
-              <th>Combo / Skello</th>
-              <th>Excel + WhatsApp</th>
+              <th>Votre quotidien</th>
+              <th class="shiftly-col">⭐ Avec Shiftly</th>
+              <th>Avec un outil de planning classique</th>
+              <th>Sans outil dédié (Excel + carnet)</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="feat">🎳 Zones de jeu natives (Accueil · Bar · Salle · Manager)</td>
-              <td class="yes star">★ Pensé loisirs</td>
-              <td class="no">Bricolage</td>
-              <td class="no">✕</td>
-            </tr>
-            <tr>
-              <td class="feat">⚡ Service du Jour temps réel + missions cochables</td>
+              <td class="feat">⚡ Vous savez ce qui se passe pendant le service, en temps réel</td>
               <td class="yes star">★ Module phare</td>
               <td class="no">✕</td>
               <td class="no">✕</td>
             </tr>
             <tr>
-              <td class="feat">🎓 Compétences validées par zone + tutoriels intégrés</td>
+              <td class="feat">📋 Chaque collaborateur sait quoi faire en arrivant</td>
+              <td class="yes star">★ Pensé service</td>
+              <td class="no">✕</td>
+              <td class="no">Briefing à l'oral</td>
+            </tr>
+            <tr>
+              <td class="feat">🎓 Vos équipes progressent, vous voyez qui peut prendre quoi</td>
               <td class="yes star">★ Intégré</td>
               <td class="no">✕</td>
               <td class="no">✕</td>
             </tr>
             <tr>
-              <td class="feat">⏱️ Pointage kiosk + validation hebdo IDCC 1790</td>
-              <td class="yes star">★ Natif loisirs</td>
-              <td class="yes">✓ (resto)</td>
+              <td class="feat">📚 Vos méthodes vivent dans l'app, plus dans la tête de 2 personnes</td>
+              <td class="yes star">★ Intégré</td>
               <td class="no">✕</td>
+              <td class="no">PDF poussiéreux</td>
             </tr>
             <tr>
-              <td class="feat">🧼 HACCP intégré (relevés, traçabilité, DDPP)</td>
-              <td class="yes star">★ Sept. 2026</td>
-              <td class="no">Outil tiers payant</td>
-              <td class="no">✕</td>
-            </tr>
-            <tr>
-              <td class="feat">🎉 Réservations groupes, CSE, anniversaires</td>
+              <td class="feat">⏱️ Heures incontestables et export paie pour votre comptable</td>
               <td class="yes star">★ Inclus</td>
+              <td class="yes">✓ Module séparé</td>
               <td class="no">✕</td>
-              <td class="no">Outil tiers</td>
             </tr>
             <tr>
-              <td class="feat">🏢 Multi-centre consolidé + back-office groupe</td>
+              <td class="feat">📅 Plannings prêts en 10 min, dupliqués d'une semaine à l'autre</td>
+              <td class="yes">✓</td>
+              <td class="yes star">★ Leur fort</td>
+              <td class="no">Tableau effaçable</td>
+            </tr>
+            <tr>
+              <td class="feat">🏢 Vous pilotez 2, 5, 20 établissements depuis un seul compte</td>
               <td class="yes">✓</td>
               <td class="yes">✓</td>
               <td class="no">✕</td>
             </tr>
             <tr>
-              <td class="feat">📱 Mobile-first pour le staff (pas un truc desktop)</td>
+              <td class="feat">📱 Vos équipes utilisent leur téléphone, pas un PC en salle de pause</td>
               <td class="yes star">★ Conçu mobile</td>
               <td class="yes">Responsive</td>
               <td class="no">✕</td>
             </tr>
             <tr>
-              <td class="feat">🇫🇷 Données hébergées en France · RGPD</td>
+              <td class="feat">🇫🇷 Vos données restent en France, vous gardez le contrôle</td>
               <td class="yes star">★ FR / UE</td>
               <td class="yes">UE</td>
               <td class="no">Hors contrôle</td>
             </tr>
             <tr>
-              <td class="feat">🤝 Support direct par le fondateur, en français</td>
-              <td class="yes star">★ Kévin répond</td>
+              <td class="feat">🤝 C'est moi (Kévin) qui réponds à votre email, pas un ticket dans un tunnel</td>
+              <td class="yes star">★ Direct fondateur</td>
               <td class="no">Tickets génériques</td>
               <td class="no">—</td>
             </tr>
             <tr>
-              <td class="feat">🔓 Sans engagement · résiliation 1 clic</td>
+              <td class="feat">🔓 Pas d'engagement annuel, vous arrêtez quand vous voulez</td>
               <td class="yes star">★ Aucun lock-in</td>
               <td class="no">Engagement annuel</td>
               <td class="yes">Gratuit</td>
             </tr>
             <tr>
-              <td class="feat">💶 Prix d'entrée par centre</td>
-              <td class="yes star">79€ / mois HT</td>
+              <td class="feat">💶 Vous démarrez à un prix juste, sans surprise</td>
+              <td class="yes star">49€ / mois HT</td>
               <td>~149€ / mois HT</td>
               <td>0€ (mais 15K€ cachés)</td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div style="margin-top: 28px; text-align: center; color: var(--dark-muted); font-size: 12px; max-width: 640px; margin-left: auto; margin-right: auto; line-height: 1.55;">
+        💡 <strong style="color: var(--dark-text);">Vous avez déjà un outil de planning ?</strong> Pas besoin de tout déménager. Shiftly peut tourner en parallèle pour la gestion interne (service du jour, missions, compétences, formation). Migration en douceur, à votre rythme.
       </div>
     </div>
   </section>
@@ -1677,17 +1740,19 @@
           <span class="plan-emoji">🌱</span>
           <div class="plan-name">Starter</div>
           <div class="plan-price">
-            <span class="plan-price-val" data-monthly="79€" data-yearly="790€">79€</span>
+            <span class="plan-price-val" data-monthly="49€" data-yearly="490€">49€</span>
             <span class="plan-price-unit" data-monthly="/mois HT" data-yearly="/an HT">/mois HT</span>
           </div>
-          <div class="plan-price-sub" data-monthly="par centre · facturation mensuelle" data-yearly="par centre · paiement en 1 fois">par centre · facturation mensuelle</div>
-          <div class="plan-desc">Pour un centre indépendant qui veut structurer ses services et son équipe.</div>
+          <div class="plan-price-sub" data-monthly="par établissement · facturation mensuelle" data-yearly="par établissement · paiement en 1 fois">par établissement · facturation mensuelle</div>
+          <div class="plan-desc">L'essentiel pour reprendre la main sur votre équipe et votre service. Sans usine à gaz.</div>
           <ul class="plan-list">
-            <li>Jusqu'à <strong>15 collaborateurs</strong></li>
-            <li>Modules <strong>Service, Postes, Staff, Tutoriels</strong></li>
-            <li><strong>Pointage temps réel</strong> + export paie</li>
-            <li>Support email sous 24h</li>
-            <li>Mises à jour incluses</li>
+            <li><strong>Planning sur mobile</strong> pour toute votre équipe — fini le tableau effaçable et les SMS le dimanche soir</li>
+            <li><strong>Carnet de votre équipe</strong> centralisé — fiches, contacts, contrats, ancienneté en un clic</li>
+            <li><strong>Pointage tracé + export paie</strong> — vos heures arrêtent d'être un sujet de tension avec le comptable</li>
+            <li><strong>Liste des tâches du jour</strong> assignée à chacun — plus rien n'est oublié, même le vendredi soir</li>
+            <li><strong>Fiches de poste + tutoriels intégrés</strong> — vos savoir-faire vivent dans l'app, pas dans la tête de votre chef d'équipe</li>
+            <li><strong>Kévin vous répond</strong> sous 48h ouvrées, en français</li>
+            <li><strong>Toutes les nouveautés</strong> débloquées au fur et à mesure, sans surcoût</li>
           </ul>
           <button type="button" class="btn btn-secondary" data-open-lead data-intent="trial" data-plan="starter">Essayer 14 jours →</button>
           <div class="plan-foot">Sans carte bancaire</div>
@@ -1699,26 +1764,23 @@
           <span class="plan-emoji">🚀</span>
           <div class="plan-name">Pro</div>
           <div class="plan-price">
-            <span class="plan-price-val" data-monthly="129€" data-yearly="1 290€">129€</span>
+            <span class="plan-price-val" data-monthly="99€" data-yearly="990€">99€</span>
             <span class="plan-price-unit" data-monthly="/mois HT" data-yearly="/an HT">/mois HT</span>
           </div>
-          <div class="plan-price-sub" data-monthly="par centre · facturation mensuelle" data-yearly="par centre · paiement en 1 fois">par centre · facturation mensuelle</div>
-          <div class="plan-desc">Le standard pour un centre qui veut tout : opérationnel, conformité et pilotage.</div>
+          <div class="plan-price-sub" data-monthly="par établissement · facturation mensuelle" data-yearly="par établissement · paiement en 1 fois">par établissement · facturation mensuelle</div>
+          <div class="plan-desc">Le standard pour piloter votre établissement avec dashboard manager temps réel.</div>
           <ul class="plan-list">
-            <li><strong>Collaborateurs illimités</strong></li>
-            <li>Tout Starter +</li>
+            <li><strong>Tout le plan Starter</strong></li>
             <li><strong>Dashboard manager</strong> + KPI temps réel</li>
-            <li><strong>Validation hebdo IDCC 1790</strong></li>
-            <li>HACCP intégré (sept. 2026)</li>
-            <li>Réservations & CSE</li>
-            <li>Support email + visio sous 4h</li>
+            <li><strong>Collaborateurs illimités</strong></li>
+            <li>Support email sous 24h</li>
           </ul>
           <button type="button" class="btn btn-primary" data-open-lead data-intent="demo" data-plan="pro">Réserver une démo</button>
           <div class="plan-foot">Le plan recommandé</div>
         </div>
 
-        <!-- Plan 3 — Sur Mesure (Premium) -->
-        <div class="plan premium">
+        <!-- Plan 3 — Premium / Sur mesure — MASQUÉ V1, à réactiver plus tard -->
+        <div class="plan premium" style="display: none;" aria-hidden="true">
           <div class="plan-badge">✨ Sur mesure</div>
           <span class="plan-emoji">👑</span>
           <div class="plan-name">Premium</div>
@@ -1781,13 +1843,13 @@
         <div class="founder-content">
           <h3>Salut, c'est Kévin. 👋</h3>
           <p>
-            J'ai grandi entre les pistes de bowling et les bornes d'arcade. J'ai vu mes parents passer leurs dimanches à griffonner des plannings, gérer les retards par SMS, courir après les feuilles de pointage. J'ai vu des managers brûlés, des équipes démotivées, des clients déçus.
+            J'ai grandi entre les pistes de bowling et les bornes d'arcade. J'ai vu mes parents passer leurs dimanches à griffonner des plannings, gérer les retards par SMS, courir après les feuilles de pointage. La même scène se rejoue partout — dans les cafés du coin, les restos de quartier, les salons de coiffure. Des managers brûlés, des équipes démotivées, des patrons en mode pompier.
           </p>
           <p>
-            En 2024 j'ai lancé Shiftly avec une obsession : faire un outil <em>réellement</em> conçu pour les parcs de loisirs. Pas un clone de Combo. Pas un Excel déguisé. Un vrai produit, déployé au quotidien dans nos centres pilotes Family Games Center et Bowling Central à Blois.
+            En 2024 j'ai lancé Shiftly avec une obsession : faire un outil de <em>gestion interne</em>, vraiment. Pas un planning RH déguisé. Pas un clone de Combo. Un outil qui s'occupe de ce qui se passe <em>pendant</em> le service : qui fait quoi, comment, à quel niveau, avec quelle traçabilité.
           </p>
           <p>
-            Aujourd'hui, 12 centres l'utilisent tous les soirs. Demain, j'aimerais que ce soit le vôtre. Réservez une démo, je la fais moi-même.
+            Aujourd'hui, 12 établissements l'utilisent tous les jours — bowlings, lasers, et bientôt cafés et commerces de proximité. Demain, j'aimerais que ce soit le vôtre. Réservez une démo, je la fais moi-même.
           </p>
           <div class="founder-sign">— Kévin Vanphavong, fondateur</div>
         </div>
@@ -1813,8 +1875,8 @@
         </details>
 
         <details class="faq-item">
-          <summary>Est-ce que c'est conforme à la convention IDCC 1790 ?</summary>
-          <div class="faq-answer">Oui, nativement. Le module pointage et la validation hebdomadaire sont conçus avec la convention collective des Espaces de loisirs en tête : majoration des heures supp, repos dominical, heures de nuit. Vos exports paie sont conformes en sortie.</div>
+          <summary>Comment Shiftly gère-t-il la convention IDCC 1790 (Espaces de loisirs) ?</summary>
+          <div class="faq-answer">Le module pointage et la validation hebdomadaire sont <strong>pensés pour la convention collective des Espaces de loisirs</strong> : règles paramétrables pour la majoration des heures supplémentaires, le repos dominical, les heures de nuit et les jours fériés. <strong>Important :</strong> chaque centre a ses spécificités d'accord d'entreprise — nous vous recommandons de faire valider votre paramétrage par votre expert-comptable lors de l'onboarding pour garantir une conformité totale à votre situation.</div>
         </details>
 
         <details class="faq-item">
@@ -1848,8 +1910,8 @@
         </details>
 
         <details class="faq-item">
-          <summary>Le HACCP, c'est pour quand ?</summary>
-          <div class="faq-answer">Module en cours de production, livraison prévue septembre 2026. Il couvrira les relevés de températures, la traçabilité produit, le plan de nettoyage et la génération automatique du dossier sanitaire pour la DDPP. Inclus dans le plan Pro.</div>
+          <summary>Shiftly fonctionne pour mon café / salon / garage / commerce ?</summary>
+          <div class="faq-answer">Oui. Shiftly est conçu pour tout établissement qui a une équipe à manager, des postes de travail définis, des missions répétitives et un pointage à gérer. Cafés, restaurants, salons, garages, boutiques, instituts de beauté, parcs de loisirs — tant qu'il y a un service à piloter, ça marche.</div>
         </details>
 
         <details class="faq-item">
@@ -2121,6 +2183,53 @@
        SCRIPTS — Switcher tarifs + Modale formulaire lead
        ═══════════════════════════════════════════════════════════════ -->
   <script>
+    /* ─── Switcher audience Loisirs / Commerce ─── */
+    (function () {
+      const switchEl = document.getElementById('audienceSwitch');
+      if (!switchEl) return;
+      const thumb = document.getElementById('audienceThumb');
+      const buttons = switchEl.querySelectorAll('button');
+
+      function positionThumb(activeBtn) {
+        const rect = activeBtn.getBoundingClientRect();
+        const parentRect = switchEl.getBoundingClientRect();
+        thumb.style.left = (rect.left - parentRect.left) + 'px';
+        thumb.style.width = rect.width + 'px';
+      }
+
+      function applyAudience(audience) {
+        document.querySelectorAll('[data-audience-text]').forEach(el => {
+          const next = el.dataset[audience];
+          if (next) el.textContent = next;
+        });
+        try { localStorage.setItem('shiftly-audience', audience); } catch (e) { /* Safari privé */ }
+      }
+
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          btn.classList.add('active');
+          btn.setAttribute('aria-selected', 'true');
+          applyAudience(btn.dataset.audience);
+          positionThumb(btn);
+        });
+      });
+
+      // Restaurer la préférence ou appliquer le défaut Loisirs
+      let saved = null;
+      try { saved = localStorage.getItem('shiftly-audience'); } catch (e) {}
+      if (saved === 'commerce') {
+        const btn = switchEl.querySelector('button[data-audience="commerce"]');
+        btn?.click();
+      } else {
+        positionThumb(switchEl.querySelector('button.active'));
+      }
+      window.addEventListener('resize', () => positionThumb(switchEl.querySelector('button.active')));
+    })();
+
     /* ─── Switcher tarifs Mensuel / Annuel ─── */
     (function () {
       const switchEl = document.getElementById('billingSwitch');

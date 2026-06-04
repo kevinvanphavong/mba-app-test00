@@ -793,3 +793,57 @@ les dernières 24h, le POST renvoie **429**. Garde-fou simple sans dépendance a
 `Lead` est volontairement HORS multi-tenant : pas de `centre_id`. Le `LeadVoter`
 teste uniquement `ROLE_SUPERADMIN`, donc seul Kévin voit les leads. Aucun
 manager / employé ne peut accéder aux endpoints back-office.
+
+---
+
+## 14. Landing V2 — double audience + storytelling
+
+Refonte V2 de la landing publique `/` (cf. `PROMPT_CLAUDE_CODE_LANDING_V2.md`).
+
+### Nouveau store audience
+
+- `src/store/audienceStore.ts` — Zustand léger, type `Audience = 'loisirs' | 'commerce'`
+- API : `audience`, `setAudience(a)`, `hydrate()`
+- Persistance dans `localStorage['shiftly-audience']`
+- Par défaut côté SSR : `'loisirs'`. `hydrate()` est appelé dans un `useEffect`
+  du HeroSection pour éviter le mismatch hydration.
+- Fallback silencieux en cas d'accès localStorage bloqué (Safari privé).
+
+### Nouveau sous-composant AudienceSwitch
+
+- `src/components/marketing/AudienceSwitch.tsx` — switch "double porte"
+  en haut du Hero
+- Thumb animé via Framer Motion `layoutId="audienceThumb"` (pas de calcul
+  manuel left/width)
+- Swap eyebrow + H1 + sous-titre du Hero selon l'audience choisie ; le reste
+  de la page reste universel.
+
+### Composants impactés
+
+| Composant | Changement |
+|---|---|
+| `HeroSection` | Intègre `AudienceSwitch` + hydratation + textes audience-aware |
+| `SansAvecSection` | 6 items par carte avec storytelling (icônes mises à jour) |
+| `ModulesGrid` | 6 cards (HACCP / Réservations / CSE retirés) — chaque card a `.mkt-module-problem` + `.mkt-module-solution` + footnote multi-établissement |
+| `ComparisonTable` | Titre générique, colonnes "Avec Shiftly / Outil planning classique / Excel + carnet", 12 lignes reformulées en bénéfice + footnote migration douce |
+| `PricingSection` + `plansData.ts` | Starter 49€/490€, Pro 99€/990€. Premium `hidden: true` → wrapper `style.display = 'none'`, conservé en DOM et dans le `<select>` de la modale lead |
+| `FaqAccordion` | Question HACCP retirée, question commerces ajoutée, réponse IDCC mentionne la **clause expert-comptable** |
+| `FounderStory` | Texte élargi aux commerces de proximité (cafés, restos, salons…) |
+| `MarketingFooter` | Tagline brand élargi loisirs + commerces |
+
+### Copy juridique — adoucissement IDCC 1790
+
+Toutes les occurrences de "conforme IDCC 1790" ont été remplacées par
+"pensé pour la convention IDCC 1790" ou "règles IDCC 1790 paramétrables".
+Couverture : `metadata` (layout), modules `Pointage`, section `SansAvec`,
+réponse FAQ.
+
+### CSS — nouvelles classes (`marketing.css`)
+
+- `.mkt-audience-switch`, `.mkt-audience-switch-btn`, `.mkt-audience-switch-thumb`, `.mkt-audience-switch-label`
+- `.mkt-module-problem` (bordure gauche rouge `var(--red)`)
+- `.mkt-module-solution` (bordure gauche accent2)
+- `.mkt-modules-footnote`, `.mkt-compare-footnote`
+- `.mkt-pricing-grid` passé en `repeat(auto-fit, minmax(280px, 1fr))` +
+  `max-width: 820px; margin: 0 auto` (gère bien 2 cartes Premium-off ET
+  3 cartes Premium-on)
