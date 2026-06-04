@@ -1,24 +1,10 @@
 'use client'
 
-import { useLeadModal, type LeadIntent, type LeadPlan } from '@/store/leadModalStore'
+import { useLeadModal } from '@/store/leadModalStore'
 import type { BillingPeriod } from './BillingSwitch'
+import type { Plan } from './plansData'
 
-export type Plan = {
-  key: LeadPlan
-  emoji: string
-  name: string
-  monthly: { val: string; unit: string; sub: string }
-  yearly: { val: string; unit: string; sub: string }
-  desc: string
-  features: string[]
-  ctaLabel: string
-  ctaIntent: LeadIntent
-  variant?: 'featured' | 'premium'
-  badge?: string
-  foot: string
-  isPrimary?: boolean
-  pack?: { icon: string; html: string; full?: boolean }[]
-}
+export type { Plan }
 
 // Carte d'un plan tarifaire. Le bouton ouvre la modale lead avec intent/plan préselectionnés.
 export default function PlanCard({ plan, period }: { plan: Plan; period: BillingPeriod }) {
