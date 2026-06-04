@@ -2,59 +2,59 @@ import type { ReactNode } from 'react'
 import RevealSection from './RevealSection'
 
 type Module = {
-  icon: ReactNode
-  title: string
-  desc: string
-  tag: 'Production' | 'Bientôt'
+  icon:     ReactNode
+  title:    string
+  problem:  string
+  solution: string  // peut contenir un <strong> inline
 }
 
-const SVG = (d: string) => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d={d} />
-  </svg>
-)
-
+// Textes source : maquette V4 lignes 1535-1599.
 const MODULES: Module[] = [
   {
-    icon: SVG('M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11'),
-    title: 'Service du Jour',
-    desc: 'La page la plus utilisée. Live des zones, missions cochables, avancement temps réel, incidents en un clic. Mobile-first.',
-    tag: 'Production',
+    title: '⚡ Service du Jour',
+    icon: (
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+      </svg>
+    ),
+    problem:  'Le matin, votre manager passe 45 min à appeler les retardataires, briefer le staff à l\'oral et gribouiller un planning au tableau.',
+    solution: 'il ouvre l\'app et voit qui est là, qui fait quoi, où en sont les missions. Le pilotage remplace le pompiérisme.',
   },
   {
+    title: '📅 Planning & Services',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <rect x="3" y="4" width="18" height="18" rx="2" />
         <path d="M16 2v4M8 2v4M3 10h18" />
       </svg>
     ),
-    title: 'Planning & Services',
-    desc: 'Plannification semaine, services type, duplication intelligente. Vue manager et vue équipe. Conflits de zones détectés.',
-    tag: 'Production',
+    problem:  'Vos plannings vivent sur un tableau effaçable, un Excel partagé, un groupe WhatsApp. Personne ne sait jamais qui est de fermeture le vendredi.',
+    solution: 'planning hebdo digital, services-type duplicables, vue manager et vue staff. Les conflits sont détectés avant qu\'ils ne deviennent un problème.',
   },
   {
+    title: '⏱️ Pointage & Validation hebdo',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <circle cx="12" cy="12" r="10" />
         <path d="M12 6v6l4 2" />
       </svg>
     ),
-    title: 'Pointage temps réel',
-    desc: 'Tablette en kiosk-mode, code PIN, photo de pointage. Validation hebdo conforme IDCC 1790. Export paie en 2 clics.',
-    tag: 'Production',
+    problem:  'Pointage au stylo, oublis, heures supp contestées, paie qui prend 4h chaque fin de mois. Et le risque Prud\'hommes en bruit de fond.',
+    solution: 'kiosk-mode, code PIN, horodatage à la seconde, validation hebdo en 10 min, règles pensées pour la convention IDCC 1790 (heures supp, nuit, dimanche). Export paie en 2 clics.',
   },
   {
+    title: '📋 Postes & Missions',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M3 7l9-4 9 4-9 4-9-4z" />
         <path d="M3 17l9 4 9-4M3 12l9 4 9-4" />
       </svg>
     ),
-    title: 'Postes & Missions',
-    desc: 'Catalogue de zones, missions et compétences. Drag & drop des affectations. Catégories Ouverture / Pendant / Ménage / Fermeture.',
-    tag: 'Production',
+    problem:  'Le staff arrive et demande "je commence par quoi ?". Le manager rebriefe la même chose tous les matins. Les missions critiques tombent à la trappe.',
+    solution: 'fiche de poste digitale, missions du jour cochables sur mobile, organisées par moment du service (ouverture, pendant, fermeture).',
   },
   {
+    title: '🎓 Staff & Compétences',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -62,66 +62,33 @@ const MODULES: Module[] = [
         <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
       </svg>
     ),
-    title: 'Staff & Compétences',
-    desc: 'Fiches équipe, validation des compétences par zone, niveaux, progression. Système de points pour fidéliser.',
-    tag: 'Production',
+    problem:  'Le staff stagne, ne sait pas ce qu\'on attend de lui, ne voit aucune progression, et part au bout de 6 mois. Vous re-recrutez en boucle.',
+    solution: 'compétences validables par zone, niveaux, points, progression visible. Le staff voit qu\'il monte, vous voyez qui peut prendre quoi.',
   },
   {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M9 12l2 2 4-4M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
-      </svg>
-    ),
-    title: 'HACCP intégré',
-    desc: 'Relevés de températures, traçabilité produit, plan de nettoyage, alertes DDPP. Dossier sanitaire toujours prêt.',
-    tag: 'Bientôt',
-  },
-  {
+    title: '📚 Tutoriels & Formation',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
       </svg>
     ),
-    title: 'Tutoriels & Formation',
-    desc: 'Formation interne intégrée. Chaque collaborateur apprend ses postes à son rythme. Vous voyez qui a lu quoi.',
-    tag: 'Production',
-  },
-  {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M3 3h18v18H3z" />
-        <path d="M9 9h6v6H9z" />
-      </svg>
-    ),
-    title: 'Réservations & CSE',
-    desc: 'Gestion des entreprises clientes, réservations groupes, anniversaires, CSE. Pour ne plus rien laisser passer.',
-    tag: 'Production',
-  },
-  {
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-      </svg>
-    ),
-    title: 'Multi-centre',
-    desc: 'Pilotez 2, 5, 20 centres depuis un seul compte. Vues consolidées, KPI par centre, accès cloisonnés. Pensé pour le scaling.',
-    tag: 'Production',
+    problem:  'Chaque embauche = 4h de formation à l\'oral que vous recommencez à zéro. Vos SOP vivent dans votre tête et celle de 2 managers.',
+    solution: 'tutoriels internes intégrés, lisibles en 3 min sur mobile. Un nouvel arrivant lit, valide ses acquis, opérationnel sous 48h sans vous accaparer.',
   },
 ]
 
-// 9 modules sur fond sombre — section de rythme visuel après le bloc sand.
+// 6 modules storytelling problème → solution sur fond sombre.
 export default function ModulesGrid() {
   return (
     <RevealSection className="mkt-section mkt-section-dark" id="modules">
       <div className="mkt-container">
         <div className="mkt-section-head">
-          <div className="mkt-section-label">🧩 Les modules</div>
-          <h2 className="mkt-section-title">Tout ce qu&apos;il faut pour faire tourner un parc.</h2>
+          <div className="mkt-section-label">🧩 Les 6 modules cœur</div>
+          <h2 className="mkt-section-title">Six douleurs racines. Six réponses précises.</h2>
           <p className="mkt-section-subtitle">
-            9 modules connectés. Chacun pensé pour un cas d&apos;usage précis du métier. Aucun
-            gras inutile.
+            Chaque module répond à un problème quotidien concret. Pas de feature gratuite, pas
+            de gras inutile. La gestion interne pure.
           </p>
         </div>
         <div className="mkt-modules-grid">
@@ -129,12 +96,18 @@ export default function ModulesGrid() {
             <div className="mkt-module-card" key={m.title}>
               <div className="mkt-module-icon">{m.icon}</div>
               <h3>{m.title}</h3>
-              <p>{m.desc}</p>
-              <span className={`mkt-module-tag ${m.tag === 'Bientôt' ? 'is-soon' : ''}`}>
-                {m.tag}
-              </span>
+              <p className="mkt-module-problem">{m.problem}</p>
+              <p className="mkt-module-solution">
+                <strong>Avec Shiftly :</strong> {m.solution}
+              </p>
+              <span className="mkt-module-tag">Production</span>
             </div>
           ))}
+        </div>
+
+        <div className="mkt-modules-footnote">
+          ➕ <strong>Multi-établissement consolidé</strong> inclus dès le plan Pro pour
+          piloter plusieurs établissements depuis un seul compte.
         </div>
       </div>
     </RevealSection>

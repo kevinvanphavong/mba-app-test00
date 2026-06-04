@@ -2,25 +2,26 @@ import RevealSection from './RevealSection'
 
 type Item = { icon: string; html: string }
 
+// Textes source : maquette V4 lignes 1407-1485.
 const SANS: Item[] = [
-  { icon: '⏰', html: '<strong>8h par semaine perdues</strong> à griffonner des plannings et relancer l\'équipe par SMS' },
-  { icon: '📋', html: '<strong>Aucune visibilité</strong> sur ce qui est fait, par qui, à quelle heure — vous découvrez le lundi matin' },
-  { icon: '⚖️', html: '<strong>Risque Prud\'hommes</strong> sur les heures supp non tracées et les pointages contestés' },
-  { icon: '🔥', html: '<strong>Risque DDPP</strong> avec un classeur HACCP que personne n\'a ouvert depuis 3 mois' },
-  { icon: '😤', html: '<strong>Turnover qui grimpe</strong> parce que le staff ne sait jamais à quoi s\'attendre' },
-  { icon: '🚫', html: '<strong>Combo, Skello, Excel</strong> — pas un seul ne comprend une zone de jeu' },
+  { icon: '📞', html: '<strong>8h/semaine au téléphone</strong> à relancer les retardataires, refaire les plannings au stylo, briefer le staff à l\'oral' },
+  { icon: '❓', html: '<strong>Le staff arrive et demande "je commence par quoi ?"</strong> — chaque matin, on ré-explique la même chose' },
+  { icon: '⚖️', html: '<strong>Les heures supp sont contestées</strong> en fin de mois — pointage au stylo, oublis, risque Prud\'hommes' },
+  { icon: '🕳️', html: '<strong>Les missions critiques tombent à la trappe</strong> — vous découvrez le lundi que la fermeture du vendredi a été bâclée' },
+  { icon: '🚪', html: '<strong>Le staff part au bout de 6 mois</strong> — pas de progression visible, pas de reconnaissance, turnover qui explose' },
+  { icon: '🔁', html: '<strong>Chaque embauche = 4h de formation à l\'oral</strong> que vous recommencez à zéro à chaque fois' },
 ]
 
 const AVEC: Item[] = [
-  { icon: '📊', html: '<strong>Pilotage temps réel</strong> — vous voyez l\'avancement, les KPI, les incidents depuis votre canapé' },
-  { icon: '⚡', html: '<strong>Service du Jour</strong> — chaque mission est cochée, tracée, horodatée. Plus rien ne passe à la trappe' },
-  { icon: '🛡️', html: '<strong>Conformité IDCC 1790</strong> native — pointages, validation hebdo, export paie irréprochables' },
-  { icon: '🧼', html: '<strong>HACCP intégré</strong> — relevés, traçabilité, dossier sanitaire toujours prêt pour la DDPP' },
-  { icon: '🎓', html: '<strong>Montée en compétence</strong> automatique — tutoriels, compétences validées, staff fidélisé' },
-  { icon: '🎳', html: '<strong>Pensé pour vous</strong> — zones Accueil / Bar / Salle / Manager, week-ends, événements, CSE' },
+  { icon: '📊', html: '<strong>Le manager pilote depuis son canapé</strong> — Service du Jour temps réel, qui fait quoi, où, à la minute' },
+  { icon: '📋', html: '<strong>Chacun sait quoi faire dès l\'arrivée</strong> — fiche de poste sur mobile, missions du jour cochables, briefing zéro' },
+  { icon: '⏱️', html: '<strong>Le pointage est incontestable</strong> — kiosk, horodatage à la seconde, validation hebdo pensée pour la convention IDCC 1790, export paie en 10 min' },
+  { icon: '✅', html: '<strong>Chaque mission cochée laisse une trace</strong> — qui, quand, quoi. Plus rien ne passe à la trappe' },
+  { icon: '🎓', html: '<strong>Le staff progresse et reste</strong> — compétences validables, tutos intégrés, points, niveaux, reconnaissance' },
+  { icon: '🧠', html: '<strong>Vos SOP vivent dans l\'outil</strong> — un nouvel arrivant lit, valide, opérationnel sous 48h sans vous' },
 ]
 
-// 2 cartes contrastées (Sans / Avec) qui pitchent la valeur en KPI.
+// 2 cartes contrastées (Sans / Avec) — storytelling problème → solution.
 export default function SansAvecSection() {
   return (
     <RevealSection className="mkt-section">
@@ -28,13 +29,13 @@ export default function SansAvecSection() {
         <div className="mkt-section-head">
           <div className="mkt-section-label">⚡ Le constat</div>
           <h2 className="mkt-section-title">
-            Gérer un parc de loisirs{' '}
-            <em style={{ fontStyle: 'normal', color: 'var(--accent)' }}>comme un resto</em>, ça
-            ne marche pas.
+            Vos managers{' '}
+            <em style={{ fontStyle: 'normal', color: 'var(--accent)' }}>éteignent des feux</em>.
+            Ils ne pilotent pas.
           </h2>
           <p className="mkt-section-subtitle">
-            Vos zones, vos postes, vos services, vos pics du week-end — ce métier a ses codes.
-            Vos outils doivent les suivre.
+            Tous les jours, les mêmes douleurs reviennent. Shiftly les résout une bonne fois
+            pour toutes — par module, par cas concret.
           </p>
         </div>
 
@@ -59,8 +60,8 @@ function Card({ variant }: { variant: 'sans' | 'avec' }) {
       </div>
       <div className="mkt-sansavec-tagline">
         {isSans
-          ? "Le quotidien d'un patron en mode pompier."
-          : 'Le centre piloté comme une vraie entreprise.'}
+          ? 'Le manager est un pompier. Il subit, il ne pilote rien.'
+          : 'Le manager pilote. Le staff exécute, progresse, reste.'}
       </div>
 
       <div className="mkt-sansavec-list">
@@ -77,9 +78,11 @@ function Card({ variant }: { variant: 'sans' | 'avec' }) {
         <div className="mkt-sansavec-kpi-lbl">
           {isSans ? (
             <>
-              <strong className="mkt-sansavec-kpi-strong-light">par an et par centre</strong>
+              <strong className="mkt-sansavec-kpi-strong-light">
+                par an et par établissement
+              </strong>
               <br />
-              en temps managérial perdu, missions oubliées et risques cachés
+              en temps managérial perdu, missions oubliées et turnover non maîtrisé
             </>
           ) : (
             <>
