@@ -396,7 +396,13 @@
 }
 .mkt-billing-switch button:not(.is-active) .mkt-billing-save { background: rgba(74, 124, 42, 0.18); color: var(--green); }
 
-.mkt-pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
+/* Grille adaptative — Premium V1 est masqué, donc 2 cartes visibles.
+   auto-fit + minmax(280px,1fr) tient pour 2 ou 3 cartes selon réactivation. */
+.mkt-pricing-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px; align-items: stretch;
+  max-width: 820px; margin: 0 auto;
+}
 @media (max-width: 900px) { .mkt-pricing-grid { grid-template-columns: 1fr; gap: 32px; } }
 .mkt-plan {
   background: var(--surface); border: 1px solid var(--border);
@@ -703,3 +709,78 @@
   width: 14px; height: 14px; border-radius: 50%;
   background: linear-gradient(135deg, var(--accent), var(--accent2));
 }
+
+/* ─── Audience Switch (Hero V2 — double porte Loisirs/Commerce) ──────────── */
+.mkt-audience-switch {
+  display: inline-flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px;
+  margin-bottom: 26px;
+  position: relative;
+  box-shadow: var(--shadow-card);
+}
+.mkt-audience-switch-btn {
+  font-family: var(--font-syne), 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 10px 18px;
+  border-radius: 999px;
+  letter-spacing: 0.4px;
+  transition: color 0.2s;
+  position: relative;
+  display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap;
+  background: transparent;
+  cursor: pointer;
+}
+.mkt-audience-switch-btn.is-active { color: var(--on-accent); }
+.mkt-audience-switch-thumb {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 999px;
+  z-index: 0;
+  box-shadow: 0 4px 12px -4px rgba(217, 83, 26, 0.55);
+}
+.mkt-audience-switch-label { position: relative; z-index: 1; }
+@media (max-width: 500px) {
+  .mkt-audience-switch-btn { padding: 9px 12px; font-size: 11px; }
+}
+
+/* ─── Modules V2 — storytelling problème → solution ──────────────────────── */
+.mkt-module-problem,
+.mkt-module-solution {
+  padding: 10px 12px 10px 14px;
+  border-left: 3px solid;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 13px; line-height: 1.55;
+}
+.mkt-module-problem {
+  border-left-color: var(--red);
+  background: rgba(217, 60, 60, 0.06);
+  color: var(--mkt-dark-muted);
+}
+.mkt-module-solution {
+  border-left-color: var(--accent2);
+  background: rgba(249, 115, 22, 0.07);
+  color: var(--mkt-dark-text);
+  margin-bottom: 0;
+}
+.mkt-module-solution strong { color: var(--accent2); font-weight: 700; }
+
+.mkt-modules-footnote {
+  margin-top: 28px; text-align: center;
+  color: var(--mkt-dark-muted); font-size: 13px;
+}
+.mkt-modules-footnote strong { color: var(--mkt-dark-text); font-weight: 700; }
+
+.mkt-compare-footnote {
+  margin-top: 28px; text-align: center;
+  color: var(--mkt-dark-muted); font-size: 12px;
+  max-width: 640px; margin-left: auto; margin-right: auto;
+  line-height: 1.55;
+}
+.mkt-compare-footnote strong { color: var(--mkt-dark-text); font-weight: 700; }
