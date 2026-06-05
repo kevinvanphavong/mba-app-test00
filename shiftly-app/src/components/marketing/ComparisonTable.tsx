@@ -32,7 +32,7 @@ const ROWS: Row[] = [
   { feat: '🔓 Pas d\'engagement annuel, vous arrêtez quand vous voulez',
     shiftly: { text: '★ Aucun lock-in',   star: true }, planning: { text: 'Engagement annuel' },         excel: { text: 'Gratuit', yes: true } },
   { feat: '💶 Vous démarrez à un prix juste, sans surprise',
-    shiftly: { text: '49€ / mois HT',     star: true }, planning: { text: '~149€ / mois HT' },           excel: { text: '0€ (mais 15K€ cachés)' } },
+    shiftly: { text: '79€ / mois HT',     star: true }, planning: { text: '~149€ / mois HT' },           excel: { text: '0€ (mais 15K€ cachés)' } },
 ]
 
 // Comparatif générique — pas de noms de concurrents pour rester loyal.

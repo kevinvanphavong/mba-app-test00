@@ -81,7 +81,7 @@ Shiftly est une application SaaS de **management opérationnel pour parcs de loi
 
 - **Fondateur unique** : Kévin Vanphavong
 - **Centre pilote** : Family Games Center (Blois) et Bowling Central (Blois)
-- **Modèle économique** : SaaS B2B, abonnement mensuel par centre (Starter 79€, Pro 129€, Enterprise 199€)
+- **Modèle économique** : SaaS B2B, offre unique par établissement — 79€/mois sans engagement OU 790€/an (engagement 1 an, 2 mois offerts)
 - **Convention collective** : IDCC 1790 (Espaces de loisirs)
 - **Stade actuel** : ~12 centres clients · MRR ~1 287€ · solo founder
 - **Objectif court terme** : 10-100 centres clients

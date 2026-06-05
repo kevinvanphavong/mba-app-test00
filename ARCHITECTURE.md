@@ -798,6 +798,10 @@ manager / employé ne peut accéder aux endpoints back-office.
 
 ## 14. Landing V2 — double audience + storytelling
 
+> ⚠️ **Historique** — cette section décrit l'état V2, **superseded par §15 V3**
+> (offre unique 79€/790€, plus de switcher d'audience, plus de plans
+> Starter/Pro/Premium). Gardée pour traçabilité du raisonnement.
+
 Refonte V2 de la landing publique `/` (cf. `PROMPT_CLAUDE_CODE_LANDING_V2.md`).
 
 ### Nouveau store audience

@@ -58,7 +58,7 @@ const QUESTIONS: FaqEntry[] = [
   },
   {
     q: 'Le support, c\'est qui ?',
-    a: "C'est moi, Kévin, le fondateur. Pour le moment, je réponds personnellement à chaque demande. Email sous 48h en Starter, sous 24h en Pro.",
+    a: "C'est moi, Kévin, le fondateur. Pour le moment, je réponds personnellement à chaque demande, par email, sous 24h ouvrées.",
   },
   {
     q: 'Et si je ne suis pas satisfait ?',
