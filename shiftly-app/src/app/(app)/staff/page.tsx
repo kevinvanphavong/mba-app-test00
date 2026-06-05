@@ -13,6 +13,7 @@ import PageContainer               from '@/components/layout/PageContainer'
 import MemberRow                   from '@/components/staff/MemberRow'
 import MemberPanel                 from '@/components/staff/MemberPanel'
 import ModalEditStaff              from '@/components/staff/ModalEditStaff'
+import ModalSortie                 from '@/components/registre/ModalSortie'
 import ConfirmModal                from '@/components/ui/ConfirmModal'
 import { ty }                      from '@/lib/typography'
 import { useStaff, useCreateStaff, useUpdateStaff } from '@/hooks/useStaff'
@@ -96,7 +97,10 @@ export default function StaffPage() {
   function confirmActifToggle() {
     if (!confirmToggle) return
     const nextActif = !confirmToggle.actif
-    updateStaff.mutate({ id: confirmToggle.id, actif: nextActif }, {
+    // À la réactivation : reset dateSortie + motifSortie pour ressortir le
+    // membre du registre des sortis (la fiche reste valide à vie).
+    const extras = nextActif ? { dateSortie: null, motifSortie: null } : {}
+    updateStaff.mutate({ id: confirmToggle.id, actif: nextActif, ...extras }, {
       onSuccess: () => {
         showToast(nextActif ? 'Membre réactivé' : 'Membre désactivé', 'success')
         setConfirmToggle(null)
@@ -105,6 +109,21 @@ export default function StaffPage() {
         showToast(nextActif ? 'Erreur lors de la réactivation' : 'Erreur lors de la désactivation', 'error')
       },
     })
+  }
+
+  /** Désactivation enrichie — alimente le registre du personnel (Art. L1221-13). */
+  function confirmSortie({ dateSortie, motifSortie }: { dateSortie: string; motifSortie: import('@/types/staff').MotifSortie }) {
+    if (!confirmToggle) return
+    updateStaff.mutate(
+      { id: confirmToggle.id, actif: false, dateSortie, motifSortie },
+      {
+        onSuccess: () => {
+          showToast('Sortie enregistrée au registre', 'success')
+          setConfirmToggle(null)
+        },
+        onError: () => showToast('Erreur lors de l\'enregistrement de la sortie', 'error'),
+      },
+    )
   }
 
   if (isLoading) return (
@@ -220,23 +239,23 @@ export default function StaffPage() {
         onSave={handleSave}
       />
 
-      {/* Modale confirmation : désactivation OU réactivation selon l'état courant */}
+      {/* Désactivation : ModalSortie demande date + motif (registre du personnel).
+          Réactivation : ConfirmModal simple — pas besoin de re-saisir une raison. */}
+      <ModalSortie
+        open={confirmToggle !== null && confirmToggle.actif}
+        member={confirmToggle?.actif ? confirmToggle : null}
+        onCancel={() => setConfirmToggle(null)}
+        onConfirm={confirmSortie}
+        isLoading={updateStaff.isPending}
+      />
       <ConfirmModal
-        open={confirmToggle !== null}
-        title={confirmToggle?.actif ? 'Désactiver ce membre ?' : 'Réactiver ce membre ?'}
-        message={
-          confirmToggle?.actif
-            ? `${confirmToggle?.prenom ?? ''} ${confirmToggle?.nom ?? ''} sera marqué inactif. Il ne pourra plus se connecter mais l'historique reste intact.`
-            : `${confirmToggle?.prenom ?? ''} ${confirmToggle?.nom ?? ''} sera de nouveau actif et pourra à nouveau se connecter.`
-        }
-        confirmLabel={
-          updateStaff.isPending
-            ? (confirmToggle?.actif ? 'Désactivation…' : 'Réactivation…')
-            : (confirmToggle?.actif ? 'Désactiver'    : 'Réactiver')
-        }
+        open={confirmToggle !== null && !confirmToggle.actif}
+        title="Réactiver ce membre ?"
+        message={`${confirmToggle?.prenom ?? ''} ${confirmToggle?.nom ?? ''} sera de nouveau actif et pourra à nouveau se connecter.`}
+        confirmLabel={updateStaff.isPending ? 'Réactivation…' : 'Réactiver'}
         onConfirm={confirmActifToggle}
         onCancel={() => setConfirmToggle(null)}
-        variant={confirmToggle?.actif ? 'danger' : 'default'}
+        variant="default"
         isLoading={updateStaff.isPending}
       />
     </motion.div>
