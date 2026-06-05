@@ -271,11 +271,16 @@ export const slideUp = {
 
 | Modification | Fichier à mettre à jour |
 |---|---|
-| Nouvelle entité, nouvelle route, nouveau composant, changement de stack, nouvelle dépendance | `ARCHITECTURE.md` |
-| Nouveau composant UI, nouveau token de couleur, nouvelle animation, changement typographie | `DESIGN_SYSTEM.md` |
+| Nouvelle entité, nouvelle route, changement de stack, nouvelle dépendance | `docs/architecture/` (le fichier du domaine concerné) |
+| Nouveau module / changement structurel d'un module | `docs/architecture/modules/<module>.md` |
+| Nouveau composant UI, nouveau token de couleur, nouvelle animation, changement typographie | `docs/design/` (le fichier du domaine concerné) |
 | Modification du schéma BDD (nouvelle table, nouveau champ, nouvelle contrainte) | `schema.sql` |
 
-> Ces 3 fichiers sont la référence du projet. Ils doivent toujours refléter l'état réel du code.
+> `ARCHITECTURE.md` et `DESIGN_SYSTEM.md` sont des **index slim** : ils listent
+> et pointent vers les fichiers détaillés de `docs/architecture/` et `docs/design/`.
+> Mettre à jour le fichier de domaine concerné (pas l'index, sauf nouvel ajout de
+> fichier à référencer). Garder chaque fichier de doc sous ~300 lignes : au-delà,
+> découper par sous-domaine. Ces fichiers doivent toujours refléter l'état réel du code.
 
 ---
 
