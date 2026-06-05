@@ -8,6 +8,7 @@ import FaqAccordion from '@/components/marketing/FaqAccordion'
 import FounderStory from '@/components/marketing/FounderStory'
 import HeroSection from '@/components/marketing/HeroSection'
 import ModulesGrid from '@/components/marketing/ModulesGrid'
+import PainPointsMarquee from '@/components/marketing/PainPointsMarquee'
 import PricingSection from '@/components/marketing/PricingSection'
 import ProcessSteps from '@/components/marketing/ProcessSteps'
 import SansAvecSection from '@/components/marketing/SansAvecSection'
@@ -41,6 +42,7 @@ export default function LandingPage() {
   return (
     <main>
       <HeroSection />
+      <PainPointsMarquee />
       <SansAvecSection />
       <ProcessSteps />
       <ModulesGrid />
