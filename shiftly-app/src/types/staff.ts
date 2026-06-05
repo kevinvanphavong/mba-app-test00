@@ -14,6 +14,18 @@ export interface StaffCompetenceItem {
   difficulte:   DifficulteComp
 }
 
+export type Sexe = 'M' | 'F'
+
+/** Enum applicatif aligné sur App\Entity\User::MOTIFS_SORTIE côté Symfony. */
+export type MotifSortie =
+  | 'demission'
+  | 'rupture_conventionnelle'
+  | 'licenciement'
+  | 'fin_cdd'
+  | 'fin_periode_essai'
+  | 'retraite'
+  | 'autre'
+
 export interface StaffMember {
   id:               number
   nom:              string
@@ -31,6 +43,20 @@ export interface StaffMember {
   typeContrat:      string | null
   dateEmbauche:     string | null     // YYYY-MM-DD ou null
   codePointage:     string | null
+  /** Registre du personnel — MANAGER + soi-même uniquement (sauf sortie : tous) */
+  dateNaissance:            string | null
+  lieuNaissanceCommune:     string | null
+  lieuNaissanceDepartement: string | null
+  sexe:        Sexe | null
+  nationalite: string | null
+  emploi:      string | null
+  adresse:     string | null
+  codePostal:  string | null
+  ville:       string | null
+  telephone:   string | null
+  /** dateSortie / motifSortie : visibles par tous, écriture MANAGER only. */
+  dateSortie:  string | null
+  motifSortie: MotifSortie | null
   staffCompetences: StaffCompetenceItem[]
   tutorielsLus:     number
   isPresent:        boolean

@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
-import type { StaffResponse } from '@/types/staff'
+import type { MotifSortie, Sexe, StaffResponse } from '@/types/staff'
 
 // ─── Liste enrichie du staff ──────────────────────────────────────────────────
 
@@ -66,6 +66,19 @@ interface UpdateStaffPayload {
   typeContrat?:  string | null
   dateEmbauche?: string | null
   codePointage?: string | null
+  // ─── Registre du personnel (Art. L1221-13) ───
+  dateNaissance?:            string | null
+  lieuNaissanceCommune?:     string | null
+  lieuNaissanceDepartement?: string | null
+  sexe?:        Sexe | null
+  nationalite?: string | null
+  emploi?:      string | null
+  adresse?:     string | null
+  codePostal?:  string | null
+  ville?:       string | null
+  telephone?:   string | null
+  dateSortie?:  string | null
+  motifSortie?: MotifSortie | null
 }
 
 export function useUpdateStaff() {

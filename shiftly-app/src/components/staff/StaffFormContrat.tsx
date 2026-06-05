@@ -10,9 +10,11 @@ import { StaffFormCard, StaffFormField, STAFF_FORM_INPUT } from './StaffFormCard
 const CONTRATS = ['CDI', 'CDD', 'EXTRA', 'ALTERNANCE', 'STAGE'] as const
 
 interface Props {
+  emploi?:        string
   typeContrat:    string
   heuresHebdo:    string
   dateEmbauche:   string
+  onEmploi?:      (v: string) => void
   onTypeContrat:  (v: string) => void
   onHeuresHebdo:  (v: string) => void
   onDateEmbauche: (v: string) => void
@@ -21,6 +23,20 @@ interface Props {
 export default function StaffFormContrat(p: Props) {
   return (
     <StaffFormCard ico="▮" title="Contrat">
+      {p.onEmploi !== undefined && (
+        <StaffFormField label="Emploi (intitulé contractuel)" required>
+          <input
+            value={p.emploi ?? ''}
+            onChange={(e) => p.onEmploi!(e.target.value)}
+            placeholder="Responsable bar"
+            className={STAFF_FORM_INPUT}
+          />
+          <span className="text-[10px] text-muted mt-0.5">
+            Mention obligatoire au registre. Ex&nbsp;: « Hôte d&apos;accueil », « Responsable bar »…
+          </span>
+        </StaffFormField>
+      )}
+
       <div className="flex flex-wrap gap-1.5">
         {CONTRATS.map(c => {
           const on = p.typeContrat === c
