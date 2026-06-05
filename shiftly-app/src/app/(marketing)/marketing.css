@@ -777,12 +777,12 @@
   will-change: transform;
 }
 .mkt-pain-card {
-  flex: 0 0 320px;
+  flex: 0 0 360px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 20px 22px;
-  display: flex; flex-direction: column; gap: 14px;
+  display: flex; flex-direction: column; gap: 12px;
   box-shadow: var(--shadow-card);
 }
 .mkt-pain-card-quote {
@@ -805,6 +805,19 @@
   color: var(--accent);
   letter-spacing: 0.8px; text-transform: uppercase;
 }
+.mkt-pain-card-details {
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.mkt-pain-card-detail { display: flex; gap: 7px; align-items: flex-start; }
+.mkt-pain-card-icon {
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 1.3;
+  opacity: 0.85;
+}
 .mkt-pain-foot {
   text-align: center;
   margin-top: 40px;
@@ -825,8 +838,9 @@
   font-weight: 800;
 }
 @media (max-width: 600px) {
-  .mkt-pain-card { flex-basis: 260px; padding: 18px 18px; }
+  .mkt-pain-card { flex-basis: 300px; padding: 18px 18px; }
   .mkt-pain-card-quote { font-size: 13.5px; }
+  .mkt-pain-card-details { font-size: 11px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .mkt-pain-track { animation: none; transform: none; }
