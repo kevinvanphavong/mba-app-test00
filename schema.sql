@@ -39,6 +39,23 @@ CREATE TABLE `user` (
     points        INT          NOT NULL DEFAULT 0, -- SUM des compétences validées
     date_embauche DATE         DEFAULT NULL,       -- sert au calcul d'ancienneté côté front
     created_at    DATETIME     NOT NULL,
+    -- ─── Registre du personnel (Art. L1221-13 et D1221-23) ───────────────
+    -- Tous nullables. Écriture réservée MANAGER (route /editeur/staff/{id}
+    -- PUT déjà ROLE_MANAGER). dateSortie/motifSortie sont lus par tous,
+    -- mais l'employé self-edit ne peut pas les écrire (la route est manager-
+    -- only ; l'API Platform PUT n'expose pas le groupe user:rh-write au self).
+    date_naissance              DATE         DEFAULT NULL,
+    lieu_naissance_commune      VARCHAR(120) DEFAULT NULL,
+    lieu_naissance_departement  VARCHAR(60)  DEFAULT NULL,
+    sexe                        VARCHAR(1)   DEFAULT NULL,   -- enum app : 'M' | 'F'
+    nationalite                 VARCHAR(60)  DEFAULT NULL,
+    emploi                      VARCHAR(120) DEFAULT NULL,   -- intitulé contractuel (≠ role applicatif)
+    adresse                     VARCHAR(255) DEFAULT NULL,
+    code_postal                 VARCHAR(10)  DEFAULT NULL,
+    ville                       VARCHAR(120) DEFAULT NULL,
+    telephone                   VARCHAR(20)  DEFAULT NULL,
+    date_sortie                 DATE         DEFAULT NULL,
+    motif_sortie                VARCHAR(40)  DEFAULT NULL,   -- enum app : demission|rupture_conventionnelle|licenciement|fin_cdd|fin_periode_essai|retraite|autre
     UNIQUE KEY uniq_email (email),
     INDEX idx_user_centre (centre_id),
     PRIMARY KEY (id),

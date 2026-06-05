@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Shiftly — Registre du personnel · Export PDF (preview)</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --border: #252a3a;
+    --muted: #6b7280;
+    --accent: #f97316;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: #e8eaf0;
+    padding: 40px 28px 80px;
+  }
+  .intro {
+    max-width: 920px; margin: 0 auto 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-size: 13px; line-height: 1.6; color: var(--muted);
+  }
+  .intro b { color: #e8eaf0; }
+
+  /* ============= PAGE PDF SIMULÉE ============= */
+  .pdf-page {
+    max-width: 920px;
+    margin: 0 auto;
+    background: #ffffff;
+    color: #1a1f2e;
+    padding: 48px 56px 36px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .pdf-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding-bottom: 18px;
+    border-bottom: 2px solid #f97316;
+    margin-bottom: 22px;
+  }
+  .pdf-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    color: #f97316;
+    letter-spacing: -0.5px;
+  }
+  .pdf-logo small {
+    display: block; font-family: 'DM Sans', sans-serif; font-weight: 600;
+    font-size: 9px; color: #6b7280; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px;
+  }
+  .pdf-meta {
+    text-align: right; font-size: 10px; color: #4b5563; line-height: 1.6;
+  }
+  .pdf-meta b { color: #1a1f2e; }
+
+  .pdf-title-block {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .pdf-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: #1a1f2e;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .pdf-subtitle {
+    font-size: 10px; color: #6b7280; margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .pdf-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 28px;
+    margin-bottom: 22px;
+    font-size: 10px;
+  }
+  .pdf-info-grid div b { color: #1a1f2e; }
+  .pdf-info-grid div span { color: #4b5563; }
+
+  /* Tableau registre */
+  .pdf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5px;
+    margin-bottom: 20px;
+  }
+  .pdf-table thead th {
+    background: #1a1f2e;
+    color: #ffffff;
+    text-align: left;
+    padding: 8px 6px;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border: 1px solid #1a1f2e;
+  }
+  .pdf-table tbody td {
+    padding: 7px 6px;
+    border: 1px solid #d1d5db;
+    vertical-align: top;
+  }
+  .pdf-table tbody tr:nth-child(even) td { background: #f9fafb; }
+  .pdf-table .col-num { width: 22px; text-align: center; font-weight: 700; }
+  .pdf-table .col-sex { width: 22px; text-align: center; }
+  .pdf-table .col-nat { width: 40px; }
+  .pdf-table .col-date { width: 60px; }
+  .pdf-table .col-emploi { width: 110px; }
+  .pdf-table .col-contrat { width: 50px; }
+  .pdf-table .col-motif { width: 80px; }
+
+  /* Légende mentions conditionnelles */
+  .pdf-legend {
+    background: #f3f4f6;
+    border-left: 3px solid #f97316;
+    padding: 10px 14px;
+    font-size: 9.5px;
+    color: #4b5563;
+    line-height: 1.6;
+    border-radius: 4px;
+    margin-bottom: 22px;
+  }
+  .pdf-legend b { color: #1a1f2e; }
+
+  /* Signature & pied */
+  .pdf-sign {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-top: 32px; padding-top: 18px;
+    border-top: 1px solid #d1d5db;
+  }
+  .pdf-sign-block { font-size: 10px; color: #4b5563; line-height: 1.6; }
+  .pdf-sign-block b { color: #1a1f2e; display: block; margin-bottom: 4px; }
+  .pdf-sign-line {
+    width: 220px; height: 60px; border: 1px dashed #9ca3af;
+    margin-top: 8px; border-radius: 4px;
+  }
+
+  .pdf-footer {
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 8.5px;
+    color: #9ca3af;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .pdf-footer b { color: #6b7280; }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <b>Maquette — Export PDF du Registre du personnel</b><br><br>
+  Aperçu du document généré par <code>GET /api/registre-personnel/export.pdf</code>.<br>
+  Format A4 portrait, template Shiftly maison (pas de Cerfa officiel — la loi exige les mentions, pas la mise en forme).
+  Contient : en-tête centre (nom, SIRET, adresse), tableau chronologique des salariés avec
+  toutes les mentions de l'<b>Art. D1221-23 du Code du travail</b>, signature du manager, pied de page horodaté.
+</div>
+
+<div class="pdf-page">
+
+  <!-- ENTÊTE -->
+  <div class="pdf-header">
+    <div>
+      <div class="pdf-logo">Shiftly<small>Document RH généré le 05/06/2026</small></div>
+    </div>
+    <div class="pdf-meta">
+      <b>Family Games Center</b><br>
+      24 rue Denis Papin, 41000 Blois<br>
+      SIRET : 812 345 678 00012<br>
+      APE : 9329Z · IDCC : 1790
+    </div>
+  </div>
+
+  <!-- TITRE -->
+  <div class="pdf-title-block">
+    <div class="pdf-title">Registre du personnel</div>
+    <div class="pdf-subtitle">Article L1221-13 et D1221-23 du Code du travail</div>
+  </div>
+
+  <!-- INFOS -->
+  <div class="pdf-info-grid">
+    <div><b>Établissement :</b> <span>Family Games Center — Blois</span></div>
+    <div><b>Période couverte :</b> <span>Depuis le 02/01/2022</span></div>
+    <div><b>Total salariés :</b> <span>14 (12 présents · 2 sortis)</span></div>
+    <div><b>Édité par :</b> <span>Kévin Vanphavong — Directeur</span></div>
+  </div>
+
+  <!-- TABLEAU -->
+  <table class="pdf-table">
+    <thead>
+      <tr>
+        <th class="col-num">N°</th>
+        <th>Nom</th>
+        <th>Prénom(s)</th>
+        <th class="col-sex">Sexe</th>
+        <th class="col-nat">Nat.</th>
+        <th>Date naissance</th>
+        <th class="col-emploi">Emploi</th>
+        <th class="col-contrat">Contrat</th>
+        <th class="col-date">Entrée</th>
+        <th class="col-date">Sortie</th>
+        <th class="col-motif">Motif sortie</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="col-num">1</td>
+        <td>Vanphavong</td><td>Kévin</td>
+        <td class="col-sex">M</td><td>FR</td>
+        <td>18/07/1990</td>
+        <td>Directeur</td>
+        <td>CDI</td>
+        <td>02/01/2022</td>
+        <td>—</td><td>—</td>
+      </tr>
+      <tr>
+        <td class="col-num">2</td>
+        <td>Martin</td><td>Sophie</td>
+        <td class="col-sex">F</td><td>FR</td>
+        <td>18/04/1992</td>
+        <td>Responsable bar</td>
+        <td>CDI</td>
+        <td>15/03/2023</td>
+        <td>—</td><td>—</td>
+      </tr>
+      <tr>
+        <td class="col-num">3</td>
+        <td>Leroy</td><td>Thomas</td>
+        <td class="col-sex">M</td><td>FR</td>
+        <td>02/11/1998</td>
+        <td>Hôte d'accueil</td>
+        <td>CDD</td>
+        <td>01/06/2024</td>
+        <td>—</td><td>—</td>
+      </tr>
+      <tr>
+        <td class="col-num">4</td>
+        <td>Diallo</td><td>Amina</td>
+        <td class="col-sex">F</td><td>SN</td>
+        <td>22/09/2003</td>
+        <td>Employée polyvalente</td>
+        <td>ALT.</td>
+        <td>02/09/2024</td>
+        <td>—</td><td>—</td>
+      </tr>
+      <tr>
+        <td class="col-num">5</td>
+        <td>Dupont</td><td>Julien</td>
+        <td class="col-sex">M</td><td>FR</td>
+        <td>15/05/2001</td>
+        <td>Hôte d'accueil</td>
+        <td>EXTRA</td>
+        <td>10/05/2025</td>
+        <td>—</td><td>—</td>
+      </tr>
+      <tr>
+        <td class="col-num">6</td>
+        <td>Rousseau</td><td>Léa</td>
+        <td class="col-sex">F</td><td>FR</td>
+        <td>03/02/2000</td>
+        <td>Bar</td>
+        <td>CDD</td>
+        <td>01/02/2024</td>
+        <td>31/08/2024</td>
+        <td>Fin CDD</td>
+      </tr>
+      <tr>
+        <td class="col-num">7</td>
+        <td>Benali</td><td>Yassine</td>
+        <td class="col-sex">M</td><td>MA</td>
+        <td>11/12/1995</td>
+        <td>Hôte d'accueil</td>
+        <td>CDI</td>
+        <td>04/04/2023</td>
+        <td>—</td><td>—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- LÉGENDE -->
+  <div class="pdf-legend">
+    <b>Mentions complémentaires —</b> Pour les salariés étrangers hors UE, le type et le numéro
+    de l'autorisation de travail sont conservés dans le dossier individuel et tenus à disposition
+    de l'inspection du travail. Pour les contrats à durée déterminée, la date prévisionnelle de fin
+    de contrat et le motif de recours figurent dans le dossier individuel du salarié.
+  </div>
+
+  <!-- SIGNATURE -->
+  <div class="pdf-sign">
+    <div class="pdf-sign-block">
+      <b>Document attesté conforme par :</b>
+      Kévin Vanphavong<br>
+      Directeur — Family Games Center<br>
+      Le 05/06/2026
+      <div class="pdf-sign-line"></div>
+    </div>
+    <div class="pdf-sign-block" style="text-align:right;">
+      <b>Tenu à disposition de :</b>
+      Inspection du travail<br>
+      Médecin du travail<br>
+      Délégués du personnel<br>
+      Agents URSSAF
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="pdf-footer">
+    <b>Document généré par Shiftly</b> · shiftly.fr · Conforme aux Articles L1221-13 et D1221-23 du Code du travail.<br>
+    Conservation obligatoire : 5 ans à compter du départ de chaque salarié. Page 1 / 1.
+  </div>
+
+</div>
+
+</body>
+</html>

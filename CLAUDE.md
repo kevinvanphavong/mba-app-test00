@@ -102,6 +102,8 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 | Tutoriels | `/tutoriels` | Manager + Employé |
 | Réglages | `/reglages` | Manager (tout) / Employé (profil + notifs) |
 | Tutoriels (gestion) | `/reglages/editeur` | Manager uniquement — zones/missions/compétences ont migré sur /postes |
+| Registre du personnel | `/reglages/registre` | Manager uniquement — liste chronologique + export PDF (Art. L1221-13) |
+| Registre — export PDF | `GET /api/registre-personnel/export.pdf` | Manager uniquement — multi-tenant via JWT |
 | Leads (back-office) | `/superadmin/leads` | SuperAdmin uniquement — capture landing publique |
 | Leads (public)      | `POST /api/leads` | Public (anonyme) — capture depuis shiftly.fr |
 

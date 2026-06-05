@@ -26,6 +26,7 @@
 | Stockage objets Cloudflare R2 & module Media | [`modules/media-r2.md`](docs/architecture/modules/media-r2.md) |
 | Leads (capture publique → back-office) | [`modules/leads.md`](docs/architecture/modules/leads.md) |
 | Landing V3 (offre unique + PainPointsMarquee) | [`modules/landing.md`](docs/architecture/modules/landing.md) |
+| Registre du personnel (Art. L1221-13 + export PDF) | [`modules/registre.md`](docs/architecture/modules/registre.md) |
 
 ## Archive
 

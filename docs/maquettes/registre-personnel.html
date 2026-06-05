@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiftly — Registre du personnel (3 vues)</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --surface3: #232838;
+    --border: #252a3a;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #eab308;
+    --purple: #a855f7;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 36px 28px 80px;
+  }
+  .intro {
+    max-width: 1100px; margin: 0 auto 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 18px 22px;
+    font-size: 13px; line-height: 1.6; color: var(--muted);
+  }
+  .intro b { color: var(--text); }
+  .intro .tag {
+    display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--green); border: 1px solid rgba(34,197,94,0.4);
+    background: rgba(34,197,94,0.1); border-radius: 5px; padding: 1px 6px; margin-left: 6px;
+  }
+
+  .variant-head { max-width: 1100px; margin: 0 auto 14px; }
+  .variant-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--text); }
+  .variant-desc { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .variant-block { margin-bottom: 56px; }
+
+  /* ==========================================================
+     VUE 1 — Page /reglages/registre
+     ========================================================== */
+  .page-stage {
+    max-width: 1100px; margin: 0 auto;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 18px; border-bottom: 1px solid var(--border); margin-bottom: 22px;
+  }
+  .topbar-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; }
+  .topbar-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .topbar-back {
+    font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2);
+  }
+
+  .hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .hero-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .hero-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px; color: var(--muted); }
+  .hero-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.05; margin-top: 2px; }
+  .hero-sub { font-size: 13px; color: var(--muted); margin-top: 6px; max-width: 620px; }
+  .hero-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  .stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 18px;
+    text-align: center;
+    min-width: 95px;
+  }
+  .stat-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.4px; color: var(--muted); margin-bottom: 6px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; line-height: 1; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.muted { color: var(--muted); }
+
+  .btn {
+    padding: 12px 18px; border-radius: 11px; font-weight: 700; font-size: 13px;
+    border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn.primary { background: var(--accent); color: #fff; font-family: 'Syne', sans-serif; font-weight: 800; }
+  .btn.ghost { background: var(--surface2); border-color: var(--border); color: var(--text); }
+
+  .filters {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .tabs { display: flex; gap: 6px; }
+  .tab {
+    padding: 8px 14px; border-radius: 9px; font-size: 12px; font-weight: 700;
+    background: var(--surface2); border: 1px solid var(--border); color: var(--muted); cursor: pointer;
+  }
+  .tab.active { background: rgba(249,115,22,0.10); border-color: rgba(249,115,22,0.4); color: var(--accent); }
+  .search {
+    flex: 1; min-width: 220px; display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border: 1px solid var(--border); background: var(--surface2); border-radius: 10px;
+  }
+  .search input { background: transparent; border: 0; outline: 0; color: var(--text); font-size: 13px; width: 100%; }
+  .results { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+  /* Table */
+  .table-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .table-headers, .table-row {
+    display: grid;
+    grid-template-columns: 38px minmax(180px,1.4fr) 1fr 0.9fr 0.9fr 0.9fr 0.9fr 90px;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    font-size: 12px;
+  }
+  .table-headers {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; font-size: 10px;
+  }
+  .table-row {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .table-row:hover { background: var(--surface2); }
+  .table-row:last-child { border-bottom: 0; }
+
+  .rank { font-family: 'Syne', sans-serif; font-weight: 800; color: var(--muted); font-size: 13px; }
+  .member { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px; color: #fff;
+    flex-shrink: 0;
+  }
+  .av-orange { background: linear-gradient(135deg, #f97316, #fb923c); }
+  .av-blue   { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+  .av-purple { background: linear-gradient(135deg, #a855f7, #c084fc); }
+  .av-green  { background: linear-gradient(135deg, #22c55e, #4ade80); }
+  .av-red    { background: linear-gradient(135deg, #ef4444, #f87171); }
+  .av-yellow { background: linear-gradient(135deg, #eab308, #facc15); }
+  .member-name { font-weight: 600; font-size: 13px; }
+  .member-mail { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  .pill {
+    display: inline-block; padding: 3px 9px; border-radius: 6px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
+    border: 1px solid var(--border); background: var(--surface2); color: var(--muted);
+  }
+  .pill.cdi { color: var(--green); border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.10); }
+  .pill.cdd { color: var(--yellow); border-color: rgba(234,179,8,0.35); background: rgba(234,179,8,0.10); }
+  .pill.extra { color: var(--blue); border-color: rgba(59,130,246,0.35); background: rgba(59,130,246,0.10); }
+  .pill.alt { color: var(--purple); border-color: rgba(168,85,247,0.35); background: rgba(168,85,247,0.10); }
+  .pill.sortie { color: var(--red); border-color: rgba(239,68,68,0.35); background: rgba(239,68,68,0.10); }
+
+  .cell-muted { color: var(--muted); font-size: 12px; }
+  .cell-emploi { font-weight: 600; font-size: 12px; }
+  .actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
+  .icon-btn {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--muted); cursor: pointer; font-size: 13px;
+  }
+  .icon-btn:hover { color: var(--text); }
+
+  .row-sortie { opacity: 0.55; }
+
+  /* Banner légal */
+  .legal-banner {
+    margin-top: 18px;
+    background: rgba(59,130,246,0.06);
+    border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .legal-banner b { color: var(--blue); }
+
+  /* ==========================================================
+     VUE 2 & 3 — Modales bottom-sheet
+     ========================================================== */
+  .stage-sheet {
+    max-width: 880px; margin: 0 auto;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+    padding: 40px 20px 0;
+    overflow: hidden;
+    display: flex; justify-content: center; align-items: flex-end;
+    min-height: 560px;
+  }
+  .sheet {
+    width: 720px;
+    max-width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    border-bottom: 0;
+    display: flex; flex-direction: column;
+    max-height: 90vh;
+  }
+  .sheet-narrow { width: 480px; }
+  .sheet-handle {
+    width: 40px; height: 4px; border-radius: 999px;
+    background: var(--border); margin: 10px auto 0;
+  }
+  .sheet-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px; border-bottom: 1px solid var(--border);
+  }
+  .sheet-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 17px; }
+  .sheet-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .sheet-close {
+    width: 30px; height: 30px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface2);
+    color: var(--muted); font-size: 17px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .sheet-body { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; overflow-y: auto; }
+  .sheet-body.single { grid-template-columns: 1fr; }
+  .sheet-col { display: flex; flex-direction: column; gap: 14px; }
+  .sheet-footer {
+    display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+    padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface);
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .ico { color: var(--accent); }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--muted);
+  }
+  .field label .req { color: var(--accent); margin-left: 2px; }
+  .field input, .field select {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; color: var(--text); font-size: 13px; font-family: inherit;
+    outline: none; transition: border-color 0.15s;
+  }
+  .field input:focus, .field select:focus { border-color: rgba(249,115,22,0.5); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .field-hint { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* Radio pills (sexe / motif) */
+  .radio-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .radio-pill {
+    padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 700;
+    border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer;
+  }
+  .radio-pill.active { background: rgba(249,115,22,0.10); border-color: rgba(249,115,22,0.4); color: var(--accent); }
+
+  /* Warning bandeau dans modale sortie */
+  .warning-banner {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .warning-banner b { color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <b>Maquettes — Registre du personnel</b>
+  <span class="tag">v1 · MVP</span>
+  <br><br>
+  Trois vues à implémenter dans le cadre du <b>MVP Registre du personnel</b>
+  (item Réglages, accessible MANAGER uniquement).
+  <br><br>
+  <b>Vue 1</b> — Page <code>/reglages/registre</code> : table chronologique par date d'embauche,
+  filtres actifs/tous/sortis, bouton export PDF.<br>
+  <b>Vue 2</b> — Modale fiche RH (réutilise le patron <code>ModalEditStaff</code> avec une carte
+  <i>État civil & adresse</i> en plus, et le champ <i>Emploi</i> ajouté à la carte Contrat).<br>
+  <b>Vue 3</b> — Modale sortie : remplace la <code>ConfirmModal</code> de désactivation, demande
+  date + motif de sortie. À la réactivation, on garde le flow simple actuel.
+</div>
+
+<!-- ============================ VUE 1 ============================ -->
+<div class="variant-head">
+  <div class="variant-name">Vue 1 — /reglages/registre</div>
+  <div class="variant-desc">Page liste chronologique, filtres, export PDF. MANAGER only.</div>
+</div>
+
+<div class="variant-block">
+  <div class="page-stage">
+
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Registre du personnel</div>
+        <div class="topbar-sub">Family Games Center · 14 salariés · 2 sortis · Conformité Art. L1221-13</div>
+      </div>
+      <a class="topbar-back">‹ Retour aux réglages</a>
+    </div>
+
+    <div class="hero">
+      <div class="hero-left">
+        <div class="hero-label">Conformité RH</div>
+        <div class="hero-title">Registre du personnel</div>
+        <div class="hero-sub">
+          Liste chronologique de tous les salariés du centre, présents ou passés.
+          Conservation 5 ans après la sortie. Exportable au format PDF officiel.
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="stat"><div class="stat-label">Présents</div><div class="stat-value green">12</div></div>
+        <div class="stat"><div class="stat-label">Sortis</div><div class="stat-value muted">2</div></div>
+        <div class="stat"><div class="stat-label">Total</div><div class="stat-value accent">14</div></div>
+        <button class="btn primary">⬇ Exporter PDF</button>
+      </div>
+    </div>
+
+    <div class="filters">
+      <div class="tabs">
+        <div class="tab active">Actifs</div>
+        <div class="tab">Tous</div>
+        <div class="tab">Sortis</div>
+      </div>
+      <div class="search">
+        <span style="color: var(--muted);">⌕</span>
+        <input type="text" placeholder="Rechercher un salarié, un emploi, un type de contrat…" />
+      </div>
+      <div class="results">12 résultats</div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-headers">
+        <div>#</div>
+        <div>Salarié</div>
+        <div>Emploi</div>
+        <div>Contrat</div>
+        <div>Date entrée</div>
+        <div>Date sortie</div>
+        <div>Motif</div>
+        <div style="text-align:right;">Actions</div>
+      </div>
+
+      <div class="table-row">
+        <div class="rank">01</div>
+        <div class="member">
+          <div class="avatar av-orange">KV</div>
+          <div>
+            <div class="member-name">Kévin Vanphavong</div>
+            <div class="member-mail">kevin@fgc.fr · M · FR</div>
+          </div>
+        </div>
+        <div class="cell-emploi">Directeur</div>
+        <div><span class="pill cdi">CDI</span></div>
+        <div class="cell-muted">02/01/2022</div>
+        <div class="cell-muted">—</div>
+        <div class="cell-muted">—</div>
+        <div class="actions-cell">
+          <div class="icon-btn">✎</div>
+          <div class="icon-btn">⋯</div>
+        </div>
+      </div>
+
+      <div class="table-row">
+        <div class="rank">02</div>
+        <div class="member">
+          <div class="avatar av-purple">SM</div>
+          <div>
+            <div class="member-name">Sophie Martin</div>
+            <div class="member-mail">sophie@fgc.fr · F · FR</div>
+          </div>
+        </div>
+        <div class="cell-emploi">Responsable bar</div>
+        <div><span class="pill cdi">CDI</span></div>
+        <div class="cell-muted">15/03/2023</div>
+        <div class="cell-muted">—</div>
+        <div class="cell-muted">—</div>
+        <div class="actions-cell">
+          <div class="icon-btn">✎</div>
+          <div class="icon-btn">⋯</div>
+        </div>
+      </div>
+
+      <div class="table-row">
+        <div class="rank">03</div>
+        <div class="member">
+          <div class="avatar av-green">TL</div>
+          <div>
+            <div class="member-name">Thomas Leroy</div>
+            <div class="member-mail">thomas@fgc.fr · M · FR</div>
+          </div>
+        </div>
+        <div class="cell-emploi">Hôte d'accueil</div>
+        <div><span class="pill cdd">CDD</span></div>
+        <div class="cell-muted">01/06/2024</div>
+        <div class="cell-muted">—</div>
+        <div class="cell-muted">—</div>
+        <div class="actions-cell">
+          <div class="icon-btn">✎</div>
+          <div class="icon-btn">⋯</div>
+        </div>
+      </div>
+
+      <div class="table-row">
+        <div class="rank">04</div>
+        <div class="member">
+          <div class="avatar av-blue">AD</div>
+          <div>
+            <div class="member-name">Amina Diallo</div>
+            <div class="member-mail">amina@fgc.fr · F · SN</div>
+          </div>
+        </div>
+        <div class="cell-emploi">Employée polyvalente</div>
+        <div><span class="pill alt">ALTERNANCE</span></div>
+        <div class="cell-muted">02/09/2024</div>
+        <div class="cell-muted">—</div>
+        <div class="cell-muted">—</div>
+        <div class="actions-cell">
+          <div class="icon-btn">✎</div>
+          <div class="icon-btn">⋯</div>
+        </div>
+      </div>
+
+      <div class="table-row">
+        <div class="rank">05</div>
+        <div class="member">
+          <div class="avatar av-yellow">JD</div>
+          <div>
+            <div class="member-name">Julien Dupont</div>
+            <div class="member-mail">julien@fgc.fr · M · FR</div>
+          </div>
+        </div>
+        <div class="cell-emploi">Hôte d'accueil</div>
+        <div><span class="pill extra">EXTRA</span></div>
+        <div class="cell-muted">10/05/2025</div>
+        <div class="cell-muted">—</div>
+        <div class="cell-muted">—</div>
+        <div class="actions-cell">
+          <div class="icon-btn">✎</div>
+          <div class="icon-btn">⋯</div>
+        </div>
+      </div>
+
+      <div class="table-row row-sortie">
+        <div class="rank">06</div>
+        <div class="member">
+          <div class="avatar av-red">LR</div>
+          <div>
+            <div class="member-name">Léa Rousseau</div>
+            <div class="member-mail">lea@fgc.fr · F · FR</div>
+          </div>
+        </div>
+        <div class="cell-emploi">Bar</div>
+        <div><span class="pill cdd">CDD</span></div>
+        <div class="cell-muted">01/02/2024</div>
+        <div class="cell-muted">31/08/2024</div>
+        <div><span class="pill sortie">Fin CDD</span></div>
+        <div class="actions-cell">
+          <div class="icon-btn">✎</div>
+          <div class="icon-btn">⋯</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-banner">
+      <span style="font-size:18px;">⚖</span>
+      <div>
+        <b>Conforme Art. L1221-13 du Code du travail.</b>
+        Les salariés sortis restent affichés 5 ans après leur date de sortie, puis sont automatiquement masqués.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================ VUE 2 ============================ -->
+<div class="variant-head">
+  <div class="variant-name">Vue 2 — Modale fiche RH</div>
+  <div class="variant-desc">Reprend le patron ModalEditStaff (bottom-sheet 720px, 2 colonnes de cartes) + carte État civil & adresse + champ Emploi.</div>
+</div>
+
+<div class="variant-block">
+  <div class="stage-sheet">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+
+      <div class="sheet-header">
+        <div>
+          <div class="sheet-title">Modifier la fiche RH</div>
+          <div class="sheet-sub">Sophie Martin · Family Games Center</div>
+        </div>
+        <div class="sheet-close">×</div>
+      </div>
+
+      <div class="sheet-body">
+
+        <div class="sheet-col">
+          <div class="card">
+            <div class="card-title"><span class="ico">●</span> Identité & compte</div>
+            <div class="field-row">
+              <div class="field"><label>Prénom</label><input value="Sophie" /></div>
+              <div class="field"><label>Nom <span class="req">*</span></label><input value="Martin" /></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Email <span class="req">*</span></label><input value="sophie@fgc.fr" /></div>
+              <div class="field"><label>Mot de passe</label><input type="password" placeholder="Inchangé" /></div>
+            </div>
+            <div class="field">
+              <label>Rôle applicatif</label>
+              <div class="radio-pills">
+                <div class="radio-pill">Employé</div>
+                <div class="radio-pill active">Manager</div>
+              </div>
+              <div class="field-hint">Accès dans l'app Shiftly · ≠ de l'emploi contractuel</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="ico">⌂</span> État civil & adresse <span style="font-size:10px;color:var(--blue);margin-left:6px;">nouveau</span></div>
+            <div class="field-row">
+              <div class="field"><label>Date de naissance</label><input type="date" value="1992-04-18" /></div>
+              <div class="field">
+                <label>Sexe</label>
+                <div class="radio-pills">
+                  <div class="radio-pill">M</div>
+                  <div class="radio-pill active">F</div>
+                </div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Commune de naissance</label><input value="Blois" /></div>
+              <div class="field"><label>Département</label><input value="Loir-et-Cher (41)" /></div>
+            </div>
+            <div class="field"><label>Nationalité</label><input value="Française" /></div>
+            <div class="field"><label>Adresse</label><input value="12 rue des Vignes" /></div>
+            <div class="field-row">
+              <div class="field"><label>Code postal</label><input value="41000" /></div>
+              <div class="field"><label>Ville</label><input value="Blois" /></div>
+            </div>
+            <div class="field"><label>Téléphone</label><input value="06 12 34 56 78" /></div>
+          </div>
+        </div>
+
+        <div class="sheet-col">
+          <div class="card">
+            <div class="card-title"><span class="ico">▮</span> Contrat</div>
+            <div class="field">
+              <label>Emploi (intitulé contractuel) <span class="req">*</span></label>
+              <input value="Responsable bar" />
+              <div class="field-hint">Mention obligatoire au registre. Ex : « Hôte d'accueil », « Responsable bar »…</div>
+            </div>
+            <div class="radio-pills">
+              <div class="radio-pill active">CDI</div>
+              <div class="radio-pill">CDD</div>
+              <div class="radio-pill">EXTRA</div>
+              <div class="radio-pill">ALTERNANCE</div>
+              <div class="radio-pill">STAGE</div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Heures / semaine</label><input value="35" /></div>
+              <div class="field"><label>Date d'embauche</label><input type="date" value="2023-03-15" /></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="ico">◈</span> Équipement</div>
+            <div class="field-row-3">
+              <div class="field"><label>Haut</label><input value="M" /></div>
+              <div class="field"><label>Bas</label><input value="38" /></div>
+              <div class="field"><label>Pointure</label><input value="38" /></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span class="ico">⚿</span> Accès & statut</div>
+            <div class="field">
+              <label>Code PIN pointage</label>
+              <input value="1234" style="letter-spacing:10px;font-weight:800;font-family:'Syne',sans-serif;font-size:16px;" />
+              <div class="field-hint">4 chiffres. Code actuel pré-rempli — efface et retape pour le changer.</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 14px;">
+              <div style="font-size:13px;font-weight:600;">Membre actif <span style="color:var(--muted);font-weight:400;font-size:11px;">— visible dans l'app</span></div>
+              <div style="width:42px;height:23px;border-radius:99px;background:var(--green);position:relative;">
+                <div style="position:absolute;top:3px;left:22px;width:17px;height:17px;background:#fff;border-radius:50%;"></div>
+              </div>
+            </div>
+            <div class="field-hint" style="color:var(--yellow);">
+              ⚠ Pour marquer ce salarié comme sorti (fin contrat, démission…), utilise le toggle ci-dessus.
+              Une modale demandera la date et le motif de sortie.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="sheet-footer">
+        <button class="btn ghost">Annuler</button>
+        <button class="btn primary">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ VUE 3 ============================ -->
+<div class="variant-head">
+  <div class="variant-name">Vue 3 — Modale sortie (désactivation enrichie)</div>
+  <div class="variant-desc">Remplace ConfirmModal actuel quand on désactive un membre. Demande date + motif. La réactivation reste sur le ConfirmModal simple existant.</div>
+</div>
+
+<div class="variant-block">
+  <div class="stage-sheet">
+    <div class="sheet sheet-narrow">
+      <div class="sheet-handle"></div>
+
+      <div class="sheet-header">
+        <div>
+          <div class="sheet-title">Enregistrer une sortie</div>
+          <div class="sheet-sub">Léa Rousseau · Bar</div>
+        </div>
+        <div class="sheet-close">×</div>
+      </div>
+
+      <div class="sheet-body single">
+
+        <div class="warning-banner">
+          <b>Action irréversible côté registre.</b><br>
+          Léa sera marquée comme sortie au registre du personnel. Elle ne pourra plus se connecter à l'app
+          mais l'intégralité de ses pointages, services et compétences reste conservée pendant 5 ans.
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="ico">⏷</span> Détail de la sortie</div>
+
+          <div class="field">
+            <label>Date de sortie <span class="req">*</span></label>
+            <input type="date" value="2026-06-05" />
+            <div class="field-hint">Dernier jour effectivement travaillé (ou date de notification).</div>
+          </div>
+
+          <div class="field">
+            <label>Motif de sortie <span class="req">*</span></label>
+            <div class="radio-pills">
+              <div class="radio-pill">Démission</div>
+              <div class="radio-pill">Rupture conventionnelle</div>
+              <div class="radio-pill">Licenciement</div>
+              <div class="radio-pill active">Fin CDD</div>
+              <div class="radio-pill">Fin période d'essai</div>
+              <div class="radio-pill">Retraite</div>
+              <div class="radio-pill">Autre</div>
+            </div>
+            <div class="field-hint">Mention obligatoire au registre du personnel.</div>
+          </div>
+
+          <div class="field">
+            <label>Note interne (optionnel)</label>
+            <input placeholder="Commentaire libre, non exporté au PDF officiel" />
+          </div>
+        </div>
+
+      </div>
+
+      <div class="sheet-footer">
+        <button class="btn ghost">Annuler</button>
+        <button class="btn primary" style="background:var(--red);">Confirmer la sortie</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

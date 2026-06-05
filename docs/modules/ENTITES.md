@@ -68,6 +68,19 @@ Membre du staff rattaché à un centre.
 | `vetements` | string(255) | oui | Stock vêtements de travail |
 | `actif` | bool | non | Compte actif (défaut: true) |
 | `createdAt` | DateTimeImmutable | non | Auto-set à la création |
+| **Registre du personnel** *(Art. L1221-13 / D1221-23)* | | | Tous **nullables**, écriture **MANAGER only** (groupes Serializer) |
+| `dateNaissance` | DateImmutable | oui | |
+| `lieuNaissanceCommune` | string(120) | oui | |
+| `lieuNaissanceDepartement` | string(60) | oui | |
+| `sexe` | string(1) | oui | Enum app : `M` \| `F` (Assert\Choice) |
+| `nationalite` | string(60) | oui | |
+| `emploi` | string(120) | oui | Intitulé contractuel (≠ `role` applicatif). Mention obligatoire au registre |
+| `adresse` | string(255) | oui | |
+| `codePostal` | string(10) | oui | Regex `/^[0-9A-Z\- ]{2,10}$/` (DOM-TOM ok) |
+| `ville` | string(120) | oui | |
+| `telephone` | string(20) | oui | |
+| `dateSortie` | DateImmutable | oui | Groupe `user:rh-write` — MANAGER only |
+| `motifSortie` | string(40) | oui | Enum app 7 valeurs (cf. `User::MOTIFS_SORTIE`) — MANAGER only |
 
 **Valeurs d'enum — Rôle :**
 ```
@@ -81,6 +94,17 @@ DEBUTANT       → 0 – 20 pts
 INTERMEDIAIRE  → 21 – 50 pts
 AVANCE         → 51 – 100 pts
 EXPERIMENTE    → 101+ pts
+```
+
+**Valeurs d'enum — MotifSortie (registre du personnel) :**
+```
+demission                → Démission
+rupture_conventionnelle  → Rupture conventionnelle
+licenciement             → Licenciement
+fin_cdd                  → Fin de CDD
+fin_periode_essai        → Fin de période d'essai
+retraite                 → Retraite
+autre                    → Autre
 ```
 
 **Relations :**
