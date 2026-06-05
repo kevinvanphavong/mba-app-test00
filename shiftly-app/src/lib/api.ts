@@ -30,3 +30,22 @@ api.interceptors.response.use(
 )
 
 export default api
+
+/**
+ * Télécharge un binaire (PDF / CSV…) en s'authentifiant via l'intercepteur
+ * JWT d'axios. Évite d'avoir à passer le token en query string ou de bypass
+ * l'auth sur les routes binaires côté Symfony.
+ *
+ * Force le download via un <a download> temporaire.
+ */
+export async function downloadBinary(path: string, filename: string): Promise<void> {
+  const res = await api.get(path, { responseType: 'blob' })
+  const url = window.URL.createObjectURL(res.data as Blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  window.URL.revokeObjectURL(url)
+}
