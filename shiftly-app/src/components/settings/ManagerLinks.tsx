@@ -8,6 +8,7 @@ const LINKS = [
   { href: '/postes',                 label: 'Postes & contenu',       sub: 'Zones, missions, compétences (par zone)' },
   { href: '/reglages/editeur',       label: 'Gestion des tutoriels',  sub: 'Tutoriels et formations internes'        },
   { href: '/reglages/incidents',     label: 'Gestion des incidents',  sub: 'Voir, modifier et clôturer les incidents'},
+  { href: '/reglages/registre',      label: 'Registre du personnel',  sub: 'Liste chronologique des salariés · Export PDF conforme' },
 ]
 
 /** Section visible uniquement pour les managers */
