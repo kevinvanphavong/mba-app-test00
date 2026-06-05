@@ -15,18 +15,17 @@ import { sheetVariants, backdropVariants } from '@/lib/animations'
 import { useCurrentUser }            from '@/hooks/useCurrentUser'
 import type { Sexe, StaffMember }    from '@/types/staff'
 import StaffFormIdentite             from '@/components/staff/StaffFormIdentite'
-import StaffFormAvatar               from '@/components/staff/StaffFormAvatar'
 import StaffFormContrat              from '@/components/staff/StaffFormContrat'
-import StaffFormEquipement           from '@/components/staff/StaffFormEquipement'
 import StaffFormAcces                from '@/components/staff/StaffFormAcces'
 import StaffFormEtatCivil            from './StaffFormEtatCivil'
 import { emptyFicheState, ficheStateFromMember, type FicheState } from './ficheState'
 
+// Pas d'avatar ni d'équipement : c'est géré dans la modale /staff côté manager.
+// La modale registre se concentre sur la conformité RH (Art. L1221-13).
 export interface RegistreSaveData {
   nom: string; prenom: string | null; email: string
   role: 'MANAGER' | 'EMPLOYE'
-  tailleHaut: string | null; tailleBas: string | null; pointure: string | null
-  actif: boolean; avatarColor: string
+  actif: boolean
   heuresHebdo: number | null
   typeContrat: string | null; dateEmbauche: string | null
   codePointage: string | null; password?: string
@@ -62,9 +61,7 @@ export default function ModalRegistreFiche({ open, member, onClose, onSave }: Pr
     if (!s.nom.trim() || !s.email.trim()) return
     onSave({
       nom: s.nom.trim(), prenom: s.prenom.trim() || null, email: s.email.trim(), role: s.role,
-      tailleHaut: s.tailleHaut.trim() || null, tailleBas: s.tailleBas.trim() || null,
-      pointure: s.pointure.trim() || null,
-      actif: s.actif, avatarColor: s.avatarColor,
+      actif: s.actif,
       heuresHebdo:  s.heuresHebdo !== '' ? parseInt(s.heuresHebdo, 10) : null,
       typeContrat:  s.typeContrat || null,
       dateEmbauche: s.dateEmbauche || null,
@@ -83,7 +80,6 @@ export default function ModalRegistreFiche({ open, member, onClose, onSave }: Pr
     })
   }
 
-  const initials   = ((s.prenom?.[0] ?? s.nom[0] ?? '?') + (s.nom.split(' ')[0]?.[0] ?? '')).toUpperCase()
   const isEdit     = member !== null
   const memberName = isEdit ? `${member?.prenom ? `${member.prenom} ` : ''}${member?.nom}` : null
   const subtitle   = [memberName, user?.centre?.nom].filter(Boolean).join(' · ')
@@ -121,14 +117,11 @@ export default function ModalRegistreFiche({ open, member, onClose, onSave }: Pr
                   onLieuNaissanceDepartement={bind('lieuNaissanceDepartement')}
                   onNationalite={bind('nationalite')} onAdresse={bind('adresse')}
                   onCodePostal={bind('codePostal')} onVille={bind('ville')} onTelephone={bind('telephone')} />
-                <StaffFormAvatar value={s.avatarColor} initials={initials} onChange={bind('avatarColor')} />
               </div>
               <div className="flex flex-col gap-[14px]">
                 <StaffFormContrat emploi={s.emploi} onEmploi={bind('emploi')}
                   typeContrat={s.typeContrat} heuresHebdo={s.heuresHebdo} dateEmbauche={s.dateEmbauche}
                   onTypeContrat={bind('typeContrat')} onHeuresHebdo={bind('heuresHebdo')} onDateEmbauche={bind('dateEmbauche')} />
-                <StaffFormEquipement tailleHaut={s.tailleHaut} tailleBas={s.tailleBas} pointure={s.pointure}
-                  onTailleHaut={bind('tailleHaut')} onTailleBas={bind('tailleBas')} onPointure={bind('pointure')} />
                 <StaffFormAcces codePointage={s.codePointage} actif={s.actif} showActifRow={isEdit}
                   onCodePointage={bind('codePointage')} onActif={bind('actif')} />
               </div>
