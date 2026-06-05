@@ -63,6 +63,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     const ROLE_EMPLOYE    = 'EMPLOYE';
     const ROLE_SUPERADMIN = 'SUPERADMIN';
 
+    /** Motifs de sortie — enum applicative pour le registre du personnel (Art. D1221-23). */
+    const MOTIF_DEMISSION              = 'demission';
+    const MOTIF_RUPTURE_CONVENTIONNELLE = 'rupture_conventionnelle';
+    const MOTIF_LICENCIEMENT           = 'licenciement';
+    const MOTIF_FIN_CDD                = 'fin_cdd';
+    const MOTIF_FIN_PERIODE_ESSAI      = 'fin_periode_essai';
+    const MOTIF_RETRAITE               = 'retraite';
+    const MOTIF_AUTRE                  = 'autre';
+
+    public const MOTIFS_SORTIE = [
+        self::MOTIF_DEMISSION,
+        self::MOTIF_RUPTURE_CONVENTIONNELLE,
+        self::MOTIF_LICENCIEMENT,
+        self::MOTIF_FIN_CDD,
+        self::MOTIF_FIN_PERIODE_ESSAI,
+        self::MOTIF_RETRAITE,
+        self::MOTIF_AUTRE,
+    ];
+
+    public const SEXES = ['M', 'F'];
+
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['user:read', 'poste:read', 'completion:read', 'incident:read',
               'staffcompetence:read', 'tutoread:read'])]
@@ -157,6 +178,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?\DateTimeImmutable $dateEmbauche = null;
 
+    // ─── Registre du personnel (Art. L1221-13 et D1221-23 du Code du travail) ───
+    // Tous nullables — un User existant n'a pas forcément ces infos remplies.
+    // Lisibles par MANAGER + soi-même ; écrivables uniquement par MANAGER
+    // (contrôle dans UserStateProcessor — l'employé qui PUT sur sa fiche
+    // ne peut pas écrire ces champs).
+
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?\DateTimeImmutable $dateNaissance = null;
+
+    #[ORM\Column(length: 120, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $lieuNaissanceCommune = null;
+
+    #[ORM\Column(length: 60, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $lieuNaissanceDepartement = null;
+
+    #[ORM\Column(length: 1, nullable: true)]
+    #[Assert\Choice(choices: self::SEXES, message: 'Sexe invalide.')]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $sexe = null;
+
+    #[ORM\Column(length: 60, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $nationalite = null;
+
+    /** Intitulé contractuel (≠ role applicatif) — ex. "Responsable bar", "Hôte d'accueil". */
+    #[ORM\Column(length: 120, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $emploi = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $adresse = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    #[Assert\Regex(pattern: '/^[0-9A-Z\- ]{2,10}$/', message: 'Code postal invalide.')]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $codePostal = null;
+
+    #[ORM\Column(length: 120, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $ville = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $telephone = null;
+
+    /** Date de sortie — écriture réservée MANAGER (groupe user:rh-write). */
+    #[ORM\Column(type: 'date_immutable', nullable: true)]
+    #[Groups(['user:read', 'user:rh-write'])]
+    private ?\DateTimeImmutable $dateSortie = null;
+
+    /** Motif de sortie — un de self::MOTIFS_SORTIE. Écriture MANAGER uniquement. */
+    #[ORM\Column(length: 40, nullable: true)]
+    #[Assert\Choice(choices: self::MOTIFS_SORTIE, message: 'Motif de sortie invalide.')]
+    #[Groups(['user:read', 'user:rh-write'])]
+    private ?string $motifSortie = null;
+
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: StaffCompetence::class, cascade: ['remove'])]
     private Collection $staffCompetences;
 
@@ -207,6 +288,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getDateEmbauche(): ?\DateTimeImmutable { return $this->dateEmbauche; }
     public function setDateEmbauche(?\DateTimeImmutable $d): static { $this->dateEmbauche = $d; return $this; }
+
+    // ─── Registre du personnel ───
+    public function getDateNaissance(): ?\DateTimeImmutable { return $this->dateNaissance; }
+    public function setDateNaissance(?\DateTimeImmutable $d): static { $this->dateNaissance = $d; return $this; }
+    public function getLieuNaissanceCommune(): ?string { return $this->lieuNaissanceCommune; }
+    public function setLieuNaissanceCommune(?string $v): static { $this->lieuNaissanceCommune = $v; return $this; }
+    public function getLieuNaissanceDepartement(): ?string { return $this->lieuNaissanceDepartement; }
+    public function setLieuNaissanceDepartement(?string $v): static { $this->lieuNaissanceDepartement = $v; return $this; }
+    public function getSexe(): ?string { return $this->sexe; }
+    public function setSexe(?string $v): static { $this->sexe = $v; return $this; }
+    public function getNationalite(): ?string { return $this->nationalite; }
+    public function setNationalite(?string $v): static { $this->nationalite = $v; return $this; }
+    public function getEmploi(): ?string { return $this->emploi; }
+    public function setEmploi(?string $v): static { $this->emploi = $v; return $this; }
+    public function getAdresse(): ?string { return $this->adresse; }
+    public function setAdresse(?string $v): static { $this->adresse = $v; return $this; }
+    public function getCodePostal(): ?string { return $this->codePostal; }
+    public function setCodePostal(?string $v): static { $this->codePostal = $v; return $this; }
+    public function getVille(): ?string { return $this->ville; }
+    public function setVille(?string $v): static { $this->ville = $v; return $this; }
+    public function getTelephone(): ?string { return $this->telephone; }
+    public function setTelephone(?string $v): static { $this->telephone = $v; return $this; }
+    public function getDateSortie(): ?\DateTimeImmutable { return $this->dateSortie; }
+    public function setDateSortie(?\DateTimeImmutable $d): static { $this->dateSortie = $d; return $this; }
+    public function getMotifSortie(): ?string { return $this->motifSortie; }
+    public function setMotifSortie(?string $v): static { $this->motifSortie = $v; return $this; }
 
     public function getStaffCompetences(): Collection { return $this->staffCompetences; }
     public function getTutoReads(): Collection { return $this->tutoReads; }

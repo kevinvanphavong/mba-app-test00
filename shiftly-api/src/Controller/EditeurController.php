@@ -478,6 +478,22 @@ class EditeurController extends AbstractController
         if (array_key_exists('codePointage', $data))  $user->setCodePointage($data['codePointage'] ?: null);
         if (!empty($data['password']))  $user->setPassword($this->hasher->hashPassword($user, $data['password']));
 
+        // ─── Registre du personnel (Art. L1221-13 / D1221-23) ───
+        // Toute la route est ROLE_MANAGER (cf. IsGranted ci-dessus) — pas de
+        // contrôle supplémentaire nécessaire pour les champs RH.
+        if (array_key_exists('dateNaissance', $data))            $user->setDateNaissance($data['dateNaissance'] ? new \DateTimeImmutable($data['dateNaissance']) : null);
+        if (array_key_exists('lieuNaissanceCommune', $data))     $user->setLieuNaissanceCommune($data['lieuNaissanceCommune'] ?: null);
+        if (array_key_exists('lieuNaissanceDepartement', $data)) $user->setLieuNaissanceDepartement($data['lieuNaissanceDepartement'] ?: null);
+        if (array_key_exists('sexe', $data))         $user->setSexe($data['sexe'] ?: null);
+        if (array_key_exists('nationalite', $data))  $user->setNationalite($data['nationalite'] ?: null);
+        if (array_key_exists('emploi', $data))       $user->setEmploi($data['emploi'] ?: null);
+        if (array_key_exists('adresse', $data))      $user->setAdresse($data['adresse'] ?: null);
+        if (array_key_exists('codePostal', $data))   $user->setCodePostal($data['codePostal'] ?: null);
+        if (array_key_exists('ville', $data))        $user->setVille($data['ville'] ?: null);
+        if (array_key_exists('telephone', $data))    $user->setTelephone($data['telephone'] ?: null);
+        if (array_key_exists('dateSortie', $data))   $user->setDateSortie($data['dateSortie'] ? new \DateTimeImmutable($data['dateSortie']) : null);
+        if (array_key_exists('motifSortie', $data))  $user->setMotifSortie($data['motifSortie'] ?: null);
+
         $this->em->flush();
 
         return $this->json($this->serializeUser($user));
@@ -622,6 +638,19 @@ class EditeurController extends AbstractController
             'typeContrat'  => $u->getTypeContrat(),
             'dateEmbauche' => $u->getDateEmbauche()?->format('Y-m-d'),
             'codePointage' => $u->getCodePointage(),
+            // ─── Registre du personnel ───
+            'dateNaissance'            => $u->getDateNaissance()?->format('Y-m-d'),
+            'lieuNaissanceCommune'     => $u->getLieuNaissanceCommune(),
+            'lieuNaissanceDepartement' => $u->getLieuNaissanceDepartement(),
+            'sexe'        => $u->getSexe(),
+            'nationalite' => $u->getNationalite(),
+            'emploi'      => $u->getEmploi(),
+            'adresse'     => $u->getAdresse(),
+            'codePostal'  => $u->getCodePostal(),
+            'ville'       => $u->getVille(),
+            'telephone'   => $u->getTelephone(),
+            'dateSortie'  => $u->getDateSortie()?->format('Y-m-d'),
+            'motifSortie' => $u->getMotifSortie(),
         ];
     }
 }

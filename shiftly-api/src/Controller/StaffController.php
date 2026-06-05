@@ -110,6 +110,21 @@ class StaffController extends AbstractController
                 'typeContrat'      => $exposeContract ? $user->getTypeContrat() : null,
                 'dateEmbauche'     => $exposeContract ? $user->getDateEmbauche()?->format('Y-m-d') : null,
                 'codePointage'     => $exposeContract ? $user->getCodePointage()        : null,
+                // ─── Registre du personnel — manager OU soi-même ───
+                'dateNaissance'            => $exposeContract ? $user->getDateNaissance()?->format('Y-m-d') : null,
+                'lieuNaissanceCommune'     => $exposeContract ? $user->getLieuNaissanceCommune()     : null,
+                'lieuNaissanceDepartement' => $exposeContract ? $user->getLieuNaissanceDepartement() : null,
+                'sexe'                     => $exposeContract ? $user->getSexe()         : null,
+                'nationalite'              => $exposeContract ? $user->getNationalite()  : null,
+                'emploi'                   => $exposeContract ? $user->getEmploi()       : null,
+                'adresse'                  => $exposeContract ? $user->getAdresse()      : null,
+                'codePostal'               => $exposeContract ? $user->getCodePostal()   : null,
+                'ville'                    => $exposeContract ? $user->getVille()        : null,
+                'telephone'                => $exposeContract ? $user->getTelephone()    : null,
+                // dateSortie / motifSortie : exposés à tous (ne sont pas confidentiels —
+                // un employé voit qui est parti, mais ne peut pas les écrire).
+                'dateSortie'   => $user->getDateSortie()?->format('Y-m-d'),
+                'motifSortie'  => $user->getMotifSortie(),
                 'staffCompetences' => $staffComps,
                 'tutorielsLus'     => $tutorielsLus,
                 'isPresent'        => in_array($user->getId(), $presentUserIds, true),
