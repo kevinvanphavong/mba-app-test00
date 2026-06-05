@@ -785,7 +785,11 @@
   display: flex; flex-direction: column; gap: 12px;
   box-shadow: var(--shadow-card);
 }
+/* flex: 1 sur la quote pousse meta + details en bas — toutes les cards
+   alignent leur "footer" sur la même ligne quelle que soit la longueur du
+   propos, ce qui évite l'effet de désagencement pendant le scroll. */
 .mkt-pain-card-quote {
+  flex: 1;
   font-family: var(--font-syne), 'Syne', sans-serif;
   font-weight: 600;
   font-size: 14.5px;
