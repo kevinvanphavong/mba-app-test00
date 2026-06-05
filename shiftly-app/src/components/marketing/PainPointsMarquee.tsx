@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { useLeadModal } from '@/store/leadModalStore'
 
 // Bandeau défilant "Si vous vous retrouvez dans un de ces cas..." — cas concrets
 // par type de commerce pour déclencher le mécanisme de reconnaissance.
@@ -32,7 +31,6 @@ const PAIN_POINTS: PainPoint[] = [
 ]
 
 export default function PainPointsMarquee() {
-  const openLead       = useLeadModal((s) => s.open)
   const reduced        = useReducedMotion()
   const [paused, setPaused] = useState(false)
 
@@ -76,13 +74,6 @@ export default function PainPointsMarquee() {
         <p>
           &hellip;alors vous êtes au bon endroit. <strong>Shiftly est fait pour vous.</strong>
         </p>
-        <button
-          type="button"
-          className="mkt-btn mkt-btn-primary"
-          onClick={() => openLead('demo', 'pro')}
-        >
-          📅 Réserver une démo de 20 min
-        </button>
       </div>
     </section>
   )

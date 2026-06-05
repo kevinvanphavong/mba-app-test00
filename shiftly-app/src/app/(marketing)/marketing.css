@@ -747,12 +747,19 @@
 .mkt-compare-footnote strong { color: var(--mkt-dark-text); font-weight: 700; }
 
 /* ─── PainPoints Marquee V3 — bandeau défilant "Si vous vous retrouvez…" ──── */
+/* Section dark pour casser la dominante sand et créer du contraste de lecture
+   avec les sections Hero / SansAvec qui l'entourent. */
 .mkt-pain-section {
   position: relative;
   padding: 70px 0 80px;
-  background: linear-gradient(180deg, transparent 0%, rgba(217, 83, 26, 0.04) 50%, transparent 100%);
+  background: var(--mkt-dark-bg);
+  color: var(--mkt-dark-text);
+  border-top: 1px solid var(--mkt-dark-border);
+  border-bottom: 1px solid var(--mkt-dark-border);
   overflow: hidden;
 }
+.mkt-pain-section .mkt-section-label { color: var(--accent2); }
+.mkt-pain-section .mkt-section-title { color: var(--mkt-dark-text); }
 .mkt-pain-head { text-align: center; margin-bottom: 36px; }
 .mkt-pain-head .mkt-section-title { margin-left: auto; margin-right: auto; max-width: 720px; }
 .mkt-pain-marquee {
@@ -801,14 +808,14 @@
 .mkt-pain-foot {
   text-align: center;
   margin-top: 40px;
-  display: flex; flex-direction: column; align-items: center; gap: 18px;
 }
 .mkt-pain-foot p {
   font-family: var(--font-syne), 'Syne', sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   font-size: clamp(18px, 2.4vw, 22px);
-  color: var(--text);
+  color: var(--mkt-dark-text);
   max-width: 640px;
+  margin-left: auto; margin-right: auto;
   line-height: 1.4;
 }
 .mkt-pain-foot strong {

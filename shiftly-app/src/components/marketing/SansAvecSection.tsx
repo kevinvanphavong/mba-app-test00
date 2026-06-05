@@ -31,7 +31,6 @@ export default function SansAvecSection() {
           <h2 className="mkt-section-title">
             Vos managers{' '}
             <em style={{ fontStyle: 'normal', color: 'var(--accent)' }}>éteignent des feux</em>.
-            Ils ne pilotent pas.
           </h2>
           <p className="mkt-section-subtitle">
             Tous les jours, les mêmes douleurs reviennent. Shiftly les résout une bonne fois
