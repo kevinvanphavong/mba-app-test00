@@ -1,0 +1,189 @@
+{# Registre du personnel — A4 portrait, template Shiftly maison.
+   Art. L1221-13 et D1221-23 du Code du travail.
+   Couleurs hardcodées : le PDF imprimable est volontairement découplé
+   du design system applicatif. #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Registre du personnel — {{ centre.nom }}</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @page { margin: 16mm 14mm; }
+  body { font-family: 'DejaVu Sans', sans-serif; color: #1a1f2e; font-size: 10px; line-height: 1.45; }
+
+  .pdf-header {
+    display: table; width: 100%;
+    padding-bottom: 12px; border-bottom: 2px solid #f97316;
+    margin-bottom: 16px;
+  }
+  .pdf-header > div { display: table-cell; vertical-align: top; }
+  .pdf-logo {
+    font-weight: bold; font-size: 22px; color: #f97316; letter-spacing: -0.5px;
+  }
+  .pdf-logo small {
+    display: block; font-weight: 600; font-size: 8px; color: #6b7280;
+    letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px;
+  }
+  .pdf-meta { text-align: right; font-size: 9px; color: #4b5563; line-height: 1.6; }
+  .pdf-meta b { color: #1a1f2e; }
+
+  .pdf-title-block { margin-bottom: 18px; text-align: center; }
+  .pdf-title {
+    font-weight: bold; font-size: 18px; color: #1a1f2e;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .pdf-subtitle { font-size: 9px; color: #6b7280; margin-top: 3px; letter-spacing: 0.5px; }
+
+  .pdf-info-grid {
+    display: table; width: 100%; margin-bottom: 16px;
+  }
+  .pdf-info-grid > div {
+    display: table-cell; width: 50%; padding: 2px 0; font-size: 9.5px;
+  }
+  .pdf-info-grid b { color: #1a1f2e; }
+  .pdf-info-grid span { color: #4b5563; }
+
+  table.pdf-table { width: 100%; border-collapse: collapse; font-size: 8.5px; margin-bottom: 14px; }
+  table.pdf-table thead th {
+    background: #1a1f2e; color: #ffffff; text-align: left;
+    padding: 6px 4px; font-size: 7.5px; font-weight: bold;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    border: 1px solid #1a1f2e;
+  }
+  table.pdf-table tbody td {
+    padding: 5px 4px; border: 1px solid #d1d5db; vertical-align: top;
+  }
+  table.pdf-table tbody tr.even td { background: #f9fafb; }
+  table.pdf-table .col-num    { width: 22px; text-align: center; font-weight: bold; }
+  table.pdf-table .col-sex    { width: 24px; text-align: center; }
+  table.pdf-table .col-nat    { width: 32px; }
+  table.pdf-table .col-date   { width: 56px; }
+  table.pdf-table .col-emploi { width: 90px; }
+  table.pdf-table .col-contrat{ width: 50px; }
+  table.pdf-table .col-motif  { width: 70px; }
+
+  .pdf-legend {
+    background: #f3f4f6; border-left: 3px solid #f97316;
+    padding: 8px 12px; font-size: 8.5px; color: #4b5563; line-height: 1.55;
+    margin-bottom: 18px;
+  }
+  .pdf-legend b { color: #1a1f2e; }
+
+  .pdf-sign {
+    display: table; width: 100%;
+    margin-top: 18px; padding-top: 14px; border-top: 1px solid #d1d5db;
+  }
+  .pdf-sign > div { display: table-cell; width: 50%; font-size: 9px; color: #4b5563; line-height: 1.55; vertical-align: top; }
+  .pdf-sign b { color: #1a1f2e; display: block; margin-bottom: 3px; }
+  .pdf-sign-line {
+    width: 200px; height: 50px; border: 1px dashed #9ca3af;
+    margin-top: 6px;
+  }
+  .pdf-sign .right { text-align: right; }
+
+  .pdf-footer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    padding-top: 6px; border-top: 1px solid #e5e7eb;
+    font-size: 7.5px; color: #9ca3af; text-align: center; line-height: 1.45;
+  }
+  .pdf-footer b { color: #6b7280; }
+  .empty { font-style: italic; color: #9ca3af; padding: 14px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="pdf-header">
+  <div>
+    <div class="pdf-logo">Shiftly<small>Document RH généré le {{ generatedAt|date('d/m/Y') }}</small></div>
+  </div>
+  <div class="pdf-meta">
+    <b>{{ centre.nom }}</b><br>
+    {% if centre.adresse %}{{ centre.adresse }}<br>{% endif %}
+    {% if centre.telephone %}Tél. {{ centre.telephone }}{% endif %}
+  </div>
+</div>
+
+<div class="pdf-title-block">
+  <div class="pdf-title">Registre du personnel</div>
+  <div class="pdf-subtitle">Article L1221-13 et D1221-23 du Code du travail</div>
+</div>
+
+<div class="pdf-info-grid">
+  <div><b>Établissement :</b> <span>{{ centre.nom }}</span></div>
+  <div><b>Période couverte :</b>
+    {% set firstUser = users|first %}
+    <span>{% if firstUser and firstUser.dateEmbauche %}Depuis le {{ firstUser.dateEmbauche|date('d/m/Y') }}{% else %}—{% endif %}</span>
+  </div>
+  <div><b>Total salariés :</b> <span>{{ totalCount }} ({{ presentCount }} présents · {{ sortisCount }} sortis)</span></div>
+  <div><b>Édité par :</b> <span>{{ manager.prenom ? manager.prenom ~ ' ' : '' }}{{ manager.nom }}{% if manager.emploi %} — {{ manager.emploi }}{% endif %}</span></div>
+</div>
+
+<table class="pdf-table">
+  <thead>
+    <tr>
+      <th class="col-num">N°</th>
+      <th>Nom</th>
+      <th>Prénom(s)</th>
+      <th class="col-sex">Sexe</th>
+      <th class="col-nat">Nat.</th>
+      <th class="col-date">Naissance</th>
+      <th class="col-emploi">Emploi</th>
+      <th class="col-contrat">Contrat</th>
+      <th class="col-date">Entrée</th>
+      <th class="col-date">Sortie</th>
+      <th class="col-motif">Motif sortie</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+      <tr class="{{ loop.index is even ? 'even' : '' }}">
+        <td class="col-num">{{ loop.index }}</td>
+        <td>{{ u.nom }}</td>
+        <td>{{ u.prenom ?: '—' }}</td>
+        <td class="col-sex">{{ u.sexe ?: '—' }}</td>
+        <td>{{ u.nationalite ?: '—' }}</td>
+        <td>{% if u.dateNaissance %}{{ u.dateNaissance|date('d/m/Y') }}{% else %}—{% endif %}</td>
+        <td>{{ u.emploi ?: '—' }}</td>
+        <td>{{ u.typeContrat ?: '—' }}</td>
+        <td>{% if u.dateEmbauche %}{{ u.dateEmbauche|date('d/m/Y') }}{% else %}—{% endif %}</td>
+        <td>{% if u.dateSortie %}{{ u.dateSortie|date('d/m/Y') }}{% else %}—{% endif %}</td>
+        <td>{{ u.motifSortie ? motifLabels[u.motifSortie] ?? u.motifSortie : '—' }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="11" class="empty">Aucun salarié inscrit au registre.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="pdf-legend">
+  <b>Mentions complémentaires —</b> Pour les salariés étrangers hors UE, le type et le numéro
+  de l'autorisation de travail sont conservés dans le dossier individuel et tenus à disposition
+  de l'inspection du travail. Pour les contrats à durée déterminée, la date prévisionnelle de fin
+  de contrat et le motif de recours figurent dans le dossier individuel du salarié.
+</div>
+
+<div class="pdf-sign">
+  <div>
+    <b>Document attesté conforme par :</b>
+    {{ manager.prenom ? manager.prenom ~ ' ' : '' }}{{ manager.nom }}<br>
+    {% if manager.emploi %}{{ manager.emploi }} — {% endif %}{{ centre.nom }}<br>
+    Le {{ generatedAt|date('d/m/Y') }}
+    <div class="pdf-sign-line"></div>
+  </div>
+  <div class="right">
+    <b>Tenu à disposition de :</b>
+    Inspection du travail<br>
+    Médecin du travail<br>
+    Délégués du personnel<br>
+    Agents URSSAF
+  </div>
+</div>
+
+<div class="pdf-footer">
+  <b>Document généré par Shiftly</b> · shiftly.fr · Conforme aux Articles L1221-13 et D1221-23 du Code du travail.<br>
+  Conservation obligatoire : 5 ans à compter du départ de chaque salarié.
+</div>
+
+</body>
+</html>
