@@ -1,47 +1,40 @@
 'use client'
 
-import { useState } from 'react'
-import BillingSwitch, { type BillingPeriod } from './BillingSwitch'
 import PlanCard from './PlanCard'
-import { PLANS } from './plansData'
+import { OFFER } from './plansData'
 import RevealSection from './RevealSection'
 
-// Section tarifs : switcher Mensuel/Annuel + 3 plans.
+// Section tarifs V3 : une seule offre, deux modes de facturation présentés
+// côte à côte (Mensuel sans engagement / Annuel avec engagement 1 an et
+// 2 mois offerts). Plus de toggle.
 export default function PricingSection() {
-  const [period, setPeriod] = useState<BillingPeriod>('monthly')
-
   return (
     <RevealSection id="tarifs" className="mkt-section" style={{ background: 'var(--surface)' }}>
       <div className="mkt-container">
         <div className="mkt-section-head">
           <div className="mkt-section-label">💶 Tarifs</div>
           <h2 className="mkt-section-title">
-            Un prix par centre.
+            Une offre, deux rythmes.
             <br />
             Pas de surprise.
           </h2>
           <p className="mkt-section-subtitle">
-            Sans engagement, annulable en un clic. 14 jours d&apos;essai gratuit sans carte
-            bancaire. Payez au mois ou à l&apos;année et économisez 2 mois.
+            Tout est inclus dans l&apos;offre. Choisissez le mensuel pour rester libre, ou
+            l&apos;annuel pour économiser 2 mois (158€) avec un engagement d&apos;un an.
+            14 jours d&apos;essai gratuit sans carte bancaire.
           </p>
         </div>
 
-        <BillingSwitch period={period} onChange={setPeriod} />
-
         <div className="mkt-pricing-grid">
-          {PLANS.map((p) => (
-            // p.hidden = carte conservée en DOM (réactivation rapide) mais
-            // masquée visuellement. Utile aussi pour l'option correspondante
-            // dans la modale lead.
-            <div key={p.key} style={p.hidden ? { display: 'none' } : undefined} aria-hidden={p.hidden}>
-              <PlanCard plan={p} period={period} />
-            </div>
+          {OFFER.tiles.map((t) => (
+            <PlanCard key={t.mode} offer={OFFER} tile={t} />
           ))}
         </div>
 
         <div className="mkt-pricing-note">
-          <strong>💬 Hésitation sur la formule ?</strong> Réservez 20 minutes avec Kévin, il
-          vous oriente vers le bon plan — sans baratin.
+          <strong>💬 Une question avant de vous lancer ?</strong> Réservez 20 minutes avec
+          Kévin — il vous montre concrètement comment Shiftly s&apos;adapte à votre métier,
+          sans baratin.
         </div>
       </div>
     </RevealSection>

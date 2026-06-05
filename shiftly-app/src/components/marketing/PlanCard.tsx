@@ -1,66 +1,50 @@
 'use client'
 
 import { useLeadModal } from '@/store/leadModalStore'
-import type { BillingPeriod } from './BillingSwitch'
-import type { Plan } from './plansData'
+import type { Offer, PriceTile } from './plansData'
 
-export type { Plan }
-
-// Carte d'un plan tarifaire. Le bouton ouvre la modale lead avec intent/plan préselectionnés.
-export default function PlanCard({ plan, period }: { plan: Plan; period: BillingPeriod }) {
+// Carte d'un mode de facturation pour l'offre Shiftly unique (V3).
+// Mensuel et Annuel partagent le même bloc descriptif (`offer.desc` + features),
+// seul le bloc prix + CTA varie. La grille parent les place côte à côte.
+export default function PlanCard({ offer, tile }: { offer: Offer; tile: PriceTile }) {
   const openLead = useLeadModal((s) => s.open)
-  const price = period === 'monthly' ? plan.monthly : plan.yearly
-  const variantClass =
-    plan.variant === 'featured' ? 'is-featured' : plan.variant === 'premium' ? 'is-premium' : ''
+  const variantClass = tile.isPrimary ? 'is-featured' : ''
 
   return (
     <div className={`mkt-plan ${variantClass}`}>
-      {plan.badge && <span className="mkt-plan-badge">{plan.badge}</span>}
-      <span className="mkt-plan-emoji">{plan.emoji}</span>
-      <div className="mkt-plan-name">{plan.name}</div>
-      <div className="mkt-plan-price">
-        <span className="mkt-plan-price-val">{price.val}</span>
-        <span className="mkt-plan-price-unit">{price.unit}</span>
+      {tile.badge && <span className="mkt-plan-badge">{tile.badge}</span>}
+      <span className="mkt-plan-emoji">{offer.emoji}</span>
+      <div className="mkt-plan-name">
+        {offer.name} <span className="mkt-plan-billing">· {tile.label}</span>
       </div>
-      <div className="mkt-plan-price-sub">{price.sub}</div>
-      <div className="mkt-plan-desc">{plan.desc}</div>
+      <div className="mkt-plan-price">
+        <span className="mkt-plan-price-val">{tile.val}</span>
+        <span className="mkt-plan-price-unit">{tile.unit}</span>
+      </div>
+      <div className="mkt-plan-price-sub">{tile.engagement}</div>
+      {tile.savings && <div className="mkt-plan-savings">{tile.savings}</div>}
+      <div className="mkt-plan-desc">{offer.desc}</div>
 
       <ul className="mkt-plan-list">
-        {plan.features.map((f) => (
+        {offer.features.map((f) => (
           <li key={f}>
             {/* span obligatoire : sans wrapper, le HTML inséré (texte + <strong>)
-                devient plusieurs flex items dans le li (display:flex, gap:10px) et
-                "Personnalisation" se détache du reste de la phrase. */}
+                devient plusieurs flex items dans le li (display:flex, gap:10px). */}
             <span dangerouslySetInnerHTML={{ __html: f }} />
           </li>
         ))}
       </ul>
 
-      {plan.pack && (
-        <div className="mkt-plan-pack">
-          <div className="mkt-plan-pack-head">🤝 Pack accompagnement inclus</div>
-          <div className="mkt-plan-pack-grid">
-            {plan.pack.map((it) => (
-              <div
-                key={it.html}
-                className={`mkt-plan-pack-item ${it.full ? 'mkt-plan-pack-full' : ''}`}
-              >
-                <span className="mkt-plan-pack-icon">{it.icon}</span>
-                <span dangerouslySetInnerHTML={{ __html: it.html }} />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <button
         type="button"
-        className={`mkt-btn ${plan.isPrimary ? 'mkt-btn-primary' : 'mkt-btn-secondary'}`}
-        onClick={() => openLead(plan.ctaIntent, plan.key)}
+        className={`mkt-btn ${tile.isPrimary ? 'mkt-btn-primary' : 'mkt-btn-secondary'}`}
+        onClick={() => openLead(tile.ctaIntent, offer.key)}
       >
-        {plan.ctaLabel}
+        {tile.ctaLabel}
       </button>
-      <div className="mkt-plan-foot">{plan.foot}</div>
+      <div className="mkt-plan-foot">
+        {tile.isPrimary ? '14 jours d\'essai gratuit avant facturation' : 'Sans carte bancaire'}
+      </div>
     </div>
   )
 }

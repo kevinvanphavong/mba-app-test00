@@ -1,7 +1,7 @@
 'use client'
 
 import type { LeadIntent, LeadPlan } from '@/store/leadModalStore'
-import { PLANS } from './plansData'
+import { OFFER } from './plansData'
 
 const CHIPS: { key: LeadIntent; label: string; emoji: string }[] = [
   { key: 'trial', label: 'Essai gratuit', emoji: '🎁' },
@@ -52,11 +52,11 @@ export function PlanSelect({
           value={value}
           onChange={(e) => onChange(e.target.value as LeadPlan)}
         >
-          {PLANS.map((p) => (
-            <option key={p.key} value={p.key}>
-              {p.emoji} {p.name} — {p.monthly.val}{p.monthly.unit}
-            </option>
-          ))}
+          {/* V3 : une seule offre. Mensuel = libellé par défaut, le prospect
+              peut basculer en annuel dans la conversation avec Kévin. */}
+          <option value={OFFER.key}>
+            {OFFER.emoji} {OFFER.name} — {OFFER.tiles[0].val}{OFFER.tiles[0].unit}
+          </option>
           <option value="undecided">🤔 Je ne sais pas encore</option>
         </select>
       </div>
