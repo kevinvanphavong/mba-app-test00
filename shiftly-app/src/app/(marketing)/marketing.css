@@ -818,7 +818,8 @@
   margin-left: auto; margin-right: auto;
   line-height: 1.4;
 }
-.mkt-pain-foot strong {
+/* "Shiftly" en 800 + gradient ; le reste de la phrase reste en 700 (p). */
+.mkt-pain-brand {
   background: linear-gradient(120deg, var(--accent) 0%, var(--accent2) 100%);
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   font-weight: 800;

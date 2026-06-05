@@ -72,7 +72,8 @@ export default function PainPointsMarquee() {
 
       <div className="mkt-container mkt-pain-foot">
         <p>
-          &hellip;alors vous êtes au bon endroit. <strong>Shiftly est fait pour vous.</strong>
+          &hellip;alors vous êtes au bon endroit.{' '}
+          <span className="mkt-pain-brand">Shiftly</span> est fait pour vous.
         </p>
       </div>
     </section>
