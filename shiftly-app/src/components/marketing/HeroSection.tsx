@@ -1,55 +1,40 @@
 'use client'
 
-import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useLeadModal } from '@/store/leadModalStore'
-import { useAudience } from '@/store/audienceStore'
-import AudienceSwitch from './AudienceSwitch'
 import HeroVisualMock from './HeroVisualMock'
 
-// Textes alternatifs eyebrow / H1 / sous-titre selon l'audience.
-// Source : `docs/maquettes/landing-shiftly.html` lignes 1312-1319.
-const HERO_TEXTS = {
-  loisirs: {
-    eyebrow: 'Le logiciel pensé pour les parcs de loisirs',
-    h1Lead:  'Pilotez votre parc de loisirs',
-    p:       'Vos managers perdent 8h par semaine à éteindre des feux : plannings griffonnés, missions oubliées, pointages contestés. Shiftly leur rend 6h — service du jour, postes, pointage, formation, équipe. Pensé pour bowling, laser, arcade, karaoké, VR.',
-  },
-  commerce: {
-    eyebrow: "L'outil de pilotage pour les commerces de proximité",
-    h1Lead:  'Pilotez votre commerce',
-    p:       'Vos managers perdent 8h par semaine à éteindre des feux : plannings griffonnés, missions oubliées, pointages contestés. Shiftly leur rend 6h — service du jour, postes, pointage, formation, équipe. Pensé pour cafés, restos, salons, garages, boutiques.',
-  },
-} as const
-
+// Hero V3 — copy unifié qui énumère les types d'établissements ciblés pour
+// déclencher le "ah oui c'est mon cas" chez le lecteur. Plus de switcher
+// d'audience : le copywriting fait le travail.
 export default function HeroSection() {
   const openLead = useLeadModal((s) => s.open)
-  const audience = useAudience((s) => s.audience)
-  const hydrate  = useAudience((s) => s.hydrate)
-
-  // Hydratation depuis localStorage au mount (évite le mismatch SSR).
-  useEffect(() => { hydrate() }, [hydrate])
-
-  const texts = HERO_TEXTS[audience]
 
   return (
     <section className="mkt-hero">
       <div className="mkt-container mkt-hero-grid">
         <div>
-          <AudienceSwitch />
-
           <div className="mkt-hero-eyebrow">
             <motion.span
               className="mkt-hero-dot"
               animate={{ opacity: [1, 0.35, 1] }}
               transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
             />
-            <span>{texts.eyebrow}</span>
+            <span>Le logiciel de pilotage des patrons indépendants</span>
           </div>
           <h1>
-            {texts.h1Lead} <span className="mkt-highlight">comme une vraie entreprise.</span>
+            Bowling, café, resto, salon, garage&hellip;
+            <br />
+            <span className="mkt-highlight">Pilotez votre établissement</span> comme une vraie
+            entreprise.
           </h1>
-          <p>{texts.p}</p>
+          <p>
+            Vos managers perdent 8h par semaine à éteindre des feux : plannings griffonnés,
+            missions oubliées, pointages contestés. Shiftly leur rend 6h — service du jour,
+            postes, pointage, formation, équipe. Pour bowlings, cafés, restos, salons de
+            coiffure, garages, parcs de loisirs, instituts de beauté, boutiques&hellip; tout
+            commerce avec une équipe à manager au quotidien.
+          </p>
           <div className="mkt-hero-ctas">
             <button
               type="button"
@@ -61,7 +46,7 @@ export default function HeroSection() {
             <button
               type="button"
               className="mkt-btn mkt-btn-secondary mkt-btn-lg"
-              onClick={() => openLead('trial', 'starter')}
+              onClick={() => openLead('trial', 'pro')}
             >
               Essai gratuit 14 jours
             </button>
