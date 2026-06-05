@@ -89,7 +89,7 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 
 | Module | Route | Accès |
 |---|---|---|
-| Landing publique | `/` | Public (redirect `/service` si JWT en localStorage) — thème sand, switcher audience Loisirs/Commerce, CTAs → modale lead |
+| Landing publique | `/` | Public (redirect `/service` si JWT en localStorage) — thème sand, copy unifié multi-commerces + bandeau PainPointsMarquee, CTAs → modale lead |
 | CGU / Confidentialité / Mentions légales | `/cgu` · `/confidentialite` · `/mentions-legales` | Public (placeholder) |
 | Login | `/login` | Public |
 | Dashboard | `/dashboard` | Manager uniquement |
@@ -107,10 +107,11 @@ Voir `DESIGN_SYSTEM.md` pour les spécifications complètes (composants, animati
 
 Redirection par défaut : `/` sert la **landing publique** ; si l'utilisateur a un JWT en localStorage, le composant client redirige vers `/service` (anti-flash via splash inline). Le middleware autorise `/` même quand un JWT cookie est présent, pour permettre à un compte connecté de revisiter la marketing sans race condition SSR.
 
-**Landing V2 — décisions actées :**
-- Double audience via `audienceStore` (Zustand) : `loisirs` (défaut) / `commerce` — persisté dans `localStorage['shiftly-audience']`. Seul le Hero swap son texte.
-- Plan **Premium** masqué V1 (`hidden: true` dans `plansData.ts` → `style.display = 'none'`). Carte conservée en DOM pour réactivation rapide post-audit IDCC + offre stabilisée. L'option reste sélectionnable dans le `<select>` de la modale lead.
-- Mentions IDCC 1790 obligatoirement adoucies dans le copy public : "pensé pour la convention IDCC 1790" ou "règles paramétrables". Jamais "conforme IDCC 1790" tant que l'audit code/avocat n'est pas bouclé.
+**Landing V3 — décisions actées :**
+- **Une seule offre commerciale** (`OFFER` dans `plansData.ts`) avec deux modes de facturation présentés côte à côte : Mensuel 79€ sans engagement / Annuel 790€ avec engagement 1 an et 2 mois offerts. Plus de toggle, plus de Starter/Pro/Premium. La modale lead expose 1 seule option + "Indécis".
+- Switcher d'audience **retiré** (`audienceStore` + `AudienceSwitch` supprimés). Le Hero énumère désormais les types d'établissements dans son copy (bowling, café, resto, salon, garage, parc de loisirs…) pour déclencher le "ah oui c'est mon cas".
+- Section **PainPointsMarquee** ajoutée entre Hero et SansAvec : bandeau défilant Framer Motion avec quotes par type de commerce + closing "…alors vous êtes au bon endroit". Pause au hover, désactivé par `prefers-reduced-motion`.
+- **Plus aucune mention IDCC 1790** dans le périmètre marketing (Hero, Modules, SansAvec, FAQ, metadata SEO). Positionnement adouci sur "pointage + validation des heures" basique. L'application interne (`planning/`, `validation/`) garde sa logique IDCC métier — c'est uniquement le copy public qui est neutralisé.
 - Modules / Comparatif / FAQ : **pas de HACCP, pas de Réservations, pas de CSE** sur la landing (gestion interne pure).
 
 ---

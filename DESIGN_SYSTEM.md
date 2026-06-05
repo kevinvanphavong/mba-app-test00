@@ -862,3 +862,44 @@ modale lead (utile si Kévin envoie un lien à un prospect haut de gamme).
 rendu. Seules formulations autorisées : "pensé pour la convention IDCC 1790"
 ou "règles IDCC 1790 paramétrables". La FAQ détaille la clause expert-comptable
 pour les spécificités d'accord d'entreprise.
+
+### 12.6 Landing V3 — offre unique + PainPointsMarquee
+
+Itération V3 qui simplifie la landing après retour utilisateur.
+
+**Pricing side-by-side (plus de toggle)**
+
+- Une seule offre `OFFER` (`plansData.ts`) avec deux `tiles` rendues côte à côte
+- Tile Mensuel : 79€/mois, sans engagement, CTA `mkt-btn-secondary` (Essayer 14j)
+- Tile Annuel : 790€/an, engagement 1 an, badge "⭐ Le plus économique" +
+  pill `.mkt-plan-savings` ("Économisez 158€ · 2 mois offerts"), CTA primaire
+  `mkt-btn-primary` (Réserver une démo), variant `is-featured`
+- Pas de toggle Mensuel/Annuel — les deux sont visibles d'un coup, comparaison
+  immédiate
+- Le nom du plan dans la carte affiche `{offer.name} · {tile.label}` via
+  la classe `.mkt-plan-billing` (Syne 600 13px muted)
+
+**Composant `PainPointsMarquee` (nouveau)**
+
+- Section dédiée intercalée entre Hero et SansAvec
+- Track horizontale avec items dupliqués (boucle seamless)
+- Animation Framer Motion linéaire 55s — pause au survol via état React
+- Masque dégradé sur les bords (`mask-image: linear-gradient(90deg, transparent…)`)
+  pour un fade in/out propre sans coupure dure
+- Cards 320px (260px mobile) avec quote en Syne 600 + meta (emoji + commerce
+  en `var(--accent)` uppercase)
+- Closing en Syne 600 + `<strong>` en gradient ember
+- `prefers-reduced-motion` : animation off + scroll horizontal manuel autorisé
+
+**Suppressions** (par rapport à V2)
+
+- Classes `.mkt-audience-switch*` retirées du CSS
+- Composants `AudienceSwitch` et `BillingSwitch` supprimés
+- Plan `Premium` (hidden flag) retiré totalement de `plansData.ts`
+
+**Copy IDCC 1790**
+
+Retrait total dans le périmètre marketing (Hero, Modules, SansAvec, FAQ,
+metadata). Positionnement adouci : "pointage et validation des heures" basique
+sans claim de conformité. L'app interne conserve sa logique IDCC métier
+(`planning/`, `validation/`).
