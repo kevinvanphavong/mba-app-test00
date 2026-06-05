@@ -13,11 +13,11 @@ export const metadata: Metadata = {
     template: '%s · Shiftly',
   },
   description:
-    "Pilotage opérationnel pour parcs de loisirs et commerces de proximité. Service du jour, planning, postes, pointage et validation hebdo, formation interne — 6h/semaine rendues à vos managers.",
+    "Le logiciel de pilotage des patrons indépendants. Bowling, café, resto, salon, garage, parc de loisirs… service du jour, planning, postes, pointage, formation — 6h/semaine rendues à vos managers.",
   openGraph: {
-    title: 'Shiftly — Pilotage opérationnel pour parcs de loisirs et commerces',
+    title: 'Shiftly — Le logiciel de pilotage des patrons indépendants',
     description:
-      "Service du jour, planning, postes, pointage, formation. 6h/semaine rendues à vos managers. Pensé pour la convention IDCC 1790.",
+      'Bowling, café, resto, salon, garage… Service du jour, planning, postes, pointage, formation. 6h/semaine rendues à vos managers.',
     type: 'website',
     locale: 'fr_FR',
     siteName: 'Shiftly',
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Shiftly — Pilotage opérationnel pour loisirs et commerces',
-    description: '6h/semaine rendues à vos managers. Règles IDCC 1790 paramétrables. Sans engagement.',
+    title: 'Shiftly — Pilotage opérationnel pour patrons indépendants',
+    description: '6h/semaine rendues à vos managers. Pour bowlings, cafés, restos, salons, garages et plus. Sans engagement.',
     images: ['/og-shiftly.png'],
   },
 }

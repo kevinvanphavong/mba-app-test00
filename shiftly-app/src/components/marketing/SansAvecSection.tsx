@@ -15,7 +15,7 @@ const SANS: Item[] = [
 const AVEC: Item[] = [
   { icon: '📊', html: '<strong>Le manager pilote depuis son canapé</strong> — Service du Jour temps réel, qui fait quoi, où, à la minute' },
   { icon: '📋', html: '<strong>Chacun sait quoi faire dès l\'arrivée</strong> — fiche de poste sur mobile, missions du jour cochables, briefing zéro' },
-  { icon: '⏱️', html: '<strong>Le pointage est incontestable</strong> — kiosk, horodatage à la seconde, validation hebdo pensée pour la convention IDCC 1790, export paie en 10 min' },
+  { icon: '⏱️', html: '<strong>Le pointage est incontestable</strong> — kiosk, horodatage à la seconde, validation hebdo et export paie en 10 min' },
   { icon: '✅', html: '<strong>Chaque mission cochée laisse une trace</strong> — qui, quand, quoi. Plus rien ne passe à la trappe' },
   { icon: '🎓', html: '<strong>Le staff progresse et reste</strong> — compétences validables, tutos intégrés, points, niveaux, reconnaissance' },
   { icon: '🧠', html: '<strong>Vos SOP vivent dans l\'outil</strong> — un nouvel arrivant lit, valide, opérationnel sous 48h sans vous' },

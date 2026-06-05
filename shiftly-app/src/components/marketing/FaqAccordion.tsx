@@ -10,16 +10,17 @@ const QUESTIONS: FaqEntry[] = [
     a: "Moins d'une heure. Vous créez votre centre, vous importez votre équipe (CSV ou manuel), vous lancez votre premier service. Pas besoin d'intégrateur ni de chef de projet. La grande majorité de nos clients sont opérationnels le soir même.",
   },
   {
-    q: 'Comment Shiftly gère-t-il la convention IDCC 1790 (Espaces de loisirs) ?',
+    q: 'Comment fonctionne le pointage et la validation des heures ?',
     a: (
       <>
-        Le module pointage et la validation hebdomadaire sont{' '}
-        <strong>pensés pour la convention collective des Espaces de loisirs</strong> : règles
-        paramétrables pour la majoration des heures supplémentaires, le repos dominical, les
-        heures de nuit et les jours fériés. <strong>Important :</strong> chaque centre a ses
-        spécificités d&apos;accord d&apos;entreprise — nous vous recommandons de faire
-        valider votre paramétrage par votre expert-comptable lors de l&apos;onboarding pour
-        garantir une conformité totale à votre situation.
+        Vos collaborateurs pointent en arrivant et en partant (tablette en kiosk-mode + code
+        PIN). Le manager valide les heures chaque semaine en 10 minutes, avec un récapitulatif
+        clair des heures normales, des heures supplémentaires et des pauses. L&apos;export
+        paie est généré en 2 clics au format CSV pour votre comptable.{' '}
+        <strong>Important :</strong> chaque entreprise a ses propres règles d&apos;accord
+        (majorations, conventions collectives, accords d&apos;entreprise) — nous vous
+        recommandons de faire valider votre paramétrage par votre expert-comptable lors de
+        l&apos;onboarding.
       </>
     ),
   },

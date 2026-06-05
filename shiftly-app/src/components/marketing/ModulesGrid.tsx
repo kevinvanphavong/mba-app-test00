@@ -40,7 +40,7 @@ const MODULES: Module[] = [
       </svg>
     ),
     problem:  'Pointage au stylo, oublis, heures supp contestées, paie qui prend 4h chaque fin de mois. Et le risque Prud\'hommes en bruit de fond.',
-    solution: 'kiosk-mode, code PIN, horodatage à la seconde, validation hebdo en 10 min, règles pensées pour la convention IDCC 1790 (heures supp, nuit, dimanche). Export paie en 2 clics.',
+    solution: 'kiosk-mode, code PIN, horodatage à la seconde, validation hebdo en 10 min avec règles paramétrables (heures supp, nuit, dimanche). Export paie en 2 clics.',
   },
   {
     title: '📋 Postes & Missions',
