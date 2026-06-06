@@ -14,6 +14,17 @@ interface Props {
   onSave:        (data: TutorielFormData) => void
 }
 
+/** Limites alignées sur MediaUploader.php côté API */
+const IMAGE_MAX_BYTES = 5 * 1024 * 1024
+const PDF_MAX_BYTES   = 20 * 1024 * 1024
+
+/** Extrait le message d'erreur API Platform (Hydra) d'une erreur axios */
+function apiErrorMessage(err: unknown, fallback: string): string {
+  const d = (err as { response?: { data?: { 'hydra:description'?: string; detail?: string } } })
+    .response?.data
+  return d?.['hydra:description'] ?? d?.detail ?? fallback
+}
+
 const NIVEAUX = [
   { value: 'debutant'      as const, label: 'Débutant'      },
   { value: 'intermediaire' as const, label: 'Intermédiaire' },
@@ -179,11 +190,17 @@ function BlocCard({ bloc, tutorielId, onUpdate, onRemove }: BlocCardProps) {
     const files = Array.from(e.target.files)
     const newIds: number[] = []
     for (const file of files) {
+      // Pré-validation taille côté client (mêmes limites que l'API)
+      const maxBytes = file.type === 'application/pdf' ? PDF_MAX_BYTES : IMAGE_MAX_BYTES
+      if (file.size > maxBytes) {
+        showToast(`${file.name} : trop volumineux (max ${Math.round(maxBytes / 1024 / 1024)} Mo)`, 'error')
+        continue
+      }
       try {
         const m = await upload.mutateAsync({ file, entityType: 'tutoriel', entityId: tutorielId })
         newIds.push(m.id)
-      } catch {
-        showToast('Échec upload', 'error')
+      } catch (err) {
+        showToast(apiErrorMessage(err, `Échec upload ${file.name}`), 'error')
       }
     }
     if (newIds.length > 0) {

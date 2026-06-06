@@ -39,6 +39,19 @@ class MediaUploader
         Centre          $centre,
         User            $uploader,
     ): Media {
+        // Garde anti-500 : si PHP a rejeté l'upload (ex : upload_max_filesize dépassé),
+        // le fichier temporaire n'existe pas et getMimeType() exploserait en 500.
+        if (!$file->isValid()) {
+            $message = match ($file->getError()) {
+                UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE
+                        => 'Fichier trop volumineux pour le serveur (limite PHP dépassée).',
+                UPLOAD_ERR_PARTIAL
+                        => 'Upload interrompu, fichier incomplet. Réessayez.',
+                default => 'Upload invalide : ' . $file->getErrorMessage(),
+            };
+            throw new BadRequestHttpException($message);
+        }
+
         $mime = $file->getMimeType() ?? '';
         $size = (int) $file->getSize();
 
