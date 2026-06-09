@@ -1,0 +1,362 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SHIFTLY v2 — DESIGN TOKENS
+   Architecture en 3 couches :
+     1. INVARIANTS         — brand, palette raw, radius, spacing
+     2. THEME ALIASES      — --bg, --surface, --text, --accent…
+                             (changent selon data-theme="dark|light|sand")
+     3. @theme inline      — pont vers Tailwind 4 (--color-*, --radius-*, --shadow-*)
+                             pour générer les utilitaires (bg-surface, text-accent…)
+
+   Règle absolue n°1 : jamais de couleur hardcodée.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── 1. INVARIANTS ──────────────────────────────────────────────────────── */
+:root {
+  /* Brand */
+  --shiftly-orange:        #f97316;
+  --shiftly-orange-light:  #fb923c;
+  --shiftly-orange-dark:   #ea580c;
+
+  /* Palette RAW — triplets RGB pour construire les chips teintés.
+     Usage : rgba(var(--raw-green), .15) */
+  --raw-green:   34, 197, 94;
+  --raw-red:     239, 68, 68;
+  --raw-yellow:  234, 179, 8;
+  --raw-blue:    59, 130, 246;
+  --raw-purple:  168, 85, 247;
+  --raw-orange:  249, 115, 22;
+  --raw-gray:    107, 114, 128;
+
+  /* Avatars */
+  --indigo: #6366f1;
+  --teal:   #14b8a6;
+  --pink:   #f472b6;
+
+  /* Radii — préfixe --r-* pour éviter la circularité avec @theme --radius-* */
+  --r-badge:    8px;
+  --r-input:   11px;
+  --r-card:    14px;
+  --r-card-lg: 18px;
+  --r-modal:   24px 24px 0 0;
+  --r-pill:    999px;
+
+  /* Spacing */
+  --gap-tight:    7px;
+  --gap:         14px;
+  --gap-lg:      18px;
+  --pad-card:    16px;
+  --pad-card-lg: 22px;
+
+  --scrollbar-width: 4px;
+}
+
+/* ─── 2a. THEME — DARK (défaut) ──────────────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  /* Triplets RGB (source de vérité par thème) */
+  --bg-rgb:             13 15 20;
+  --surface-rgb:        21 24 32;
+  --surface2-rgb:       28 32 48;
+  --surface3-rgb:       17 19 24;
+  --border-rgb:         37 42 58;
+  --border-strong-rgb:  47 53 72;
+  --text-rgb:           232 234 240;
+  --text-soft-rgb:      199 202 211;
+  --muted-rgb:          107 114 128;
+  --accent-rgb:         249 115 22;
+  --accent2-rgb:        251 146 60;
+  --on-accent-rgb:      255 255 255;
+  --green-rgb:          34 197 94;
+  --red-rgb:            239 68 68;
+  --yellow-rgb:         234 179 8;
+  --blue-rgb:           59 130 246;
+  --purple-rgb:         168 85 247;
+  --zone-accueil-rgb:   59 130 246;
+  --zone-bar-rgb:       168 85 247;
+  --zone-salle-rgb:     34 197 94;
+  --zone-manager-rgb:   249 115 22;
+
+  /* Alias rgb() (consommés par var(--surface), var(--accent)… en CSS pur) */
+  --bg:        rgb(var(--bg-rgb));
+  --surface:   rgb(var(--surface-rgb));
+  --surface2:  rgb(var(--surface2-rgb));
+  --surface3:  rgb(var(--surface3-rgb));
+  --border:    rgb(var(--border-rgb));
+  --border-strong: rgb(var(--border-strong-rgb));
+  --text:      rgb(var(--text-rgb));
+  --text-soft: rgb(var(--text-soft-rgb));
+  --muted:     rgb(var(--muted-rgb));
+  --accent:    rgb(var(--accent-rgb));
+  --accent2:   rgb(var(--accent2-rgb));
+  --on-accent: rgb(var(--on-accent-rgb));
+  --accent-grad: linear-gradient(90deg, #f97316, #fb923c);
+
+  --green:  rgb(var(--green-rgb));
+  --red:    rgb(var(--red-rgb));
+  --yellow: rgb(var(--yellow-rgb));
+  --blue:   rgb(var(--blue-rgb));
+  --purple: rgb(var(--purple-rgb));
+
+  --zone-accueil: rgb(var(--zone-accueil-rgb));
+  --zone-bar:     rgb(var(--zone-bar-rgb));
+  --zone-salle:   rgb(var(--zone-salle-rgb));
+  --zone-manager: rgb(var(--zone-manager-rgb));
+
+  /* Shadows — préfixe --sh-* pour éviter la circularité avec @theme --shadow-* */
+  --sh-card: 0 1px 0 rgba(255,255,255,.02) inset, 0 1px 2px rgba(0,0,0,.25);
+  --sh-pop:  0 20px 40px -18px rgba(0,0,0,.7);
+  --scrim: rgba(0,0,0,0.7);
+
+  color-scheme: dark;
+}
+
+/* ─── 2b. THEME — LIGHT ──────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-rgb:             255 255 255;
+  --surface-rgb:        255 255 255;
+  --surface2-rgb:       244 245 248;
+  --surface3-rgb:       250 250 251;
+  --border-rgb:         229 231 235;
+  --border-strong-rgb:  209 213 219;
+  --text-rgb:           17 24 39;
+  --text-soft-rgb:      55 65 81;
+  --muted-rgb:          107 114 128;
+  --accent-rgb:         234 88 12;
+  --accent2-rgb:        249 115 22;
+  --on-accent-rgb:      255 255 255;
+  --green-rgb:          22 163 74;
+  --red-rgb:            220 38 38;
+  --yellow-rgb:         202 138 4;
+  --blue-rgb:           37 99 235;
+  --purple-rgb:         147 51 234;
+  --zone-accueil-rgb:   37 99 235;
+  --zone-bar-rgb:       147 51 234;
+  --zone-salle-rgb:     22 163 74;
+  --zone-manager-rgb:   234 88 12;
+
+  --bg:        rgb(var(--bg-rgb));
+  --surface:   rgb(var(--surface-rgb));
+  --surface2:  rgb(var(--surface2-rgb));
+  --surface3:  rgb(var(--surface3-rgb));
+  --border:    rgb(var(--border-rgb));
+  --border-strong: rgb(var(--border-strong-rgb));
+  --text:      rgb(var(--text-rgb));
+  --text-soft: rgb(var(--text-soft-rgb));
+  --muted:     rgb(var(--muted-rgb));
+  --accent:    rgb(var(--accent-rgb));
+  --accent2:   rgb(var(--accent2-rgb));
+  --on-accent: rgb(var(--on-accent-rgb));
+  --accent-grad: linear-gradient(90deg, #ea580c, #f97316);
+
+  --green:  rgb(var(--green-rgb));
+  --red:    rgb(var(--red-rgb));
+  --yellow: rgb(var(--yellow-rgb));
+  --blue:   rgb(var(--blue-rgb));
+  --purple: rgb(var(--purple-rgb));
+
+  --zone-accueil: rgb(var(--zone-accueil-rgb));
+  --zone-bar:     rgb(var(--zone-bar-rgb));
+  --zone-salle:   rgb(var(--zone-salle-rgb));
+  --zone-manager: rgb(var(--zone-manager-rgb));
+
+  --sh-card: 0 1px 2px rgba(17,24,39,0.04), 0 1px 3px rgba(17,24,39,0.04);
+  --sh-pop: 0 12px 24px -12px rgba(17,24,39,0.18), 0 4px 8px -4px rgba(17,24,39,0.08);
+  --scrim: rgba(17,24,39,0.45);
+
+  color-scheme: light;
+}
+
+/* ─── 2c. THEME — SAND ───────────────────────────────────────────────────── */
+[data-theme="sand"] {
+  --bg-rgb:             245 239 230;
+  --surface-rgb:        251 247 240;
+  --surface2-rgb:       236 228 214;
+  --surface3-rgb:       240 233 220;
+  --border-rgb:         227 217 199;
+  --border-strong-rgb:  212 199 176;
+  --text-rgb:           42 37 32;
+  --text-soft-rgb:      74 66 57;
+  --muted-rgb:          140 127 110;
+  --accent-rgb:         217 83 26;
+  --accent2-rgb:        249 115 22;
+  --on-accent-rgb:      255 248 237;
+  --green-rgb:          74 124 42;
+  --red-rgb:            179 50 30;
+  --yellow-rgb:         168 122 12;
+  --blue-rgb:           42 95 179;
+  --purple-rgb:         122 63 179;
+  --zone-accueil-rgb:   42 95 179;
+  --zone-bar-rgb:       122 63 179;
+  --zone-salle-rgb:     74 124 42;
+  --zone-manager-rgb:   217 83 26;
+
+  --bg:        rgb(var(--bg-rgb));
+  --surface:   rgb(var(--surface-rgb));
+  --surface2:  rgb(var(--surface2-rgb));
+  --surface3:  rgb(var(--surface3-rgb));
+  --border:    rgb(var(--border-rgb));
+  --border-strong: rgb(var(--border-strong-rgb));
+  --text:      rgb(var(--text-rgb));
+  --text-soft: rgb(var(--text-soft-rgb));
+  --muted:     rgb(var(--muted-rgb));
+  --accent:    rgb(var(--accent-rgb));
+  --accent2:   rgb(var(--accent2-rgb));
+  --on-accent: rgb(var(--on-accent-rgb));
+  --accent-grad: linear-gradient(90deg, #d9531a, #f97316);
+
+  --green:  rgb(var(--green-rgb));
+  --red:    rgb(var(--red-rgb));
+  --yellow: rgb(var(--yellow-rgb));
+  --blue:   rgb(var(--blue-rgb));
+  --purple: rgb(var(--purple-rgb));
+
+  --zone-accueil: rgb(var(--zone-accueil-rgb));
+  --zone-bar:     rgb(var(--zone-bar-rgb));
+  --zone-salle:   rgb(var(--zone-salle-rgb));
+  --zone-manager: rgb(var(--zone-manager-rgb));
+
+  --sh-card: 0 1px 2px rgba(80,60,30,0.05), 0 1px 3px rgba(80,60,30,0.04);
+  --sh-pop: 0 12px 28px -14px rgba(80,60,30,0.22), 0 4px 10px -4px rgba(80,60,30,0.10);
+  --scrim: rgba(42,37,32,0.45);
+
+  color-scheme: light;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   3. TAILWIND 4 — @theme inline
+   ─────────────────────────────────────────────────────────────────────────────
+   Pont entre les CSS vars (couche 2) et les utilitaires Tailwind.
+   `inline` = valeurs gardées en var() dans le CSS émis → suivi data-theme runtime.
+   Convention Tailwind 4 : --color-xxx  → bg-xxx, text-xxx, border-xxx
+                           --radius-xxx → rounded-xxx
+                           --shadow-xxx → shadow-xxx
+   Modificateur d'opacité (bg-accent/20) : Tailwind 4 génère
+     color-mix(in oklab, var(--color-accent) 20%, transparent)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+@theme inline {
+  /* ─── Fonts ──────────────────────────────────────────────────────────────── */
+  --font-sans: var(--font-dm-sans);
+  --font-syne: var(--font-syne);
+
+  /* ─── Breakpoints ────────────────────────────────────────────────────────── */
+  --breakpoint-tablet: 500px;
+  --breakpoint-desktop: 900px;
+  --breakpoint-wide: 1400px;
+
+  /* ─── Couleurs — surfaces & shell ────────────────────────────────────────── */
+  --color-bg:             var(--bg);
+  --color-surface:        var(--surface);
+  --color-surface2:       var(--surface2);
+  --color-surface3:       var(--surface3);
+
+  /* ─── Couleurs — bordures ────────────────────────────────────────────────── */
+  --color-border:         var(--border);
+  --color-border-strong:  var(--border-strong);
+
+  /* ─── Couleurs — texte ───────────────────────────────────────────────────── */
+  --color-text:           var(--text);
+  --color-text-soft:      var(--text-soft);
+  --color-muted:          var(--muted);
+
+  /* ─── Couleurs — accent ──────────────────────────────────────────────────── */
+  --color-accent:         var(--accent);
+  --color-accent-light:   var(--accent2);
+  --color-accent-on:      var(--on-accent);
+
+  /* ─── Couleurs — sémantiques ─────────────────────────────────────────────── */
+  --color-green:          var(--green);
+  --color-red:            var(--red);
+  --color-yellow:         var(--yellow);
+  --color-blue:           var(--blue);
+  --color-purple:         var(--purple);
+
+  /* ─── Couleurs — zones ───────────────────────────────────────────────────── */
+  --color-zone-accueil:   var(--zone-accueil);
+  --color-zone-bar:       var(--zone-bar);
+  --color-zone-salle:     var(--zone-salle);
+  --color-zone-manager:   var(--zone-manager);
+
+  /* ─── Radius (source : --r-* dans :root) ─────────────────────────────────── */
+  --radius-badge:    var(--r-badge);
+  --radius-input:    var(--r-input);
+  --radius-card:     var(--r-card-lg);
+  --radius-card-sm:  var(--r-card);
+  --radius-pill:     var(--r-pill);
+
+  /* ─── Shadows (source : --sh-* par thème) ────────────────────────────────── */
+  --shadow-card: var(--sh-card);
+  --shadow-pop:  var(--sh-pop);
+
+  /* ─── Animations ─────────────────────────────────────────────────────────── */
+  --animate-pulse-dot: pulse_dot 1.5s ease-in-out infinite;
+  --animate-fade-up: fadeUp 0.3s ease forwards;
+}
+
+@keyframes pulse_dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════════════════════════ */
+* { box-sizing: border-box; }
+
+html, body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-dm-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+::-webkit-scrollbar       { width: var(--scrollbar-width); }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+@layer utilities {
+  .font-syne { font-family: var(--font-syne), sans-serif; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   HELPERS TRANSVERSES
+   Réutilisables partout, cross-module. Pas de CSS spécifique à un module ici.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Gradient accent bar — signature visuelle sur les hero cards */
+.accent-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--accent-grad);
+  border-radius: var(--r-card-lg) var(--r-card-lg) 0 0;
+}
+
+/* Live dot pulse */
+.live-dot { animation: shiftlyPulse 1.5s infinite; }
+@keyframes shiftlyPulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Inputs — focus accent dans tous les thèmes */
+input { transition: border-color .15s ease; }
+input:focus { border-color: var(--accent); }
+
+/* Chips teintés — utilitaires bg/border/text par couleur sémantique.
+   Idiome : <span class="chip-green">…</span>
+   Construits depuis les triplets RAW → fonctionnent dans les 3 thèmes. */
+.chip-green  { background: rgba(var(--raw-green),  .13); border: 1px solid rgba(var(--raw-green),  .25); color: var(--green);  }
+.chip-red    { background: rgba(var(--raw-red),    .13); border: 1px solid rgba(var(--raw-red),    .25); color: var(--red);    }
+.chip-yellow { background: rgba(var(--raw-yellow), .13); border: 1px solid rgba(var(--raw-yellow), .25); color: var(--yellow); }
+.chip-blue   { background: rgba(var(--raw-blue),   .13); border: 1px solid rgba(var(--raw-blue),   .25); color: var(--blue);   }
+.chip-purple { background: rgba(var(--raw-purple), .13); border: 1px solid rgba(var(--raw-purple), .25); color: var(--purple); }
+.chip-orange { background: rgba(var(--raw-orange), .13); border: 1px solid rgba(var(--raw-orange), .25); color: var(--accent); }
+.chip-gray   { background: rgba(var(--raw-gray),   .12); border: 1px solid rgba(var(--raw-gray),   .22); color: var(--muted);  }
