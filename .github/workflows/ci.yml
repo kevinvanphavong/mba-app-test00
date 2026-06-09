@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    name: Backend (Symfony + Postgres)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: v2/shiftly-api
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: shiftly_test
+          POSTGRES_USER: shiftly
+          POSTGRES_PASSWORD: shiftly
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U shiftly"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://shiftly:shiftly@localhost:5432/shiftly_test?serverVersion=16&charset=utf8
+      APP_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: pdo_pgsql, intl
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: v2/shiftly-api/vendor
+          key: composer-${{ hashFiles('v2/shiftly-api/composer.lock') }}
+          restore-keys: composer-
+
+      - run: composer install --no-interaction --prefer-dist
+
+      - name: PHPStan
+        run: vendor/bin/phpstan analyse --no-progress
+
+      - name: PHP-CS-Fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Migrations Postgres
+        run: php bin/console doctrine:migrations:migrate --no-interaction
+
+      - name: PHPUnit
+        run: vendor/bin/phpunit
+
+  frontend:
+    name: Frontend (Next.js)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: v2/shiftly-app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: v2/shiftly-app/package-lock.json
+
+      - run: npm ci
+      - name: ESLint
+        run: npm run lint
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: Build
+        run: npm run build
+      - name: Vitest
+        run: npm run test

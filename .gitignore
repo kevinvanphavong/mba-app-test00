@@ -45,3 +45,15 @@ haccp-tracabilite.html
 .env.production.local
 *.bak
 *.bak.*
+
+# v2 — env files (seuls .env.example + .env.test placeholder committés ; jamais de secret réel)
+v2/**/.env
+v2/**/.env.dev
+v2/**/.env.local
+v2/**/.env*.local
+
+# v2 — dependencies & build
+v2/shiftly-api/vendor/
+v2/shiftly-api/var/
+v2/shiftly-app/node_modules/
+v2/shiftly-app/.next/
