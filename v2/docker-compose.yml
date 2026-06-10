@@ -22,7 +22,8 @@ services:
       - "8025:8025"
 
   php:
-    image: php:8.4-fpm
+    build:
+      context: ./shiftly-api
     depends_on:
       db:
         condition: service_healthy
