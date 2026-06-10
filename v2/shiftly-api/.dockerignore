@@ -1,0 +1,10 @@
+# Le code est monté via volume (cf. docker-compose.yml) et Composer tourne dans le conteneur.
+# On garde le contexte de build minimal.
+vendor/
+var/
+.git/
+.env.local
+.env.*.local
+.env.dev
+.phpunit.cache/
+.php-cs-fixer.cache
