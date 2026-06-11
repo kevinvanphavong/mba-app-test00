@@ -38,12 +38,6 @@ export default function RegistrePage() {
   const [editTarget, setEditTarget] = useState<StaffMember | null>(null)
   const [exporting,  setExporting]  = useState(false)
 
-  // Garde-fou ROLE_MANAGER côté front (le back protège aussi).
-  if (!meLoading && user && user.role !== 'MANAGER') {
-    router.replace('/reglages')
-    return null
-  }
-
   const members  = data?.members ?? []
   const presents = members.filter((m) => m.actif && !m.dateSortie).length
   const sortis   = members.filter((m) => m.dateSortie !== null).length
@@ -88,6 +82,13 @@ export default function RegistrePage() {
       onSuccess: () => { showToast('Fiche RH mise à jour', 'success'); setEditTarget(null) },
       onError:   () => showToast('Erreur lors de la sauvegarde', 'error'),
     })
+  }
+
+  // Garde-fou ROLE_MANAGER côté front (le back protège aussi). Placé APRÈS tous
+  // les hooks pour respecter les rules-of-hooks (l'ordre des hooks doit être stable).
+  if (!meLoading && user && user.role !== 'MANAGER') {
+    router.replace('/reglages')
+    return null
   }
 
   return (
