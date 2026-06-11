@@ -54,9 +54,17 @@ class CreatePosteController extends AbstractController
         $heureDebut   = $body['heureDebut']          ?? null;    // 'HH:mm'
         $heureFin     = $body['heureFin']            ?? null;    // 'HH:mm'
         $pauseMinutes = (int) ($body['pauseMinutes'] ?? 0);
+        $note         = isset($body['note']) ? trim((string) $body['note']) : null;
 
         if ((!$serviceId && !$date) || !$zoneId || !$userId) {
             throw new BadRequestHttpException('(serviceId ou date), zoneId et userId sont requis.');
+        }
+
+        if ($note !== null && mb_strlen($note) > 500) {
+            throw new BadRequestHttpException('La note ne peut pas dépasser 500 caractères.');
+        }
+        if ($note === '') {
+            $note = null;
         }
 
         /** @var User $currentUser */
@@ -101,6 +109,7 @@ class CreatePosteController extends AbstractController
             $poste->setHeureFin(\DateTimeImmutable::createFromFormat('H:i', $heureFin) ?: null);
         }
         $poste->setPauseMinutes($pauseMinutes);
+        $poste->setNote($note);
 
         try {
             $this->em->persist($poste);

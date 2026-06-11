@@ -46,6 +46,9 @@ class PlanningTemplateShift
     #[ORM\Column(options: ['default' => 0])]
     private int $pauseMinutes = 0;
 
+    #[ORM\Column(type: 'string', length: 500, nullable: true)]
+    private ?string $note = null;
+
     public function getId(): ?int { return $this->id; }
     public function getTemplate(): ?PlanningTemplate { return $this->template; }
     public function setTemplate(?PlanningTemplate $t): static { $this->template = $t; return $this; }
@@ -61,4 +64,6 @@ class PlanningTemplateShift
     public function setHeureFin(?\DateTimeImmutable $h): static { $this->heureFin = $h; return $this; }
     public function getPauseMinutes(): int { return $this->pauseMinutes; }
     public function setPauseMinutes(int $m): static { $this->pauseMinutes = $m; return $this; }
+    public function getNote(): ?string { return $this->note; }
+    public function setNote(?string $n): static { $this->note = $n; return $this; }
 }

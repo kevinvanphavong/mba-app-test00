@@ -11,6 +11,7 @@ export interface PlanningShift {
   heureDebut:   string | null // 'HH:mm'
   heureFin:     string | null // 'HH:mm'
   pauseMinutes: number
+  note:         string | null
 }
 
 export interface MoveShiftPayload {
@@ -122,6 +123,7 @@ export interface EmployeeShift {
   heureDebut:   string | null
   heureFin:     string | null
   pauseMinutes: number
+  note:         string | null
 }
 
 export interface EmployeeWeek {
@@ -147,6 +149,7 @@ export interface CreateShiftPayload {
   heureDebut:    string       // 'HH:mm'
   heureFin:      string       // 'HH:mm'
   pauseMinutes?: number       // défaut 0
+  note?:         string       // max 500 car.
 }
 
 export interface UpdateShiftPayload {
@@ -155,6 +158,7 @@ export interface UpdateShiftPayload {
   heureDebut?:   string
   heureFin?:     string
   pauseMinutes?: number
+  note?:         string | null
 }
 
 export interface PublishWeekPayload {

@@ -121,6 +121,7 @@ class PlanningTemplateController extends AbstractController
             $shift->setHeureDebut($poste->getHeureDebut());
             $shift->setHeureFin($poste->getHeureFin());
             $shift->setPauseMinutes($poste->getPauseMinutes());
+            $shift->setNote($poste->getNote());
             $template->addShift($shift);
         }
 
@@ -240,6 +241,7 @@ class PlanningTemplateController extends AbstractController
             $poste->setHeureDebut($shift->getHeureDebut());
             $poste->setHeureFin($shift->getHeureFin());
             $poste->setPauseMinutes($shift->getPauseMinutes());
+            $poste->setNote($shift->getNote());
 
             try {
                 $this->em->persist($poste);
@@ -363,6 +365,7 @@ class PlanningTemplateController extends AbstractController
                     'heureDebut'   => $s->getHeureDebut()?->format('H:i'),
                     'heureFin'     => $s->getHeureFin()?->format('H:i'),
                     'pauseMinutes' => $s->getPauseMinutes(),
+                    'note'         => $s->getNote(),
                 ],
                 $t->getShifts()->toArray()
             );

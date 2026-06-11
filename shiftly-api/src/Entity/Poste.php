@@ -88,6 +88,11 @@ class Poste
     #[Groups(['poste:read', 'poste:write'])]
     private int $pauseMinutes = 0;
 
+    /** Note libre manager (visible staff) */
+    #[ORM\Column(type: 'string', length: 500, nullable: true)]
+    #[Groups(['poste:read', 'poste:write'])]
+    private ?string $note = null;
+
     /** Completions — dans l'item seulement */
     #[ORM\OneToMany(mappedBy: 'poste', targetEntity: Completion::class, cascade: ['remove'])]
     #[Groups(['poste:item:read'])]
@@ -118,6 +123,9 @@ class Poste
     public function setHeureFin(?\DateTimeImmutable $h): static { $this->heureFin = $h; return $this; }
     public function getPauseMinutes(): int { return $this->pauseMinutes; }
     public function setPauseMinutes(int $p): static { $this->pauseMinutes = $p; return $this; }
+
+    public function getNote(): ?string { return $this->note; }
+    public function setNote(?string $n): static { $this->note = $n; return $this; }
 
     public function getCompletions(): Collection { return $this->completions; }
 }

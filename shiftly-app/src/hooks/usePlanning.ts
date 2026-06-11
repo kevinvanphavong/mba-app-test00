@@ -184,6 +184,7 @@ export function useCopyShift() {
         heureDebut:   shift.heureDebut,
         heureFin:     shift.heureFin,
         pauseMinutes: shift.pauseMinutes,
+        note:         shift.note ?? undefined,
       }).then(r => r.data),
 
     onSuccess: () => {
@@ -265,6 +266,25 @@ export function useCreateAbsence() {
   return useMutation({
     mutationFn: (payload: { userId: number; date: string; type: AbsenceType; motif?: string }) =>
       api.post('/planning/absence', payload).then(r => r.data),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['planning', 'week', centreId] })
+    },
+  })
+}
+
+// ─── Modifier une absence ─────────────────────────────────────────────────────
+
+export function useUpdateAbsence() {
+  const centreId    = useAuthStore(s => s.centreId)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (payload: { id: number; type?: AbsenceType; motif?: string | null }) =>
+      api.patch(`/planning/absence/${payload.id}`, {
+        ...(payload.type !== undefined && { type: payload.type }),
+        ...(payload.motif !== undefined && { motif: payload.motif }),
+      }).then(r => r.data),
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['planning', 'week', centreId] })

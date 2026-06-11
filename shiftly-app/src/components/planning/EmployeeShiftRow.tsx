@@ -63,16 +63,21 @@ export default function EmployeeShiftRow({ date, shifts, absence }: EmployeeShif
           <span className="text-xs text-[var(--muted)]">Repos</span>
         ) : (
           shifts.map((s, i) => (
-            <div key={i}
-              className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs"
-              style={{ backgroundColor: hexAlpha(s.zoneCouleur, 0.12) }}>
-              <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: s.zoneCouleur }} />
-              <span className="font-semibold" style={{ color: s.zoneCouleur }}>{s.zoneNom}</span>
-              {s.heureDebut && s.heureFin && (
-                <span className="text-[var(--muted)]">{s.heureDebut} – {s.heureFin}</span>
-              )}
-              {s.pauseMinutes > 0 && (
-                <span className="text-[var(--muted)]">· pause {s.pauseMinutes}min</span>
+            <div key={i} className="flex flex-col gap-0.5">
+              <div
+                className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs"
+                style={{ backgroundColor: hexAlpha(s.zoneCouleur, 0.12) }}>
+                <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: s.zoneCouleur }} />
+                <span className="font-semibold" style={{ color: s.zoneCouleur }}>{s.zoneNom}</span>
+                {s.heureDebut && s.heureFin && (
+                  <span className="text-[var(--muted)]">{s.heureDebut} – {s.heureFin}</span>
+                )}
+                {s.pauseMinutes > 0 && (
+                  <span className="text-[var(--muted)]">· pause {s.pauseMinutes}min</span>
+                )}
+              </div>
+              {s.note && (
+                <p className="px-2 text-[11px] text-[var(--muted)] whitespace-pre-line">📝 {s.note}</p>
               )}
             </div>
           ))

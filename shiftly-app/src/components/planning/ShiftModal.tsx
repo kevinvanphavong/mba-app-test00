@@ -20,6 +20,7 @@ const schema = z.object({
   heureDebut:   z.string().regex(/^\d{2}:\d{2}$/, 'Format HH:mm requis'),
   heureFin:     z.string().regex(/^\d{2}:\d{2}$/, 'Format HH:mm requis'),
   pauseMinutes: z.number().min(0).max(120),
+  note:         z.string().max(500, 'Note limitée à 500 caractères').optional().default(''),
 })
 
 export type ShiftFormValues = z.infer<typeof schema>
@@ -47,7 +48,7 @@ export default function ShiftModal({
   const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } =
     useForm<ShiftFormValues>({
       resolver: zodResolver(schema),
-      defaultValues: { userId: 0, zoneId: 0, heureDebut: '09:00', heureFin: '17:00', pauseMinutes: 0 },
+      defaultValues: { userId: 0, zoneId: 0, heureDebut: '09:00', heureFin: '17:00', pauseMinutes: 0, note: '' },
     })
 
   const zoneId       = watch('zoneId')
@@ -80,6 +81,7 @@ export default function ShiftModal({
             heureDebut:   shift.heureDebut ?? '09:00',
             heureFin:     shift.heureFin   ?? '17:00',
             pauseMinutes: shift.pauseMinutes,
+            note:         shift.note ?? '',
           }
         : {
             userId:       defaultEmployeeId ?? 0,
@@ -87,6 +89,7 @@ export default function ShiftModal({
             heureDebut:   '09:00',
             heureFin:     '17:00',
             pauseMinutes: 0,
+            note:         '',
           }
       )
     }
@@ -130,6 +133,7 @@ export default function ShiftModal({
           heureDebut:   values.heureDebut,
           heureFin:     values.heureFin,
           pauseMinutes: values.pauseMinutes,
+          note:         values.note?.trim() || null,
         })
       } else {
         if (!values.userId) return // sécurité : employé requis en création
@@ -140,6 +144,7 @@ export default function ShiftModal({
           heureDebut:   values.heureDebut,
           heureFin:     values.heureFin,
           pauseMinutes: values.pauseMinutes,
+          note:         values.note?.trim() || undefined,
         })
       }
       onClose()
@@ -221,6 +226,21 @@ export default function ShiftModal({
                   Durée : <span className="font-semibold text-[var(--text)]">{durationLabel.label}</span>
                 </p>
               )}
+
+              {/* Note */}
+              <div>
+                <label className="mb-[5px] block text-[10px] font-bold uppercase tracking-[0.8px] text-[var(--muted)]">
+                  Note (facultatif)
+                </label>
+                <textarea
+                  {...register('note')}
+                  rows={2}
+                  maxLength={500}
+                  placeholder="Ex : arrive à 11h pour la livraison"
+                  className="w-full resize-none rounded-[10px] border border-[var(--border)] bg-[var(--surface2)] px-3 py-[10px] text-[13px] text-[var(--text)] outline-none focus:border-[var(--accent)]"
+                />
+                {errors.note && <p className="mt-1 text-[10px] text-[var(--red)]">{errors.note.message}</p>}
+              </div>
 
               {/* Actions */}
               <div className="flex gap-2 pt-1">

@@ -198,6 +198,7 @@ class PlanningService
                     'heureDebut'   => $poste->getHeureDebut()?->format('H:i'),
                     'heureFin'     => $poste->getHeureFin()?->format('H:i'),
                     'pauseMinutes' => $poste->getPauseMinutes(),
+                    'note'         => $poste->getNote(),
                 ];
 
                 $employeesMap[$userId]['totalHeures'] += $duree;
@@ -461,6 +462,7 @@ class PlanningService
                 $new->setHeureDebut($src->getHeureDebut());
                 $new->setHeureFin($src->getHeureFin());
                 $new->setPauseMinutes($src->getPauseMinutes());
+                $new->setNote($src->getNote());
                 $this->em->persist($new);
             }
         }
@@ -516,6 +518,7 @@ class PlanningService
                             'heureDebut'   => $s['heureDebut'],
                             'heureFin'     => $s['heureFin'],
                             'pauseMinutes' => $s['pauseMinutes'] ?? 0,
+                            'note'         => $s['note'] ?? null,
                         ];
                     }
                     $total = (float) ($emp['totalHeures'] ?? 0.0);
@@ -545,6 +548,7 @@ class PlanningService
                             'heureDebut'   => $poste->getHeureDebut()?->format('H:i'),
                             'heureFin'     => $poste->getHeureFin()?->format('H:i'),
                             'pauseMinutes' => $poste->getPauseMinutes(),
+                            'note'         => $poste->getNote(),
                         ];
                     }
                 }
