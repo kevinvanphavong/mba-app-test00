@@ -4,6 +4,58 @@
 
 ---
 
+## Palier 4 — Validation serveur systématique — 2026-06-12
+
+### Commits
+- `ffb861f` feat(validation): contraintes Validator sur les entités à saisie utilisateur
+- `72f0594` feat(validation): AbsenceController valide via le Validator → 422 normalisé
+- `dc742a8` fix(front): maxLength 255 motif absence (symétrie Zod/Validator)
+
+### Contraintes ajoutées (non décoratives, lues dans controllers/front)
+- **Choice** (enums) : Absence.type, PointagePause.type, CorrectionPointage.champModifie,
+  SupportTicket.categorie/priorite.
+- **Length** (texte) : Absence.motif(255), Poste.note(500), CompletionHaccpProof.note(2000),
+  Pointage.commentaire(1000), CorrectionPointage.motif(1000), SupportTicket.sujet(200)/message(5000),
+  SupportReply.message(5000), CentreNote.contenu(5000), PlanningTemplate.nom(100).
+- **Numérique** : Poste.pauseMinutes (0–1440), CompletionHaccpProof.valeurNumerique (Type numeric + Range).
+- **NotNull/NotBlank** : Absence.date, SupportTicket/Reply.message, CentreNote.contenu, PlanningTemplate.nom.
+
+### Enforcement
+- **API Platform** (Post/Put/Patch) : contraintes **auto-appliquées** → 422. Prouvé :
+  PATCH `/api/postes/{id}` avec note 600 car. → **422** (message de contrainte).
+- **Endpoint custom** Absence : validation explicite via le Validator → **422 normalisé**
+  (champ → message). Prouvé par test : nominal 201, type invalide → 422(type), motif>255 → 422(motif).
+
+### Symétrie Zod ↔ Validator
+- Absence type : enum front (`types/planning.ts`) == `Absence::TYPES` → **symétrique**.
+- Absence motif : front ne limitait pas → **corrigé** (`maxLength=255`).
+- Shift : note 500 symétrique ; pauseMinutes front 120 < serveur 1440 (front plus strict, OK).
+
+### Vérifications (toutes vertes)
+| Case | Résultat |
+|---|---|
+| Payload invalide (custom endpoint) → 422 structuré | OK (AbsenceValidationTest) |
+| Payload invalide (API Platform) → 422 | OK (PATCH poste prouvé) |
+| Cas nominaux inchangés | OK (39 tests verts) |
+| Symétrie Zod/Validator (absence) | OK (corrigée) |
+| `doctrine:schema:validate` (contraintes ≠ schéma) | OK |
+| Suite PHPUnit / phpstan / cs-fixer / front (tsc/lint/vitest/build) | OK — **39 tests, 114 assertions** |
+
+### Risques / à retester manuellement
+1. **DTO + `#[MapRequestPayload]` non généralisés** : le plan citait Editeur/Pointage/Planning.
+   J'ai (a) ajouté les contraintes d'entité (auto-appliquées sur les écritures API Platform),
+   (b) câblé le Validator sur AbsenceController comme **patron** de validation custom-controller.
+   La migration DTO complète des gros controllers (EditeurController ~656 LOC, PointageController,
+   PlanningTemplateController) reste **fil de l'eau** — elle est couplée au passage en State
+   Processors (palier 5). Ces controllers font déjà des validations inline partielles (type de
+   pause, format de date, champs requis) ; ils ne sont pas "nus", mais pas encore en 422 normalisé.
+2. **Entités auto-set non contraintes** (volontaire) : ValidationHebdo (métriques calculées),
+   Media/SupportAttachment (champs d'upload générés), dayOfWeek (calculé) — pas de saisie
+   utilisateur, donc pas de contrainte (éviter le décoratif).
+3. **Lead** : déjà validé au niveau controller (contrainte Collection) ; pas de doublon entité.
+
+---
+
 ## Palier 3 — Messenger async + listeners assainis — 2026-06-12
 
 ### Commits
