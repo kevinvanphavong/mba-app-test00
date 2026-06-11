@@ -38,7 +38,7 @@ class PlanningWeekDirtyListener
 
     public function onFlush(OnFlushEventArgs $args): void
     {
-        $em  = $args->getObjectManager();
+        $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
 
         // Collecte tous les Poste/Absence créés, modifiés ou supprimés
@@ -50,10 +50,10 @@ class PlanningWeekDirtyListener
 
         foreach ($entities as $entity) {
             $key = $this->resolveTouchKey($entity);
-            if ($key !== null) {
+            if (null !== $key) {
                 // Dédup : une même semaine ne sera UPDATE-é qu'une seule fois
                 $this->pendingTouches[$key['cacheKey']] = [
-                    'centreId'  => $key['centreId'],
+                    'centreId' => $key['centreId'],
                     'weekStart' => $key['weekStart'],
                 ];
             }
@@ -67,7 +67,7 @@ class PlanningWeekDirtyListener
         }
 
         $conn = $args->getObjectManager()->getConnection();
-        $now  = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
+        $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
 
         // UPDATE direct via DBAL — bypass de la UnitOfWork pour ne pas
         // re-déclencher onFlush (boucle infinie).
@@ -77,8 +77,8 @@ class PlanningWeekDirtyListener
                  SET last_modified_at = :now
                  WHERE centre_id = :centreId AND week_start = :weekStart',
                 [
-                    'now'       => $now,
-                    'centreId'  => $touch['centreId'],
+                    'now' => $now,
+                    'centreId' => $touch['centreId'],
                     'weekStart' => $touch['weekStart'],
                 ]
             );
@@ -97,23 +97,25 @@ class PlanningWeekDirtyListener
     {
         if ($entity instanceof Poste) {
             $service = $entity->getService();
-            $centre  = $service?->getCentre();
-            $date    = $service?->getDate();
-            $cid     = $centre?->getId();
+            $centre = $service?->getCentre();
+            $date = $service?->getDate();
+            $cid = $centre?->getId();
             // cid peut être null pendant un load fixtures (cascade-persist non flushé)
-            if ($cid === null || !$date) {
+            if (null === $cid || !$date) {
                 return null;
             }
+
             return $this->buildKey($cid, $date);
         }
 
         if ($entity instanceof Absence) {
             $centre = $entity->getCentre();
-            $date   = $entity->getDate();
-            $cid    = $centre?->getId();
-            if ($cid === null || !$date) {
+            $date = $entity->getDate();
+            $cid = $centre?->getId();
+            if (null === $cid || !$date) {
                 return null;
             }
+
             return $this->buildKey($cid, $date);
         }
 
@@ -127,14 +129,14 @@ class PlanningWeekDirtyListener
         $imm = $date instanceof \DateTimeImmutable
             ? $date
             : \DateTimeImmutable::createFromInterface($date);
-        $dow       = (int) $imm->format('N');
-        $monday    = $imm->modify('-' . ($dow - 1) . ' days')->setTime(0, 0, 0);
+        $dow = (int) $imm->format('N');
+        $monday = $imm->modify('-'.($dow - 1).' days')->setTime(0, 0, 0);
         $mondayStr = $monday->format('Y-m-d');
 
         return [
-            'centreId'  => $centreId,
+            'centreId' => $centreId,
             'weekStart' => $mondayStr,
-            'cacheKey'  => $centreId . '_' . $mondayStr,
+            'cacheKey' => $centreId.'_'.$mondayStr,
         ];
     }
 }

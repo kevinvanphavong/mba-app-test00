@@ -24,12 +24,13 @@ class SupportAttachmentR2CleanupListener
 {
     public function __construct(
         private readonly R2StorageService $r2,
-    ) {}
+    ) {
+    }
 
     public function preRemove(SupportAttachment $attachment): void
     {
         $storedPath = $attachment->getStoredPath();
-        if ($storedPath === null) {
+        if (null === $storedPath) {
             return;
         }
 

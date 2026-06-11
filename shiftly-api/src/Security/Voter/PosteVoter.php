@@ -14,7 +14,7 @@ class PosteVoter extends AbstractCentreVoter
 
     protected function getCentreId(mixed $subject): ?int
     {
-        /** @var Poste $subject */
+        /* @var Poste $subject */
         return $subject->getService()?->getCentre()?->getId();
     }
 }

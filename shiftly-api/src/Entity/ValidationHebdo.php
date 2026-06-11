@@ -15,8 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
 class ValidationHebdo
 {
     public const STATUT_EN_ATTENTE = 'EN_ATTENTE';
-    public const STATUT_VALIDEE    = 'VALIDEE';
-    public const STATUT_CORRIGEE   = 'CORRIGEE';
+    public const STATUT_VALIDEE = 'VALIDEE';
+    public const STATUT_CORRIGEE = 'CORRIGEE';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
@@ -80,49 +80,181 @@ class ValidationHebdo
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $centre): static { $this->centre = $centre; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): static { $this->user = $user; return $this; }
+    public function setCentre(?Centre $centre): static
+    {
+        $this->centre = $centre;
 
-    public function getSemaine(): ?\DateTimeImmutable { return $this->semaine; }
-    public function setSemaine(\DateTimeImmutable $semaine): static { $this->semaine = $semaine; return $this; }
+        return $this;
+    }
 
-    public function getStatut(): string { return $this->statut; }
-    public function setStatut(string $statut): static { $this->statut = $statut; return $this; }
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
 
-    public function getHeuresTravaillees(): int { return $this->heuresTravaillees; }
-    public function setHeuresTravaillees(int $minutes): static { $this->heuresTravaillees = $minutes; return $this; }
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
-    public function getHeuresPrevues(): int { return $this->heuresPrevues; }
-    public function setHeuresPrevues(int $minutes): static { $this->heuresPrevues = $minutes; return $this; }
+        return $this;
+    }
 
-    public function getEcart(): int { return $this->ecart; }
-    public function setEcart(int $minutes): static { $this->ecart = $minutes; return $this; }
+    public function getSemaine(): ?\DateTimeImmutable
+    {
+        return $this->semaine;
+    }
 
-    public function getHeuresSup(): int { return $this->heuresSup; }
-    public function setHeuresSup(int $minutes): static { $this->heuresSup = $minutes; return $this; }
+    public function setSemaine(\DateTimeImmutable $semaine): static
+    {
+        $this->semaine = $semaine;
 
-    public function getNbRetards(): int { return $this->nbRetards; }
-    public function setNbRetards(int $nb): static { $this->nbRetards = $nb; return $this; }
+        return $this;
+    }
 
-    public function getNbAbsences(): int { return $this->nbAbsences; }
-    public function setNbAbsences(int $nb): static { $this->nbAbsences = $nb; return $this; }
+    public function getStatut(): string
+    {
+        return $this->statut;
+    }
 
-    public function getCommentaire(): ?string { return $this->commentaire; }
-    public function setCommentaire(?string $c): static { $this->commentaire = $c; return $this; }
+    public function setStatut(string $statut): static
+    {
+        $this->statut = $statut;
 
-    public function getValidePar(): ?User { return $this->validePar; }
-    public function setValidePar(?User $user): static { $this->validePar = $user; return $this; }
+        return $this;
+    }
 
-    public function getValideAt(): ?\DateTimeImmutable { return $this->valideAt; }
-    public function setValideAt(?\DateTimeImmutable $dt): static { $this->valideAt = $dt; return $this; }
+    public function getHeuresTravaillees(): int
+    {
+        return $this->heuresTravaillees;
+    }
 
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function setHeuresTravaillees(int $minutes): static
+    {
+        $this->heuresTravaillees = $minutes;
 
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-    public function setUpdatedAt(?\DateTimeImmutable $dt): static { $this->updatedAt = $dt; return $this; }
+        return $this;
+    }
+
+    public function getHeuresPrevues(): int
+    {
+        return $this->heuresPrevues;
+    }
+
+    public function setHeuresPrevues(int $minutes): static
+    {
+        $this->heuresPrevues = $minutes;
+
+        return $this;
+    }
+
+    public function getEcart(): int
+    {
+        return $this->ecart;
+    }
+
+    public function setEcart(int $minutes): static
+    {
+        $this->ecart = $minutes;
+
+        return $this;
+    }
+
+    public function getHeuresSup(): int
+    {
+        return $this->heuresSup;
+    }
+
+    public function setHeuresSup(int $minutes): static
+    {
+        $this->heuresSup = $minutes;
+
+        return $this;
+    }
+
+    public function getNbRetards(): int
+    {
+        return $this->nbRetards;
+    }
+
+    public function setNbRetards(int $nb): static
+    {
+        $this->nbRetards = $nb;
+
+        return $this;
+    }
+
+    public function getNbAbsences(): int
+    {
+        return $this->nbAbsences;
+    }
+
+    public function setNbAbsences(int $nb): static
+    {
+        $this->nbAbsences = $nb;
+
+        return $this;
+    }
+
+    public function getCommentaire(): ?string
+    {
+        return $this->commentaire;
+    }
+
+    public function setCommentaire(?string $c): static
+    {
+        $this->commentaire = $c;
+
+        return $this;
+    }
+
+    public function getValidePar(): ?User
+    {
+        return $this->validePar;
+    }
+
+    public function setValidePar(?User $user): static
+    {
+        $this->validePar = $user;
+
+        return $this;
+    }
+
+    public function getValideAt(): ?\DateTimeImmutable
+    {
+        return $this->valideAt;
+    }
+
+    public function setValideAt(?\DateTimeImmutable $dt): static
+    {
+        $this->valideAt = $dt;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $dt): static
+    {
+        $this->updatedAt = $dt;
+
+        return $this;
+    }
 }

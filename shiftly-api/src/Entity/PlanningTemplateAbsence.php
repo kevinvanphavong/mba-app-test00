@@ -44,15 +44,68 @@ class PlanningTemplateAbsence
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $motif = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getTemplate(): ?PlanningTemplate { return $this->template; }
-    public function setTemplate(?PlanningTemplate $t): static { $this->template = $t; return $this; }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $u): static { $this->user = $u; return $this; }
-    public function getDayOfWeek(): int { return $this->dayOfWeek; }
-    public function setDayOfWeek(int $d): static { $this->dayOfWeek = $d; return $this; }
-    public function getType(): string { return $this->type; }
-    public function setType(string $t): static { $this->type = $t; return $this; }
-    public function getMotif(): ?string { return $this->motif; }
-    public function setMotif(?string $m): static { $this->motif = $m; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTemplate(): ?PlanningTemplate
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(?PlanningTemplate $t): static
+    {
+        $this->template = $t;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $u): static
+    {
+        $this->user = $u;
+
+        return $this;
+    }
+
+    public function getDayOfWeek(): int
+    {
+        return $this->dayOfWeek;
+    }
+
+    public function setDayOfWeek(int $d): static
+    {
+        $this->dayOfWeek = $d;
+
+        return $this;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $t): static
+    {
+        $this->type = $t;
+
+        return $this;
+    }
+
+    public function getMotif(): ?string
+    {
+        return $this->motif;
+    }
+
+    public function setMotif(?string $m): static
+    {
+        $this->motif = $m;
+
+        return $this;
+    }
 }

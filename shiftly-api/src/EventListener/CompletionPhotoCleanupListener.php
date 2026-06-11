@@ -24,12 +24,13 @@ class CompletionPhotoCleanupListener
 {
     public function __construct(
         private readonly R2StorageService $r2,
-    ) {}
+    ) {
+    }
 
     public function preRemove(Completion $completion): void
     {
         $photoPath = $completion->getPhotoPath();
-        if ($photoPath === null) {
+        if (null === $photoPath) {
             return;
         }
 

@@ -14,7 +14,7 @@ class ServiceVoter extends AbstractCentreVoter
 
     protected function getCentreId(mixed $subject): ?int
     {
-        /** @var Service $subject */
+        /* @var Service $subject */
         return $subject->getCentre()?->getId();
     }
 }

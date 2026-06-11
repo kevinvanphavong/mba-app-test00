@@ -6,7 +6,6 @@ use App\Entity\Centre;
 use App\Entity\CentreNote;
 use App\Repository\CentreNoteRepository;
 use App\Repository\CentreRepository;
-use App\Repository\PointageRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\UserRepository;
 use App\Service\AuditLogService;
@@ -24,15 +23,16 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SuperAdminCentresController extends AbstractController
 {
     public function __construct(
-        private readonly CentreRepository     $centreRepo,
-        private readonly UserRepository       $userRepo,
-        private readonly ServiceRepository    $serviceRepo,
+        private readonly CentreRepository $centreRepo,
+        private readonly UserRepository $userRepo,
+        private readonly ServiceRepository $serviceRepo,
         private readonly CentreNoteRepository $centreNoteRepo,
         private readonly EntityManagerInterface $em,
-        private readonly AuditLogService      $auditLog,
+        private readonly AuditLogService $auditLog,
         private readonly JWTTokenManagerInterface $jwtManager,
-        private readonly SentryApiService     $sentryApi,
-    ) {}
+        private readonly SentryApiService $sentryApi,
+    ) {
+    }
 
     #[Route('/api/superadmin/centres', methods: ['GET'])]
     public function list(Request $request): JsonResponse
@@ -47,9 +47,9 @@ class SuperAdminCentresController extends AbstractController
                ->setParameter('search', "%{$search}%");
         }
 
-        if ($statut === 'actif') {
+        if ('actif' === $statut) {
             $qb->andWhere('c.actif = true');
-        } elseif ($statut === 'suspendu') {
+        } elseif ('suspendu' === $statut) {
             $qb->andWhere('c.actif = false');
         }
 
@@ -76,16 +76,16 @@ class SuperAdminCentresController extends AbstractController
                 ->getQuery()->getSingleScalarResult();
 
             return [
-                'id'           => $c->getId(),
-                'nom'          => $c->getNom(),
-                'slug'         => $c->getSlug(),
-                'adresse'      => $c->getAdresse(),
-                'actif'        => $c->isActif(),
-                'createdAt'    => $c->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-                'totalUsers'   => $c->getUsers()->count(),
+                'id' => $c->getId(),
+                'nom' => $c->getNom(),
+                'slug' => $c->getSlug(),
+                'adresse' => $c->getAdresse(),
+                'actif' => $c->isActif(),
+                'createdAt' => $c->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+                'totalUsers' => $c->getUsers()->count(),
                 // Mock Phase 1 — vrai plan/MRR viendront en Phase 2 (Stripe)
-                'plan'         => 'starter',
-                'mrr'          => 0,
+                'plan' => 'starter',
+                'mrr' => 0,
                 'pointages30j' => (int) $pointages30j,
                 'lastActivity' => $lastPointage ?: $c->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             ];
@@ -102,19 +102,19 @@ class SuperAdminCentresController extends AbstractController
             return $this->json(['message' => 'Centre introuvable'], Response::HTTP_NOT_FOUND);
         }
 
-        $users = array_map(fn($u) => [
-            'id'        => $u->getId(),
-            'nom'       => $u->getNom(),
-            'prenom'    => $u->getPrenom(),
-            'email'     => $u->getEmail(),
-            'role'      => $u->getRole(),
-            'actif'     => $u->isActif(),
+        $users = array_map(fn ($u) => [
+            'id' => $u->getId(),
+            'nom' => $u->getNom(),
+            'prenom' => $u->getPrenom(),
+            'email' => $u->getEmail(),
+            'role' => $u->getRole(),
+            'actif' => $u->isActif(),
             'createdAt' => $u->getCreatedAt()?->format(\DateTimeInterface::ATOM),
         ], $centre->getUsers()->toArray());
 
-        $notes = array_map(fn($n) => [
-            'id'        => $n->getId(),
-            'contenu'   => $n->getContenu(),
+        $notes = array_map(fn ($n) => [
+            'id' => $n->getId(),
+            'contenu' => $n->getContenu(),
             'createdAt' => $n->getCreatedAt()?->format(\DateTimeInterface::ATOM),
         ], $this->centreNoteRepo->findByCentre($id));
 
@@ -135,21 +135,21 @@ class SuperAdminCentresController extends AbstractController
         $engagement = $totalUsers > 0 ? min(100, (int) round(($pointages30j / $totalUsers) / 40 * 100)) : 0;
 
         return $this->json([
-            'id'           => $centre->getId(),
-            'nom'          => $centre->getNom(),
-            'slug'         => $centre->getSlug(),
-            'adresse'      => $centre->getAdresse(),
-            'telephone'   => $centre->getTelephone(),
-            'siteWeb'      => $centre->getSiteWeb(),
-            'actif'        => $centre->isActif(),
-            'createdAt'    => $centre->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-            'totalUsers'   => $totalUsers,
+            'id' => $centre->getId(),
+            'nom' => $centre->getNom(),
+            'slug' => $centre->getSlug(),
+            'adresse' => $centre->getAdresse(),
+            'telephone' => $centre->getTelephone(),
+            'siteWeb' => $centre->getSiteWeb(),
+            'actif' => $centre->isActif(),
+            'createdAt' => $centre->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'totalUsers' => $totalUsers,
             'pointages30j' => $pointages30j,
-            'engagement'   => $engagement,
-            'mrr'          => 0,
-            'plan'         => 'starter',
-            'users'        => $users,
-            'notes'        => $notes,
+            'engagement' => $engagement,
+            'mrr' => 0,
+            'plan' => 'starter',
+            'users' => $users,
+            'notes' => $notes,
             'sentryIssues' => $sentryIssues,
         ]);
     }
@@ -165,8 +165,8 @@ class SuperAdminCentresController extends AbstractController
         // Premier manager actif du centre
         $manager = $this->userRepo->findOneBy([
             'centre' => $centre,
-            'role'   => 'MANAGER',
-            'actif'  => true,
+            'role' => 'MANAGER',
+            'actif' => true,
         ]);
 
         if (!$manager) {
@@ -178,7 +178,7 @@ class SuperAdminCentresController extends AbstractController
 
         $token = $this->jwtManager->createFromPayload($manager, [
             'impersonatedBy' => $superAdmin->getId(),
-            'centreId'       => $centre->getId(),
+            'centreId' => $centre->getId(),
         ]);
 
         $this->auditLog->log(
@@ -191,9 +191,9 @@ class SuperAdminCentresController extends AbstractController
         );
 
         return $this->json([
-            'token'      => $token,
-            'manager'    => ['id' => $manager->getId(), 'nom' => $manager->getNom(), 'prenom' => $manager->getPrenom()],
-            'centre'     => ['id' => $centre->getId(), 'nom' => $centre->getNom()],
+            'token' => $token,
+            'manager' => ['id' => $manager->getId(), 'nom' => $manager->getNom(), 'prenom' => $manager->getPrenom()],
+            'centre' => ['id' => $centre->getId(), 'nom' => $centre->getNom()],
         ]);
     }
 
@@ -205,7 +205,7 @@ class SuperAdminCentresController extends AbstractController
             return $this->json(['message' => 'Centre introuvable'], Response::HTTP_NOT_FOUND);
         }
 
-        $data    = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
         $contenu = trim($data['contenu'] ?? '');
         if (empty($contenu)) {
             return $this->json(['message' => 'Le contenu est requis'], Response::HTTP_BAD_REQUEST);
@@ -223,8 +223,8 @@ class SuperAdminCentresController extends AbstractController
         $this->auditLog->log($superAdmin, 'ADD_NOTE', 'centre', $centre->getId(), ['contenu' => substr($contenu, 0, 100)], $request);
 
         return $this->json([
-            'id'        => $note->getId(),
-            'contenu'   => $note->getContenu(),
+            'id' => $note->getId(),
+            'contenu' => $note->getContenu(),
             'createdAt' => $note->getCreatedAt()?->format(\DateTimeInterface::ATOM),
         ], Response::HTTP_CREATED);
     }

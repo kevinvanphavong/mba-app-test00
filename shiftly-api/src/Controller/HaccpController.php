@@ -43,12 +43,13 @@ class HaccpController extends AbstractController
         private readonly HaccpMissionGenerator $generator,
         private readonly CompletionHaccpProofRepository $proofRepo,
         private readonly Environment $twig,
-    ) {}
+    ) {
+    }
 
     // ─── Saisie depuis /service ──────────────────────────────────────────────
 
     /**
-     * POST /api/completions/haccp  (multipart/form-data ou JSON)
+     * POST /api/completions/haccp  (multipart/form-data ou JSON).
      *
      * Champs :
      *   posteId, missionId (entiers, requis)
@@ -69,11 +70,15 @@ class HaccpController extends AbstractController
         $jsonBody = [];
         $ct = (string) $request->headers->get('Content-Type', '');
         if (str_contains($ct, 'json')) {
-            try { $jsonBody = $request->toArray(); } catch (\Throwable) { $jsonBody = []; }
+            try {
+                $jsonBody = $request->toArray();
+            } catch (\Throwable) {
+                $jsonBody = [];
+            }
         }
         $body = $request->request->all() ?: $jsonBody;
 
-        $posteId   = (int) ($body['posteId']   ?? 0);
+        $posteId = (int) ($body['posteId'] ?? 0);
         $missionId = (int) ($body['missionId'] ?? 0);
 
         if (!$posteId || !$missionId) {
@@ -85,14 +90,14 @@ class HaccpController extends AbstractController
         if (!$spec instanceof MissionHaccpSpec) {
             throw new BadRequestHttpException('Cette mission n\'a pas de spec HACCP.');
         }
-        $valeur = isset($body['valeurNumerique']) && $body['valeurNumerique'] !== ''
+        $valeur = isset($body['valeurNumerique']) && '' !== $body['valeurNumerique']
             ? (float) $body['valeurNumerique'] : null;
         $dateReleveRaw = $body['dateReleve'] ?? null;
         $note = $body['note'] ?? null;
         $photoFile = $request->files->get('photo');
 
         // Validation métier — selon typeReleve
-        $this->validateProofBusiness($spec, $valeur, $dateReleveRaw, $note, $photoFile !== null);
+        $this->validateProofBusiness($spec, $valeur, $dateReleveRaw, $note, null !== $photoFile);
 
         $stored = null;
         if ($photoFile) {
@@ -132,15 +137,15 @@ class HaccpController extends AbstractController
 
         return $this->json([
             'completion' => [
-                'id'          => $completion->getId(),
+                'id' => $completion->getId(),
                 'completedAt' => $completion->getCompletedAt()?->format(\DateTimeInterface::ATOM),
             ],
             'haccpProof' => [
-                'id'              => $proof->getId(),
+                'id' => $proof->getId(),
                 'valeurNumerique' => $proof->getValeurNumerique(),
-                'dateReleve'      => $proof->getDateReleve()?->format('Y-m-d'),
-                'estConforme'     => $proof->getEstConforme(),
-                'hasPhoto'        => $proof->getPhotoPath() !== null,
+                'dateReleve' => $proof->getDateReleve()?->format('Y-m-d'),
+                'estConforme' => $proof->getEstConforme(),
+                'hasPhoto' => null !== $proof->getPhotoPath(),
             ],
         ], Response::HTTP_CREATED);
     }
@@ -163,12 +168,12 @@ class HaccpController extends AbstractController
         try {
             $object = $this->r2->getObject($proof->getPhotoPath());
         } catch (\Throwable $e) {
-            error_log('[HaccpController] Fetch photo R2 failed: ' . $e->getMessage());
+            error_log('[HaccpController] Fetch photo R2 failed: '.$e->getMessage());
             throw $this->createNotFoundException('Photo introuvable sur le stockage.');
         }
 
         return new Response($object['body'], Response::HTTP_OK, [
-            'Content-Type'  => $proof->getPhotoMimeType() ?: $object['mime'],
+            'Content-Type' => $proof->getPhotoMimeType() ?: $object['mime'],
             'Cache-Control' => 'private, max-age=300, no-store',
         ]);
     }
@@ -180,7 +185,9 @@ class HaccpController extends AbstractController
     public function syncEquipement(int $id): JsonResponse
     {
         $equip = $this->em->find(HaccpEquipement::class, $id);
-        if (!$equip) throw $this->createNotFoundException('Équipement introuvable.');
+        if (!$equip) {
+            throw $this->createNotFoundException('Équipement introuvable.');
+        }
 
         /** @var User $currentUser */
         $currentUser = $this->getUser();
@@ -189,6 +196,7 @@ class HaccpController extends AbstractController
         }
 
         $result = $this->generator->synchronizeForCentre($equip->getCentre());
+
         return $this->json($result->toArray());
     }
 
@@ -199,7 +207,9 @@ class HaccpController extends AbstractController
         /** @var User $currentUser */
         $currentUser = $this->getUser();
         $centre = $currentUser->getCentre();
-        if (!$centre) throw $this->createAccessDeniedException('Centre absent.');
+        if (!$centre) {
+            throw $this->createAccessDeniedException('Centre absent.');
+        }
 
         return $this->json($this->generator->synchronizeForCentre($centre)->toArray());
     }
@@ -212,35 +222,37 @@ class HaccpController extends AbstractController
         /** @var User $currentUser */
         $currentUser = $this->getUser();
         $centre = $currentUser->getCentre();
-        if (!$centre) throw $this->createAccessDeniedException('Centre absent.');
+        if (!$centre) {
+            throw $this->createAccessDeniedException('Centre absent.');
+        }
 
-        $mois     = $request->query->get('mois');
-        $type     = $request->query->get('type');
+        $mois = $request->query->get('mois');
+        $type = $request->query->get('type');
         $conforme = $request->query->has('conforme')
             ? filter_var($request->query->get('conforme'), FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)
             : null;
 
         $rows = $this->proofRepo->findRegistre($centre, $mois, $type, $conforme);
 
-        $items = array_map(fn(CompletionHaccpProof $p) => $this->serializeProof($p), $rows);
+        $items = array_map(fn (CompletionHaccpProof $p) => $this->serializeProof($p), $rows);
 
         // KPIs : nb total, conformes, non conformes, taux conformité (sur applicables)
-        $total       = count($items);
-        $applicables = array_filter($items, fn($i) => $i['estConforme'] !== null);
-        $conformes   = array_filter($applicables, fn($i) => $i['estConforme'] === true);
-        $nonConf     = array_filter($applicables, fn($i) => $i['estConforme'] === false);
+        $total = count($items);
+        $applicables = array_filter($items, fn ($i) => null !== $i['estConforme']);
+        $conformes = array_filter($applicables, fn ($i) => true === $i['estConforme']);
+        $nonConf = array_filter($applicables, fn ($i) => false === $i['estConforme']);
 
         return $this->json([
-            'mois'        => $mois,
-            'kpis'        => [
-                'total'        => $total,
-                'conformes'    => count($conformes),
+            'mois' => $mois,
+            'kpis' => [
+                'total' => $total,
+                'conformes' => count($conformes),
                 'nonConformes' => count($nonConf),
                 'tauxConformite' => count($applicables) > 0
                     ? round(count($conformes) / count($applicables) * 100, 1)
                     : null,
             ],
-            'items'       => $items,
+            'items' => $items,
         ]);
     }
 
@@ -251,12 +263,14 @@ class HaccpController extends AbstractController
         /** @var User $currentUser */
         $currentUser = $this->getUser();
         $centre = $currentUser->getCentre();
-        if (!$centre) throw $this->createAccessDeniedException('Centre absent.');
+        if (!$centre) {
+            throw $this->createAccessDeniedException('Centre absent.');
+        }
 
         $mois = $request->query->get('mois') ?? (new \DateTimeImmutable())->format('Y-m');
 
         $rows = $this->proofRepo->findRegistre($centre, $mois);
-        $items = array_map(fn(CompletionHaccpProof $p) => $this->serializeProof($p), $rows);
+        $items = array_map(fn (CompletionHaccpProof $p) => $this->serializeProof($p), $rows);
 
         // Groupage par jour
         $byDay = [];
@@ -268,11 +282,11 @@ class HaccpController extends AbstractController
         ksort($byDay);
 
         $html = $this->twig->render('haccp/export.html.twig', [
-            'centre'   => $centre,
-            'mois'     => $mois,
-            'manager'  => $currentUser,
-            'byDay'    => $byDay,
-            'total'    => count($items),
+            'centre' => $centre,
+            'mois' => $mois,
+            'manager' => $currentUser,
+            'byDay' => $byDay,
+            'total' => count($items),
         ]);
 
         $options = new Options();
@@ -284,10 +298,11 @@ class HaccpController extends AbstractController
         $dompdf->render();
 
         $filename = sprintf('registre-haccp-%s-%s.pdf', $centre->getSlug() ?? 'centre', $mois);
+
         return new Response($dompdf->output(), 200, [
-            'Content-Type'        => 'application/pdf',
+            'Content-Type' => 'application/pdf',
             'Content-Disposition' => sprintf('attachment; filename="%s"', $filename),
-            'Cache-Control'       => 'private, no-store',
+            'Cache-Control' => 'private, no-store',
         ]);
     }
 
@@ -296,9 +311,11 @@ class HaccpController extends AbstractController
     /** @return array{0: Poste, 1: Mission, 2: User} */
     private function resolveAndGuard(int $posteId, int $missionId): array
     {
-        $poste   = $this->em->find(Poste::class, $posteId);
+        $poste = $this->em->find(Poste::class, $posteId);
         $mission = $this->em->find(Mission::class, $missionId);
-        if (!$poste || !$mission) throw $this->createNotFoundException('Poste ou Mission introuvable.');
+        if (!$poste || !$mission) {
+            throw $this->createNotFoundException('Poste ou Mission introuvable.');
+        }
 
         /** @var User $currentUser */
         $currentUser = $this->getUser();
@@ -306,6 +323,7 @@ class HaccpController extends AbstractController
         if ($posteCentreId !== $currentUser->getCentre()?->getId()) {
             throw $this->createAccessDeniedException('Accès refusé.');
         }
+
         return [$poste, $mission, $currentUser];
     }
 
@@ -318,7 +336,7 @@ class HaccpController extends AbstractController
     ): void {
         switch ($spec->getTypeReleve()) {
             case MissionHaccpSpec::TYPE_TEMPERATURE:
-                if ($valeur === null) {
+                if (null === $valeur) {
                     throw new BadRequestHttpException('Une température (valeurNumerique) est requise.');
                 }
                 break;
@@ -333,7 +351,7 @@ class HaccpController extends AbstractController
                 }
                 break;
             case MissionHaccpSpec::TYPE_RECEPTION:
-                if ($valeur === null) {
+                if (null === $valeur) {
                     throw new BadRequestHttpException('Une température de réception est requise.');
                 }
                 break;
@@ -349,43 +367,43 @@ class HaccpController extends AbstractController
     private function serializeProof(CompletionHaccpProof $p): array
     {
         $completion = $p->getCompletion();
-        $mission    = $completion?->getMission();
-        $spec       = $mission?->getHaccpSpec();
-        $equip      = $spec?->getEquipement();
-        $user       = $p->getRelevePar();
+        $mission = $completion?->getMission();
+        $spec = $mission?->getHaccpSpec();
+        $equip = $spec?->getEquipement();
+        $user = $p->getRelevePar();
 
         return [
-            'id'              => $p->getId(),
-            'createdAt'       => $p->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'id' => $p->getId(),
+            'createdAt' => $p->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             'valeurNumerique' => $p->getValeurNumerique(),
-            'dateReleve'      => $p->getDateReleve()?->format('Y-m-d'),
-            'note'            => $p->getNote(),
-            'estConforme'     => $p->getEstConforme(),
-            'hasPhoto'        => $p->getPhotoPath() !== null,
-            'photoUrl'        => $p->getPhotoPath() !== null
-                ? '/api/haccp/proofs/' . $p->getId() . '/photo'
+            'dateReleve' => $p->getDateReleve()?->format('Y-m-d'),
+            'note' => $p->getNote(),
+            'estConforme' => $p->getEstConforme(),
+            'hasPhoto' => null !== $p->getPhotoPath(),
+            'photoUrl' => null !== $p->getPhotoPath()
+                ? '/api/haccp/proofs/'.$p->getId().'/photo'
                 : null,
-            'completion'      => $completion ? [
-                'id'          => $completion->getId(),
+            'completion' => $completion ? [
+                'id' => $completion->getId(),
                 'completedAt' => $completion->getCompletedAt()?->format(\DateTimeInterface::ATOM),
             ] : null,
-            'mission'         => $mission ? [
-                'id'    => $mission->getId(),
+            'mission' => $mission ? [
+                'id' => $mission->getId(),
                 'texte' => $mission->getTexte(),
             ] : null,
-            'spec'            => $spec ? [
+            'spec' => $spec ? [
                 'typeReleve' => $spec->getTypeReleve(),
-                'moment'     => $spec->getMoment(),
-                'seuils'     => $spec->getEffectiveSeuils(),
+                'moment' => $spec->getMoment(),
+                'seuils' => $spec->getEffectiveSeuils(),
             ] : null,
-            'equipement'      => $equip ? [
-                'id'   => $equip->getId(),
-                'nom'  => $equip->getNom(),
+            'equipement' => $equip ? [
+                'id' => $equip->getId(),
+                'nom' => $equip->getNom(),
                 'type' => $equip->getType(),
             ] : null,
-            'relevePar'       => $user ? [
-                'id'     => $user->getId(),
-                'nom'    => $user->getNom(),
+            'relevePar' => $user ? [
+                'id' => $user->getId(),
+                'nom' => $user->getNom(),
                 'prenom' => $user->getPrenom(),
             ] : null,
         ];

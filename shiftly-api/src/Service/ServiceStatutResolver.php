@@ -23,16 +23,17 @@ class ServiceStatutResolver
 {
     public function __construct(
         private readonly ActiveDayResolver $activeDayResolver,
-    ) {}
+    ) {
+    }
 
     public function resolve(Service $service): string
     {
-        if ($service->getStatut() === 'TERMINE') {
+        if ('TERMINE' === $service->getStatut()) {
             return 'TERMINE';
         }
 
         $serviceDate = $service->getDate();
-        if ($serviceDate === null) {
+        if (null === $serviceDate) {
             return $service->getStatut();
         }
 

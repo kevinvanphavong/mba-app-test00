@@ -4,14 +4,12 @@ namespace App\Service;
 
 use App\Entity\Absence;
 use App\Entity\Centre;
-use App\Entity\Poste;
 use App\Entity\PlanningSnapshot;
 use App\Entity\PlanningWeek;
+use App\Entity\Poste;
 use App\Entity\Service;
 use App\Entity\User;
 use App\Exception\DelaiPrevenanceException;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use App\Repository\AbsenceRepository;
 use App\Repository\PlanningSnapshotRepository;
 use App\Repository\PlanningWeekRepository;
@@ -20,6 +18,8 @@ use App\Repository\UserRepository;
 use App\Repository\ZoneRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 /**
  * Logique métier du module Planning hebdomadaire.
@@ -27,15 +27,16 @@ use Doctrine\ORM\EntityManagerInterface;
 class PlanningService
 {
     public function __construct(
-        private readonly ServiceRepository          $serviceRepository,
-        private readonly PlanningWeekRepository      $planningWeekRepository,
-        private readonly PlanningSnapshotRepository  $planningSnapshotRepository,
-        private readonly AbsenceRepository           $absenceRepository,
-        private readonly ZoneRepository              $zoneRepository,
-        private readonly UserRepository              $userRepository,
-        private readonly EntityManagerInterface      $em,
-        private readonly ActiveDayResolver           $activeDayResolver,
-    ) {}
+        private readonly ServiceRepository $serviceRepository,
+        private readonly PlanningWeekRepository $planningWeekRepository,
+        private readonly PlanningSnapshotRepository $planningSnapshotRepository,
+        private readonly AbsenceRepository $absenceRepository,
+        private readonly ZoneRepository $zoneRepository,
+        private readonly UserRepository $userRepository,
+        private readonly EntityManagerInterface $em,
+        private readonly ActiveDayResolver $activeDayResolver,
+    ) {
+    }
 
     /**
      * Applique sur un Service nouvellement créé les horaires d'ouverture du
@@ -50,7 +51,7 @@ class PlanningService
     {
         $dayMap = ['1' => 'lundi', '2' => 'mardi', '3' => 'mercredi', '4' => 'jeudi', '5' => 'vendredi', '6' => 'samedi', '7' => 'dimanche'];
         $dayKey = $dayMap[$date->format('N')] ?? null;
-        $hours  = $centre?->getOpeningHours() ?? [];
+        $hours = $centre?->getOpeningHours() ?? [];
 
         $hd = null;
         $hf = null;
@@ -64,8 +65,12 @@ class PlanningService
             }
         }
 
-        if ($hd) $service->setHeureDebut($hd);
-        if ($hf) $service->setHeureFin($hf);
+        if ($hd) {
+            $service->setHeureDebut($hd);
+        }
+        if ($hf) {
+            $service->setHeureFin($hf);
+        }
     }
 
     /**
@@ -75,7 +80,7 @@ class PlanningService
     public function calculateShiftDuration(Poste $poste): float
     {
         $debut = $poste->getHeureDebut();
-        $fin   = $poste->getHeureFin();
+        $fin = $poste->getHeureFin();
 
         if (!$debut || !$fin) {
             return 0.0;
@@ -98,12 +103,13 @@ class PlanningService
      *
      * @param Centre             $centre    Centre courant
      * @param \DateTimeImmutable $weekStart Lundi de la semaine
+     *
      * @return array Structure correspondant à PlanningWeekData TypeScript
      */
     public function getWeekData(Centre $centre, \DateTimeImmutable $weekStart): array
     {
         $centreId = $centre->getId();
-        $weekEnd  = $weekStart->modify('+6 days');
+        $weekEnd = $weekStart->modify('+6 days');
 
         // ── Récupère les services de la semaine via le repository existant ──
         $services = $this->serviceRepository->findBetween($centreId, $weekStart, $weekEnd);
@@ -127,20 +133,20 @@ class PlanningService
 
         // ── Zones du centre ──
         $zones = $this->zoneRepository->findBy(['centre' => $centre], ['ordre' => 'ASC']);
-        $zonesData = array_map(fn($z) => [
-            'id'      => $z->getId(),
-            'nom'     => $z->getNom(),
+        $zonesData = array_map(fn ($z) => [
+            'id' => $z->getId(),
+            'nom' => $z->getNom(),
             'couleur' => $z->getCouleur() ?? '#6b7280',
         ], $zones);
 
         // ── Charge les absences de la semaine (une requête pour tous les employés) ──
-        $absencesRaw    = $this->absenceRepository->findByCentreAndDateRange($centreId, $weekStart, $weekEnd);
+        $absencesRaw = $this->absenceRepository->findByCentreAndDateRange($centreId, $weekStart, $weekEnd);
         $absencesByUser = [];
         foreach ($absencesRaw as $a) {
             $absencesByUser[$a->getUser()->getId()][$a->getDate()->format('Y-m-d')] = [
-                'id'    => $a->getId(),
-                'date'  => $a->getDate()->format('Y-m-d'),
-                'type'  => $a->getType(),
+                'id' => $a->getId(),
+                'date' => $a->getDate()->format('Y-m-d'),
+                'type' => $a->getType(),
                 'motif' => $a->getMotif(),
             ];
         }
@@ -150,15 +156,15 @@ class PlanningService
         foreach ($this->userRepository->findActifByCentre($centreId) as $u) {
             $uid = $u->getId();
             $employeesMap[$uid] = [
-                'id'          => $uid,
-                'nom'         => $u->getNom(),
-                'prenom'      => $u->getPrenom(),
-                'role'        => $u->getRole(),
+                'id' => $uid,
+                'nom' => $u->getNom(),
+                'prenom' => $u->getPrenom(),
+                'role' => $u->getRole(),
                 'avatarColor' => $u->getAvatarColor(),
                 'heuresHebdo' => $u->getHeuresHebdo(),
                 'typeContrat' => $u->getTypeContrat(),
-                'shifts'      => [],
-                'absences'    => array_values($absencesByUser[$uid] ?? []),
+                'shifts' => [],
+                'absences' => array_values($absencesByUser[$uid] ?? []),
                 'totalHeures' => 0.0,
             ];
         }
@@ -166,21 +172,21 @@ class PlanningService
         // ── Regroupe les shifts par employé ──
         foreach ($postesParDate as $dateStr => $postes) {
             foreach ($postes as $poste) {
-                $user   = $poste->getUser();
-                $zone   = $poste->getZone();
+                $user = $poste->getUser();
+                $zone = $poste->getZone();
                 $userId = $user->getId();
 
                 if (!isset($employeesMap[$userId])) {
                     $employeesMap[$userId] = [
-                        'id'          => $userId,
-                        'nom'         => $user->getNom(),
-                        'prenom'      => $user->getPrenom(),
-                        'role'        => $user->getRole(),
+                        'id' => $userId,
+                        'nom' => $user->getNom(),
+                        'prenom' => $user->getPrenom(),
+                        'role' => $user->getRole(),
                         'avatarColor' => $user->getAvatarColor(),
                         'heuresHebdo' => $user->getHeuresHebdo(),
                         'typeContrat' => $user->getTypeContrat(),
-                        'shifts'      => [],
-                        'absences'    => array_values($absencesByUser[$userId] ?? []),
+                        'shifts' => [],
+                        'absences' => array_values($absencesByUser[$userId] ?? []),
                         'totalHeures' => 0.0,
                     ];
                 }
@@ -188,17 +194,17 @@ class PlanningService
                 $duree = $this->calculateShiftDuration($poste);
 
                 $employeesMap[$userId]['shifts'][] = [
-                    'posteId'      => $poste->getId(),
-                    'serviceId'    => $poste->getService()->getId(),
-                    'userId'       => $userId,
-                    'date'         => $dateStr,
-                    'zoneId'       => $zone->getId(),
-                    'zoneNom'      => $zone->getNom(),
-                    'zoneCouleur'  => $zone->getCouleur() ?? '#6b7280',
-                    'heureDebut'   => $poste->getHeureDebut()?->format('H:i'),
-                    'heureFin'     => $poste->getHeureFin()?->format('H:i'),
+                    'posteId' => $poste->getId(),
+                    'serviceId' => $poste->getService()->getId(),
+                    'userId' => $userId,
+                    'date' => $dateStr,
+                    'zoneId' => $zone->getId(),
+                    'zoneNom' => $zone->getNom(),
+                    'zoneCouleur' => $zone->getCouleur() ?? '#6b7280',
+                    'heureDebut' => $poste->getHeureDebut()?->format('H:i'),
+                    'heureFin' => $poste->getHeureFin()?->format('H:i'),
                     'pauseMinutes' => $poste->getPauseMinutes(),
-                    'note'         => $poste->getNote(),
+                    'note' => $poste->getNote(),
                 ];
 
                 $employeesMap[$userId]['totalHeures'] += $duree;
@@ -208,51 +214,50 @@ class PlanningService
         // ── Calcule l'écart contrat et arrondit les heures ──
         $employees = [];
         foreach ($employeesMap as $emp) {
-            $emp['totalHeures']  = round($emp['totalHeures'], 2);
-            $emp['ecartContrat'] = $emp['heuresHebdo'] !== null
+            $emp['totalHeures'] = round($emp['totalHeures'], 2);
+            $emp['ecartContrat'] = null !== $emp['heuresHebdo']
                 ? round($emp['totalHeures'] - $emp['heuresHebdo'], 2)
                 : 0.0;
             $employees[] = $emp;
         }
 
         // Trier par nom
-        usort($employees, fn($a, $b) => strcmp($a['nom'], $b['nom']));
+        usort($employees, fn ($a, $b) => strcmp($a['nom'], $b['nom']));
 
         // ── Statut de la semaine ──
-        $planningWeek    = $this->planningWeekRepository->findByCentreAndWeek($centreId, $weekStart);
-        $statut          = $planningWeek?->getStatut() ?? PlanningWeek::STATUT_BROUILLON;
-        $note            = $planningWeek?->getNote();
-        $hasUnpublished  = $planningWeek?->hasUnpublishedChanges() ?? false;
-        $lastModifiedAt  = $planningWeek?->getLastModifiedAt()?->format(\DateTimeInterface::ATOM);
+        $planningWeek = $this->planningWeekRepository->findByCentreAndWeek($centreId, $weekStart);
+        $statut = $planningWeek?->getStatut() ?? PlanningWeek::STATUT_BROUILLON;
+        $note = $planningWeek?->getNote();
+        $hasUnpublished = $planningWeek?->hasUnpublishedChanges() ?? false;
+        $lastModifiedAt = $planningWeek?->getLastModifiedAt()?->format(\DateTimeInterface::ATOM);
 
         // ── Alertes ──
         $alertes = $this->buildAlerts($employees, $services, $zonesData, $centre, $weekStart);
 
         // ── Stats ──
         $employesPlanifies = count($employees);
-        $totalHeures       = array_sum(array_column($employees, 'totalHeures'));
-        $sousPlanifies     = count(array_filter($employees, fn($e) =>
-            $e['heuresHebdo'] !== null && $e['ecartContrat'] < -4
+        $totalHeures = array_sum(array_column($employees, 'totalHeures'));
+        $sousPlanifies = count(array_filter($employees, fn ($e) => null !== $e['heuresHebdo'] && $e['ecartContrat'] < -4
         ));
-        $creneauxVides = count(array_filter($alertes, fn($a) => $a['type'] === 'ZONE_NON_COUVERTE'));
+        $creneauxVides = count(array_filter($alertes, fn ($a) => 'ZONE_NON_COUVERTE' === $a['type']));
 
         return [
-            'weekStart'              => $weekStart->format('Y-m-d'),
-            'weekEnd'                => $weekEnd->format('Y-m-d'),
-            'statut'                 => $statut,
-            'publishedAt'            => $planningWeek?->getPublishedAt()?->format(\DateTimeInterface::ATOM),
-            'publishedBy'            => $planningWeek?->getPublishedBy()?->getNom(),
-            'lastModifiedAt'         => $lastModifiedAt,
-            'hasUnpublishedChanges'  => $hasUnpublished,
-            'note'                   => $note,
-            'zones'                  => $zonesData,
-            'employees'              => array_values($employees),
-            'alertes'                => $alertes,
-            'stats'                  => [
+            'weekStart' => $weekStart->format('Y-m-d'),
+            'weekEnd' => $weekEnd->format('Y-m-d'),
+            'statut' => $statut,
+            'publishedAt' => $planningWeek?->getPublishedAt()?->format(\DateTimeInterface::ATOM),
+            'publishedBy' => $planningWeek?->getPublishedBy()?->getNom(),
+            'lastModifiedAt' => $lastModifiedAt,
+            'hasUnpublishedChanges' => $hasUnpublished,
+            'note' => $note,
+            'zones' => $zonesData,
+            'employees' => array_values($employees),
+            'alertes' => $alertes,
+            'stats' => [
                 'employesPlanifies' => $employesPlanifies,
-                'totalHeures'       => round($totalHeures, 2),
-                'creneauxVides'     => $creneauxVides,
-                'sousPlanifies'     => $sousPlanifies,
+                'totalHeures' => round($totalHeures, 2),
+                'creneauxVides' => $creneauxVides,
+                'sousPlanifies' => $sousPlanifies,
             ],
         ];
     }
@@ -264,7 +269,8 @@ class PlanningService
     public function calculateDelaiPrevenance(\DateTimeImmutable $weekStart): int
     {
         $today = new \DateTimeImmutable('today midnight');
-        $diff  = $today->diff($weekStart);
+        $diff = $today->diff($weekStart);
+
         return max(0, $diff->invert ? -$diff->days : $diff->days);
     }
 
@@ -277,10 +283,10 @@ class PlanningService
         \DateTimeImmutable $weekStart,
         User $publisher,
         ?string $motif,
-        bool $delaiRespect
+        bool $delaiRespect,
     ): PlanningSnapshot {
         $weekData = $this->getWeekData($centre, $weekStart);
-        $json     = json_encode($weekData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $json = json_encode($weekData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         $checksum = hash('sha256', $json);
 
         $snapshot = new PlanningSnapshot();
@@ -301,7 +307,7 @@ class PlanningService
     /**
      * Publie une semaine de planning — crée ou met à jour PlanningWeek → PUBLIE.
      *
-     * @throws DelaiPrevenanceException si délai < 7j et forcePublication = false
+     * @throws DelaiPrevenanceException  si délai < 7j et forcePublication = false
      * @throws \InvalidArgumentException si forcePublication = true sans motif
      */
     public function publishWeek(
@@ -309,9 +315,9 @@ class PlanningService
         \DateTimeImmutable $weekStart,
         User $publisher,
         ?string $motif = null,
-        bool $force = false
+        bool $force = false,
     ): PlanningWeek {
-        $delai        = $this->calculateDelaiPrevenance($weekStart);
+        $delai = $this->calculateDelaiPrevenance($weekStart);
         $delaiRespect = $delai >= 7;
 
         if (!$delaiRespect && !$force) {
@@ -323,7 +329,7 @@ class PlanningService
         }
 
         $centreId = $centre->getId();
-        $pw       = $this->planningWeekRepository->findByCentreAndWeek($centreId, $weekStart);
+        $pw = $this->planningWeekRepository->findByCentreAndWeek($centreId, $weekStart);
 
         if (!$pw) {
             $pw = new PlanningWeek();
@@ -352,7 +358,7 @@ class PlanningService
      * Ne touche jamais aux dates antérieures au "service du jour" (passé non
      * modifiable).
      *
-     * @return array{postes: int, absences: int} Compteurs supprimés.
+     * @return array{postes: int, absences: int} compteurs supprimés
      */
     public function clearWeek(
         Centre $centre,
@@ -406,7 +412,7 @@ class PlanningService
      */
     public function duplicateWeek(Centre $centre, \DateTimeImmutable $source, \DateTimeImmutable $target): void
     {
-        $centreId  = $centre->getId();
+        $centreId = $centre->getId();
         $sourceEnd = $source->modify('+6 days');
         $targetEnd = $target->modify('+6 days');
 
@@ -435,14 +441,14 @@ class PlanningService
             }
 
             // Calcule la date cible (décalage = target - source en jours)
-            $srcDate  = $srcService->getDate();
+            $srcDate = $srcService->getDate();
             $diffDays = (int) $source->diff($target)->days;
-            $tgtDate  = $srcDate->modify("+{$diffDays} days");
+            $tgtDate = $srcDate->modify("+{$diffDays} days");
 
             // Trouve ou crée le service cible
             $tgtService = $this->em->getRepository(Service::class)->findOneBy([
                 'centre' => $centre,
-                'date'   => $tgtDate,
+                'date' => $tgtDate,
             ]);
 
             if (!$tgtService) {
@@ -476,33 +482,33 @@ class PlanningService
      */
     public function getEmployeeWeeks(User $user): array
     {
-        $centre   = $user->getCentre();
+        $centre = $user->getCentre();
         $centreId = $centre->getId();
-        $userId   = $user->getId();
-        $today    = $this->activeDayResolver->getActiveDate();
+        $userId = $user->getId();
+        $today = $this->activeDayResolver->getActiveDate();
 
         // Lundi de la semaine courante
-        $dayOfWeek   = (int) $today->format('N');
-        $currentWeek = $dayOfWeek === 1 ? $today : $today->modify('-' . ($dayOfWeek - 1) . ' days');
+        $dayOfWeek = (int) $today->format('N');
+        $currentWeek = 1 === $dayOfWeek ? $today : $today->modify('-'.($dayOfWeek - 1).' days');
 
         // Cherche les 4 prochaines semaines publiées (on en prend 3 max)
-        $from    = $currentWeek;
-        $to      = $currentWeek->modify('+4 weeks');
+        $from = $currentWeek;
+        $to = $currentWeek->modify('+4 weeks');
         $pubList = $this->planningWeekRepository->findPublishedBetween($centreId, $from, $to);
 
         $result = [];
         foreach (array_slice($pubList, 0, 3) as $pw) {
-            $wStart   = $pw->getWeekStart();
-            $wEnd     = $wStart->modify('+6 days');
+            $wStart = $pw->getWeekStart();
+            $wEnd = $wStart->modify('+6 days');
 
             // Lecture depuis le dernier snapshot publié — source de vérité légale
             $snapshot = $this->planningSnapshotRepository->findLatestByWeek($centreId, $wStart);
 
             $shifts = [];
-            $total  = 0.0;
+            $total = 0.0;
 
-            if ($snapshot !== null) {
-                $data      = $snapshot->getData();
+            if (null !== $snapshot) {
+                $data = $snapshot->getData();
                 $employees = $data['employees'] ?? [];
 
                 // Trouve les données de cet employé dans le snapshot
@@ -512,13 +518,13 @@ class PlanningService
                     }
                     foreach ($emp['shifts'] ?? [] as $s) {
                         $shifts[] = [
-                            'date'         => $s['date'],
-                            'zoneNom'      => $s['zoneNom'],
-                            'zoneCouleur'  => $s['zoneCouleur'],
-                            'heureDebut'   => $s['heureDebut'],
-                            'heureFin'     => $s['heureFin'],
+                            'date' => $s['date'],
+                            'zoneNom' => $s['zoneNom'],
+                            'zoneCouleur' => $s['zoneCouleur'],
+                            'heureDebut' => $s['heureDebut'],
+                            'heureFin' => $s['heureFin'],
                             'pauseMinutes' => $s['pauseMinutes'] ?? 0,
-                            'note'         => $s['note'] ?? null,
+                            'note' => $s['note'] ?? null,
                         ];
                     }
                     $total = (float) ($emp['totalHeures'] ?? 0.0);
@@ -539,16 +545,16 @@ class PlanningService
                         ->getQuery()->getResult();
 
                     foreach ($postes as $poste) {
-                        $duree  = $this->calculateShiftDuration($poste);
+                        $duree = $this->calculateShiftDuration($poste);
                         $total += $duree;
                         $shifts[] = [
-                            'date'         => $service->getDate()->format('Y-m-d'),
-                            'zoneNom'      => $poste->getZone()->getNom(),
-                            'zoneCouleur'  => $poste->getZone()->getCouleur() ?? '#6b7280',
-                            'heureDebut'   => $poste->getHeureDebut()?->format('H:i'),
-                            'heureFin'     => $poste->getHeureFin()?->format('H:i'),
+                            'date' => $service->getDate()->format('Y-m-d'),
+                            'zoneNom' => $poste->getZone()->getNom(),
+                            'zoneCouleur' => $poste->getZone()->getCouleur() ?? '#6b7280',
+                            'heureDebut' => $poste->getHeureDebut()?->format('H:i'),
+                            'heureFin' => $poste->getHeureFin()?->format('H:i'),
                             'pauseMinutes' => $poste->getPauseMinutes(),
-                            'note'         => $poste->getNote(),
+                            'note' => $poste->getNote(),
                         ];
                     }
                 }
@@ -562,21 +568,21 @@ class PlanningService
                     continue;
                 }
                 $absences[] = [
-                    'id'    => $a->getId(),
-                    'date'  => $a->getDate()->format('Y-m-d'),
-                    'type'  => $a->getType(),
+                    'id' => $a->getId(),
+                    'date' => $a->getDate()->format('Y-m-d'),
+                    'type' => $a->getType(),
                     'motif' => $a->getMotif(),
                 ];
             }
 
             $result[] = [
-                'weekStart'    => $wStart->format('Y-m-d'),
-                'weekEnd'      => $wEnd->format('Y-m-d'),
-                'statut'       => PlanningWeek::STATUT_PUBLIE,
-                'publishedAt'  => $snapshot?->getPublishedAt()?->format('Y-m-d H:i'),
-                'shifts'       => $shifts,
-                'absences'     => $absences,
-                'totalHeures'  => round($total, 2),
+                'weekStart' => $wStart->format('Y-m-d'),
+                'weekEnd' => $wEnd->format('Y-m-d'),
+                'statut' => PlanningWeek::STATUT_PUBLIE,
+                'publishedAt' => $snapshot?->getPublishedAt()?->format('Y-m-d H:i'),
+                'shifts' => $shifts,
+                'absences' => $absences,
+                'totalHeures' => round($total, 2),
             ];
         }
 
@@ -599,33 +605,41 @@ class PlanningService
     /** Convertit un float d'heures en format lisible : 7.75 → "7h45", -0.5 → "-0h30" */
     private function formatHeures(float $h): string
     {
-        $sign    = $h < 0 ? '-' : '';
-        $abs     = abs($h);
-        $heures  = (int) floor($abs);
+        $sign = $h < 0 ? '-' : '';
+        $abs = abs($h);
+        $heures = (int) floor($abs);
         $minutes = (int) round(($abs - $heures) * 60);
-        if ($minutes === 60) { $heures++; $minutes = 0; }
+        if (60 === $minutes) {
+            ++$heures;
+            $minutes = 0;
+        }
+
         return sprintf('%s%dh%02d', $sign, $heures, $minutes);
     }
 
     /** Idem avec signe forcé pour les écarts : +7h45, -0h30 */
     private function formatEcart(float $h): string
     {
-        $sign   = $h >= 0 ? '+' : '-';
-        $abs    = abs($h);
+        $sign = $h >= 0 ? '+' : '-';
+        $abs = abs($h);
         $heures = (int) floor($abs);
-        $mins   = (int) round(($abs - $heures) * 60);
-        if ($mins === 60) { $heures++; $mins = 0; }
+        $mins = (int) round(($abs - $heures) * 60);
+        if (60 === $mins) {
+            ++$heures;
+            $mins = 0;
+        }
+
         return sprintf('%s%dh%02d', $sign, $heures, $mins);
     }
 
     public function generatePdf(Centre $centre, \DateTimeImmutable $weekStart): string
     {
-        $data    = $this->getWeekData($centre, $weekStart);
+        $data = $this->getWeekData($centre, $weekStart);
         $weekEnd = $weekStart->modify('+6 days');
 
         $JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
         $dates = [];
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 0; $i < 7; ++$i) {
             $dates[] = $weekStart->modify("+{$i} days")->format('Y-m-d');
         }
 
@@ -649,8 +663,8 @@ class PlanningService
             foreach ($dates as $date) {
                 $content = '';
                 foreach ($shiftsByDate[$date] ?? [] as $s) {
-                    $hd    = $s['heureDebut']    ?? '—';
-                    $hf    = $s['heureFin']       ?? '—';
+                    $hd = $s['heureDebut'] ?? '—';
+                    $hf = $s['heureFin'] ?? '—';
                     $pause = ($s['pauseMinutes'] ?? 0) > 0
                         ? "<div style='font-size:7px;color:#9ca3af;'>pause {$s['pauseMinutes']}min</div>"
                         : '';
@@ -658,13 +672,15 @@ class PlanningService
                     $content .= "<div style='font-size:8px;color:#6b7280;'>{$s['zoneNom']}</div>";
                     $content .= $pause;
                 }
-                if (!$content) $content = "<span style='color:#d1d5db;'>—</span>";
+                if (!$content) {
+                    $content = "<span style='color:#d1d5db;'>—</span>";
+                }
                 $cells .= "<td style='border:1px solid #e5e7eb;padding:4px 6px;text-align:center;vertical-align:top;min-width:60px;'>{$content}</td>";
             }
 
-            $total   = $this->formatHeures($emp['totalHeures']);
-            $contrat = $emp['heuresHebdo'] !== null ? $emp['heuresHebdo'] . 'h' : '—';
-            $ecart   = $emp['heuresHebdo'] !== null
+            $total = $this->formatHeures($emp['totalHeures']);
+            $contrat = null !== $emp['heuresHebdo'] ? $emp['heuresHebdo'].'h' : '—';
+            $ecart = null !== $emp['heuresHebdo']
                 ? $this->formatEcart($emp['ecartContrat'])
                 : '—';
 
@@ -679,7 +695,7 @@ class PlanningService
             }
 
             $prenom = htmlspecialchars($emp['prenom'] ?? '');
-            $nom    = htmlspecialchars($emp['nom']    ?? '');
+            $nom = htmlspecialchars($emp['nom'] ?? '');
 
             $rows .= "
             <tr>
@@ -700,8 +716,8 @@ class PlanningService
         }
 
         $generatedAt = (new \DateTimeImmutable())->format('d/m/Y à H:i');
-        $statut = $data['statut'] === 'PUBLIE' ? '✓ Publié' : 'Brouillon';
-        $statutColor = $data['statut'] === 'PUBLIE' ? '#22c55e' : '#f97316';
+        $statut = 'PUBLIE' === $data['statut'] ? '✓ Publié' : 'Brouillon';
+        $statutColor = 'PUBLIE' === $data['statut'] ? '#22c55e' : '#f97316';
 
         $html = "
         <!DOCTYPE html>
@@ -823,20 +839,22 @@ class PlanningService
                 // Alerte SANS_PAUSE métier : shift > 6h sans aucune pause
                 if ($shift['heureDebut'] && $shift['heureFin']) {
                     $debut = \DateTimeImmutable::createFromFormat('H:i', $shift['heureDebut']);
-                    $fin   = \DateTimeImmutable::createFromFormat('H:i', $shift['heureFin']);
+                    $fin = \DateTimeImmutable::createFromFormat('H:i', $shift['heureFin']);
                     if ($debut && $fin) {
                         $minutes = ($fin->getTimestamp() - $debut->getTimestamp()) / 60;
-                        if ($minutes < 0) $minutes += 1440;
-                        if ($minutes > 360 && $shift['pauseMinutes'] === 0) {
+                        if ($minutes < 0) {
+                            $minutes += 1440;
+                        }
+                        if ($minutes > 360 && 0 === $shift['pauseMinutes']) {
                             $alertes[] = [
-                                'type'      => 'SANS_PAUSE',
-                                'severite'  => 'moyenne',
+                                'type' => 'SANS_PAUSE',
+                                'severite' => 'moyenne',
                                 'categorie' => 'metier',
-                                'message'   => sprintf(
+                                'message' => sprintf(
                                     'Shift de %.0fh sans pause pour %s le %s',
                                     $minutes / 60, $emp['nom'], $shift['date']
                                 ),
-                                'date'   => $shift['date'],
+                                'date' => $shift['date'],
                                 'userId' => $emp['id'],
                             ];
                         }
@@ -851,12 +869,12 @@ class PlanningService
             foreach ($zones as $zone) {
                 if (!isset($couvertureParDate[$dateStr][$zone['id']])) {
                     $alertes[] = [
-                        'type'      => 'ZONE_NON_COUVERTE',
-                        'severite'  => 'haute',
+                        'type' => 'ZONE_NON_COUVERTE',
+                        'severite' => 'haute',
                         'categorie' => 'metier',
-                        'message'   => sprintf('%s non couverte le %s', $zone['nom'], $dateStr),
-                        'date'      => $dateStr,
-                        'zoneId'    => $zone['id'],
+                        'message' => sprintf('%s non couverte le %s', $zone['nom'], $dateStr),
+                        'date' => $dateStr,
+                        'zoneId' => $zone['id'],
                     ];
                 }
             }
@@ -868,7 +886,10 @@ class PlanningService
         // Trie : haute en premier, légal avant métier à sévérité égale
         usort($alertes, function ($a, $b) {
             $sevCmp = strcmp($b['severite'], $a['severite']);
-            if ($sevCmp !== 0) return $sevCmp;
+            if (0 !== $sevCmp) {
+                return $sevCmp;
+            }
+
             return strcmp($b['categorie'] ?? 'metier', $a['categorie'] ?? 'metier');
         });
 
@@ -894,7 +915,9 @@ class PlanningService
             // Regroupe et trie les shifts par date (hors jours d'absence)
             $shiftsByDate = [];
             foreach ($shifts as $shift) {
-                if (in_array($shift['date'], $absenceDates, true)) continue;
+                if (in_array($shift['date'], $absenceDates, true)) {
+                    continue;
+                }
                 $shiftsByDate[$shift['date']][] = $shift;
             }
             ksort($shiftsByDate);
@@ -903,23 +926,29 @@ class PlanningService
             foreach ($shiftsByDate as $date => $dayShifts) {
                 $totalMin = 0;
                 foreach ($dayShifts as $s) {
-                    if (!$s['heureDebut'] || !$s['heureFin']) continue;
+                    if (!$s['heureDebut'] || !$s['heureFin']) {
+                        continue;
+                    }
                     $d = \DateTimeImmutable::createFromFormat('H:i', $s['heureDebut']);
                     $f = \DateTimeImmutable::createFromFormat('H:i', $s['heureFin']);
-                    if (!$d || !$f) continue;
+                    if (!$d || !$f) {
+                        continue;
+                    }
                     $min = ($f->getTimestamp() - $d->getTimestamp()) / 60;
-                    if ($min < 0) $min += 1440;
+                    if ($min < 0) {
+                        $min += 1440;
+                    }
                     $totalMin += max(0, $min - $s['pauseMinutes']);
                 }
                 if ($totalMin > 600) {
                     $alertes[] = [
-                        'type'       => 'MAX_JOURNALIER',
-                        'severite'   => 'haute',
-                        'categorie'  => 'legal',
+                        'type' => 'MAX_JOURNALIER',
+                        'severite' => 'haute',
+                        'categorie' => 'legal',
                         'baseLegale' => 'Art. L3121-18 C. travail',
-                        'message'    => sprintf('%s dépasse 10h le %s (%.1fh planifiées)', $emp['nom'], $date, $totalMin / 60),
-                        'date'       => $date,
-                        'userId'     => $emp['id'],
+                        'message' => sprintf('%s dépasse 10h le %s (%.1fh planifiées)', $emp['nom'], $date, $totalMin / 60),
+                        'date' => $date,
+                        'userId' => $emp['id'],
                     ];
                 }
             }
@@ -927,33 +956,41 @@ class PlanningService
             // ── MAX_HEBDO_ABSOLU : > 48h sur la semaine ──────────────────────
             if ($emp['totalHeures'] > 48) {
                 $alertes[] = [
-                    'type'       => 'MAX_HEBDO_ABSOLU',
-                    'severite'   => 'haute',
-                    'categorie'  => 'legal',
+                    'type' => 'MAX_HEBDO_ABSOLU',
+                    'severite' => 'haute',
+                    'categorie' => 'legal',
                     'baseLegale' => 'Art. L3121-20 C. travail',
-                    'message'    => sprintf('%s dépasse 48h cette semaine (%.1fh)', $emp['nom'], $emp['totalHeures']),
-                    'userId'     => $emp['id'],
+                    'message' => sprintf('%s dépasse 48h cette semaine (%.1fh)', $emp['nom'], $emp['totalHeures']),
+                    'userId' => $emp['id'],
                 ];
             }
 
             // ── PAUSE_6H : shift > 6h avec pause < 20 min ───────────────────
             foreach ($shifts as $s) {
-                if (in_array($s['date'], $absenceDates, true)) continue;
-                if (!$s['heureDebut'] || !$s['heureFin']) continue;
+                if (in_array($s['date'], $absenceDates, true)) {
+                    continue;
+                }
+                if (!$s['heureDebut'] || !$s['heureFin']) {
+                    continue;
+                }
                 $d = \DateTimeImmutable::createFromFormat('H:i', $s['heureDebut']);
                 $f = \DateTimeImmutable::createFromFormat('H:i', $s['heureFin']);
-                if (!$d || !$f) continue;
+                if (!$d || !$f) {
+                    continue;
+                }
                 $min = ($f->getTimestamp() - $d->getTimestamp()) / 60;
-                if ($min < 0) $min += 1440;
+                if ($min < 0) {
+                    $min += 1440;
+                }
                 if ($min > 360 && $s['pauseMinutes'] < 20) {
                     $alertes[] = [
-                        'type'       => 'PAUSE_6H',
-                        'severite'   => 'moyenne',
-                        'categorie'  => 'legal',
+                        'type' => 'PAUSE_6H',
+                        'severite' => 'moyenne',
+                        'categorie' => 'legal',
                         'baseLegale' => 'Art. L3121-16 C. travail',
-                        'message'    => sprintf('%s : shift de %.0fh, pause insuffisante (%dmin) le %s', $emp['nom'], $min / 60, $s['pauseMinutes'], $s['date']),
-                        'date'       => $s['date'],
-                        'userId'     => $emp['id'],
+                        'message' => sprintf('%s : shift de %.0fh, pause insuffisante (%dmin) le %s', $emp['nom'], $min / 60, $s['pauseMinutes'], $s['date']),
+                        'date' => $s['date'],
+                        'userId' => $emp['id'],
                     ];
                 }
             }
@@ -961,42 +998,54 @@ class PlanningService
             // ── REPOS_QUOTIDIEN : < 11h entre dernier shift J et premier J+1 ─
             $dates = array_keys($shiftsByDate);
             foreach ($dates as $i => $date) {
-                if (!isset($dates[$i + 1])) continue;
+                if (!isset($dates[$i + 1])) {
+                    continue;
+                }
                 $nextDate = $dates[$i + 1];
 
                 // Vérifie que c'est bien le lendemain
                 $diff = (new \DateTimeImmutable($nextDate))->diff(new \DateTimeImmutable($date));
-                if ($diff->days !== 1) continue;
+                if (1 !== $diff->days) {
+                    continue;
+                }
 
                 // Dernier shift du jour J (trié par heureFin)
-                $dayShifts     = $shiftsByDate[$date];
+                $dayShifts = $shiftsByDate[$date];
                 $nextDayShifts = $shiftsByDate[$nextDate];
 
-                $lastFin   = null;
-                $firstDeb  = null;
+                $lastFin = null;
+                $firstDeb = null;
 
                 foreach ($dayShifts as $s) {
-                    if (!$s['heureFin']) continue;
-                    $ts = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $date . ' ' . $s['heureFin']);
-                    if ($ts && (!$lastFin || $ts > $lastFin)) $lastFin = $ts;
+                    if (!$s['heureFin']) {
+                        continue;
+                    }
+                    $ts = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $date.' '.$s['heureFin']);
+                    if ($ts && (!$lastFin || $ts > $lastFin)) {
+                        $lastFin = $ts;
+                    }
                 }
                 foreach ($nextDayShifts as $s) {
-                    if (!$s['heureDebut']) continue;
-                    $ts = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $nextDate . ' ' . $s['heureDebut']);
-                    if ($ts && (!$firstDeb || $ts < $firstDeb)) $firstDeb = $ts;
+                    if (!$s['heureDebut']) {
+                        continue;
+                    }
+                    $ts = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $nextDate.' '.$s['heureDebut']);
+                    if ($ts && (!$firstDeb || $ts < $firstDeb)) {
+                        $firstDeb = $ts;
+                    }
                 }
 
                 if ($lastFin && $firstDeb) {
                     $repos = ($firstDeb->getTimestamp() - $lastFin->getTimestamp()) / 3600;
                     if ($repos < 11) {
                         $alertes[] = [
-                            'type'       => 'REPOS_QUOTIDIEN',
-                            'severite'   => 'haute',
-                            'categorie'  => 'legal',
+                            'type' => 'REPOS_QUOTIDIEN',
+                            'severite' => 'haute',
+                            'categorie' => 'legal',
                             'baseLegale' => 'Art. L3131-1 C. travail',
-                            'message'    => sprintf('%s : repos de %.0fh entre %s et %s (11h requises)', $emp['nom'], max(0, $repos), $date, $nextDate),
-                            'date'       => $date,
-                            'userId'     => $emp['id'],
+                            'message' => sprintf('%s : repos de %.0fh entre %s et %s (11h requises)', $emp['nom'], max(0, $repos), $date, $nextDate),
+                            'date' => $date,
+                            'userId' => $emp['id'],
                         ];
                     }
                 }
@@ -1006,40 +1055,48 @@ class PlanningService
             if (!empty($shifts)) {
                 $workSlots = [];
                 foreach ($shifts as $s) {
-                    if (in_array($s['date'], $absenceDates, true)) continue;
-                    if (!$s['heureDebut'] || !$s['heureFin']) continue;
-                    $start = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $s['date'] . ' ' . $s['heureDebut']);
-                    $end   = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $s['date'] . ' ' . $s['heureFin']);
-                    if (!$start || !$end) continue;
+                    if (in_array($s['date'], $absenceDates, true)) {
+                        continue;
+                    }
+                    if (!$s['heureDebut'] || !$s['heureFin']) {
+                        continue;
+                    }
+                    $start = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $s['date'].' '.$s['heureDebut']);
+                    $end = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $s['date'].' '.$s['heureFin']);
+                    if (!$start || !$end) {
+                        continue;
+                    }
                     $startTs = $start->getTimestamp();
-                    $endTs   = $end->getTimestamp();
-                    if ($endTs < $startTs) $endTs += 86400; // shift de nuit
+                    $endTs = $end->getTimestamp();
+                    if ($endTs < $startTs) {
+                        $endTs += 86400;
+                    } // shift de nuit
                     $workSlots[] = [$startTs, $endTs];
                 }
 
                 if (!empty($workSlots)) {
-                    usort($workSlots, fn($a, $b) => $a[0] <=> $b[0]);
+                    usort($workSlots, fn ($a, $b) => $a[0] <=> $b[0]);
 
                     // Calcule la plus longue plage de repos dans la semaine
                     $firstShiftStart = $workSlots[0][0];
-                    $lastShiftEnd    = end($workSlots)[1];
-                    $maxRepos        = 0.0;
-                    $prev            = $firstShiftStart;
+                    $lastShiftEnd = end($workSlots)[1];
+                    $maxRepos = 0.0;
+                    $prev = $firstShiftStart;
 
                     foreach ($workSlots as $slot) {
-                        $gap      = ($slot[0] - $prev) / 3600;
+                        $gap = ($slot[0] - $prev) / 3600;
                         $maxRepos = max($maxRepos, $gap);
-                        $prev     = $slot[1];
+                        $prev = $slot[1];
                     }
 
                     if ($maxRepos < 35) {
                         $alertes[] = [
-                            'type'       => 'REPOS_HEBDO',
-                            'severite'   => 'haute',
-                            'categorie'  => 'legal',
+                            'type' => 'REPOS_HEBDO',
+                            'severite' => 'haute',
+                            'categorie' => 'legal',
                             'baseLegale' => 'Art. L3132-2 C. travail',
-                            'message'    => sprintf('%s : repos hebdo insuffisant (%.0fh consécutives, 35h requises)', $emp['nom'], $maxRepos),
-                            'userId'     => $emp['id'],
+                            'message' => sprintf('%s : repos hebdo insuffisant (%.0fh consécutives, 35h requises)', $emp['nom'], $maxRepos),
+                            'userId' => $emp['id'],
                         ];
                     }
                 }
@@ -1071,14 +1128,14 @@ class PlanningService
             // Indexe les heures histo par userId et par numéro de semaine ISO
             $heuresParUserSemaine = [];
             foreach ($histoPostes as $p) {
-                $uid   = $p->getUser()->getId();
-                $wNum  = $p->getService()->getDate()->format('o-W'); // ex: 2026-15
+                $uid = $p->getUser()->getId();
+                $wNum = $p->getService()->getDate()->format('o-W'); // ex: 2026-15
                 $heuresParUserSemaine[$uid][$wNum] = ($heuresParUserSemaine[$uid][$wNum] ?? 0.0)
                     + $this->calculateShiftDuration($p);
             }
 
             foreach ($employees as $emp) {
-                $uid     = $emp['id'];
+                $uid = $emp['id'];
                 $semaines = $heuresParUserSemaine[$uid] ?? [];
 
                 // Complète la semaine courante si absente de l'historique (pas encore de postes finaux)
@@ -1095,11 +1152,11 @@ class PlanningService
 
                 if ($moyenne > 44) {
                     $alertes[] = [
-                        'type'       => 'MAX_HEBDO_MOYENNE',
-                        'severite'   => 'haute',
-                        'categorie'  => 'legal',
+                        'type' => 'MAX_HEBDO_MOYENNE',
+                        'severite' => 'haute',
+                        'categorie' => 'legal',
                         'baseLegale' => 'Art. L3121-22 C. travail',
-                        'message'    => sprintf(
+                        'message' => sprintf(
                             '%s : moyenne de %.1fh/semaine sur %d semaines (44h max)',
                             $emp['nom'], $moyenne, count($semaines)
                         ),

@@ -93,6 +93,7 @@ class LeadRepository extends ServiceEntityRepository
     public function countRecentByEmail(string $email, int $hours = 24): int
     {
         $since = new \DateTimeImmutable("-{$hours} hours");
+
         return (int) $this->createQueryBuilder('l')
             ->select('COUNT(l.id)')
             ->andWhere('l.email = :email')

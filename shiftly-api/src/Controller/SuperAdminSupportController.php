@@ -21,21 +21,22 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SuperAdminSupportController extends AbstractController
 {
     public function __construct(
-        private readonly SupportTicketRepository    $ticketRepo,
-        private readonly UserRepository             $userRepo,
-        private readonly EntityManagerInterface     $em,
-        private readonly AuditLogService            $auditLog,
-        private readonly SupportAttachmentUploader  $uploader,
-    ) {}
+        private readonly SupportTicketRepository $ticketRepo,
+        private readonly UserRepository $userRepo,
+        private readonly EntityManagerInterface $em,
+        private readonly AuditLogService $auditLog,
+        private readonly SupportAttachmentUploader $uploader,
+    ) {
+    }
 
     #[Route('/api/superadmin/support/stats', methods: ['GET'])]
     public function stats(): JsonResponse
     {
         return $this->json([
-            'ouverts'               => $this->ticketRepo->countByStatut(SupportTicket::STATUT_OUVERT),
-            'enCours'               => $this->ticketRepo->countByStatut(SupportTicket::STATUT_EN_COURS),
-            'urgents'               => $this->ticketRepo->countUrgents(),
-            'resolusCetteSemaine'   => $this->ticketRepo->countResolusCetteSemaine(),
+            'ouverts' => $this->ticketRepo->countByStatut(SupportTicket::STATUT_OUVERT),
+            'enCours' => $this->ticketRepo->countByStatut(SupportTicket::STATUT_EN_COURS),
+            'urgents' => $this->ticketRepo->countUrgents(),
+            'resolusCetteSemaine' => $this->ticketRepo->countResolusCetteSemaine(),
         ]);
     }
 
@@ -43,21 +44,23 @@ class SuperAdminSupportController extends AbstractController
     public function list(Request $request): JsonResponse
     {
         $tickets = $this->ticketRepo->findFilteredForSuperAdmin([
-            'statut'    => $request->query->get('statut'),
-            'priorite'  => $request->query->get('priorite'),
+            'statut' => $request->query->get('statut'),
+            'priorite' => $request->query->get('priorite'),
             'categorie' => $request->query->get('categorie'),
-            'centre'    => $request->query->get('centre'),
-            'search'    => $request->query->get('search'),
+            'centre' => $request->query->get('centre'),
+            'search' => $request->query->get('search'),
         ]);
 
-        return $this->json(array_map(fn($t) => $this->serializeTicket($t, $this->getUser()), $tickets));
+        return $this->json(array_map(fn ($t) => $this->serializeTicket($t, $this->getUser()), $tickets));
     }
 
     #[Route('/api/superadmin/support/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function detail(int $id): JsonResponse
     {
         $ticket = $this->ticketRepo->find($id);
-        if (!$ticket) return $this->json(['message' => 'Ticket introuvable'], 404);
+        if (!$ticket) {
+            return $this->json(['message' => 'Ticket introuvable'], 404);
+        }
 
         // Marque comme vu par le superadmin
         $ticket->setLastViewedBySuperAdmin(new \DateTimeImmutable());
@@ -70,7 +73,9 @@ class SuperAdminSupportController extends AbstractController
     public function reply(int $id, Request $request): JsonResponse
     {
         $ticket = $this->ticketRepo->find($id);
-        if (!$ticket) return $this->json(['message' => 'Ticket introuvable'], 404);
+        if (!$ticket) {
+            return $this->json(['message' => 'Ticket introuvable'], 404);
+        }
 
         $message = trim($request->request->get('message', ''));
         $interne = $request->request->getBoolean('interne', false);
@@ -103,7 +108,7 @@ class SuperAdminSupportController extends AbstractController
         }
 
         // Transition statut OUVERT → EN_COURS à la 1ère réponse superadmin
-        if ($ticket->getStatut() === SupportTicket::STATUT_OUVERT && !$interne) {
+        if (SupportTicket::STATUT_OUVERT === $ticket->getStatut() && !$interne) {
             $ticket->setStatut(SupportTicket::STATUT_EN_COURS);
         }
 
@@ -120,9 +125,11 @@ class SuperAdminSupportController extends AbstractController
     public function changeStatus(int $id, Request $request): JsonResponse
     {
         $ticket = $this->ticketRepo->find($id);
-        if (!$ticket) return $this->json(['message' => 'Ticket introuvable'], 404);
+        if (!$ticket) {
+            return $this->json(['message' => 'Ticket introuvable'], 404);
+        }
 
-        $data   = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
         $statut = $data['statut'] ?? '';
         if (!in_array($statut, [SupportTicket::STATUT_OUVERT, SupportTicket::STATUT_EN_COURS, SupportTicket::STATUT_RESOLU, SupportTicket::STATUT_FERME], true)) {
             return $this->json(['message' => 'Statut invalide'], 400);
@@ -141,9 +148,11 @@ class SuperAdminSupportController extends AbstractController
     public function changePriority(int $id, Request $request): JsonResponse
     {
         $ticket = $this->ticketRepo->find($id);
-        if (!$ticket) return $this->json(['message' => 'Ticket introuvable'], 404);
+        if (!$ticket) {
+            return $this->json(['message' => 'Ticket introuvable'], 404);
+        }
 
-        $data     = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
         $priorite = $data['priorite'] ?? '';
         if (!in_array($priorite, [SupportTicket::PRIORITE_BASSE, SupportTicket::PRIORITE_MOYENNE, SupportTicket::PRIORITE_HAUTE, SupportTicket::PRIORITE_URGENTE], true)) {
             return $this->json(['message' => 'Priorité invalide'], 400);
@@ -162,16 +171,20 @@ class SuperAdminSupportController extends AbstractController
     public function assign(int $id, Request $request): JsonResponse
     {
         $ticket = $this->ticketRepo->find($id);
-        if (!$ticket) return $this->json(['message' => 'Ticket introuvable'], 404);
+        if (!$ticket) {
+            return $this->json(['message' => 'Ticket introuvable'], 404);
+        }
 
-        $data       = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true);
         $assigneeId = $data['assigneeId'] ?? null;
 
-        if ($assigneeId === null) {
+        if (null === $assigneeId) {
             $ticket->setAssigneA(null);
         } else {
             $assignee = $this->userRepo->find($assigneeId);
-            if (!$assignee) return $this->json(['message' => 'Assignataire introuvable'], 404);
+            if (!$assignee) {
+                return $this->json(['message' => 'Assignataire introuvable'], 404);
+            }
             $ticket->setAssigneA($assignee);
         }
 
@@ -181,8 +194,8 @@ class SuperAdminSupportController extends AbstractController
             ['assigneeId' => $assigneeId], $request);
 
         return $this->json([
-            'id'        => $ticket->getId(),
-            'assigneA'  => $ticket->getAssigneA() ? ['id' => $ticket->getAssigneA()->getId(), 'nom' => $ticket->getAssigneA()->getNom()] : null,
+            'id' => $ticket->getId(),
+            'assigneA' => $ticket->getAssigneA() ? ['id' => $ticket->getAssigneA()->getId(), 'nom' => $ticket->getAssigneA()->getNom()] : null,
         ]);
     }
 
@@ -193,44 +206,44 @@ class SuperAdminSupportController extends AbstractController
             $lastView = $t->getLastViewedBySuperAdmin();
             $lastReply = $t->getReplies()->last() ?: null;
             $candidate = $lastReply ? $lastReply->getCreatedAt() : $t->getCreatedAt();
-            $unreadForSA = $lastView === null || ($candidate && $candidate > $lastView);
+            $unreadForSA = null === $lastView || ($candidate && $candidate > $lastView);
         }
 
         return [
-            'id'        => $t->getId(),
-            'sujet'     => $t->getSujet(),
-            'extrait'   => mb_substr($t->getMessage(), 0, 120),
+            'id' => $t->getId(),
+            'sujet' => $t->getSujet(),
+            'extrait' => mb_substr($t->getMessage(), 0, 120),
             'categorie' => $t->getCategorie(),
-            'statut'    => $t->getStatut(),
-            'priorite'  => $t->getPriorite(),
-            'centre'    => $t->getCentre() ? ['id' => $t->getCentre()->getId(), 'nom' => $t->getCentre()->getNom()] : null,
-            'auteur'    => [
-                'id'     => $t->getAuteur()->getId(),
-                'nom'    => $t->getAuteur()->getNom(),
+            'statut' => $t->getStatut(),
+            'priorite' => $t->getPriorite(),
+            'centre' => $t->getCentre() ? ['id' => $t->getCentre()->getId(), 'nom' => $t->getCentre()->getNom()] : null,
+            'auteur' => [
+                'id' => $t->getAuteur()->getId(),
+                'nom' => $t->getAuteur()->getNom(),
                 'prenom' => $t->getAuteur()->getPrenom(),
-                'email'  => $t->getAuteur()->getEmail(),
+                'email' => $t->getAuteur()->getEmail(),
             ],
-            'assigneA'  => $t->getAssigneA() ? ['id' => $t->getAssigneA()->getId(), 'nom' => $t->getAssigneA()->getNom()] : null,
+            'assigneA' => $t->getAssigneA() ? ['id' => $t->getAssigneA()->getId(), 'nom' => $t->getAssigneA()->getNom()] : null,
             'createdAt' => $t->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             'updatedAt' => $t->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
             'lastActivity' => $t->getUpdatedAt()?->format(\DateTimeInterface::ATOM) ?? $t->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             'repliesCount' => $t->getReplies()->count(),
-            'unread'       => $unreadForSA,
+            'unread' => $unreadForSA,
         ];
     }
 
     private function serializeReply(SupportReply $r): array
     {
         return [
-            'id'        => $r->getId(),
-            'message'   => $r->getMessage(),
-            'interne'   => $r->isInterne(),
+            'id' => $r->getId(),
+            'message' => $r->getMessage(),
+            'interne' => $r->isInterne(),
             'createdAt' => $r->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-            'auteur'    => [
-                'id'     => $r->getAuteur()->getId(),
-                'nom'    => $r->getAuteur()->getNom(),
+            'auteur' => [
+                'id' => $r->getAuteur()->getId(),
+                'nom' => $r->getAuteur()->getNom(),
                 'prenom' => $r->getAuteur()->getPrenom(),
-                'role'   => $r->getAuteur()->getRole(),
+                'role' => $r->getAuteur()->getRole(),
             ],
             'attachments' => array_map($this->serializeAttachment(...), $r->getAttachments()->toArray()),
         ];
@@ -240,22 +253,22 @@ class SuperAdminSupportController extends AbstractController
     private function serializeAttachment(SupportAttachment $a): array
     {
         return [
-            'id'       => $a->getId(),
+            'id' => $a->getId(),
             'filename' => $a->getFilename(),
             'mimeType' => $a->getMimeType(),
-            'size'     => $a->getSize(),
+            'size' => $a->getSize(),
         ];
     }
 
     private function serializeTicketDetail(SupportTicket $t, bool $includeInterne): array
     {
-        $replies = $t->getReplies()->filter(fn(SupportReply $r) => $includeInterne || !$r->isInterne());
+        $replies = $t->getReplies()->filter(fn (SupportReply $r) => $includeInterne || !$r->isInterne());
 
         return [
             ...$this->serializeTicket($t),
-            'message'     => $t->getMessage(),
+            'message' => $t->getMessage(),
             'attachments' => array_map($this->serializeAttachment(...), $t->getAttachments()->toArray()),
-            'replies' => array_map(fn(SupportReply $r) => $this->serializeReply($r), $replies->toArray()),
+            'replies' => array_map(fn (SupportReply $r) => $this->serializeReply($r), $replies->toArray()),
         ];
     }
 }

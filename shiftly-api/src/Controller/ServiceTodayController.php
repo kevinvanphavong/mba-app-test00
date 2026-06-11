@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * GET /api/service/today?centreId=1
+ * GET /api/service/today?centreId=1.
  *
  * Retourne les données complètes du service du jour pour la page /service :
  *  - meta du service
@@ -31,17 +31,18 @@ class ServiceTodayController extends AbstractController
     /** Ordre d'affichage des catégories : OUVERTURE → PENDANT → MENAGE → FERMETURE */
     private const CATEGORIE_ORDER = [
         'OUVERTURE' => 0,
-        'PENDANT'   => 1,
-        'MENAGE'    => 2,
+        'PENDANT' => 1,
+        'MENAGE' => 2,
         'FERMETURE' => 3,
     ];
 
     public function __construct(
-        private readonly ServiceRepository    $serviceRepo,
-        private readonly MissionRepository    $missionRepo,
-        private readonly UserRepository       $userRepo,
+        private readonly ServiceRepository $serviceRepo,
+        private readonly MissionRepository $missionRepo,
+        private readonly UserRepository $userRepo,
         private readonly ServiceStatutResolver $statutResolver,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/service/today', name: 'api_service_today', methods: ['GET'], format: 'json')]
     public function __invoke(Request $request): JsonResponse
@@ -64,20 +65,19 @@ class ServiceTodayController extends AbstractController
 
         // ── Grouper les postes par zone ───────────────────────────────────────
         $postesByZone = []; // zoneId → [poste, ...]
-        $zonesMeta    = []; // zoneId → zone entity
+        $zonesMeta = []; // zoneId → zone entity
 
         foreach ($service->getPostes() as $poste) {
             $zone = $poste->getZone();
-            $zid  = $zone->getId();
+            $zid = $zone->getId();
 
-            $zonesMeta[$zid]    ??= $zone;
+            $zonesMeta[$zid] ??= $zone;
             $postesByZone[$zid] ??= [];
             $postesByZone[$zid][] = $poste;
         }
 
         // Tri des zones par ordre
-        uksort($postesByZone, fn($a, $b) =>
-            ($zonesMeta[$a]->getOrdre() ?? 0) <=> ($zonesMeta[$b]->getOrdre() ?? 0)
+        uksort($postesByZone, fn ($a, $b) => ($zonesMeta[$a]->getOrdre() ?? 0) <=> ($zonesMeta[$b]->getOrdre() ?? 0)
         );
 
         // ── Construction des zones avec missions dédupliquées ─────────────────
@@ -93,6 +93,7 @@ class ServiceTodayController extends AbstractController
             usort($missions, function ($a, $b) {
                 $orderA = self::CATEGORIE_ORDER[$a->getCategorie()] ?? 99;
                 $orderB = self::CATEGORIE_ORDER[$b->getCategorie()] ?? 99;
+
                 return $orderA !== $orderB
                     ? $orderA <=> $orderB
                     : $a->getOrdre() <=> $b->getOrdre();
@@ -106,9 +107,9 @@ class ServiceTodayController extends AbstractController
                     $mid = $completion->getMission()->getId();
                     if (!isset($completionMap[$mid])) {
                         $completionMap[$mid] = [
-                            'id'       => $completion->getId(),
-                            'user'     => $completion->getUser(),
-                            'hasPhoto' => $completion->getPhotoPath() !== null,
+                            'id' => $completion->getId(),
+                            'user' => $completion->getUser(),
+                            'hasPhoto' => null !== $completion->getPhotoPath(),
                         ];
                     }
                 }
@@ -117,13 +118,14 @@ class ServiceTodayController extends AbstractController
             // Staff de la zone (un objet par poste)
             $postesList = array_map(function ($poste) {
                 $user = $poste->getUser();
+
                 return [
-                    'id'   => $poste->getId(),
+                    'id' => $poste->getId(),
                     'user' => $user ? [
-                        'id'          => $user->getId(),
-                        'nom'         => $user->getNom(),
-                        'prenom'      => $user->getPrenom(),
-                        'role'        => $user->getRole(),
+                        'id' => $user->getId(),
+                        'nom' => $user->getNom(),
+                        'prenom' => $user->getPrenom(),
+                        'role' => $user->getRole(),
                         'avatarColor' => $user->getAvatarColor() ?? '#6b7280',
                     ] : null,
                 ];
@@ -131,77 +133,77 @@ class ServiceTodayController extends AbstractController
 
             // Missions dédupliquées avec completedBy + flag photo + spec HACCP éventuelle
             $missionsData = array_map(function ($m) use ($completionMap) {
-                $completion   = $completionMap[$m->getId()] ?? null;
-                $completedBy  = $completion ? $completion['user'] : null;
-                $haccpSpec    = $m->getHaccpSpec();
-                $haccpEquip   = $haccpSpec?->getEquipement();
+                $completion = $completionMap[$m->getId()] ?? null;
+                $completedBy = $completion ? $completion['user'] : null;
+                $haccpSpec = $m->getHaccpSpec();
+                $haccpEquip = $haccpSpec?->getEquipement();
 
                 return [
-                    'id'            => $m->getId(),
-                    'texte'         => $m->getTexte(),
-                    'categorie'     => $m->getCategorie(),
-                    'frequence'     => $m->getFrequence(),
-                    'priorite'      => $m->getPriorite(),
-                    'ordre'         => $m->getOrdre(),
+                    'id' => $m->getId(),
+                    'texte' => $m->getTexte(),
+                    'categorie' => $m->getCategorie(),
+                    'frequence' => $m->getFrequence(),
+                    'priorite' => $m->getPriorite(),
+                    'ordre' => $m->getOrdre(),
                     'requiresPhoto' => $m->getRequiresPhoto(),
-                    'completionId'  => $completion ? $completion['id'] : null,
-                    'hasPhoto'      => $completion ? $completion['hasPhoto'] : false,
-                    'completedBy'   => $completedBy ? [
-                        'id'          => $completedBy->getId(),
-                        'nom'         => $completedBy->getNom(),
-                        'prenom'      => $completedBy->getPrenom(),
+                    'completionId' => $completion ? $completion['id'] : null,
+                    'hasPhoto' => $completion ? $completion['hasPhoto'] : false,
+                    'completedBy' => $completedBy ? [
+                        'id' => $completedBy->getId(),
+                        'nom' => $completedBy->getNom(),
+                        'prenom' => $completedBy->getPrenom(),
                         'avatarColor' => $completedBy->getAvatarColor() ?? '#6b7280',
                     ] : null,
-                    'haccpSpec'     => $haccpSpec ? [
-                        'id'                     => $haccpSpec->getId(),
-                        'typeReleve'             => $haccpSpec->getTypeReleve(),
-                        'moment'                 => $haccpSpec->getMoment(),
-                        'seuilMin'               => $haccpSpec->getSeuilMin(),
-                        'seuilMax'               => $haccpSpec->getSeuilMax(),
-                        'unite'                  => $haccpSpec->getUnite(),
-                        'photoObligatoire'       => $haccpSpec->isPhotoObligatoire(),
+                    'haccpSpec' => $haccpSpec ? [
+                        'id' => $haccpSpec->getId(),
+                        'typeReleve' => $haccpSpec->getTypeReleve(),
+                        'moment' => $haccpSpec->getMoment(),
+                        'seuilMin' => $haccpSpec->getSeuilMin(),
+                        'seuilMax' => $haccpSpec->getSeuilMax(),
+                        'unite' => $haccpSpec->getUnite(),
+                        'photoObligatoire' => $haccpSpec->isPhotoObligatoire(),
                         'commentaireObligatoire' => $haccpSpec->isCommentaireObligatoire(),
-                        'archivee'               => $haccpSpec->isArchivee(),
-                        'equipement'             => $haccpEquip ? [
-                            'id'       => $haccpEquip->getId(),
-                            'nom'      => $haccpEquip->getNom(),
-                            'type'     => $haccpEquip->getType(),
+                        'archivee' => $haccpSpec->isArchivee(),
+                        'equipement' => $haccpEquip ? [
+                            'id' => $haccpEquip->getId(),
+                            'nom' => $haccpEquip->getNom(),
+                            'type' => $haccpEquip->getType(),
                             'seuilMin' => $haccpEquip->getSeuilMin(),
                             'seuilMax' => $haccpEquip->getSeuilMax(),
-                            'unite'    => $haccpEquip->getUnite(),
+                            'unite' => $haccpEquip->getUnite(),
                         ] : null,
                     ] : null,
                 ];
             }, $missions);
 
             $zonesData[] = [
-                'id'       => $zone->getId(),
-                'nom'      => $zone->getNom(),
-                'couleur'  => $zone->getCouleur(),
-                'ordre'    => $zone->getOrdre(),
-                'postes'   => $postesList,
+                'id' => $zone->getId(),
+                'nom' => $zone->getNom(),
+                'couleur' => $zone->getCouleur(),
+                'ordre' => $zone->getOrdre(),
+                'postes' => $postesList,
                 'missions' => $missionsData,
             ];
         }
 
         // ── Staff du centre (pour modale incident) ────────────────────────────
-        $staffList = array_map(fn(User $u) => [
-            'id'          => $u->getId(),
-            'nom'         => $u->getNom(),
-            'prenom'      => $u->getPrenom(),
-            'role'        => $u->getRole(),
+        $staffList = array_map(fn (User $u) => [
+            'id' => $u->getId(),
+            'nom' => $u->getNom(),
+            'prenom' => $u->getPrenom(),
+            'role' => $u->getRole(),
             'avatarColor' => $u->getAvatarColor() ?? '#6b7280',
         ], $this->userRepo->findByCentre($centreId));
 
         return $this->json([
             'service' => [
-                'id'         => $service->getId(),
-                'date'       => $service->getDate()?->format('Y-m-d'),
+                'id' => $service->getId(),
+                'date' => $service->getDate()?->format('Y-m-d'),
                 'heureDebut' => $service->getHeureDebut()?->format('H:i') ?? '00:00',
-                'heureFin'   => $service->getHeureFin()?->format('H:i') ?? '00:00',
-                'statut'     => $this->statutResolver->resolve($service),
+                'heureFin' => $service->getHeureFin()?->format('H:i') ?? '00:00',
+                'statut' => $this->statutResolver->resolve($service),
                 'centreName' => $service->getCentre()?->getNom() ?? '',
-                'note'       => $service->getNote(),
+                'note' => $service->getNote(),
             ],
             'zones' => $zonesData,
             'staff' => $staffList,

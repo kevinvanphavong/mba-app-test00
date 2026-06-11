@@ -16,10 +16,10 @@ class SuperAdminAuthController extends AbstractController
         $user = $this->getUser();
 
         return $this->json([
-            'id'    => $user->getId(),
+            'id' => $user->getId(),
             'email' => $user->getUserIdentifier(),
-            'nom'   => $user->getNom(),
-            'role'  => $user->getRole(),
+            'nom' => $user->getNom(),
+            'role' => $user->getRole(),
         ]);
     }
 

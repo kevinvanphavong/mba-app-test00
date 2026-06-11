@@ -37,18 +37,19 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class MediaController extends AbstractController
 {
     public function __construct(
-        private readonly MediaUploader          $uploader,
-        private readonly R2StorageService       $r2,
-        private readonly MediaRepository        $mediaRepository,
+        private readonly MediaUploader $uploader,
+        private readonly R2StorageService $r2,
+        private readonly MediaRepository $mediaRepository,
         private readonly EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/media', name: 'api_media_create', methods: ['POST'])]
     #[IsGranted('ROLE_MANAGER')]
     public function create(Request $request): JsonResponse
     {
-        $file        = $request->files->get('file');
-        $entityType  = (string) $request->request->get('entityType', '');
+        $file = $request->files->get('file');
+        $entityType = (string) $request->request->get('entityType', '');
         $entityIdRaw = $request->request->get('entityId');
 
         if (!$file) {
@@ -56,7 +57,7 @@ class MediaController extends AbstractController
         }
 
         $type = MediaEntityType::tryFrom($entityType);
-        if ($type === null) {
+        if (null === $type) {
             throw new BadRequestHttpException("entityType invalide : {$entityType}");
         }
 
@@ -73,10 +74,10 @@ class MediaController extends AbstractController
         );
 
         /** @var User $user */
-        $user   = $this->getUser();
+        $user = $this->getUser();
         $centre = $this->resolveParentCentre($type, $entityId);
 
-        if ($centre === null) {
+        if (null === $centre) {
             throw new NotFoundHttpException("Entité parente introuvable : {$entityType} #{$entityId}");
         }
 
@@ -90,11 +91,11 @@ class MediaController extends AbstractController
     {
         $this->denyAccessUnlessGranted(MediaVoter::VIEW, $media);
 
-        $ttl       = 3600;
+        $ttl = 3600;
         $expiresAt = (new \DateTimeImmutable())->modify("+{$ttl} seconds");
 
         return $this->json([
-            'url'       => $this->r2->presignedUrl($media->getStoragePath(), $ttl),
+            'url' => $this->r2->presignedUrl($media->getStoragePath(), $ttl),
             'expiresAt' => $expiresAt->format(\DateTimeInterface::ATOM),
         ]);
     }
@@ -103,6 +104,7 @@ class MediaController extends AbstractController
     public function listForMission(Mission $mission): JsonResponse
     {
         $centreId = $mission->getZone()?->getCentre()?->getId();
+
         return $this->listForEntity(MediaEntityType::Mission, (int) $mission->getId(), $centreId);
     }
 
@@ -110,16 +112,17 @@ class MediaController extends AbstractController
     public function listForTutoriel(Tutoriel $tutoriel): JsonResponse
     {
         $centreId = $tutoriel->getCentre()?->getId();
+
         return $this->listForEntity(MediaEntityType::Tutoriel, (int) $tutoriel->getId(), $centreId);
     }
 
     private function listForEntity(MediaEntityType $type, int $entityId, ?int $parentCentreId): JsonResponse
     {
         /** @var User $user */
-        $user         = $this->getUser();
+        $user = $this->getUser();
         $userCentreId = $user->getCentre()?->getId();
 
-        if ($parentCentreId === null || $userCentreId === null || $parentCentreId !== $userCentreId) {
+        if (null === $parentCentreId || null === $userCentreId || $parentCentreId !== $userCentreId) {
             // Multi-tenant guard : on ne révèle pas l'existence d'une entité d'un autre centre
             throw new NotFoundHttpException();
         }
@@ -149,13 +152,13 @@ class MediaController extends AbstractController
     private function normalize(Media $m): array
     {
         return [
-            'id'         => $m->getId(),
+            'id' => $m->getId(),
             'entityType' => $m->getEntityType()->value,
-            'entityId'   => $m->getEntityId(),
-            'filename'   => $m->getFilename(),
-            'mimeType'   => $m->getMimeType(),
-            'sizeBytes'  => $m->getSizeBytes(),
-            'createdAt'  => $m->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            'entityId' => $m->getEntityId(),
+            'filename' => $m->getFilename(),
+            'mimeType' => $m->getMimeType(),
+            'sizeBytes' => $m->getSizeBytes(),
+            'createdAt' => $m->getCreatedAt()->format(\DateTimeInterface::ATOM),
         ];
     }
 }

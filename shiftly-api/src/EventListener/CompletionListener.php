@@ -15,13 +15,14 @@ use Doctrine\ORM\Events;
  * PostRemove  → mission décochée → -1 completion
  */
 #[AsEntityListener(event: Events::postPersist, entity: Completion::class, method: 'postPersist')]
-#[AsEntityListener(event: Events::postRemove,  entity: Completion::class, method: 'postRemove')]
+#[AsEntityListener(event: Events::postRemove, entity: Completion::class, method: 'postRemove')]
 class CompletionListener
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly MissionRepository $missionRepo,
-    ) {}
+    ) {
+    }
 
     public function postPersist(Completion $completion): void
     {
@@ -38,7 +39,9 @@ class CompletionListener
     private function updateTaux(Completion $completion, bool $removed = false): void
     {
         $service = $completion->getPoste()?->getService();
-        if (!$service) return;
+        if (!$service) {
+            return;
+        }
 
         $serviceId = $service->getId();
 
@@ -82,17 +85,17 @@ class CompletionListener
         foreach ($zonesByZoneId as $zoneId => $zone) {
             foreach ($this->missionRepo->findForService($zoneId, $serviceId) as $mission) {
                 $mId = $mission->getId();
-                $c   = $completionByMission[$mId] ?? null;
+                $c = $completionByMission[$mId] ?? null;
                 $snapshot[] = [
                     'missionId' => $mId,
-                    'texte'     => $mission->getTexte(),
+                    'texte' => $mission->getTexte(),
                     'categorie' => $mission->getCategorie(),
-                    'priorite'  => $mission->getPriorite(),
-                    'zone'      => $zone->getNom(),
-                    'zoneId'    => $zoneId,
-                    'valide'    => $c !== null,
+                    'priorite' => $mission->getPriorite(),
+                    'zone' => $zone->getNom(),
+                    'zoneId' => $zoneId,
+                    'valide' => null !== $c,
                     'validePar' => $c ? ['id' => $c['uId'], 'nom' => $c['uNom'], 'prenom' => $c['uPrenom']] : null,
-                    'valideA'   => $c ? ($c['completedAt'] instanceof \DateTimeInterface
+                    'valideA' => $c ? ($c['completedAt'] instanceof \DateTimeInterface
                         ? $c['completedAt']->format(\DateTimeInterface::ATOM)
                         : (string) $c['completedAt']) : null,
                 ];

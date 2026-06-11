@@ -27,15 +27,16 @@ use Doctrine\ORM\Events;
 class MissionMediaCleanupListener
 {
     public function __construct(
-        private readonly MediaRepository        $mediaRepository,
-        private readonly R2StorageService       $r2,
+        private readonly MediaRepository $mediaRepository,
+        private readonly R2StorageService $r2,
         private readonly EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
 
     public function preRemove(Mission $mission): void
     {
         $missionId = $mission->getId();
-        if ($missionId === null) {
+        if (null === $missionId) {
             return;
         }
 

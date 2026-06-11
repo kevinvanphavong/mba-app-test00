@@ -22,10 +22,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class ValidationController extends AbstractController
 {
     public function __construct(
-        private readonly ValidationHebdoService    $validationService,
+        private readonly ValidationHebdoService $validationService,
         private readonly ValidationHebdoRepository $validationRepo,
-        private readonly PointageRepository        $pointageRepo,
-    ) {}
+        private readonly PointageRepository $pointageRepo,
+    ) {
+    }
 
     /**
      * GET /api/pointages/validation/semaine/{date}
@@ -35,9 +36,9 @@ class ValidationController extends AbstractController
     public function getSemaine(string $date): JsonResponse
     {
         /** @var User $manager */
-        $manager  = $this->getUser();
+        $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
-        $lundi    = $this->parseLundi($date);
+        $lundi = $this->parseLundi($date);
 
         $data = $this->validationService->getSemaineData($centreId, $lundi);
 
@@ -55,14 +56,14 @@ class ValidationController extends AbstractController
         }
 
         // Statut global de la semaine
-        $totalEmployes  = count($data['employes']);
-        $nbValides      = count(array_filter($data['employes'], fn($e) => $e['statut'] === 'VALIDEE'));
-        $hasEnCours     = !empty(array_filter($data['employes'], fn($e) => $e['statut'] === 'en_cours'));
+        $totalEmployes = count($data['employes']);
+        $nbValides = count(array_filter($data['employes'], fn ($e) => 'VALIDEE' === $e['statut']));
+        $hasEnCours = !empty(array_filter($data['employes'], fn ($e) => 'en_cours' === $e['statut']));
 
         $data['statutSemaine'] = match (true) {
             $nbValides === $totalEmployes => 'validee',
-            $hasEnCours                  => 'en_cours',
-            default                      => 'en_attente',
+            $hasEnCours => 'en_cours',
+            default => 'en_attente',
         };
 
         return $this->json($data);
@@ -76,9 +77,9 @@ class ValidationController extends AbstractController
     public function getKPIs(string $date): JsonResponse
     {
         /** @var User $manager */
-        $manager  = $this->getUser();
+        $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
-        $lundi    = $this->parseLundi($date);
+        $lundi = $this->parseLundi($date);
 
         $data = $this->validationService->getSemaineData($centreId, $lundi);
 
@@ -93,11 +94,11 @@ class ValidationController extends AbstractController
     public function getAlertes(string $date): JsonResponse
     {
         /** @var User $manager */
-        $manager  = $this->getUser();
+        $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
-        $lundi    = $this->parseLundi($date);
+        $lundi = $this->parseLundi($date);
 
-        $data    = $this->validationService->getSemaineData($centreId, $lundi);
+        $data = $this->validationService->getSemaineData($centreId, $lundi);
         $alertes = $this->validationService->calculerAlertes($data['employes']);
 
         return $this->json($alertes);
@@ -111,9 +112,9 @@ class ValidationController extends AbstractController
     public function getDetail(int $userId, string $date): JsonResponse
     {
         /** @var User $manager */
-        $manager  = $this->getUser();
+        $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
-        $lundi    = $this->parseLundi($date);
+        $lundi = $this->parseLundi($date);
 
         $data = $this->validationService->getSemaineData($centreId, $lundi);
 
@@ -125,19 +126,19 @@ class ValidationController extends AbstractController
             }
         }
 
-        if ($employe === null) {
+        if (null === $employe) {
             throw $this->createNotFoundException("Employé {$userId} non trouvé pour cette semaine.");
         }
 
         // Enrichir le statut depuis ValidationHebdo si la semaine a déjà été validée/corrigée
         $validation = $this->validationRepo->findOneByUserAndSemaine($centreId, $userId, $lundi);
-        if ($validation !== null) {
+        if (null !== $validation) {
             $employe['statut'] = $validation->getStatut();
         }
 
         // Ajouter l'historique des corrections sur les pointages de cet employé
         $pointagesDeSemaine = $this->pointageRepo->findByCentreAndDateRange($centreId, $lundi, $lundi->modify('+6 days'));
-        $corrections        = [];
+        $corrections = [];
 
         foreach ($pointagesDeSemaine as $p) {
             if ($p->getUser()->getId() === $userId) {
@@ -159,9 +160,9 @@ class ValidationController extends AbstractController
     public function validerEmploye(int $userId, string $date): JsonResponse
     {
         /** @var User $manager */
-        $manager  = $this->getUser();
+        $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
-        $lundi    = $this->parseLundi($date);
+        $lundi = $this->parseLundi($date);
 
         try {
             $validation = $this->validationService->validerEmploye($centreId, $userId, $lundi, $manager);
@@ -172,10 +173,10 @@ class ValidationController extends AbstractController
         }
 
         return $this->json([
-            'id'      => $validation->getId(),
-            'userId'  => $userId,
+            'id' => $validation->getId(),
+            'userId' => $userId,
             'semaine' => $lundi->format('Y-m-d'),
-            'statut'  => $validation->getStatut(),
+            'statut' => $validation->getStatut(),
             'valideAt' => $validation->getValideAt()?->format('Y-m-d H:i:s'),
         ]);
     }
@@ -188,9 +189,9 @@ class ValidationController extends AbstractController
     public function validerSemaine(string $date): JsonResponse
     {
         /** @var User $manager */
-        $manager  = $this->getUser();
+        $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
-        $lundi    = $this->parseLundi($date);
+        $lundi = $this->parseLundi($date);
 
         try {
             $validations = $this->validationService->validerSemaine($centreId, $lundi, $manager);
@@ -200,9 +201,9 @@ class ValidationController extends AbstractController
         }
 
         return $this->json([
-            'valides'   => count($validations),
-            'semaine'   => $lundi->format('Y-m-d'),
-            'statut'    => 'VALIDEE',
+            'valides' => count($validations),
+            'semaine' => $lundi->format('Y-m-d'),
+            'statut' => 'VALIDEE',
         ]);
     }
 
@@ -214,16 +215,16 @@ class ValidationController extends AbstractController
     public function devaliderSemaine(string $date): JsonResponse
     {
         /** @var User $manager */
-        $manager  = $this->getUser();
+        $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
-        $lundi    = $this->parseLundi($date);
+        $lundi = $this->parseLundi($date);
 
         $count = $this->validationService->devaliderSemaine($centreId, $lundi);
 
         return $this->json([
             'devalides' => $count,
-            'semaine'   => $lundi->format('Y-m-d'),
-            'statut'    => 'EN_ATTENTE',
+            'semaine' => $lundi->format('Y-m-d'),
+            'statut' => 'EN_ATTENTE',
         ]);
     }
 
@@ -235,17 +236,17 @@ class ValidationController extends AbstractController
     public function devaliderEmploye(int $userId, string $date): JsonResponse
     {
         /** @var User $manager */
-        $manager  = $this->getUser();
+        $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
-        $lundi    = $this->parseLundi($date);
+        $lundi = $this->parseLundi($date);
 
         $supprime = $this->validationService->devaliderEmploye($centreId, $userId, $lundi);
 
         return $this->json([
             'devalide' => $supprime,
-            'userId'   => $userId,
-            'semaine'  => $lundi->format('Y-m-d'),
-            'statut'   => 'EN_ATTENTE',
+            'userId' => $userId,
+            'semaine' => $lundi->format('Y-m-d'),
+            'statut' => 'EN_ATTENTE',
         ]);
     }
 
@@ -269,7 +270,7 @@ class ValidationController extends AbstractController
 
         // Vérifier que le pointage appartient au centre du manager
         $pointage = $this->pointageRepo->find($data['pointageId']);
-        if ($pointage === null || $pointage->getCentre()->getId() !== $manager->getCentre()->getId()) {
+        if (null === $pointage || $pointage->getCentre()->getId() !== $manager->getCentre()->getId()) {
             return $this->json(['error' => 'Pointage introuvable ou accès refusé.'], 404);
         }
 
@@ -278,7 +279,7 @@ class ValidationController extends AbstractController
                 $data['pointageId'],
                 $data['champModifie'],
                 $data['nouvelleValeur'],
-                $data['motif']   ?? null,
+                $data['motif'] ?? null,
                 $manager,
                 isset($data['pauseId']) ? (int) $data['pauseId'] : null
             );
@@ -287,15 +288,15 @@ class ValidationController extends AbstractController
         }
 
         return $this->json([
-            'id'             => $correction->getId(),
-            'pointageId'     => $correction->getPointage()->getId(),
-            'pauseId'        => $correction->getPause()?->getId(),
-            'champModifie'   => $correction->getChampModifie(),
+            'id' => $correction->getId(),
+            'pointageId' => $correction->getPointage()->getId(),
+            'pauseId' => $correction->getPause()?->getId(),
+            'champModifie' => $correction->getChampModifie(),
             // ATOM = ISO 8601 avec offset. Le front formate ensuite en heure locale.
             'ancienneValeur' => $correction->getAncienneValeur()?->format(\DateTimeInterface::ATOM),
             'nouvelleValeur' => $correction->getNouvelleValeur()?->format(\DateTimeInterface::ATOM),
-            'motif'          => $correction->getMotif(),
-            'createdAt'      => $correction->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            'motif' => $correction->getMotif(),
+            'createdAt' => $correction->getCreatedAt()->format(\DateTimeInterface::ATOM),
         ]);
     }
 

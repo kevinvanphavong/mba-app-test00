@@ -14,9 +14,9 @@ use App\Entity\CompletionHaccpProof;
 use App\Entity\EventLog;
 use App\Entity\HaccpEquipement;
 use App\Entity\Incident;
-use App\Entity\MissionHaccpSpec;
 use App\Entity\LegalConfig;
 use App\Entity\Mission;
+use App\Entity\MissionHaccpSpec;
 use App\Entity\PlanningSnapshot;
 use App\Entity\PlanningWeek;
 use App\Entity\Pointage;
@@ -38,14 +38,16 @@ use Symfony\Bundle\SecurityBundle\Security;
  */
 final class CentreQueryExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
-    public function __construct(private readonly Security $security) {}
+    public function __construct(private readonly Security $security)
+    {
+    }
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         $this->apply($queryBuilder, $resourceClass, $queryNameGenerator);
     }
@@ -56,7 +58,7 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
         string $resourceClass,
         array $identifiers,
         ?Operation $operation = null,
-        array $context = []
+        array $context = [],
     ): void {
         $this->apply($queryBuilder, $resourceClass, $queryNameGenerator);
     }
@@ -64,7 +66,7 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
     private function apply(
         QueryBuilder $queryBuilder,
         string $resourceClass,
-        QueryNameGeneratorInterface $queryNameGenerator
+        QueryNameGeneratorInterface $queryNameGenerator,
     ): void {
         $user = $this->security->getUser();
         if (!$user instanceof User) {
@@ -77,13 +79,13 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
         }
 
         // Le centre lui-même n'est pas filtré (un user a accès à son propre Centre)
-        if ($resourceClass === Centre::class) {
+        if (Centre::class === $resourceClass) {
             return;
         }
 
-        $alias    = $queryBuilder->getRootAliases()[0];
+        $alias = $queryBuilder->getRootAliases()[0];
         $paramName = $queryNameGenerator->generateParameterName('centreId');
-        $centreId  = $centre->getId();
+        $centreId = $centre->getId();
 
         match (true) {
             // Entités avec une relation `centre` directe
@@ -117,7 +119,7 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
             })(),
 
             // Poste via service → centre
-            $resourceClass === Poste::class => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
+            Poste::class === $resourceClass => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
                 $svcAlias = $queryNameGenerator->generateJoinAlias('service');
                 $queryBuilder
                     ->innerJoin("{$alias}.service", $svcAlias)
@@ -126,7 +128,7 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
             })(),
 
             // StaffCompetence via user → centre
-            $resourceClass === StaffCompetence::class => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
+            StaffCompetence::class === $resourceClass => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
                 $userAlias = $queryNameGenerator->generateJoinAlias('user');
                 $queryBuilder
                     ->innerJoin("{$alias}.user", $userAlias)
@@ -135,7 +137,7 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
             })(),
 
             // TutoRead via user → centre
-            $resourceClass === TutoRead::class => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
+            TutoRead::class === $resourceClass => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
                 $userAlias = $queryNameGenerator->generateJoinAlias('user');
                 $queryBuilder
                     ->innerJoin("{$alias}.user", $userAlias)
@@ -144,9 +146,9 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
             })(),
 
             // Completion via poste → service → centre
-            $resourceClass === Completion::class => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
+            Completion::class === $resourceClass => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
                 $posteAlias = $queryNameGenerator->generateJoinAlias('poste');
-                $svcAlias   = $queryNameGenerator->generateJoinAlias('service');
+                $svcAlias = $queryNameGenerator->generateJoinAlias('service');
                 $queryBuilder
                     ->innerJoin("{$alias}.poste", $posteAlias)
                     ->innerJoin("{$posteAlias}.service", $svcAlias)
@@ -155,7 +157,7 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
             })(),
 
             // PointagePause via pointage → centre
-            $resourceClass === PointagePause::class => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
+            PointagePause::class === $resourceClass => (function () use ($queryBuilder, $alias, $paramName, $centreId, $queryNameGenerator): void {
                 $pointageAlias = $queryNameGenerator->generateJoinAlias('pointage');
                 $queryBuilder
                     ->innerJoin("{$alias}.pointage", $pointageAlias)

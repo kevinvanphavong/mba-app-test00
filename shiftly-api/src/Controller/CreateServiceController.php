@@ -31,19 +31,20 @@ class CreateServiceController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly UserRepository         $userRepo,
-        private readonly ZoneRepository         $zoneRepo,
-        private readonly PlanningGuardService   $planningGuard,
-    ) {}
+        private readonly UserRepository $userRepo,
+        private readonly ZoneRepository $zoneRepo,
+        private readonly PlanningGuardService $planningGuard,
+    ) {
+    }
 
     #[Route('/api/services/create', name: 'api_service_create_custom', methods: ['POST'], format: 'json')]
     public function create(Request $request): JsonResponse
     {
         $body = json_decode($request->getContent(), true);
 
-        $dateStr    = trim((string) ($body['date']       ?? ''));
+        $dateStr = trim((string) ($body['date'] ?? ''));
         $heureDebut = trim((string) ($body['heureDebut'] ?? ''));
-        $heureFin   = trim((string) ($body['heureFin']   ?? ''));
+        $heureFin = trim((string) ($body['heureFin'] ?? ''));
         $managerIds = $body['managerIds'] ?? [];
 
         if (!$dateStr) {
@@ -59,7 +60,7 @@ class CreateServiceController extends AbstractController
 
         /** @var User $currentUser */
         $currentUser = $this->getUser();
-        $centre      = $currentUser->getCentre();
+        $centre = $currentUser->getCentre();
 
         if (!$centre) {
             throw $this->createAccessDeniedException('Utilisateur sans centre.');
@@ -67,9 +68,9 @@ class CreateServiceController extends AbstractController
 
         // Fallback : heures du centre pour ce jour de la semaine si non fournies
         if (!$heureDebut || !$heureFin) {
-            $dayMap = ['1'=>'lundi','2'=>'mardi','3'=>'mercredi','4'=>'jeudi','5'=>'vendredi','6'=>'samedi','7'=>'dimanche'];
+            $dayMap = ['1' => 'lundi', '2' => 'mardi', '3' => 'mercredi', '4' => 'jeudi', '5' => 'vendredi', '6' => 'samedi', '7' => 'dimanche'];
             $dayKey = $dayMap[$date->format('N')] ?? null;
-            $hours  = $centre->getOpeningHours() ?? [];
+            $hours = $centre->getOpeningHours() ?? [];
 
             if (!$heureDebut && $dayKey && !empty($hours[$dayKey]['ouverture'])) {
                 $heureDebut = $hours[$dayKey]['ouverture'];
@@ -85,11 +86,15 @@ class CreateServiceController extends AbstractController
 
         if ($heureDebut) {
             $hd = \DateTimeImmutable::createFromFormat('H:i', $heureDebut);
-            if ($hd) $service->setHeureDebut($hd);
+            if ($hd) {
+                $service->setHeureDebut($hd);
+            }
         }
         if ($heureFin) {
             $hf = \DateTimeImmutable::createFromFormat('H:i', $heureFin);
-            if ($hf) $service->setHeureFin($hf);
+            if ($hf) {
+                $service->setHeureFin($hf);
+            }
         }
 
         // Associer les managers sélectionnés (filtrés sur le même centre)
@@ -113,13 +118,13 @@ class CreateServiceController extends AbstractController
         }
 
         return $this->json([
-            'id'             => $service->getId(),
-            'date'           => $service->getDate()?->format('Y-m-d'),
-            'heureDebut'     => $service->getHeureDebut()?->format('H:i'),
-            'heureFin'       => $service->getHeureFin()?->format('H:i'),
-            'statut'         => $service->getStatut(),
+            'id' => $service->getId(),
+            'date' => $service->getDate()?->format('Y-m-d'),
+            'heureDebut' => $service->getHeureDebut()?->format('H:i'),
+            'heureFin' => $service->getHeureFin()?->format('H:i'),
+            'statut' => $service->getStatut(),
             'tauxCompletion' => $service->getTauxCompletion(),
-            'note'           => $service->getNote(),
+            'note' => $service->getNote(),
         ], Response::HTTP_CREATED);
     }
 }

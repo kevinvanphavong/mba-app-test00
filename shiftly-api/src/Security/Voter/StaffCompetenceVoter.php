@@ -17,7 +17,7 @@ class StaffCompetenceVoter extends AbstractCentreVoter
 
     protected function getCentreId(mixed $subject): ?int
     {
-        /** @var StaffCompetence $subject */
+        /* @var StaffCompetence $subject */
         return $subject->getUser()?->getCentre()?->getId();
     }
 
@@ -25,9 +25,14 @@ class StaffCompetenceVoter extends AbstractCentreVoter
     {
         if (in_array($attribute, [self::CREATE, self::DELETE], true)) {
             $user = $token->getUser();
-            if (!$user instanceof User) return false;
-            if ($user->getRole() !== User::ROLE_MANAGER) return false;
+            if (!$user instanceof User) {
+                return false;
+            }
+            if (User::ROLE_MANAGER !== $user->getRole()) {
+                return false;
+            }
         }
+
         return parent::voteOnAttribute($attribute, $subject, $token, $vote);
     }
 }

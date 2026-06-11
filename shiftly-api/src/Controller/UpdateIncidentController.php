@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * PATCH /api/incidents/{id}/update
+ * PATCH /api/incidents/{id}/update.
  *
  * Modifie un incident : titre, sévérité, statut, zone, staffImpliques.
  * Accepte des IDs entiers — évite les problèmes de résolution IRI.
@@ -32,7 +32,8 @@ class UpdateIncidentController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/incidents/{id}/update', name: 'api_incident_update', methods: ['PATCH'], format: 'json')]
     public function __invoke(int $id, Request $request): JsonResponse
@@ -52,7 +53,7 @@ class UpdateIncidentController extends AbstractController
 
         $body = json_decode($request->getContent(), true);
 
-        if (isset($body['titre']) && trim((string) $body['titre']) !== '') {
+        if (isset($body['titre']) && '' !== trim((string) $body['titre'])) {
             $incident->setTitre(trim((string) $body['titre']));
         }
 
@@ -67,7 +68,7 @@ class UpdateIncidentController extends AbstractController
         // Mise à jour de la zone (null = retirer la zone)
         if (array_key_exists('zoneId', $body)) {
             $zoneId = $body['zoneId'];
-            if ($zoneId === null) {
+            if (null === $zoneId) {
                 $incident->setZone(null);
             } else {
                 $zone = $this->em->find(Zone::class, (int) $zoneId);
@@ -91,10 +92,10 @@ class UpdateIncidentController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'         => $incident->getId(),
-            'titre'      => $incident->getTitre(),
-            'severite'   => $incident->getSeverite(),
-            'statut'     => $incident->getStatut(),
+            'id' => $incident->getId(),
+            'titre' => $incident->getTitre(),
+            'severite' => $incident->getSeverite(),
+            'statut' => $incident->getStatut(),
             'resolvedAt' => $incident->getResolvedAt()?->format(\DateTimeInterface::ATOM),
         ]);
     }

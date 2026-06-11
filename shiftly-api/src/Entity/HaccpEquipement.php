@@ -29,16 +29,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'haccp_equipement')]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Index(columns: ['centre_id', 'actif'], name: 'idx_haccp_equip_centre')]
-#[ORM\Index(columns: ['zone_id'],            name: 'idx_haccp_equip_zone')]
+#[ORM\Index(columns: ['zone_id'], name: 'idx_haccp_equip_zone')]
 #[ApiResource(
     shortName: 'HaccpEquipement',
-    normalizationContext:   ['groups' => ['haccp_equip:read']],
+    normalizationContext: ['groups' => ['haccp_equip:read']],
     denormalizationContext: ['groups' => ['haccp_equip:write']],
     operations: [
         new GetCollection(security: "is_granted('ROLE_USER')"),
-        new Get(security:           "is_granted('ROLE_USER') and is_granted('VIEW', object)"),
+        new Get(security: "is_granted('ROLE_USER') and is_granted('VIEW', object)"),
         new Post(
-            security:                "is_granted('ROLE_MANAGER')",
+            security: "is_granted('ROLE_MANAGER')",
             securityPostDenormalize: "is_granted('CREATE', object)"
         ),
         new Patch(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
@@ -46,13 +46,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['centre' => 'exact', 'type' => 'exact', 'actif' => 'exact'])]
-#[ApiFilter(OrderFilter::class,  properties: ['ordre', 'nom', 'createdAt'])]
+#[ApiFilter(OrderFilter::class, properties: ['ordre', 'nom', 'createdAt'])]
 class HaccpEquipement
 {
-    public const TYPE_FRIGO        = 'FRIGO';
-    public const TYPE_CONGELATEUR  = 'CONGELATEUR';
-    public const TYPE_VITRINE      = 'VITRINE';
-    public const TYPE_AUTRE        = 'AUTRE';
+    public const TYPE_FRIGO = 'FRIGO';
+    public const TYPE_CONGELATEUR = 'CONGELATEUR';
+    public const TYPE_VITRINE = 'VITRINE';
+    public const TYPE_AUTRE = 'AUTRE';
 
     public const TYPES = [
         self::TYPE_FRIGO,
@@ -124,45 +124,142 @@ class HaccpEquipement
     public function __construct()
     {
         $this->haccpSpecs = new ArrayCollection();
-        $this->createdAt  = new \DateTimeImmutable();
-        $this->updatedAt  = new \DateTime();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTime();
     }
 
     #[ORM\PreUpdate]
-    public function touch(): void { $this->updatedAt = new \DateTime(); }
+    public function touch(): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $c): static { $this->centre = $c; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(?string $n): static { $this->nom = $n; return $this; }
+    public function setCentre(?Centre $c): static
+    {
+        $this->centre = $c;
 
-    public function getType(): string { return $this->type; }
-    public function setType(string $t): static { $this->type = $t; return $this; }
+        return $this;
+    }
 
-    public function getZone(): ?Zone { return $this->zone; }
-    public function setZone(?Zone $z): static { $this->zone = $z; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
 
-    public function getSeuilMin(): float { return (float) $this->seuilMin; }
-    public function setSeuilMin(float $v): static { $this->seuilMin = number_format($v, 2, '.', ''); return $this; }
+    public function setNom(?string $n): static
+    {
+        $this->nom = $n;
 
-    public function getSeuilMax(): float { return (float) $this->seuilMax; }
-    public function setSeuilMax(float $v): static { $this->seuilMax = number_format($v, 2, '.', ''); return $this; }
+        return $this;
+    }
 
-    public function getUnite(): string { return $this->unite; }
-    public function setUnite(string $u): static { $this->unite = $u; return $this; }
+    public function getType(): string
+    {
+        return $this->type;
+    }
 
-    public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $o): static { $this->ordre = $o; return $this; }
+    public function setType(string $t): static
+    {
+        $this->type = $t;
 
-    public function isActif(): bool { return $this->actif; }
-    public function setActif(bool $a): static { $this->actif = $a; return $this; }
+        return $this;
+    }
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function getUpdatedAt(): ?\DateTime { return $this->updatedAt; }
+    public function getZone(): ?Zone
+    {
+        return $this->zone;
+    }
+
+    public function setZone(?Zone $z): static
+    {
+        $this->zone = $z;
+
+        return $this;
+    }
+
+    public function getSeuilMin(): float
+    {
+        return (float) $this->seuilMin;
+    }
+
+    public function setSeuilMin(float $v): static
+    {
+        $this->seuilMin = number_format($v, 2, '.', '');
+
+        return $this;
+    }
+
+    public function getSeuilMax(): float
+    {
+        return (float) $this->seuilMax;
+    }
+
+    public function setSeuilMax(float $v): static
+    {
+        $this->seuilMax = number_format($v, 2, '.', '');
+
+        return $this;
+    }
+
+    public function getUnite(): string
+    {
+        return $this->unite;
+    }
+
+    public function setUnite(string $u): static
+    {
+        $this->unite = $u;
+
+        return $this;
+    }
+
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+
+    public function setOrdre(int $o): static
+    {
+        $this->ordre = $o;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $a): static
+    {
+        $this->actif = $a;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
 
     /** @return Collection<int, MissionHaccpSpec> */
-    public function getHaccpSpecs(): Collection { return $this->haccpSpecs; }
+    public function getHaccpSpecs(): Collection
+    {
+        return $this->haccpSpecs;
+    }
 }

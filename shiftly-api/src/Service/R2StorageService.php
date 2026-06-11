@@ -27,20 +27,20 @@ class R2StorageService
     ) {
         // Cloudflare R2 = S3-compatible. region:auto + pathStyleEndpoint:true obligatoire.
         $this->client = new S3Client([
-            'endpoint'           => $endpoint !== '' ? $endpoint : "https://{$accountId}.r2.cloudflarestorage.com",
-            'accessKeyId'        => $accessKeyId,
-            'accessKeySecret'    => $secretAccessKey,
-            'region'             => 'auto',
-            'pathStyleEndpoint'  => true,
+            'endpoint' => '' !== $endpoint ? $endpoint : "https://{$accountId}.r2.cloudflarestorage.com",
+            'accessKeyId' => $accessKeyId,
+            'accessKeySecret' => $secretAccessKey,
+            'region' => 'auto',
+            'pathStyleEndpoint' => true,
         ]);
     }
 
     /**
      * Upload un fichier ou un contenu binaire sur R2 sous la clé donnée.
      *
-     * @param string                $key         Clé R2 (ex : "1/media/mission/uuid.jpg")
-     * @param UploadedFile|string   $fileOrContent  UploadedFile reçu du form OU contenu binaire brut
-     * @param string                $mime        Mime-type à enregistrer
+     * @param string              $key           Clé R2 (ex : "1/media/mission/uuid.jpg")
+     * @param UploadedFile|string $fileOrContent UploadedFile reçu du form OU contenu binaire brut
+     * @param string              $mime          Mime-type à enregistrer
      */
     public function upload(string $key, UploadedFile|string $fileOrContent, string $mime): void
     {
@@ -48,14 +48,14 @@ class R2StorageService
             ? file_get_contents($fileOrContent->getPathname())
             : $fileOrContent;
 
-        if ($body === false) {
+        if (false === $body) {
             throw new \RuntimeException("Lecture impossible du fichier source pour la clé {$key}");
         }
 
         $this->client->putObject([
-            'Bucket'      => $this->bucket,
-            'Key'         => $key,
-            'Body'        => $body,
+            'Bucket' => $this->bucket,
+            'Key' => $key,
+            'Body' => $body,
             'ContentType' => $mime,
         ])->resolve();
     }
@@ -73,7 +73,7 @@ class R2StorageService
     {
         $result = $this->client->getObject([
             'Bucket' => $this->bucket,
-            'Key'    => $key,
+            'Key' => $key,
         ]);
 
         return [
@@ -89,7 +89,7 @@ class R2StorageService
     {
         $request = new GetObjectRequest([
             'Bucket' => $this->bucket,
-            'Key'    => $key,
+            'Key' => $key,
         ]);
 
         return $this->client->presign($request, new \DateTimeImmutable("+{$ttl} seconds"));
@@ -103,7 +103,7 @@ class R2StorageService
     {
         $this->client->deleteObject([
             'Bucket' => $this->bucket,
-            'Key'    => $key,
+            'Key' => $key,
         ])->resolve();
     }
 }

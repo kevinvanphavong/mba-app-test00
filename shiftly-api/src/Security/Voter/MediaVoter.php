@@ -11,8 +11,8 @@ use App\Entity\User;
 use App\Enum\MediaEntityType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * Voter du module Media — multi-tenant.
@@ -27,25 +27,27 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
  */
 class MediaVoter extends Voter
 {
-    public const VIEW   = 'MEDIA_VIEW';
+    public const VIEW = 'MEDIA_VIEW';
     public const DELETE = 'MEDIA_DELETE';
     public const UPLOAD = 'MEDIA_UPLOAD';
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if ($attribute === self::VIEW || $attribute === self::DELETE) {
+        if (self::VIEW === $attribute || self::DELETE === $attribute) {
             return $subject instanceof Media;
         }
-        if ($attribute === self::UPLOAD) {
+        if (self::UPLOAD === $attribute) {
             return is_array($subject)
                 && isset($subject['type'], $subject['entityId'])
                 && $subject['type'] instanceof MediaEntityType
                 && is_int($subject['entityId']);
         }
+
         return false;
     }
 
@@ -57,14 +59,14 @@ class MediaVoter extends Voter
         }
 
         $userCentreId = $user->getCentre()?->getId();
-        if ($userCentreId === null) {
+        if (null === $userCentreId) {
             return false;
         }
 
         return match ($attribute) {
             self::VIEW, self::DELETE => $this->voteOnMedia($userCentreId, $subject),
-            self::UPLOAD             => $this->voteOnUpload($userCentreId, $subject),
-            default                  => false,
+            self::UPLOAD => $this->voteOnUpload($userCentreId, $subject),
+            default => false,
         };
     }
 
@@ -78,11 +80,11 @@ class MediaVoter extends Voter
      */
     private function voteOnUpload(int $userCentreId, array $subject): bool
     {
-        $type     = $subject['type'];
+        $type = $subject['type'];
         $entityId = $subject['entityId'];
 
         $parentCentreId = $this->resolveParentCentreId($type, $entityId);
-        if ($parentCentreId === null) {
+        if (null === $parentCentreId) {
             return false;
         }
 

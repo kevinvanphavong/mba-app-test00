@@ -33,7 +33,8 @@ class PostePreRemoveListener
 {
     public function __construct(
         private readonly PointageRepository $pointageRepo,
-    ) {}
+    ) {
+    }
 
     public function preRemove(PreRemoveEventArgs $args): void
     {
@@ -43,15 +44,13 @@ class PostePreRemoveListener
         }
 
         $pointage = $this->pointageRepo->findOneBy(['poste' => $entity]);
-        if ($pointage === null) {
+        if (null === $pointage) {
             return;
         }
 
         // Pointage actif ou historique → on protège
-        if ($pointage->getStatut() !== Pointage::STATUT_PREVU) {
-            throw new ConflictHttpException(
-                "Impossible de retirer ce staff : son pointage est déjà commencé."
-            );
+        if (Pointage::STATUT_PREVU !== $pointage->getStatut()) {
+            throw new ConflictHttpException('Impossible de retirer ce staff : son pointage est déjà commencé.');
         }
 
         // Pointage PREVU jamais commencé → cascade safe

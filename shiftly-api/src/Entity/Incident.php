@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\IncidentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -20,15 +20,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * POST /api/incidents  → signaler (tout employé)
- * PUT  /api/incidents/{id} → résoudre / changer statut (MANAGER ou auteur)
+ * PUT  /api/incidents/{id} → résoudre / changer statut (MANAGER ou auteur).
  */
 #[ORM\Entity(repositoryClass: IncidentRepository::class)]
 #[ApiResource(
-    normalizationContext:   ['groups' => ['incident:read']],
+    normalizationContext: ['groups' => ['incident:read']],
     denormalizationContext: ['groups' => ['incident:write']],
     operations: [
         new GetCollection(
-            security:    "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_USER')",
             description: "Incidents d'un centre. ?centre=&statut=&severite="
         ),
         new Get(
@@ -36,32 +36,32 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             description: 'Signaler un incident (tout membre du centre)',
-            security:    "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER')"
         ),
         new Put(
             description: 'Mettre à jour un incident (MANAGER ou auteur)',
-            security:    "is_granted('EDIT', object) and (is_granted('ROLE_MANAGER') or object.getUser() == user)"
+            security: "is_granted('EDIT', object) and (is_granted('ROLE_MANAGER') or object.getUser() == user)"
         ),
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: [
-    'statut'   => 'exact',     // ?statut=OUVERT
+    'statut' => 'exact',     // ?statut=OUVERT
     'severite' => 'exact',     // ?severite=haute
-    'centre'   => 'exact',
-    'service'  => 'exact',
-    'titre'    => 'partial',
+    'centre' => 'exact',
+    'service' => 'exact',
+    'titre' => 'partial',
 ])]
-#[ApiFilter(DateFilter::class,  properties: ['createdAt'])]
+#[ApiFilter(DateFilter::class, properties: ['createdAt'])]
 #[ApiFilter(OrderFilter::class, properties: ['createdAt', 'severite', 'statut'])]
 class Incident
 {
-    const SEV_HAUTE   = 'haute';
-    const SEV_MOYENNE = 'moyenne';
-    const SEV_BASSE   = 'basse';
+    public const SEV_HAUTE = 'haute';
+    public const SEV_MOYENNE = 'moyenne';
+    public const SEV_BASSE = 'basse';
 
-    const STATUT_OUVERT   = 'OUVERT';
-    const STATUT_EN_COURS = 'EN_COURS';
-    const STATUT_RESOLU   = 'RESOLU';
+    public const STATUT_OUVERT = 'OUVERT';
+    public const STATUT_EN_COURS = 'EN_COURS';
+    public const STATUT_RESOLU = 'RESOLU';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['incident:read'])]
@@ -114,49 +114,131 @@ class Incident
 
     public function __construct()
     {
-        $this->createdAt      = new \DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
         $this->staffImpliques = new ArrayCollection();
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $c): static { $this->centre = $c; return $this; }
-    public function getService(): ?Service { return $this->service; }
-    public function setService(?Service $s): static { $this->service = $s; return $this; }
-    public function getTitre(): ?string { return $this->titre; }
-    public function setTitre(string $titre): static { $this->titre = $titre; return $this; }
-    public function getSeverite(): string { return $this->severite; }
-    public function setSeverite(string $s): static { $this->severite = $s; return $this; }
-    public function getStatut(): string { return $this->statut; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
+
+    public function setCentre(?Centre $c): static
+    {
+        $this->centre = $c;
+
+        return $this;
+    }
+
+    public function getService(): ?Service
+    {
+        return $this->service;
+    }
+
+    public function setService(?Service $s): static
+    {
+        $this->service = $s;
+
+        return $this;
+    }
+
+    public function getTitre(): ?string
+    {
+        return $this->titre;
+    }
+
+    public function setTitre(string $titre): static
+    {
+        $this->titre = $titre;
+
+        return $this;
+    }
+
+    public function getSeverite(): string
+    {
+        return $this->severite;
+    }
+
+    public function setSeverite(string $s): static
+    {
+        $this->severite = $s;
+
+        return $this;
+    }
+
+    public function getStatut(): string
+    {
+        return $this->statut;
+    }
+
     public function setStatut(string $s): static
     {
         $this->statut = $s;
-        if ($s === self::STATUT_RESOLU && $this->resolvedAt === null) {
+        if (self::STATUT_RESOLU === $s && null === $this->resolvedAt) {
             $this->resolvedAt = new \DateTimeImmutable();
         }
+
         return $this;
     }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $u): static { $this->user = $u; return $this; }
-    public function getZone(): ?Zone { return $this->zone; }
-    public function setZone(?Zone $z): static { $this->zone = $z; return $this; }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $u): static
+    {
+        $this->user = $u;
+
+        return $this;
+    }
+
+    public function getZone(): ?Zone
+    {
+        return $this->zone;
+    }
+
+    public function setZone(?Zone $z): static
+    {
+        $this->zone = $z;
+
+        return $this;
+    }
 
     /** @return Collection<int, User> */
-    public function getStaffImpliques(): Collection { return $this->staffImpliques; }
+    public function getStaffImpliques(): Collection
+    {
+        return $this->staffImpliques;
+    }
+
     public function addStaffImplique(User $u): static
     {
         if (!$this->staffImpliques->contains($u)) {
             $this->staffImpliques->add($u);
         }
+
         return $this;
     }
 
     public function removeStaffImplique(User $u): static
     {
         $this->staffImpliques->removeElement($u);
+
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function getResolvedAt(): ?\DateTimeImmutable { return $this->resolvedAt; }
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getResolvedAt(): ?\DateTimeImmutable
+    {
+        return $this->resolvedAt;
+    }
 }

@@ -34,6 +34,6 @@ class PosteRepository extends ServiceEntityRepository
             ->getQuery()
             ->getScalarResult();
 
-        return array_map(static fn(array $r) => (int) $r['uid'], $rows);
+        return array_map(static fn (array $r) => (int) $r['uid'], $rows);
     }
 }

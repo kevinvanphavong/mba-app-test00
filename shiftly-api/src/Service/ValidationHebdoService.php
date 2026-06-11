@@ -12,8 +12,8 @@ use App\Entity\ValidationHebdo;
 use App\Repository\AbsenceRepository;
 use App\Repository\CorrectionPointageRepository;
 use App\Repository\PointageRepository;
-use App\Repository\UserRepository;
 use App\Repository\PosteRepository;
+use App\Repository\UserRepository;
 use App\Repository\ValidationHebdoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -24,14 +24,15 @@ use Doctrine\ORM\EntityManagerInterface;
 class ValidationHebdoService
 {
     public function __construct(
-        private readonly PointageRepository       $pointageRepo,
-        private readonly AbsenceRepository        $absenceRepo,
-        private readonly UserRepository           $userRepo,
-        private readonly PosteRepository          $posteRepo,
+        private readonly PointageRepository $pointageRepo,
+        private readonly AbsenceRepository $absenceRepo,
+        private readonly UserRepository $userRepo,
+        private readonly PosteRepository $posteRepo,
         private readonly ValidationHebdoRepository $validationRepo,
         private readonly CorrectionPointageRepository $correctionRepo,
-        private readonly EntityManagerInterface   $em,
-    ) {}
+        private readonly EntityManagerInterface $em,
+    ) {
+    }
 
     /**
      * Calcule le lundi de la semaine contenant la date donnée.
@@ -39,7 +40,8 @@ class ValidationHebdoService
     public function getLundiDeLaSemaine(\DateTimeImmutable $date): \DateTimeImmutable
     {
         $dow = (int) $date->format('N'); // 1=lun, 7=dim
-        return $date->modify('-' . ($dow - 1) . ' days')->setTime(0, 0, 0);
+
+        return $date->modify('-'.($dow - 1).' days')->setTime(0, 0, 0);
     }
 
     /**
@@ -50,9 +52,10 @@ class ValidationHebdoService
     public function getJoursDeLaSemaine(\DateTimeImmutable $lundi): array
     {
         $jours = [];
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 0; $i < 7; ++$i) {
             $jours[] = $lundi->modify("+{$i} days");
         }
+
         return $jours;
     }
 
@@ -63,7 +66,7 @@ class ValidationHebdoService
     public function getSemaineData(int $centreId, \DateTimeImmutable $lundi): array
     {
         $dimanche = $lundi->modify('+6 days');
-        $jours    = $this->getJoursDeLaSemaine($lundi);
+        $jours = $this->getJoursDeLaSemaine($lundi);
 
         // Tous les pointages du centre sur la semaine
         $pointages = $this->pointageRepo->findByCentreAndDateRange($centreId, $lundi, $dimanche);
@@ -74,7 +77,7 @@ class ValidationHebdoService
         // Index absences par (userId, date) pour O(1)
         $absenceIndex = [];
         foreach ($absences as $absence) {
-            $key = $absence->getUser()->getId() . '_' . $absence->getDate()->format('Y-m-d');
+            $key = $absence->getUser()->getId().'_'.$absence->getDate()->format('Y-m-d');
             $absenceIndex[$key] = $absence;
         }
 
@@ -87,7 +90,7 @@ class ValidationHebdoService
             ['centre' => $centreId, 'actif' => true],
             ['nom' => 'ASC']
         );
-        $users = array_filter($users, fn(User $u) => isset($plannedSet[$u->getId()]));
+        $users = array_filter($users, fn (User $u) => isset($plannedSet[$u->getId()]));
 
         $employes = [];
         foreach ($users as $user) {
@@ -97,11 +100,11 @@ class ValidationHebdoService
         $kpis = $this->calculerKPIs($employes, $centreId, $lundi);
 
         return [
-            'semaine'     => (int) $lundi->format('W'),
-            'dateDebut'   => $lundi->format('Y-m-d'),
-            'dateFin'     => $dimanche->format('Y-m-d'),
-            'employes'    => $employes,
-            'kpis'        => $kpis,
+            'semaine' => (int) $lundi->format('W'),
+            'dateDebut' => $lundi->format('Y-m-d'),
+            'dateFin' => $dimanche->format('Y-m-d'),
+            'employes' => $employes,
+            'kpis' => $kpis,
         ];
     }
 
@@ -113,18 +116,18 @@ class ValidationHebdoService
         // Filtrer les pointages de cet employé
         $pointagesUser = array_filter(
             $tousPointages,
-            fn(Pointage $p) => $p->getUser()->getId() === $user->getId()
+            fn (Pointage $p) => $p->getUser()->getId() === $user->getId()
         );
 
-        $joursData         = [];
+        $joursData = [];
         $totalTravailleMin = 0;
-        $totalPrevuMin     = 0;
-        $nbRetards         = 0;
-        $nbAbsences        = 0;
+        $totalPrevuMin = 0;
+        $nbRetards = 0;
+        $nbAbsences = 0;
 
         foreach ($jours as $jour) {
             $dateStr = $jour->format('Y-m-d');
-            $absKey  = $user->getId() . '_' . $dateStr;
+            $absKey = $user->getId().'_'.$dateStr;
 
             // Trouver le pointage de ce jour
             $pointageJour = null;
@@ -135,36 +138,40 @@ class ValidationHebdoService
                 }
             }
 
-            $absence      = $absenceIndex[$absKey] ?? null;
-            $jourData     = $this->buildJourData($jour, $pointageJour, $absence);
+            $absence = $absenceIndex[$absKey] ?? null;
+            $jourData = $this->buildJourData($jour, $pointageJour, $absence);
 
             $joursData[] = $jourData;
 
             $totalTravailleMin += $jourData['heuresNettes'] ?? 0;
-            $totalPrevuMin     += $jourData['heuresPrevues'] ?? 0;
+            $totalPrevuMin += $jourData['heuresPrevues'] ?? 0;
 
-            if ($jourData['estRetard'])                                       { $nbRetards++; }
-            if (in_array($jourData['statut'], ['absent_non_justifie'], true)) { $nbAbsences++; }
+            if ($jourData['estRetard']) {
+                ++$nbRetards;
+            }
+            if (in_array($jourData['statut'], ['absent_non_justifie'], true)) {
+                ++$nbAbsences;
+            }
         }
 
-        $ecart     = $totalTravailleMin - $totalPrevuMin;
+        $ecart = $totalTravailleMin - $totalPrevuMin;
         $heuresSup = max(0, $ecart);
 
         return [
-            'userId'           => $user->getId(),
-            'nom'              => $user->getNom(),
-            'prenom'           => $user->getPrenom() ?? '',
-            'role'             => $user->getRole(),
-            'zone'             => null, // enrichi si besoin par le controller
-            'jours'            => $joursData,
-            'totalTravaille'   => $totalTravailleMin,
-            'totalPrevu'       => $totalPrevuMin,
-            'ecart'            => $ecart,
-            'heuresSup'        => $heuresSup,
-            'nbRetards'        => $nbRetards,
-            'nbAbsences'       => $nbAbsences,
-            'statut'           => 'EN_ATTENTE', // mis à jour si ValidationHebdo existante
-            'note'             => $nbRetards > 0 ? "{$nbRetards} retard(s) cette semaine" : null,
+            'userId' => $user->getId(),
+            'nom' => $user->getNom(),
+            'prenom' => $user->getPrenom() ?? '',
+            'role' => $user->getRole(),
+            'zone' => null, // enrichi si besoin par le controller
+            'jours' => $joursData,
+            'totalTravaille' => $totalTravailleMin,
+            'totalPrevu' => $totalPrevuMin,
+            'ecart' => $ecart,
+            'heuresSup' => $heuresSup,
+            'nbRetards' => $nbRetards,
+            'nbAbsences' => $nbAbsences,
+            'statut' => 'EN_ATTENTE', // mis à jour si ValidationHebdo existante
+            'note' => $nbRetards > 0 ? "{$nbRetards} retard(s) cette semaine" : null,
         ];
     }
 
@@ -174,71 +181,72 @@ class ValidationHebdoService
     public function buildJourData(
         \DateTimeImmutable $jour,
         ?Pointage $pointage,
-        ?Absence $absence
+        ?Absence $absence,
     ): array {
-        $dateStr      = $jour->format('Y-m-d');
-        $jourSemaine  = $this->formatJourSemaine($jour);
-        $now          = new \DateTimeImmutable();
-        $planifie     = $this->getHorairesPlanifiees($pointage);
+        $dateStr = $jour->format('Y-m-d');
+        $jourSemaine = $this->formatJourSemaine($jour);
+        $now = new \DateTimeImmutable();
+        $planifie = $this->getHorairesPlanifiees($pointage);
 
         // Cas : absence justifiée
-        if ($absence !== null && $absence->getType() !== 'REPOS') {
+        if (null !== $absence && 'REPOS' !== $absence->getType()) {
             return [
-                'date'             => $dateStr,
-                'jourSemaine'      => $jourSemaine,
-                'pointageId'       => $pointage?->getId(),
-                'statut'           => 'absent_justifie',
-                'heureArrivee'     => null,
-                'heureDepart'      => null,
-                'heureDepartAuto'  => false,
+                'date' => $dateStr,
+                'jourSemaine' => $jourSemaine,
+                'pointageId' => $pointage?->getId(),
+                'statut' => 'absent_justifie',
+                'heureArrivee' => null,
+                'heureDepart' => null,
+                'heureDepartAuto' => false,
                 'heureDebutPlanifiee' => $planifie['debut'],
-                'heureFinPlanifiee'   => $planifie['fin'],
-                'pauses'           => [],
-                'heuresNettes'     => null,
-                'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
-                'estRetard'        => false,
-                'typeAbsence'      => $absence->getType(),
+                'heureFinPlanifiee' => $planifie['fin'],
+                'pauses' => [],
+                'heuresNettes' => null,
+                'heuresPrevues' => $this->getHeuresPrevuesdepuisPointage($pointage),
+                'estRetard' => false,
+                'typeAbsence' => $absence->getType(),
             ];
         }
 
         // Cas : repos explicite ou pas de poste
-        if ($pointage === null) {
-            $estRepos = ($absence !== null && $absence->getType() === 'REPOS') || true;
+        if (null === $pointage) {
+            $estRepos = (null !== $absence && 'REPOS' === $absence->getType()) || true;
+
             return [
-                'date'             => $dateStr,
-                'jourSemaine'      => $jourSemaine,
-                'pointageId'       => null,
-                'statut'           => 'repos',
-                'heureArrivee'     => null,
-                'heureDepart'      => null,
-                'heureDepartAuto'  => false,
+                'date' => $dateStr,
+                'jourSemaine' => $jourSemaine,
+                'pointageId' => null,
+                'statut' => 'repos',
+                'heureArrivee' => null,
+                'heureDepart' => null,
+                'heureDepartAuto' => false,
                 'heureDebutPlanifiee' => null,
-                'heureFinPlanifiee'   => null,
-                'pauses'           => [],
-                'heuresNettes'     => null,
-                'heuresPrevues'    => null,
-                'estRetard'        => false,
-                'typeAbsence'      => null,
+                'heureFinPlanifiee' => null,
+                'pauses' => [],
+                'heuresNettes' => null,
+                'heuresPrevues' => null,
+                'estRetard' => false,
+                'typeAbsence' => null,
             ];
         }
 
         // Cas : absent non justifié (PREVU après fin du service, sans absence enregistrée)
-        if ($pointage->getStatut() === Pointage::STATUT_PREVU && $this->serviceEstTermine($pointage, $now)) {
+        if (Pointage::STATUT_PREVU === $pointage->getStatut() && $this->serviceEstTermine($pointage, $now)) {
             return [
-                'date'             => $dateStr,
-                'jourSemaine'      => $jourSemaine,
-                'pointageId'       => $pointage->getId(),
-                'statut'           => 'absent_non_justifie',
-                'heureArrivee'     => null,
-                'heureDepart'      => null,
-                'heureDepartAuto'  => false,
+                'date' => $dateStr,
+                'jourSemaine' => $jourSemaine,
+                'pointageId' => $pointage->getId(),
+                'statut' => 'absent_non_justifie',
+                'heureArrivee' => null,
+                'heureDepart' => null,
+                'heureDepartAuto' => false,
                 'heureDebutPlanifiee' => $planifie['debut'],
-                'heureFinPlanifiee'   => $planifie['fin'],
-                'pauses'           => [],
-                'heuresNettes'     => null,
-                'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
-                'estRetard'        => false,
-                'typeAbsence'      => null,
+                'heureFinPlanifiee' => $planifie['fin'],
+                'pauses' => [],
+                'heuresNettes' => null,
+                'heuresPrevues' => $this->getHeuresPrevuesdepuisPointage($pointage),
+                'estRetard' => false,
+                'typeAbsence' => null,
             ];
         }
 
@@ -251,58 +259,59 @@ class ValidationHebdoService
             // avec l'heure de fin du poste comme heure de départ et un flag.
             if ($resolution['isAuto']) {
                 return [
-                    'date'             => $dateStr,
-                    'jourSemaine'      => $jourSemaine,
-                    'pointageId'       => $pointage->getId(),
-                    'statut'           => 'travaille',
-                    'heureArrivee'     => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
-                    'heureDepart'      => $resolution['fin']->format(\DateTimeInterface::ATOM),
-                    'heureDepartAuto'  => true,
+                    'date' => $dateStr,
+                    'jourSemaine' => $jourSemaine,
+                    'pointageId' => $pointage->getId(),
+                    'statut' => 'travaille',
+                    'heureArrivee' => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
+                    'heureDepart' => $resolution['fin']->format(\DateTimeInterface::ATOM),
+                    'heureDepartAuto' => true,
                     'heureDebutPlanifiee' => $planifie['debut'],
-                    'heureFinPlanifiee'   => $planifie['fin'],
-                    'pauses'           => $this->formatPauses($pointage),
-                    'heuresNettes'     => $this->calculerHeuresNettes($pointage),
-                    'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
-                    'estRetard'        => $this->estEnRetard($pointage),
-                    'typeAbsence'      => null,
+                    'heureFinPlanifiee' => $planifie['fin'],
+                    'pauses' => $this->formatPauses($pointage),
+                    'heuresNettes' => $this->calculerHeuresNettes($pointage),
+                    'heuresPrevues' => $this->getHeuresPrevuesdepuisPointage($pointage),
+                    'estRetard' => $this->estEnRetard($pointage),
+                    'typeAbsence' => null,
                 ];
             }
 
             return [
-                'date'             => $dateStr,
-                'jourSemaine'      => $jourSemaine,
-                'pointageId'       => $pointage->getId(),
-                'statut'           => 'en_cours',
-                'heureArrivee'     => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
-                'heureDepart'      => null,
-                'heureDepartAuto'  => false,
+                'date' => $dateStr,
+                'jourSemaine' => $jourSemaine,
+                'pointageId' => $pointage->getId(),
+                'statut' => 'en_cours',
+                'heureArrivee' => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
+                'heureDepart' => null,
+                'heureDepartAuto' => false,
                 'heureDebutPlanifiee' => $planifie['debut'],
-                'heureFinPlanifiee'   => $planifie['fin'],
-                'pauses'           => $this->formatPauses($pointage),
-                'heuresNettes'     => $this->calculerHeuresNettes($pointage),
-                'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
-                'estRetard'        => $this->estEnRetard($pointage),
-                'typeAbsence'      => null,
+                'heureFinPlanifiee' => $planifie['fin'],
+                'pauses' => $this->formatPauses($pointage),
+                'heuresNettes' => $this->calculerHeuresNettes($pointage),
+                'heuresPrevues' => $this->getHeuresPrevuesdepuisPointage($pointage),
+                'estRetard' => $this->estEnRetard($pointage),
+                'typeAbsence' => null,
             ];
         }
 
         // Cas : travaillé (TERMINE ou ABSENT marqué par le manager)
         $heuresNettes = $this->calculerHeuresNettes($pointage);
+
         return [
-            'date'             => $dateStr,
-            'jourSemaine'      => $jourSemaine,
-            'pointageId'       => $pointage->getId(),
-            'statut'           => $pointage->getStatut() === Pointage::STATUT_ABSENT ? 'absent_non_justifie' : 'travaille',
-            'heureArrivee'     => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
-            'heureDepart'      => $pointage->getHeureDepart()?->format(\DateTimeInterface::ATOM),
-            'heureDepartAuto'  => false,
+            'date' => $dateStr,
+            'jourSemaine' => $jourSemaine,
+            'pointageId' => $pointage->getId(),
+            'statut' => Pointage::STATUT_ABSENT === $pointage->getStatut() ? 'absent_non_justifie' : 'travaille',
+            'heureArrivee' => $pointage->getHeureArrivee()?->format(\DateTimeInterface::ATOM),
+            'heureDepart' => $pointage->getHeureDepart()?->format(\DateTimeInterface::ATOM),
+            'heureDepartAuto' => false,
             'heureDebutPlanifiee' => $planifie['debut'],
-            'heureFinPlanifiee'   => $planifie['fin'],
-            'pauses'           => $this->formatPauses($pointage),
-            'heuresNettes'     => $heuresNettes,
-            'heuresPrevues'    => $this->getHeuresPrevuesdepuisPointage($pointage),
-            'estRetard'        => $this->estEnRetard($pointage),
-            'typeAbsence'      => null,
+            'heureFinPlanifiee' => $planifie['fin'],
+            'pauses' => $this->formatPauses($pointage),
+            'heuresNettes' => $heuresNettes,
+            'heuresPrevues' => $this->getHeuresPrevuesdepuisPointage($pointage),
+            'estRetard' => $this->estEnRetard($pointage),
+            'typeAbsence' => null,
         ];
     }
 
@@ -326,25 +335,25 @@ class ValidationHebdoService
         $now ??= new \DateTimeImmutable();
 
         $heureDepart = $pointage->getHeureDepart();
-        if ($heureDepart !== null) {
+        if (null !== $heureDepart) {
             return ['fin' => $heureDepart, 'isAuto' => false];
         }
 
         $poste = $pointage->getPoste();
         $heureFinPoste = $poste?->getHeureFin();
-        if ($poste === null || $heureFinPoste === null) {
+        if (null === $poste || null === $heureFinPoste) {
             return ['fin' => $now, 'isAuto' => false];
         }
 
         // Combine la date du service avec l'heure de fin planifiée du poste
         $serviceDate = $pointage->getService()->getDate();
         $finPlanifiee = new \DateTimeImmutable(
-            $serviceDate->format('Y-m-d') . ' ' . $heureFinPoste->format('H:i:s')
+            $serviceDate->format('Y-m-d').' '.$heureFinPoste->format('H:i:s')
         );
 
         // Service de nuit : heureFin < heureDebut → fin sur le jour suivant
         $heureDebutPoste = $poste->getHeureDebut();
-        if ($heureDebutPoste !== null && $heureFinPoste < $heureDebutPoste) {
+        if (null !== $heureDebutPoste && $heureFinPoste < $heureDebutPoste) {
             $finPlanifiee = $finPlanifiee->modify('+1 day');
         }
 
@@ -367,11 +376,11 @@ class ValidationHebdoService
      */
     public function calculerHeuresNettes(Pointage $pointage): int
     {
-        if ($pointage->getHeureArrivee() === null) {
+        if (null === $pointage->getHeureArrivee()) {
             return 0;
         }
 
-        $fin   = $this->resolveFinPointage($pointage)['fin'];
+        $fin = $this->resolveFinPointage($pointage)['fin'];
         $delta = ($fin->getTimestamp() - $pointage->getHeureArrivee()->getTimestamp()) / 60;
 
         return (int) max(0, $delta - $this->calculerTotalPausesMinutes($pointage));
@@ -383,11 +392,11 @@ class ValidationHebdoService
     public function calculerTotalPausesMinutes(Pointage $pointage): int
     {
         $total = 0;
-        $now   = new \DateTimeImmutable();
+        $now = new \DateTimeImmutable();
 
         foreach ($pointage->getPauses() as $pause) {
-            $fin    = $pause->getHeureFin() ?? $now;
-            $duree  = ($fin->getTimestamp() - $pause->getHeureDebut()->getTimestamp()) / 60;
+            $fin = $pause->getHeureFin() ?? $now;
+            $duree = ($fin->getTimestamp() - $pause->getHeureDebut()->getTimestamp()) / 60;
             $total += (int) max(0, $duree);
         }
 
@@ -399,17 +408,17 @@ class ValidationHebdoService
      */
     public function estEnRetard(Pointage $pointage): bool
     {
-        if ($pointage->getHeureArrivee() === null || $pointage->getPoste() === null) {
+        if (null === $pointage->getHeureArrivee() || null === $pointage->getPoste()) {
             return false;
         }
 
         $poste = $pointage->getPoste();
-        if ($poste->getHeureDebut() === null) {
+        if (null === $poste->getHeureDebut()) {
             return false;
         }
 
-        $serviceDate     = $pointage->getService()->getDate();
-        $heureDebutStr   = $serviceDate->format('Y-m-d') . ' ' . $poste->getHeureDebut()->format('H:i:s');
+        $serviceDate = $pointage->getService()->getDate();
+        $heureDebutStr = $serviceDate->format('Y-m-d').' '.$poste->getHeureDebut()->format('H:i:s');
         $heureDebutPoste = new \DateTimeImmutable($heureDebutStr);
 
         $retardMinutes = ($pointage->getHeureArrivee()->getTimestamp() - $heureDebutPoste->getTimestamp()) / 60;
@@ -423,21 +432,21 @@ class ValidationHebdoService
     public function calculerKPIs(array $employes, int $centreId, \DateTimeImmutable $lundi): array
     {
         $totalTravaille = 0;
-        $totalPrevu     = 0;
-        $nbAbsences     = 0;
+        $totalPrevu = 0;
+        $nbAbsences = 0;
         $totalPointages = 0;
         $pointagesALheure = 0;
 
         foreach ($employes as $employe) {
             $totalTravaille += $employe['totalTravaille'];
-            $totalPrevu     += $employe['totalPrevu'];
-            $nbAbsences     += $employe['nbAbsences'];
+            $totalPrevu += $employe['totalPrevu'];
+            $nbAbsences += $employe['nbAbsences'];
 
             foreach ($employe['jours'] as $jour) {
-                if ($jour['statut'] === 'travaille' || $jour['statut'] === 'en_cours') {
-                    $totalPointages++;
+                if ('travaille' === $jour['statut'] || 'en_cours' === $jour['statut']) {
+                    ++$totalPointages;
                     if (!$jour['estRetard']) {
-                        $pointagesALheure++;
+                        ++$pointagesALheure;
                     }
                 }
             }
@@ -448,23 +457,23 @@ class ValidationHebdoService
             : 100;
 
         // Comparaison absences semaine N-1
-        $lundiPrecedent  = $lundi->modify('-7 days');
-        $dimPrecedent    = $lundiPrecedent->modify('+6 days');
+        $lundiPrecedent = $lundi->modify('-7 days');
+        $dimPrecedent = $lundiPrecedent->modify('+6 days');
         $absencesPrecedentes = $this->absenceRepo->findByCentreAndDateRange($centreId, $lundiPrecedent, $dimPrecedent);
 
         // Comptage des absences non-repos de la semaine précédente
         $nbAbsencesPrecedentes = count(array_filter(
             $absencesPrecedentes,
-            fn(Absence $a) => $a->getType() !== 'REPOS'
+            fn (Absence $a) => 'REPOS' !== $a->getType()
         ));
 
         return [
-            'heuresTravaillees'   => $totalTravaille,
-            'heuresPrevues'       => $totalPrevu,
-            'ecart'               => $totalTravaille - $totalPrevu,
-            'tauxPonctualite'     => $tauxPonctualite,
-            'nbAbsences'          => $nbAbsences,
-            'evolutionAbsences'   => $nbAbsences - $nbAbsencesPrecedentes,
+            'heuresTravaillees' => $totalTravaille,
+            'heuresPrevues' => $totalPrevu,
+            'ecart' => $totalTravaille - $totalPrevu,
+            'tauxPonctualite' => $tauxPonctualite,
+            'nbAbsences' => $nbAbsences,
+            'evolutionAbsences' => $nbAbsences - $nbAbsencesPrecedentes,
         ];
     }
 
@@ -479,15 +488,15 @@ class ValidationHebdoService
 
         foreach ($employes as $employe) {
             $userId = $employe['userId'];
-            $nom    = $employe['prenom'] . ' ' . $employe['nom'];
-            $total  = $employe['totalTravaille']; // en minutes
+            $nom = $employe['prenom'].' '.$employe['nom'];
+            $total = $employe['totalTravaille']; // en minutes
 
             // Dépassement hebdo (> 35h = 2100 min, contrat standard)
             if ($total > 2100) {
                 $alertes[] = $this->buildAlerte(
                     'depassement_hebdo', 'warning', $userId, $nom,
                     'Dépassement hebdomadaire',
-                    $this->minToHHMM($total) . ' cette semaine — seuil contractuel 35h'
+                    $this->minToHHMM($total).' cette semaine — seuil contractuel 35h'
                 );
             }
 
@@ -496,7 +505,7 @@ class ValidationHebdoService
                 $alertes[] = $this->buildAlerte(
                     'max_hebdo', 'danger', $userId, $nom,
                     'Maximum hebdomadaire 48h dépassé',
-                    $this->minToHHMM($total) . ' — seuil légal absolu 48h'
+                    $this->minToHHMM($total).' — seuil légal absolu 48h'
                 );
             }
 
@@ -506,13 +515,13 @@ class ValidationHebdoService
                 $alertes[] = $this->buildAlerte(
                     'majoration_25', 'warning', $userId, $nom,
                     'Majorations 25%',
-                    '+' . $this->minToHHMM($sup) . ' sup à 25% — à appliquer sur salaire'
+                    '+'.$this->minToHHMM($sup).' sup à 25% — à appliquer sur salaire'
                 );
             } elseif ($sup > 480) {
                 $alertes[] = $this->buildAlerte(
                     'majoration_50', 'danger', $userId, $nom,
                     'Majorations 50%',
-                    '+' . $this->minToHHMM($sup - 480) . ' au-delà de 8h sup — majoration 50%'
+                    '+'.$this->minToHHMM($sup - 480).' au-delà de 8h sup — majoration 50%'
                 );
             }
 
@@ -521,13 +530,13 @@ class ValidationHebdoService
                 $alertes[] = $this->buildAlerte(
                     'absence_non_justifiee', 'danger', $userId, $nom,
                     'Absence non justifiée',
-                    $employe['nbAbsences'] . ' jour(s) — Action requise (contact employé, documentation)'
+                    $employe['nbAbsences'].' jour(s) — Action requise (contact employé, documentation)'
                 );
             }
 
             // Vérification jour par jour : max journalier 10h et pause obligatoire 6h
             foreach ($employe['jours'] as $jour) {
-                if ($jour['statut'] !== 'travaille' && $jour['statut'] !== 'en_cours') {
+                if ('travaille' !== $jour['statut'] && 'en_cours' !== $jour['statut']) {
                     continue;
                 }
 
@@ -538,23 +547,23 @@ class ValidationHebdoService
                     $alertes[] = $this->buildAlerte(
                         'max_journalier', 'danger', $userId, $nom,
                         'Maximum journalier 10h dépassé',
-                        $jour['jourSemaine'] . ' — ' . $this->minToHHMM($heuresJour) . ' travaillées'
+                        $jour['jourSemaine'].' — '.$this->minToHHMM($heuresJour).' travaillées'
                     );
                 }
 
                 // Pause obligatoire après 6h (360 min)
-                if ($heuresJour > 360 && count($jour['pauses']) === 0) {
+                if ($heuresJour > 360 && 0 === count($jour['pauses'])) {
                     $alertes[] = $this->buildAlerte(
                         'pause_6h', 'warning', $userId, $nom,
                         'Pause obligatoire après 6h',
-                        $jour['jourSemaine'] . ' — ' . $this->minToHHMM($heuresJour) . ' sans pause enregistrée'
+                        $jour['jourSemaine'].' — '.$this->minToHHMM($heuresJour).' sans pause enregistrée'
                     );
                 }
             }
 
             // Repos quotidien 11h — vérifier entre jours consécutifs travaillés
             $alerteReposQuotidien = $this->verifierReposQuotidien($employe['jours']);
-            if ($alerteReposQuotidien !== null) {
+            if (null !== $alerteReposQuotidien) {
                 $alertes[] = $this->buildAlerte(
                     'repos_quotidien', 'danger', $userId, $nom,
                     'Repos quotidien 11h non respecté',
@@ -564,7 +573,7 @@ class ValidationHebdoService
         }
 
         // Alerte OK si repos quotidien et hebdo conformes pour tous
-        $hasReposQuotidienDanger = !empty(array_filter($alertes, fn($a) => $a['type'] === 'repos_quotidien'));
+        $hasReposQuotidienDanger = !empty(array_filter($alertes, fn ($a) => 'repos_quotidien' === $a['type']));
         if (!$hasReposQuotidienDanger) {
             $alertes[] = $this->buildAlerte(
                 'repos_quotidien', 'ok', 0, '',
@@ -573,8 +582,8 @@ class ValidationHebdoService
             );
         }
 
-        $hasAbsence = !empty(array_filter($alertes, fn($a) => $a['type'] === 'repos_quotidien' && $a['severite'] === 'danger'));
-        $alertes[]  = $this->buildAlerte(
+        $hasAbsence = !empty(array_filter($alertes, fn ($a) => 'repos_quotidien' === $a['type'] && 'danger' === $a['severite']));
+        $alertes[] = $this->buildAlerte(
             'repos_hebdo', 'ok', 0, '',
             'Repos hebdomadaire 35h — Conforme',
             'Tous les employés respectent le seuil légal'
@@ -593,7 +602,7 @@ class ValidationHebdoService
     {
         $validation = $this->validationRepo->findOneByUserAndSemaine($centreId, $userId, $lundi);
 
-        if ($validation === null) {
+        if (null === $validation) {
             $validation = new ValidationHebdo();
             $validation->setCentre($this->em->getReference(Centre::class, $centreId));
             $validation->setUser($this->em->getReference(User::class, $userId));
@@ -668,7 +677,7 @@ class ValidationHebdoService
     {
         $validation = $this->validationRepo->findOneByUserAndSemaine($centreId, $userId, $lundi);
 
-        if ($validation === null) {
+        if (null === $validation) {
             return false;
         }
 
@@ -685,16 +694,16 @@ class ValidationHebdoService
      * doit appartenir au $pointage ciblé (sinon InvalidArgumentException).
      */
     public function corrigerPointage(
-        int    $pointageId,
+        int $pointageId,
         string $champ,
         string $nouvelleValeurStr,
         ?string $motif,
-        User   $manager,
-        ?int   $pauseId = null
+        User $manager,
+        ?int $pauseId = null,
     ): CorrectionPointage {
         $pointage = $this->pointageRepo->find($pointageId);
 
-        if ($pointage === null) {
+        if (null === $pointage) {
             throw new \InvalidArgumentException("Pointage {$pointageId} introuvable.");
         }
 
@@ -707,17 +716,15 @@ class ValidationHebdoService
         // Cible pause : id obligatoire et appartenance au pointage
         $pause = null;
         if ($isPauseChamp) {
-            if ($pauseId === null) {
+            if (null === $pauseId) {
                 throw new \InvalidArgumentException("pauseId requis pour modifier {$champ}.");
             }
             $pause = $this->em->find(PointagePause::class, $pauseId);
-            if ($pause === null) {
+            if (null === $pause) {
                 throw new \InvalidArgumentException("PointagePause {$pauseId} introuvable.");
             }
             if ($pause->getPointage()?->getId() !== $pointage->getId()) {
-                throw new \InvalidArgumentException(
-                    "La pause {$pauseId} n'appartient pas au pointage {$pointageId}."
-                );
+                throw new \InvalidArgumentException("La pause {$pauseId} n'appartient pas au pointage {$pointageId}.");
             }
         }
 
@@ -726,10 +733,10 @@ class ValidationHebdoService
         // Récupérer l'ancienne valeur
         $ancienneValeur = match ($champ) {
             'heureArrivee' => $pointage->getHeureArrivee(),
-            'heureDepart'  => $pointage->getHeureDepart(),
-            'pauseDebut'   => $pause?->getHeureDebut(),
-            'pauseFin'     => $pause?->getHeureFin(),
-            default        => null,
+            'heureDepart' => $pointage->getHeureDepart(),
+            'pauseDebut' => $pause?->getHeureDebut(),
+            'pauseFin' => $pause?->getHeureFin(),
+            default => null,
         };
 
         // Auto-détection cross-midnight (service de nuit).
@@ -741,20 +748,20 @@ class ValidationHebdoService
         // chronologie réelle (départ = dim 31 mai 00:54).
         $reference = match ($champ) {
             'heureDepart' => $pointage->getHeureArrivee(),
-            'pauseFin'    => $pause?->getHeureDebut(),
-            default       => null,
+            'pauseFin' => $pause?->getHeureDebut(),
+            default => null,
         };
-        if ($reference !== null && $nouvelleValeur < $reference) {
+        if (null !== $reference && $nouvelleValeur < $reference) {
             $nouvelleValeur = $nouvelleValeur->modify('+1 day');
         }
 
         // Appliquer la correction
         match ($champ) {
             'heureArrivee' => $pointage->setHeureArrivee($nouvelleValeur),
-            'heureDepart'  => $pointage->setHeureDepart($nouvelleValeur),
-            'pauseDebut'   => $pause?->setHeureDebut($nouvelleValeur),
-            'pauseFin'     => $pause?->setHeureFin($nouvelleValeur),
-            default        => null,
+            'heureDepart' => $pointage->setHeureDepart($nouvelleValeur),
+            'pauseDebut' => $pause?->setHeureDebut($nouvelleValeur),
+            'pauseFin' => $pause?->setHeureFin($nouvelleValeur),
+            default => null,
         };
 
         // Si le manager renseigne explicitement l'heure de départ sur un
@@ -762,7 +769,7 @@ class ValidationHebdoService
         // terminé : on bascule le statut, sinon buildJourData masque la
         // correction (branche EN_COURS qui rend heureDepart=null après
         // resolveFinPointage non-auto).
-        if ($champ === 'heureDepart' && in_array(
+        if ('heureDepart' === $champ && in_array(
             $pointage->getStatut(),
             [Pointage::STATUT_EN_COURS, Pointage::STATUT_EN_PAUSE],
             true
@@ -776,7 +783,7 @@ class ValidationHebdoService
         // d'heureArrivee" est cassé et la timeline / les compteurs deviennent
         // incohérents. Si un heureDepart existe aussi (correction d'un shift
         // entier a posteriori), on saute directement à TERMINE.
-        if ($champ === 'heureArrivee' && $pointage->getStatut() === Pointage::STATUT_PREVU) {
+        if ('heureArrivee' === $champ && Pointage::STATUT_PREVU === $pointage->getStatut()) {
             $pointage->setStatut(
                 $pointage->getHeureDepart()
                     ? Pointage::STATUT_TERMINE
@@ -811,16 +818,16 @@ class ValidationHebdoService
 
         // ATOM (ISO 8601 avec offset) : le front interprète directement en heure locale.
         // L'ancien format 'Y-m-d H:i:s' était ambigu et entraînait un −2h apparent (cf. fix V2).
-        return array_map(fn(CorrectionPointage $c) => [
-            'id'             => $c->getId(),
-            'pointageId'     => $c->getPointage()->getId(),
-            'pauseId'        => $c->getPause()?->getId(),
-            'champModifie'   => $c->getChampModifie(),
+        return array_map(fn (CorrectionPointage $c) => [
+            'id' => $c->getId(),
+            'pointageId' => $c->getPointage()->getId(),
+            'pauseId' => $c->getPause()?->getId(),
+            'champModifie' => $c->getChampModifie(),
             'ancienneValeur' => $c->getAncienneValeur()?->format(\DateTimeInterface::ATOM),
             'nouvelleValeur' => $c->getNouvelleValeur()?->format(\DateTimeInterface::ATOM),
-            'motif'          => $c->getMotif(),
-            'corrigePar'     => $c->getCorrigePar()->getNom(),
-            'createdAt'      => $c->getCreatedAt()->format(\DateTimeInterface::ATOM),
+            'motif' => $c->getMotif(),
+            'corrigePar' => $c->getCorrigePar()->getNom(),
+            'createdAt' => $c->getCreatedAt()->format(\DateTimeInterface::ATOM),
         ], $corrections);
     }
 
@@ -829,28 +836,28 @@ class ValidationHebdoService
     private function buildAlerte(string $type, string $severite, int $userId, string $nom, string $titre, string $detail): array
     {
         return [
-            'type'     => $type,
+            'type' => $type,
             'severite' => $severite,
-            'employe'  => ['id' => $userId, 'nom' => $nom],
-            'titre'    => $titre,
-            'detail'   => $detail,
+            'employe' => ['id' => $userId, 'nom' => $nom],
+            'titre' => $titre,
+            'detail' => $detail,
         ];
     }
 
     private function formatPauses(Pointage $pointage): array
     {
         $result = [];
-        $now    = new \DateTimeImmutable();
+        $now = new \DateTimeImmutable();
 
         foreach ($pointage->getPauses() as $pause) {
-            $fin    = $pause->getHeureFin() ?? $now;
-            $duree  = (int) (($fin->getTimestamp() - $pause->getHeureDebut()->getTimestamp()) / 60);
+            $fin = $pause->getHeureFin() ?? $now;
+            $duree = (int) (($fin->getTimestamp() - $pause->getHeureDebut()->getTimestamp()) / 60);
 
             $result[] = [
-                'id'           => $pause->getId(),
-                'debut'        => $pause->getHeureDebut()->format(\DateTimeInterface::ATOM),
-                'fin'          => $pause->getHeureFin()?->format(\DateTimeInterface::ATOM),
-                'type'         => $pause->getType(),
+                'id' => $pause->getId(),
+                'debut' => $pause->getHeureDebut()->format(\DateTimeInterface::ATOM),
+                'fin' => $pause->getHeureFin()?->format(\DateTimeInterface::ATOM),
+                'type' => $pause->getType(),
                 'dureeMinutes' => max(0, $duree),
             ];
         }
@@ -867,29 +874,29 @@ class ValidationHebdoService
     private function getHorairesPlanifiees(?Pointage $pointage): array
     {
         $poste = $pointage?->getPoste();
-        if ($poste === null) {
+        if (null === $poste) {
             return ['debut' => null, 'fin' => null];
         }
 
         return [
             'debut' => $poste->getHeureDebut()?->format('H:i'),
-            'fin'   => $poste->getHeureFin()?->format('H:i'),
+            'fin' => $poste->getHeureFin()?->format('H:i'),
         ];
     }
 
     private function getHeuresPrevuesdepuisPointage(?Pointage $pointage): ?int
     {
-        if ($pointage === null || $pointage->getPoste() === null) {
+        if (null === $pointage || null === $pointage->getPoste()) {
             return null;
         }
 
         $poste = $pointage->getPoste();
-        if ($poste->getHeureDebut() === null || $poste->getHeureFin() === null) {
+        if (null === $poste->getHeureDebut() || null === $poste->getHeureFin()) {
             return null;
         }
 
-        $debut = new \DateTimeImmutable('1970-01-01 ' . $poste->getHeureDebut()->format('H:i:s'));
-        $fin   = new \DateTimeImmutable('1970-01-01 ' . $poste->getHeureFin()->format('H:i:s'));
+        $debut = new \DateTimeImmutable('1970-01-01 '.$poste->getHeureDebut()->format('H:i:s'));
+        $fin = new \DateTimeImmutable('1970-01-01 '.$poste->getHeureFin()->format('H:i:s'));
 
         // Gérer le cas où la fin est le lendemain (service de nuit)
         if ($fin < $debut) {
@@ -905,36 +912,37 @@ class ValidationHebdoService
     private function serviceEstTermine(Pointage $pointage, \DateTimeImmutable $now): bool
     {
         $service = $pointage->getService();
-        if ($service->getStatut() === 'TERMINE') {
+        if ('TERMINE' === $service->getStatut()) {
             return true;
         }
 
         // Service du jour passé mais pas encore clôturé
         $serviceDate = $service->getDate();
+
         return $serviceDate->format('Y-m-d') < $now->format('Y-m-d');
     }
 
     private function verifierReposQuotidien(array $jours): ?string
     {
-        $jours = array_filter($jours, fn($j) => in_array($j['statut'], ['travaille', 'en_cours'], true));
+        $jours = array_filter($jours, fn ($j) => in_array($j['statut'], ['travaille', 'en_cours'], true));
         $jours = array_values($jours);
 
-        for ($i = 0; $i < count($jours) - 1; $i++) {
+        for ($i = 0; $i < count($jours) - 1; ++$i) {
             $jourA = $jours[$i];
             $jourB = $jours[$i + 1];
 
-            if ($jourA['heureDepart'] === null || $jourB['heureArrivee'] === null) {
+            if (null === $jourA['heureDepart'] || null === $jourB['heureArrivee']) {
                 continue;
             }
 
             // heureDepart / heureArrivee sont maintenant des chaînes ISO ATOM
             // qui incluent déjà la date et le fuseau, parsing direct.
-            $depart  = new \DateTimeImmutable($jourA['heureDepart']);
+            $depart = new \DateTimeImmutable($jourA['heureDepart']);
             $arrivee = new \DateTimeImmutable($jourB['heureArrivee']);
-            $repos   = ($arrivee->getTimestamp() - $depart->getTimestamp()) / 3600;
+            $repos = ($arrivee->getTimestamp() - $depart->getTimestamp()) / 3600;
 
             if ($repos < 11) {
-                return "Entre {$jourA['jourSemaine']} et {$jourB['jourSemaine']} — seulement " . round($repos, 1) . 'h de repos (légal : 11h)';
+                return "Entre {$jourA['jourSemaine']} et {$jourB['jourSemaine']} — seulement ".round($repos, 1).'h de repos (légal : 11h)';
             }
         }
 
@@ -944,14 +952,16 @@ class ValidationHebdoService
     private function formatJourSemaine(\DateTimeImmutable $date): string
     {
         $jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
         return $jours[(int) $date->format('N') - 1];
     }
 
     public function minToHHMM(int $minutes): string
     {
-        $h   = (int) abs($minutes / 60);
+        $h = (int) abs($minutes / 60);
         $min = abs($minutes % 60);
         $sign = $minutes < 0 ? '-' : '';
-        return $sign . $h . 'h' . ($min > 0 ? str_pad((string) $min, 2, '0', STR_PAD_LEFT) : '');
+
+        return $sign.$h.'h'.($min > 0 ? str_pad((string) $min, 2, '0', STR_PAD_LEFT) : '');
     }
 }

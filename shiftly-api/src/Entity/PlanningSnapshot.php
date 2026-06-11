@@ -55,29 +55,104 @@ class PlanningSnapshot
 
     // ── Getters / Setters ──
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $centre): static { $this->centre = $centre; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getWeekStart(): ?\DateTimeImmutable { return $this->weekStart; }
-    public function setWeekStart(\DateTimeImmutable $weekStart): static { $this->weekStart = $weekStart; return $this; }
+    public function setCentre(?Centre $centre): static
+    {
+        $this->centre = $centre;
 
-    public function getPublishedAt(): ?\DateTimeImmutable { return $this->publishedAt; }
-    public function setPublishedAt(\DateTimeImmutable $publishedAt): static { $this->publishedAt = $publishedAt; return $this; }
+        return $this;
+    }
 
-    public function getPublishedBy(): ?User { return $this->publishedBy; }
-    public function setPublishedBy(?User $publishedBy): static { $this->publishedBy = $publishedBy; return $this; }
+    public function getWeekStart(): ?\DateTimeImmutable
+    {
+        return $this->weekStart;
+    }
 
-    public function getData(): array { return $this->data; }
-    public function setData(array $data): static { $this->data = $data; return $this; }
+    public function setWeekStart(\DateTimeImmutable $weekStart): static
+    {
+        $this->weekStart = $weekStart;
 
-    public function getMotifModification(): ?string { return $this->motifModification; }
-    public function setMotifModification(?string $motif): static { $this->motifModification = $motif; return $this; }
+        return $this;
+    }
 
-    public function getChecksum(): string { return $this->checksum; }
-    public function setChecksum(string $checksum): static { $this->checksum = $checksum; return $this; }
+    public function getPublishedAt(): ?\DateTimeImmutable
+    {
+        return $this->publishedAt;
+    }
 
-    public function isDelaiRespect(): bool { return $this->delaiRespect; }
-    public function setDelaiRespect(bool $delaiRespect): static { $this->delaiRespect = $delaiRespect; return $this; }
+    public function setPublishedAt(\DateTimeImmutable $publishedAt): static
+    {
+        $this->publishedAt = $publishedAt;
+
+        return $this;
+    }
+
+    public function getPublishedBy(): ?User
+    {
+        return $this->publishedBy;
+    }
+
+    public function setPublishedBy(?User $publishedBy): static
+    {
+        $this->publishedBy = $publishedBy;
+
+        return $this;
+    }
+
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    public function setData(array $data): static
+    {
+        $this->data = $data;
+
+        return $this;
+    }
+
+    public function getMotifModification(): ?string
+    {
+        return $this->motifModification;
+    }
+
+    public function setMotifModification(?string $motif): static
+    {
+        $this->motifModification = $motif;
+
+        return $this;
+    }
+
+    public function getChecksum(): string
+    {
+        return $this->checksum;
+    }
+
+    public function setChecksum(string $checksum): static
+    {
+        $this->checksum = $checksum;
+
+        return $this;
+    }
+
+    public function isDelaiRespect(): bool
+    {
+        return $this->delaiRespect;
+    }
+
+    public function setDelaiRespect(bool $delaiRespect): static
+    {
+        $this->delaiRespect = $delaiRespect;
+
+        return $this;
+    }
 }

@@ -22,11 +22,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class LeadController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface   $em,
-        private readonly LeadRepository           $leadRepo,
-        private readonly ValidatorInterface       $validator,
+        private readonly EntityManagerInterface $em,
+        private readonly LeadRepository $leadRepo,
+        private readonly ValidatorInterface $validator,
         private readonly EventDispatcherInterface $dispatcher,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/leads', name: 'lead_create_public', methods: ['POST'])]
     public function create(Request $request): JsonResponse
@@ -37,15 +38,15 @@ class LeadController extends AbstractController
         }
 
         // Anti-flood : 3 leads / email / 24h
-        $email = strtolower(trim((string)($data['email'] ?? '')));
-        if ($email !== '' && $this->leadRepo->countRecentByEmail($email, 24) >= 3) {
+        $email = strtolower(trim((string) ($data['email'] ?? '')));
+        if ('' !== $email && $this->leadRepo->countRecentByEmail($email, 24) >= 3) {
             return $this->json([
                 'message' => 'Trop de demandes envoyées avec cet email dans les dernières 24h.',
             ], 429);
         }
 
-        $intent  = $this->normalize($data['intent'] ?? null, [Lead::INTENT_TRIAL, Lead::INTENT_DEMO, Lead::INTENT_CUSTOM], Lead::INTENT_TRIAL);
-        $plan    = $this->normalize($data['plan']   ?? null, [Lead::PLAN_STARTER, Lead::PLAN_PRO, Lead::PLAN_PREMIUM, Lead::PLAN_UNDECIDED], Lead::PLAN_UNDECIDED);
+        $intent = $this->normalize($data['intent'] ?? null, [Lead::INTENT_TRIAL, Lead::INTENT_DEMO, Lead::INTENT_CUSTOM], Lead::INTENT_TRIAL);
+        $plan = $this->normalize($data['plan'] ?? null, [Lead::PLAN_STARTER, Lead::PLAN_PRO, Lead::PLAN_PREMIUM, Lead::PLAN_UNDECIDED], Lead::PLAN_UNDECIDED);
         $channel = isset($data['channel']) ? $this->normalize($data['channel'], [Lead::CHANNEL_MEET, Lead::CHANNEL_ZOOM, Lead::CHANNEL_TEAMS, Lead::CHANNEL_PHONE], null) : null;
         $activity = $this->normalize($data['activity'] ?? null, [
             Lead::ACTIVITY_BOWLING, Lead::ACTIVITY_LASER, Lead::ACTIVITY_ARCADE,
@@ -56,29 +57,29 @@ class LeadController extends AbstractController
         $lead
             ->setIntent($intent)
             ->setPlan($plan)
-            ->setName(mb_substr(trim((string)($data['name']   ?? '')), 0, 120))
+            ->setName(mb_substr(trim((string) ($data['name'] ?? '')), 0, 120))
             ->setEmail(mb_substr($email, 0, 180))
-            ->setPhone(mb_substr(trim((string)($data['phone'] ?? '')), 0, 30))
-            ->setCentre(mb_substr(trim((string)($data['centre'] ?? '')), 0, 180))
+            ->setPhone(mb_substr(trim((string) ($data['phone'] ?? '')), 0, 30))
+            ->setCentre(mb_substr(trim((string) ($data['centre'] ?? '')), 0, 180))
             ->setActivity($activity)
-            ->setStaffSize(mb_substr(trim((string)($data['staffSize'] ?? '')), 0, 20))
+            ->setStaffSize(mb_substr(trim((string) ($data['staffSize'] ?? '')), 0, 20))
             ->setCity($this->nullableString($data['city'] ?? null, 120))
             ->setZip($this->nullableString($data['zip'] ?? null, 10))
             ->setPreferredSlot($this->nullableString($data['preferredSlot'] ?? null, 500))
             ->setChannel($channel)
             ->setCustomNeeds($this->nullableString($data['customNeeds'] ?? null, 5000))
             ->setMessage($this->nullableString($data['message'] ?? null, 5000))
-            ->setConsent((bool)($data['consent'] ?? false))
+            ->setConsent((bool) ($data['consent'] ?? false))
             ->setConsentAt(new \DateTimeImmutable())
-            ->setSource(mb_substr(trim((string)($data['source'] ?? 'inconnu')), 0, 80))
+            ->setSource(mb_substr(trim((string) ($data['source'] ?? 'inconnu')), 0, 80))
             ->setStatus(Lead::STATUS_NOUVEAU);
 
         // Validation Symfony (constraints Collection sur un sous-ensemble normalisé)
         $payload = [
-            'name'    => $lead->getName(),
-            'email'   => $lead->getEmail(),
-            'phone'   => $lead->getPhone(),
-            'centre'  => $lead->getCentre(),
+            'name' => $lead->getName(),
+            'email' => $lead->getEmail(),
+            'phone' => $lead->getPhone(),
+            'centre' => $lead->getCentre(),
             'consent' => $lead->getConsent(),
         ];
         $violations = $this->validator->validate($payload, $this->buildConstraint());
@@ -87,6 +88,7 @@ class LeadController extends AbstractController
             foreach ($violations as $v) {
                 $errors[trim($v->getPropertyPath(), '[]')] = $v->getMessage();
             }
+
             return $this->json(['message' => 'Validation échouée', 'errors' => $errors], 422);
         }
 
@@ -97,25 +99,28 @@ class LeadController extends AbstractController
         $this->dispatcher->dispatch(new LeadCreatedEvent($lead));
 
         return $this->json([
-            'id'        => $lead->getId(),
-            'status'    => $lead->getStatus(),
+            'id' => $lead->getId(),
+            'status' => $lead->getStatus(),
             'createdAt' => $lead->getCreatedAt()?->format(\DateTimeInterface::ATOM),
         ], 201);
     }
 
     private function nullableString(mixed $value, int $maxLen): ?string
     {
-        if ($value === null || $value === '') return null;
-        return mb_substr(trim((string)$value), 0, $maxLen);
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        return mb_substr(trim((string) $value), 0, $maxLen);
     }
 
     /**
      * @param array<int, string> $allowed
-     * @param string|null        $default
      */
     private function normalize(mixed $value, array $allowed, ?string $default): ?string
     {
         $v = is_string($value) ? strtolower(trim($value)) : '';
+
         return in_array($v, $allowed, true) ? $v : $default;
     }
 
@@ -125,13 +130,13 @@ class LeadController extends AbstractController
         // des #[Assert] sur l'entité (qui est partagée avec le back-office).
         return new Assert\Collection(
             fields: [
-                'name'    => [new Assert\NotBlank(message: 'Le nom est requis.'), new Assert\Length(max: 120)],
-                'email'   => [new Assert\NotBlank(message: 'L\'email est requis.'), new Assert\Email(message: 'Email invalide.')],
-                'phone'   => [new Assert\NotBlank(message: 'Le téléphone est requis.'), new Assert\Length(max: 30)],
-                'centre'  => [new Assert\NotBlank(message: 'Le nom du centre est requis.'), new Assert\Length(max: 180)],
+                'name' => [new Assert\NotBlank(message: 'Le nom est requis.'), new Assert\Length(max: 120)],
+                'email' => [new Assert\NotBlank(message: 'L\'email est requis.'), new Assert\Email(message: 'Email invalide.')],
+                'phone' => [new Assert\NotBlank(message: 'Le téléphone est requis.'), new Assert\Length(max: 30)],
+                'centre' => [new Assert\NotBlank(message: 'Le nom du centre est requis.'), new Assert\Length(max: 180)],
                 'consent' => [new Assert\IsTrue(message: 'Le consentement RGPD est obligatoire.')],
             ],
-            allowExtraFields:   true,
+            allowExtraFields: true,
             allowMissingFields: true,
         );
     }

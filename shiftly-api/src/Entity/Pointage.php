@@ -13,11 +13,11 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Index(columns: ['centre_id', 'service_id'], name: 'idx_pointage_centre_service')]
 class Pointage
 {
-    public const STATUT_PREVU    = 'PREVU';
+    public const STATUT_PREVU = 'PREVU';
     public const STATUT_EN_COURS = 'EN_COURS';
     public const STATUT_EN_PAUSE = 'EN_PAUSE';
-    public const STATUT_TERMINE  = 'TERMINE';
-    public const STATUT_ABSENT   = 'ABSENT';
+    public const STATUT_TERMINE = 'TERMINE';
+    public const STATUT_ABSENT = 'ABSENT';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['pointage:read'])]
@@ -83,45 +83,144 @@ class Pointage
 
     public function __construct()
     {
-        $this->pauses    = new ArrayCollection();
+        $this->pauses = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $centre): static { $this->centre = $centre; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getService(): ?Service { return $this->service; }
-    public function setService(?Service $service): static { $this->service = $service; return $this; }
+    public function setCentre(?Centre $centre): static
+    {
+        $this->centre = $centre;
 
-    public function getPoste(): ?Poste { return $this->poste; }
-    public function setPoste(?Poste $poste): static { $this->poste = $poste; return $this; }
+        return $this;
+    }
 
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): static { $this->user = $user; return $this; }
+    public function getService(): ?Service
+    {
+        return $this->service;
+    }
 
-    public function getHeureArrivee(): ?\DateTimeImmutable { return $this->heureArrivee; }
-    public function setHeureArrivee(?\DateTimeImmutable $h): static { $this->heureArrivee = $h; return $this; }
+    public function setService(?Service $service): static
+    {
+        $this->service = $service;
 
-    public function getHeureDepart(): ?\DateTimeImmutable { return $this->heureDepart; }
-    public function setHeureDepart(?\DateTimeImmutable $h): static { $this->heureDepart = $h; return $this; }
+        return $this;
+    }
 
-    public function getPointePar(): ?User { return $this->pointePar; }
-    public function setPointePar(?User $user): static { $this->pointePar = $user; return $this; }
+    public function getPoste(): ?Poste
+    {
+        return $this->poste;
+    }
 
-    public function getStatut(): string { return $this->statut; }
-    public function setStatut(string $statut): static { $this->statut = $statut; return $this; }
+    public function setPoste(?Poste $poste): static
+    {
+        $this->poste = $poste;
 
-    public function getCommentaire(): ?string { return $this->commentaire; }
-    public function setCommentaire(?string $c): static { $this->commentaire = $c; return $this; }
+        return $this;
+    }
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
-    public function setUpdatedAt(?\DateTimeImmutable $u): static { $this->updatedAt = $u; return $this; }
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
-    public function getPauses(): Collection { return $this->pauses; }
+        return $this;
+    }
+
+    public function getHeureArrivee(): ?\DateTimeImmutable
+    {
+        return $this->heureArrivee;
+    }
+
+    public function setHeureArrivee(?\DateTimeImmutable $h): static
+    {
+        $this->heureArrivee = $h;
+
+        return $this;
+    }
+
+    public function getHeureDepart(): ?\DateTimeImmutable
+    {
+        return $this->heureDepart;
+    }
+
+    public function setHeureDepart(?\DateTimeImmutable $h): static
+    {
+        $this->heureDepart = $h;
+
+        return $this;
+    }
+
+    public function getPointePar(): ?User
+    {
+        return $this->pointePar;
+    }
+
+    public function setPointePar(?User $user): static
+    {
+        $this->pointePar = $user;
+
+        return $this;
+    }
+
+    public function getStatut(): string
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(string $statut): static
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function getCommentaire(): ?string
+    {
+        return $this->commentaire;
+    }
+
+    public function setCommentaire(?string $c): static
+    {
+        $this->commentaire = $c;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $u): static
+    {
+        $this->updatedAt = $u;
+
+        return $this;
+    }
+
+    public function getPauses(): Collection
+    {
+        return $this->pauses;
+    }
 
     public function addPause(PointagePause $pause): static
     {
@@ -129,12 +228,14 @@ class Pointage
             $this->pauses->add($pause);
             $pause->setPointage($this);
         }
+
         return $this;
     }
 
     public function removePause(PointagePause $pause): static
     {
         $this->pauses->removeElement($pause);
+
         return $this;
     }
 }

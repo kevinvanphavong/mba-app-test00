@@ -43,20 +43,97 @@ class SupportAttachment
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getTicket(): ?SupportTicket { return $this->ticket; }
-    public function setTicket(?SupportTicket $ticket): static { $this->ticket = $ticket; return $this; }
-    public function getReply(): ?SupportReply { return $this->reply; }
-    public function setReply(?SupportReply $reply): static { $this->reply = $reply; return $this; }
-    public function getFilename(): ?string { return $this->filename; }
-    public function setFilename(string $filename): static { $this->filename = $filename; return $this; }
-    public function getStoredPath(): ?string { return $this->storedPath; }
-    public function setStoredPath(string $storedPath): static { $this->storedPath = $storedPath; return $this; }
-    public function getMimeType(): ?string { return $this->mimeType; }
-    public function setMimeType(string $mimeType): static { $this->mimeType = $mimeType; return $this; }
-    public function getSize(): int { return $this->size; }
-    public function setSize(int $size): static { $this->size = $size; return $this; }
-    public function getUploadedBy(): ?User { return $this->uploadedBy; }
-    public function setUploadedBy(?User $user): static { $this->uploadedBy = $user; return $this; }
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTicket(): ?SupportTicket
+    {
+        return $this->ticket;
+    }
+
+    public function setTicket(?SupportTicket $ticket): static
+    {
+        $this->ticket = $ticket;
+
+        return $this;
+    }
+
+    public function getReply(): ?SupportReply
+    {
+        return $this->reply;
+    }
+
+    public function setReply(?SupportReply $reply): static
+    {
+        $this->reply = $reply;
+
+        return $this;
+    }
+
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
+
+    public function setFilename(string $filename): static
+    {
+        $this->filename = $filename;
+
+        return $this;
+    }
+
+    public function getStoredPath(): ?string
+    {
+        return $this->storedPath;
+    }
+
+    public function setStoredPath(string $storedPath): static
+    {
+        $this->storedPath = $storedPath;
+
+        return $this;
+    }
+
+    public function getMimeType(): ?string
+    {
+        return $this->mimeType;
+    }
+
+    public function setMimeType(string $mimeType): static
+    {
+        $this->mimeType = $mimeType;
+
+        return $this;
+    }
+
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
+    public function setSize(int $size): static
+    {
+        $this->size = $size;
+
+        return $this;
+    }
+
+    public function getUploadedBy(): ?User
+    {
+        return $this->uploadedBy;
+    }
+
+    public function setUploadedBy(?User $user): static
+    {
+        $this->uploadedBy = $user;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

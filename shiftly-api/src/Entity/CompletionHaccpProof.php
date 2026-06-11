@@ -27,21 +27,21 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Table(name: 'completion_haccp_proof')]
 #[ORM\UniqueConstraint(name: 'uniq_haccp_proof_completion', columns: ['completion_id'])]
 #[ORM\Index(columns: ['centre_id', 'created_at'], name: 'idx_haccp_proof_centre_date')]
-#[ORM\Index(columns: ['releve_par_id'],           name: 'idx_haccp_proof_releveur')]
+#[ORM\Index(columns: ['releve_par_id'], name: 'idx_haccp_proof_releveur')]
 #[ApiResource(
     shortName: 'CompletionHaccpProof',
     normalizationContext: ['groups' => ['haccp_proof:read']],
     operations: [
         new GetCollection(security: "is_granted('ROLE_USER')"),
-        new Get(security:           "is_granted('ROLE_USER') and is_granted('VIEW', object)"),
+        new Get(security: "is_granted('ROLE_USER') and is_granted('VIEW', object)"),
         new Patch(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
         new Delete(security: "is_granted('ROLE_MANAGER') and is_granted('DELETE', object)"),
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: [
-    'centre'      => 'exact',
+    'centre' => 'exact',
     'estConforme' => 'exact',
-    'relevePar'   => 'exact',
+    'relevePar' => 'exact',
 ])]
 #[ApiFilter(DateFilter::class, properties: ['createdAt'])]
 class CompletionHaccpProof
@@ -94,36 +94,126 @@ class CompletionHaccpProof
     #[Groups(['haccp_proof:read', 'completion:read', 'haccp_registre:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
-    public function __construct() { $this->createdAt = new \DateTimeImmutable(); }
+    public function __construct()
+    {
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCompletion(): ?Completion { return $this->completion; }
-    public function setCompletion(?Completion $c): static { $this->completion = $c; return $this; }
+    public function getCompletion(): ?Completion
+    {
+        return $this->completion;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $c): static { $this->centre = $c; return $this; }
+    public function setCompletion(?Completion $c): static
+    {
+        $this->completion = $c;
 
-    public function getValeurNumerique(): ?float { return $this->valeurNumerique === null ? null : (float) $this->valeurNumerique; }
-    public function setValeurNumerique(?float $v): static { $this->valeurNumerique = $v === null ? null : number_format($v, 2, '.', ''); return $this; }
+        return $this;
+    }
 
-    public function getDateReleve(): ?\DateTimeImmutable { return $this->dateReleve; }
-    public function setDateReleve(?\DateTimeImmutable $d): static { $this->dateReleve = $d; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getPhotoPath(): ?string { return $this->photoPath; }
-    public function setPhotoPath(?string $p): static { $this->photoPath = $p; return $this; }
+    public function setCentre(?Centre $c): static
+    {
+        $this->centre = $c;
 
-    public function getPhotoMimeType(): ?string { return $this->photoMimeType; }
-    public function setPhotoMimeType(?string $m): static { $this->photoMimeType = $m; return $this; }
+        return $this;
+    }
 
-    public function getNote(): ?string { return $this->note; }
-    public function setNote(?string $n): static { $this->note = $n; return $this; }
+    public function getValeurNumerique(): ?float
+    {
+        return null === $this->valeurNumerique ? null : (float) $this->valeurNumerique;
+    }
 
-    public function getEstConforme(): ?bool { return $this->estConforme; }
-    public function setEstConforme(?bool $c): static { $this->estConforme = $c; return $this; }
+    public function setValeurNumerique(?float $v): static
+    {
+        $this->valeurNumerique = null === $v ? null : number_format($v, 2, '.', '');
 
-    public function getRelevePar(): ?User { return $this->relevePar; }
-    public function setRelevePar(?User $u): static { $this->relevePar = $u; return $this; }
+        return $this;
+    }
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function getDateReleve(): ?\DateTimeImmutable
+    {
+        return $this->dateReleve;
+    }
+
+    public function setDateReleve(?\DateTimeImmutable $d): static
+    {
+        $this->dateReleve = $d;
+
+        return $this;
+    }
+
+    public function getPhotoPath(): ?string
+    {
+        return $this->photoPath;
+    }
+
+    public function setPhotoPath(?string $p): static
+    {
+        $this->photoPath = $p;
+
+        return $this;
+    }
+
+    public function getPhotoMimeType(): ?string
+    {
+        return $this->photoMimeType;
+    }
+
+    public function setPhotoMimeType(?string $m): static
+    {
+        $this->photoMimeType = $m;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $n): static
+    {
+        $this->note = $n;
+
+        return $this;
+    }
+
+    public function getEstConforme(): ?bool
+    {
+        return $this->estConforme;
+    }
+
+    public function setEstConforme(?bool $c): static
+    {
+        $this->estConforme = $c;
+
+        return $this;
+    }
+
+    public function getRelevePar(): ?User
+    {
+        return $this->relevePar;
+    }
+
+    public function setRelevePar(?User $u): static
+    {
+        $this->relevePar = $u;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

@@ -31,7 +31,7 @@ class ActiveDayResolver
      */
     public function getActiveDate(?\DateTimeImmutable $now = null): \DateTimeImmutable
     {
-        $tz  = new \DateTimeZone(self::TIMEZONE);
+        $tz = new \DateTimeZone(self::TIMEZONE);
         $now = $now ? $now->setTimezone($tz) : new \DateTimeImmutable('now', $tz);
 
         $reference = (int) $now->format('H') < self::NIGHT_SHIFT_HOUR

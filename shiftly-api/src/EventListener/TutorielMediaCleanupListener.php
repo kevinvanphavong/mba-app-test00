@@ -20,15 +20,16 @@ use Doctrine\ORM\Events;
 class TutorielMediaCleanupListener
 {
     public function __construct(
-        private readonly MediaRepository        $mediaRepository,
-        private readonly R2StorageService       $r2,
+        private readonly MediaRepository $mediaRepository,
+        private readonly R2StorageService $r2,
         private readonly EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
 
     public function preRemove(Tutoriel $tutoriel): void
     {
         $tutorielId = $tutoriel->getId();
-        if ($tutorielId === null) {
+        if (null === $tutorielId) {
             return;
         }
 

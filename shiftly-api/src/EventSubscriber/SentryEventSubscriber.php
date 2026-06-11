@@ -33,15 +33,15 @@ class SentryEventSubscriber implements EventSubscriberInterface
 
         \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($user): void {
             $scope->setUser([
-                'id'    => $user->getId(),
+                'id' => $user->getId(),
                 'email' => $user->getEmail(),
             ]);
 
-            $scope->setTag('user_id',   (string) $user->getId());
+            $scope->setTag('user_id', (string) $user->getId());
             $scope->setTag('user_role', $user->getRole());
 
             if ($user->getCentre()) {
-                $scope->setTag('centre_id',  (string) $user->getCentre()->getId());
+                $scope->setTag('centre_id', (string) $user->getCentre()->getId());
                 $scope->setTag('centre_nom', $user->getCentre()->getNom() ?? '');
             }
         });

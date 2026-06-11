@@ -19,10 +19,12 @@ use Symfony\Component\Uid\Uuid;
  */
 class HaccpPhotoUploader
 {
-    private const MAX_SIZE      = 5 * 1024 * 1024;
+    private const MAX_SIZE = 5 * 1024 * 1024;
     private const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
-    public function __construct(private readonly R2StorageService $r2) {}
+    public function __construct(private readonly R2StorageService $r2)
+    {
+    }
 
     public function upload(UploadedFile $file): array
     {
@@ -39,6 +41,7 @@ class HaccpPhotoUploader
         $key = sprintf('haccp/%s/%s/%s.%s', $now->format('Y'), $now->format('m'), Uuid::v4()->toRfc4122(), $ext);
 
         $this->r2->upload($key, $file, $mime);
+
         return ['storedPath' => $key, 'mime' => $mime];
     }
 }

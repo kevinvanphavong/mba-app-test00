@@ -25,7 +25,7 @@ use Symfony\Component\Uid\Uuid;
  */
 class SupportAttachmentUploader
 {
-    private const MAX_SIZE      = 5 * 1024 * 1024;
+    private const MAX_SIZE = 5 * 1024 * 1024;
     private const ALLOWED_MIMES = [
         'image/jpeg', 'image/png', 'image/gif', 'image/webp',
         'application/pdf',
@@ -33,7 +33,8 @@ class SupportAttachmentUploader
 
     public function __construct(
         private readonly R2StorageService $r2,
-    ) {}
+    ) {
+    }
 
     /**
      * @throws \InvalidArgumentException si MIME ou taille invalide

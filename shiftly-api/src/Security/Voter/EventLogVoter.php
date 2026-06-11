@@ -12,12 +12,12 @@ class EventLogVoter extends AbstractCentreVoter
 {
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $attribute === self::VIEW && $subject instanceof EventLog;
+        return self::VIEW === $attribute && $subject instanceof EventLog;
     }
 
     protected function getCentreId(mixed $subject): ?int
     {
-        /** @var EventLog $subject */
+        /* @var EventLog $subject */
         return $subject->getCentre()?->getId();
     }
 }

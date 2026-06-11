@@ -14,17 +14,17 @@ class SentryApiService
         private HttpClientInterface $httpClient,
         string $sentryAuthToken,
         string $sentryOrg,
-        string $sentryProject
+        string $sentryProject,
     ) {
         $this->authToken = $sentryAuthToken;
-        $this->org       = $sentryOrg;
-        $this->project   = $sentryProject;
+        $this->org = $sentryOrg;
+        $this->project = $sentryProject;
     }
 
     /** Nombre d'erreurs sur les 7 derniers jours */
     public function getStats7Days(): array
     {
-        if (empty($this->authToken) || $this->authToken === 'changeme') {
+        if (empty($this->authToken) || 'changeme' === $this->authToken) {
             return ['total' => 0, 'topCentres' => []];
         }
 
@@ -33,11 +33,11 @@ class SentryApiService
                 "https://sentry.io/api/0/projects/{$this->org}/{$this->project}/stats/",
                 [
                     'headers' => ['Authorization' => "Bearer {$this->authToken}"],
-                    'query'   => ['stat' => 'received', 'resolution' => '1d', 'since' => strtotime('-7 days')],
+                    'query' => ['stat' => 'received', 'resolution' => '1d', 'since' => strtotime('-7 days')],
                 ]
             );
 
-            $data  = $response->toArray();
+            $data = $response->toArray();
             $total = array_sum(array_column($data, 1));
 
             return ['total' => $total, 'topCentres' => []];
@@ -49,7 +49,7 @@ class SentryApiService
     /** Issues Sentry filtrées par tag centre_id */
     public function getIssuesByCentreId(string $centreId): array
     {
-        if (empty($this->authToken) || $this->authToken === 'changeme') {
+        if (empty($this->authToken) || 'changeme' === $this->authToken) {
             return [];
         }
 
@@ -58,7 +58,7 @@ class SentryApiService
                 "https://sentry.io/api/0/projects/{$this->org}/{$this->project}/issues/",
                 [
                     'headers' => ['Authorization' => "Bearer {$this->authToken}"],
-                    'query'   => ['query' => "centre_id:{$centreId}", 'limit' => 20],
+                    'query' => ['query' => "centre_id:{$centreId}", 'limit' => 20],
                 ]
             );
 

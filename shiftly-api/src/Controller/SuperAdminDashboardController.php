@@ -17,34 +17,35 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SuperAdminDashboardController extends AbstractController
 {
     public function __construct(
-        private readonly CentreRepository   $centreRepo,
-        private readonly UserRepository     $userRepo,
-        private readonly ServiceRepository  $serviceRepo,
+        private readonly CentreRepository $centreRepo,
+        private readonly UserRepository $userRepo,
+        private readonly ServiceRepository $serviceRepo,
         private readonly AuditLogRepository $auditLogRepo,
-        private readonly SentryApiService   $sentryApi,
-    ) {}
+        private readonly SentryApiService $sentryApi,
+    ) {
+    }
 
     #[Route('/api/superadmin/dashboard', methods: ['GET'])]
     public function dashboard(): JsonResponse
     {
         $totalCentres = count($this->centreRepo->findAll());
-        $totalUsers   = count($this->userRepo->findAll());
-        $recentLogs   = $this->auditLogRepo->findRecent(10);
-        $sentryStats  = $this->sentryApi->getStats7Days();
+        $totalUsers = count($this->userRepo->findAll());
+        $recentLogs = $this->auditLogRepo->findRecent(10);
+        $sentryStats = $this->sentryApi->getStats7Days();
 
-        $activity = array_map(fn($log) => [
-            'id'         => $log->getId(),
-            'action'     => $log->getAction(),
+        $activity = array_map(fn ($log) => [
+            'id' => $log->getId(),
+            'action' => $log->getAction(),
             'targetType' => $log->getTargetType(),
-            'targetId'   => $log->getTargetId(),
-            'ip'         => $log->getIp(),
-            'createdAt'  => $log->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'targetId' => $log->getTargetId(),
+            'ip' => $log->getIp(),
+            'createdAt' => $log->getCreatedAt()?->format(\DateTimeInterface::ATOM),
         ], $recentLogs);
 
         // Top 5 centres par nombre de pointages sur 30j
-        $since    = new \DateTimeImmutable('-30 days');
-        $centres  = $this->centreRepo->findAll();
-        $scored   = array_map(function (Centre $c) use ($since): array {
+        $since = new \DateTimeImmutable('-30 days');
+        $centres = $this->centreRepo->findAll();
+        $scored = array_map(function (Centre $c) use ($since): array {
             $count = (int) $this->serviceRepo->createQueryBuilder('s')
                 ->select('COUNT(p.id)')
                 ->innerJoin('App\\Entity\\Pointage', 'p', 'WITH', 'p.service = s.id')
@@ -59,25 +60,25 @@ class SuperAdminDashboardController extends AbstractController
             $engagement = $users > 0 ? min(100, round(($count / $users) / 40 * 100)) : 0;
 
             return [
-                'id'           => $c->getId(),
-                'nom'          => $c->getNom(),
-                'adresse'      => $c->getAdresse(),
-                'totalUsers'   => $users,
+                'id' => $c->getId(),
+                'nom' => $c->getNom(),
+                'adresse' => $c->getAdresse(),
+                'totalUsers' => $users,
                 'pointages30j' => $count,
-                'engagement'   => $engagement,
+                'engagement' => $engagement,
             ];
         }, $centres);
 
-        usort($scored, fn($a, $b) => $b['pointages30j'] <=> $a['pointages30j']);
+        usort($scored, fn ($a, $b) => $b['pointages30j'] <=> $a['pointages30j']);
         $topCentres = array_slice($scored, 0, 5);
 
         return $this->json([
-            'totalCentres'   => $totalCentres,
-            'totalUsers'     => $totalUsers,
-            'mrr'            => 0,
+            'totalCentres' => $totalCentres,
+            'totalUsers' => $totalUsers,
+            'mrr' => 0,
             'recentActivity' => $activity,
-            'sentryStats'    => $sentryStats,
-            'topCentres'     => $topCentres,
+            'sentryStats' => $sentryStats,
+            'topCentres' => $topCentres,
         ]);
     }
 }

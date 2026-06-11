@@ -28,7 +28,8 @@ class CreateTutoReadController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/tuto-reads/create', name: 'api_tuto_read_create', methods: ['POST'], format: 'json')]
     public function create(Request $request): JsonResponse
@@ -70,9 +71,9 @@ class CreateTutoReadController extends AbstractController
         }
 
         return $this->json([
-            'id'         => $tutoRead->getId(),
+            'id' => $tutoRead->getId(),
             'tutorielId' => $tutoriel->getId(),
-            'readAt'     => $tutoRead->getReadAt()?->format(\DateTimeInterface::ATOM),
+            'readAt' => $tutoRead->getReadAt()?->format(\DateTimeInterface::ATOM),
         ], Response::HTTP_CREATED);
     }
 }

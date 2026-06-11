@@ -18,9 +18,10 @@ class AbsenceController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly AbsenceRepository      $absenceRepository,
-        private readonly UserRepository         $userRepository,
-    ) {}
+        private readonly AbsenceRepository $absenceRepository,
+        private readonly UserRepository $userRepository,
+    ) {
+    }
 
     /**
      * POST /api/planning/absence
@@ -31,14 +32,14 @@ class AbsenceController extends AbstractController
     public function create(Request $request): JsonResponse
     {
         /** @var \App\Entity\User $manager */
-        $manager  = $this->getUser();
-        $centre   = $manager->getCentre();
-        $body     = json_decode($request->getContent(), true) ?? [];
+        $manager = $this->getUser();
+        $centre = $manager->getCentre();
+        $body = json_decode($request->getContent(), true) ?? [];
 
         $userId = (int) ($body['userId'] ?? 0);
         $dateStr = $body['date'] ?? '';
-        $type    = $body['type'] ?? 'AUTRE';
-        $motif   = $body['motif'] ?? null;
+        $type = $body['type'] ?? 'AUTRE';
+        $motif = $body['motif'] ?? null;
 
         if (!$userId || !$dateStr) {
             return $this->json(['error' => 'userId et date sont requis'], Response::HTTP_BAD_REQUEST);
@@ -70,11 +71,11 @@ class AbsenceController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'     => $absence->getId(),
+            'id' => $absence->getId(),
             'userId' => $user->getId(),
-            'date'   => $absence->getDate()->format('Y-m-d'),
-            'type'   => $absence->getType(),
-            'motif'  => $absence->getMotif(),
+            'date' => $absence->getDate()->format('Y-m-d'),
+            'type' => $absence->getType(),
+            'motif' => $absence->getMotif(),
         ], Response::HTTP_CREATED);
     }
 
@@ -110,9 +111,9 @@ class AbsenceController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'    => $absence->getId(),
-            'date'  => $absence->getDate()->format('Y-m-d'),
-            'type'  => $absence->getType(),
+            'id' => $absence->getId(),
+            'date' => $absence->getDate()->format('Y-m-d'),
+            'type' => $absence->getType(),
             'motif' => $absence->getMotif(),
         ]);
     }

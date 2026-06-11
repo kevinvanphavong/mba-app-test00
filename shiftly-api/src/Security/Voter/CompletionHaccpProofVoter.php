@@ -5,8 +5,8 @@ namespace App\Security\Voter;
 use App\Entity\CompletionHaccpProof;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * VIEW + CREATE : tout user du centre (saisie staff depuis /service).
@@ -14,8 +14,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
  */
 class CompletionHaccpProofVoter extends Voter
 {
-    public const VIEW   = 'VIEW';
-    public const EDIT   = 'EDIT';
+    public const VIEW = 'VIEW';
+    public const EDIT = 'EDIT';
     public const CREATE = 'CREATE';
     public const DELETE = 'DELETE';
 
@@ -29,13 +29,17 @@ class CompletionHaccpProofVoter extends Voter
     {
         /** @var CompletionHaccpProof $subject */
         $user = $token->getUser();
-        if (!$user instanceof User) return false;
+        if (!$user instanceof User) {
+            return false;
+        }
 
-        if ($subject->getCentre()?->getId() !== $user->getCentre()?->getId()) return false;
+        if ($subject->getCentre()?->getId() !== $user->getCentre()?->getId()) {
+            return false;
+        }
 
         return match ($attribute) {
             self::VIEW, self::CREATE => true,
-            self::EDIT, self::DELETE => $user->getRole() === User::ROLE_MANAGER,
+            self::EDIT, self::DELETE => User::ROLE_MANAGER === $user->getRole(),
             default => false,
         };
     }

@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 class PointagePause
 {
     public const TYPE_COURTE = 'COURTE';
-    public const TYPE_REPAS  = 'REPAS';
+    public const TYPE_REPAS = 'REPAS';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['pointage:read'])]
@@ -33,17 +33,56 @@ class PointagePause
     #[Groups(['pointage:read'])]
     private string $type = self::TYPE_COURTE;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getPointage(): ?Pointage { return $this->pointage; }
-    public function setPointage(?Pointage $pointage): static { $this->pointage = $pointage; return $this; }
+    public function getPointage(): ?Pointage
+    {
+        return $this->pointage;
+    }
 
-    public function getHeureDebut(): ?\DateTimeImmutable { return $this->heureDebut; }
-    public function setHeureDebut(\DateTimeImmutable $h): static { $this->heureDebut = $h; return $this; }
+    public function setPointage(?Pointage $pointage): static
+    {
+        $this->pointage = $pointage;
 
-    public function getHeureFin(): ?\DateTimeImmutable { return $this->heureFin; }
-    public function setHeureFin(?\DateTimeImmutable $h): static { $this->heureFin = $h; return $this; }
+        return $this;
+    }
 
-    public function getType(): string { return $this->type; }
-    public function setType(string $type): static { $this->type = $type; return $this; }
+    public function getHeureDebut(): ?\DateTimeImmutable
+    {
+        return $this->heureDebut;
+    }
+
+    public function setHeureDebut(\DateTimeImmutable $h): static
+    {
+        $this->heureDebut = $h;
+
+        return $this;
+    }
+
+    public function getHeureFin(): ?\DateTimeImmutable
+    {
+        return $this->heureFin;
+    }
+
+    public function setHeureFin(?\DateTimeImmutable $h): static
+    {
+        $this->heureFin = $h;
+
+        return $this;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
 }

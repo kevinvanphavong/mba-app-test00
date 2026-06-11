@@ -11,7 +11,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -22,9 +21,10 @@ class PointageController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly PointageRepository     $pointageRepository,
-        private readonly PointageService        $pointageService,
-    ) {}
+        private readonly PointageRepository $pointageRepository,
+        private readonly PointageService $pointageService,
+    ) {
+    }
 
     /**
      * GET /api/pointage/service/{serviceId}
@@ -50,12 +50,12 @@ class PointageController extends AbstractController
         $this->pointageService->genererPointagesDepuisPostes($service);
 
         $pointages = $this->pointageRepository->findByService($serviceId);
-        $stats     = $this->pointageService->calculerStats($pointages);
+        $stats = $this->pointageService->calculerStats($pointages);
 
         return $this->json([
-            'service'   => $this->serializeService($service),
-            'pointages' => array_map(fn($p) => $this->serializePointage($p), $pointages),
-            'stats'     => $stats,
+            'service' => $this->serializeService($service),
+            'pointages' => array_map(fn ($p) => $this->serializePointage($p), $pointages),
+            'stats' => $stats,
         ]);
     }
 
@@ -67,9 +67,9 @@ class PointageController extends AbstractController
     public function arrivee(int $id, Request $request): JsonResponse
     {
         $pointage = $this->findPointageSecure($id);
-        $body     = json_decode($request->getContent(), true) ?? [];
+        $body = json_decode($request->getContent(), true) ?? [];
 
-        if ($pointage->getStatut() !== Pointage::STATUT_PREVU) {
+        if (Pointage::STATUT_PREVU !== $pointage->getStatut()) {
             throw new BadRequestHttpException('Ce pointage n\'est pas en statut PREVU.');
         }
 
@@ -102,8 +102,8 @@ class PointageController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'           => $pointage->getId(),
-            'statut'       => $pointage->getStatut(),
+            'id' => $pointage->getId(),
+            'statut' => $pointage->getStatut(),
             'heureArrivee' => $now->format('c'),
             'minutesRetard' => $minutesRetard,
         ]);
@@ -117,7 +117,7 @@ class PointageController extends AbstractController
     public function depart(int $id, Request $request): JsonResponse
     {
         $pointage = $this->findPointageSecure($id);
-        $body     = json_decode($request->getContent(), true) ?? [];
+        $body = json_decode($request->getContent(), true) ?? [];
 
         if (!in_array($pointage->getStatut(), [Pointage::STATUT_EN_COURS, Pointage::STATUT_EN_PAUSE], true)) {
             throw new BadRequestHttpException('Ce pointage doit être EN_COURS ou EN_PAUSE pour pointer le départ.');
@@ -133,7 +133,7 @@ class PointageController extends AbstractController
 
         // Clôture automatique de la pause en cours
         foreach ($pointage->getPauses() as $pause) {
-            if ($pause->getHeureFin() === null) {
+            if (null === $pause->getHeureFin()) {
                 $pause->setHeureFin($now);
             }
         }
@@ -152,9 +152,9 @@ class PointageController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'             => $pointage->getId(),
-            'statut'         => $pointage->getStatut(),
-            'heureDepart'    => $now->format('c'),
+            'id' => $pointage->getId(),
+            'statut' => $pointage->getStatut(),
+            'heureDepart' => $now->format('c'),
             'dureeEffective' => $dureeEffective,
         ]);
     }
@@ -167,9 +167,9 @@ class PointageController extends AbstractController
     public function pauseStart(int $id, Request $request): JsonResponse
     {
         $pointage = $this->findPointageSecure($id);
-        $body     = json_decode($request->getContent(), true) ?? [];
+        $body = json_decode($request->getContent(), true) ?? [];
 
-        if ($pointage->getStatut() !== Pointage::STATUT_EN_COURS) {
+        if (Pointage::STATUT_EN_COURS !== $pointage->getStatut()) {
             throw new BadRequestHttpException('Ce pointage doit être EN_COURS pour démarrer une pause.');
         }
 
@@ -179,7 +179,7 @@ class PointageController extends AbstractController
             (bool) ($body['managerBypass'] ?? false)
         );
 
-        $now   = new \DateTimeImmutable('now');
+        $now = new \DateTimeImmutable('now');
         $pause = new PointagePause();
         $pause->setHeureDebut($now);
         $pause->setType(in_array($body['type'] ?? '', ['COURTE', 'REPAS'], true) ? $body['type'] : 'COURTE');
@@ -192,12 +192,12 @@ class PointageController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'     => $pointage->getId(),
+            'id' => $pointage->getId(),
             'statut' => $pointage->getStatut(),
-            'pause'  => [
-                'id'         => $pause->getId(),
+            'pause' => [
+                'id' => $pause->getId(),
                 'heureDebut' => $now->format('c'),
-                'type'       => $pause->getType(),
+                'type' => $pause->getType(),
             ],
         ]);
     }
@@ -210,9 +210,9 @@ class PointageController extends AbstractController
     public function pauseEnd(int $id, Request $request): JsonResponse
     {
         $pointage = $this->findPointageSecure($id);
-        $body     = json_decode($request->getContent(), true) ?? [];
+        $body = json_decode($request->getContent(), true) ?? [];
 
-        if ($pointage->getStatut() !== Pointage::STATUT_EN_PAUSE) {
+        if (Pointage::STATUT_EN_PAUSE !== $pointage->getStatut()) {
             throw new BadRequestHttpException('Ce pointage n\'est pas EN_PAUSE.');
         }
 
@@ -222,11 +222,11 @@ class PointageController extends AbstractController
             (bool) ($body['managerBypass'] ?? false)
         );
 
-        $now         = new \DateTimeImmutable('now');
+        $now = new \DateTimeImmutable('now');
         $pauseEnCours = null;
 
         foreach ($pointage->getPauses() as $pause) {
-            if ($pause->getHeureFin() === null) {
+            if (null === $pause->getHeureFin()) {
                 $pause->setHeureFin($now);
                 $pauseEnCours = $pause;
                 break;
@@ -246,12 +246,12 @@ class PointageController extends AbstractController
         );
 
         return $this->json([
-            'id'     => $pointage->getId(),
+            'id' => $pointage->getId(),
             'statut' => $pointage->getStatut(),
-            'pause'  => [
-                'id'       => $pauseEnCours->getId(),
+            'pause' => [
+                'id' => $pauseEnCours->getId(),
                 'heureFin' => $now->format('c'),
-                'duree'    => $duree,
+                'duree' => $duree,
             ],
         ]);
     }
@@ -264,9 +264,9 @@ class PointageController extends AbstractController
     public function absence(int $id, Request $request): JsonResponse
     {
         $pointage = $this->findPointageSecure($id);
-        $body     = json_decode($request->getContent(), true) ?? [];
+        $body = json_decode($request->getContent(), true) ?? [];
 
-        if ($pointage->getStatut() !== Pointage::STATUT_PREVU) {
+        if (Pointage::STATUT_PREVU !== $pointage->getStatut()) {
             throw new BadRequestHttpException('Seul un pointage PREVU peut être marqué absent.');
         }
 
@@ -281,7 +281,7 @@ class PointageController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'     => $pointage->getId(),
+            'id' => $pointage->getId(),
             'statut' => $pointage->getStatut(),
         ]);
     }
@@ -330,57 +330,57 @@ class PointageController extends AbstractController
     private function serializeService(Service $service): array
     {
         return [
-            'id'         => $service->getId(),
-            'date'       => $service->getDate()?->format('Y-m-d'),
+            'id' => $service->getId(),
+            'date' => $service->getDate()?->format('Y-m-d'),
             'heureDebut' => $service->getHeureDebut()?->format('H:i'),
-            'heureFin'   => $service->getHeureFin()?->format('H:i'),
-            'statut'     => $service->getStatut(),
+            'heureFin' => $service->getHeureFin()?->format('H:i'),
+            'statut' => $service->getStatut(),
         ];
     }
 
     private function serializePointage(Pointage $p): array
     {
-        $poste     = $p->getPoste();
-        $user      = $p->getUser();
+        $poste = $p->getPoste();
+        $user = $p->getUser();
         $pointePar = $p->getPointePar();
 
-        $pauses = array_map(fn(PointagePause $pause) => [
-            'id'         => $pause->getId(),
+        $pauses = array_map(fn (PointagePause $pause) => [
+            'id' => $pause->getId(),
             'heureDebut' => $pause->getHeureDebut()->format('c'),
-            'heureFin'   => $pause->getHeureFin()?->format('c'),
-            'type'       => $pause->getType(),
+            'heureFin' => $pause->getHeureFin()?->format('c'),
+            'type' => $pause->getType(),
         ], $p->getPauses()->toArray());
 
         return [
-            'id'             => $p->getId(),
-            'statut'         => $p->getStatut(),
-            'heureArrivee'   => $p->getHeureArrivee()?->format('c'),
-            'heureDepart'    => $p->getHeureDepart()?->format('c'),
+            'id' => $p->getId(),
+            'statut' => $p->getStatut(),
+            'heureArrivee' => $p->getHeureArrivee()?->format('c'),
+            'heureDepart' => $p->getHeureDepart()?->format('c'),
             'dureeEffective' => $this->pointageService->calculerDureeEffective($p),
-            'minutesRetard'  => $this->pointageService->minutesRetard($p),
-            'commentaire'    => $p->getCommentaire(),
-            'pauses'         => $pauses,
-            'user'           => [
-                'id'          => $user->getId(),
-                'nom'         => $user->getNom(),
-                'prenom'      => $user->getPrenom(),
+            'minutesRetard' => $this->pointageService->minutesRetard($p),
+            'commentaire' => $p->getCommentaire(),
+            'pauses' => $pauses,
+            'user' => [
+                'id' => $user->getId(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
                 'avatarColor' => $user->getAvatarColor(),
-                'role'        => $user->getRole(),
+                'role' => $user->getRole(),
             ],
             'pointePar' => $pointePar ? [
-                'id'     => $pointePar->getId(),
-                'nom'    => $pointePar->getNom(),
+                'id' => $pointePar->getId(),
+                'nom' => $pointePar->getNom(),
                 'prenom' => $pointePar->getPrenom(),
-                'role'   => $pointePar->getRole(),
+                'role' => $pointePar->getRole(),
             ] : null,
             'poste' => $poste ? [
-                'id'           => $poste->getId(),
-                'heureDebut'   => $poste->getHeureDebut()?->format('H:i'),
-                'heureFin'     => $poste->getHeureFin()?->format('H:i'),
+                'id' => $poste->getId(),
+                'heureDebut' => $poste->getHeureDebut()?->format('H:i'),
+                'heureFin' => $poste->getHeureFin()?->format('H:i'),
                 'pauseMinutes' => $poste->getPauseMinutes(),
-                'zone'         => $poste->getZone() ? [
-                    'id'      => $poste->getZone()->getId(),
-                    'nom'     => $poste->getZone()->getNom(),
+                'zone' => $poste->getZone() ? [
+                    'id' => $poste->getZone()->getId(),
+                    'nom' => $poste->getZone()->getNom(),
                     'couleur' => $poste->getZone()->getCouleur() ?? '#6b7280',
                 ] : null,
             ] : null,

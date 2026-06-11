@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * GET /api/services/list?centreId=X
+ * GET /api/services/list?centreId=X.
  *
  * Retourne la liste enrichie des services d'un centre :
  *  - données de base (date, heures, statut, tauxCompletion, note)
@@ -28,11 +28,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class ServicesListController extends AbstractController
 {
     public function __construct(
-        private readonly ServiceRepository    $serviceRepo,
-        private readonly MissionRepository    $missionRepo,
-        private readonly ZoneRepository       $zoneRepo,
+        private readonly ServiceRepository $serviceRepo,
+        private readonly MissionRepository $missionRepo,
+        private readonly ZoneRepository $zoneRepo,
         private readonly ServiceStatutResolver $statutResolver,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/services/list', name: 'api_services_list', methods: ['GET'], format: 'json', priority: 10)]
     public function __invoke(Request $request): JsonResponse
@@ -63,8 +64,8 @@ class ServicesListController extends AbstractController
 
             // ── Postes groupés par zone ───────────────────────────────────────
             $postesByZone = []; // zoneId → [poste, ...]
-            $staffSeen    = []; // userId → true (dédup)
-            $staffList    = [];
+            $staffSeen = []; // userId → true (dédup)
+            $staffList = [];
 
             foreach ($service->getPostes() as $poste) {
                 $zid = $poste->getZone()->getId();
@@ -75,9 +76,9 @@ class ServicesListController extends AbstractController
                 if ($user && !isset($staffSeen[$user->getId()])) {
                     $staffSeen[$user->getId()] = true;
                     $staffList[] = [
-                        'id'          => $user->getId(),
-                        'nom'         => $user->getNom(),
-                        'prenom'      => $user->getPrenom(),
+                        'id' => $user->getId(),
+                        'nom' => $user->getNom(),
+                        'prenom' => $user->getPrenom(),
                         'avatarColor' => $user->getAvatarColor() ?? '#6b7280',
                     ];
                 }
@@ -89,20 +90,20 @@ class ServicesListController extends AbstractController
             // Pour TERMINE : seulement les zones qui ont eu au moins un poste sur
             // ce service — évite que des zones créées après coup polluent
             // rétroactivement les services passés.
-            $zonesData   = [];
+            $zonesData = [];
             $globalTotal = 0;
-            $globalDone  = 0;
+            $globalDone = 0;
 
             foreach ($allZones as $zone) {
-                $zid    = $zone->getId();
+                $zid = $zone->getId();
                 $postes = $postesByZone[$zid] ?? [];
 
-                if ($statut === 'TERMINE' && count($postes) === 0) {
+                if ('TERMINE' === $statut && 0 === count($postes)) {
                     continue;
                 }
 
                 $missions = $this->missionRepo->findForService($zid, $service->getId());
-                $total    = count($missions);
+                $total = count($missions);
 
                 // Déduplication des completions par missionId
                 $doneMissionIds = [];
@@ -116,22 +117,22 @@ class ServicesListController extends AbstractController
                 $taux = $total > 0 ? round($completed / $total * 100, 1) : 0.0;
 
                 $globalTotal += $total;
-                $globalDone  += $completed;
+                $globalDone += $completed;
 
-                $postesData = array_map(fn($p) => [
-                    'posteId'     => $p->getId(),
-                    'userId'      => $p->getUser()?->getId(),
-                    'nom'         => $p->getUser()?->getNom() ?? '',
-                    'prenom'      => $p->getUser()?->getPrenom(),
+                $postesData = array_map(fn ($p) => [
+                    'posteId' => $p->getId(),
+                    'userId' => $p->getUser()?->getId(),
+                    'nom' => $p->getUser()?->getNom() ?? '',
+                    'prenom' => $p->getUser()?->getPrenom(),
                     'avatarColor' => $p->getUser()?->getAvatarColor() ?? '#6b7280',
                 ], $postes);
 
                 $zonesData[] = [
-                    'id'      => $zone->getId(),
-                    'nom'     => $zone->getNom(),
+                    'id' => $zone->getId(),
+                    'nom' => $zone->getNom(),
                     'couleur' => $zone->getCouleur(),
-                    'taux'    => $taux,
-                    'postes'  => $postesData,
+                    'taux' => $taux,
+                    'postes' => $postesData,
                 ];
             }
 
@@ -139,23 +140,23 @@ class ServicesListController extends AbstractController
             $globalTaux = $globalTotal > 0 ? round($globalDone / $globalTotal * 100, 1) : 0.0;
 
             // Managers du service
-            $managers = array_map(fn(User $m) => [
-                'id'          => $m->getId(),
-                'nom'         => $m->getNom(),
+            $managers = array_map(fn (User $m) => [
+                'id' => $m->getId(),
+                'nom' => $m->getNom(),
                 'avatarColor' => $m->getAvatarColor() ?? '#f97316',
             ], $service->getManagers()->toArray());
 
             $result[] = [
-                'id'             => $service->getId(),
-                'date'           => $service->getDate()?->format('Y-m-d'),
-                'heureDebut'     => $service->getHeureDebut()?->format('H:i'),
-                'heureFin'       => $service->getHeureFin()?->format('H:i'),
-                'statut'         => $statut,
+                'id' => $service->getId(),
+                'date' => $service->getDate()?->format('Y-m-d'),
+                'heureDebut' => $service->getHeureDebut()?->format('H:i'),
+                'heureFin' => $service->getHeureFin()?->format('H:i'),
+                'statut' => $statut,
                 'tauxCompletion' => $globalTaux,
-                'note'           => $service->getNote(),
-                'staff'          => $staffList,
-                'zones'          => $zonesData,
-                'managers'       => $managers,
+                'note' => $service->getNote(),
+                'staff' => $staffList,
+                'zones' => $zonesData,
+                'managers' => $managers,
             ];
         }
 

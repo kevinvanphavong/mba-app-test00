@@ -24,12 +24,18 @@ class TutoReadVoter extends Voter
     {
         /** @var TutoRead $subject */
         $user = $token->getUser();
-        if (!$user instanceof User) return false;
+        if (!$user instanceof User) {
+            return false;
+        }
 
         $sameCentre = $subject->getUser()?->getCentre()?->getId() === $user->getCentre()?->getId();
-        if (!$sameCentre) return false;
+        if (!$sameCentre) {
+            return false;
+        }
 
-        if ($user->getRole() === User::ROLE_MANAGER) return true;
+        if (User::ROLE_MANAGER === $user->getRole()) {
+            return true;
+        }
 
         return $subject->getUser()?->getId() === $user->getId();
     }

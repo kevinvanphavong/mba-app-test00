@@ -12,7 +12,7 @@ namespace App\Exception;
 class DelaiPrevenanceException extends \RuntimeException
 {
     public function __construct(
-        private readonly int $delaiJours
+        private readonly int $delaiJours,
     ) {
         parent::__construct("Délai de prévenance non respecté : {$delaiJours} jour(s) calendaires.");
     }

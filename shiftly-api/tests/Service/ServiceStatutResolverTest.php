@@ -31,7 +31,7 @@ final class ServiceStatutResolverTest extends TestCase
 
     public function testReturnsEnCoursWhenServiceDateIsToday(): void
     {
-        $today   = (new ActiveDayResolver())->getActiveDateString();
+        $today = (new ActiveDayResolver())->getActiveDateString();
         $service = (new Service())
             ->setStatut(Service::STATUT_PLANIFIE)
             ->setDate(new \DateTimeImmutable($today));

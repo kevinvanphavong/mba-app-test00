@@ -10,8 +10,8 @@ use App\Repository\EventLogRepository;
 use App\Repository\IncidentRepository;
 use App\Repository\MissionRepository;
 use App\Repository\ServiceRepository;
-use App\Repository\TutorielRepository;
 use App\Repository\TutoReadRepository;
+use App\Repository\TutorielRepository;
 use App\Repository\UserRepository;
 use App\Service\ServiceStatutResolver;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,20 +25,21 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DashboardController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface  $em,
-        private readonly ServiceRepository       $serviceRepo,
-        private readonly UserRepository          $userRepo,
-        private readonly IncidentRepository      $incidentRepo,
-        private readonly TutorielRepository      $tutorielRepo,
-        private readonly TutoReadRepository      $tutoReadRepo,
-        private readonly CompletionRepository    $completionRepo,
-        private readonly MissionRepository       $missionRepo,
-        private readonly ServiceStatutResolver   $statutResolver,
-        private readonly EventLogRepository      $eventLogRepo,
-    ) {}
+        private readonly EntityManagerInterface $em,
+        private readonly ServiceRepository $serviceRepo,
+        private readonly UserRepository $userRepo,
+        private readonly IncidentRepository $incidentRepo,
+        private readonly TutorielRepository $tutorielRepo,
+        private readonly TutoReadRepository $tutoReadRepo,
+        private readonly CompletionRepository $completionRepo,
+        private readonly MissionRepository $missionRepo,
+        private readonly ServiceStatutResolver $statutResolver,
+        private readonly EventLogRepository $eventLogRepo,
+    ) {
+    }
 
     /**
-     * GET /api/dashboard/{centreId}
+     * GET /api/dashboard/{centreId}.
      *
      * Retourne en une seule requête toutes les données du dashboard :
      *  - service du jour (statut, postes, taux completion corrigé)
@@ -60,12 +61,12 @@ class DashboardController extends AbstractController
         }
 
         return $this->json([
-            'service'    => $this->buildServiceSection($centreId),
-            'staff'      => $this->buildStaffSection($centreId),
-            'incidents'  => $this->buildIncidentsSection($centreId),
-            'topStaff'   => $this->buildTopStaff($centreId),
-            'tutoriels'  => $this->buildTutorielsSection($centreId),
-            'stats'      => $this->buildServicesStats($centreId),
+            'service' => $this->buildServiceSection($centreId),
+            'staff' => $this->buildStaffSection($centreId),
+            'incidents' => $this->buildIncidentsSection($centreId),
+            'topStaff' => $this->buildTopStaff($centreId),
+            'tutoriels' => $this->buildTutorielsSection($centreId),
+            'stats' => $this->buildServicesStats($centreId),
         ]);
     }
 
@@ -82,22 +83,22 @@ class DashboardController extends AbstractController
         $service = $this->serviceRepo->findTodayActive($centreId);
         if (!$service) {
             return [
-                'today'            => null,
-                'tauxCompletion'   => 0.0,
-                'staffActifCount'  => 0,
-                'totalMissions'    => 0,
+                'today' => null,
+                'tauxCompletion' => 0.0,
+                'staffActifCount' => 0,
+                'totalMissions' => 0,
                 'pointsStaffActif' => 0,
             ];
         }
 
         // Grouper les postes par zone + collecter le staff unique
         $postesByZone = []; // zoneId → ['zone' => Zone, 'postes' => [Poste, ...]]
-        $staffSeen    = []; // userId → User (déduplication, ordre d'apparition préservé)
-        $pointsTotal  = 0;
+        $staffSeen = []; // userId → User (déduplication, ordre d'apparition préservé)
+        $pointsTotal = 0;
 
         foreach ($service->getPostes() as $poste) {
             $zone = $poste->getZone();
-            $zid  = $zone->getId();
+            $zid = $zone->getId();
             $postesByZone[$zid] ??= ['zone' => $zone, 'postes' => []];
             $postesByZone[$zid]['postes'][] = $poste;
 
@@ -109,13 +110,13 @@ class DashboardController extends AbstractController
         }
 
         $totalMissions = 0;
-        $doneCount     = 0;
-        $zonesPayload  = [];
+        $doneCount = 0;
+        $zonesPayload = [];
 
         foreach ($postesByZone as $zid => $data) {
             // Missions FIXE + PONCTUELLES (cohérent avec ServiceTodayController)
-            $missions       = $this->missionRepo->findForService($zid, $service->getId());
-            $zoneTotal      = count($missions);
+            $missions = $this->missionRepo->findForService($zid, $service->getId());
+            $zoneTotal = count($missions);
             $totalMissions += $zoneTotal;
 
             // Déduplication des completions par missionId (plusieurs postes même zone)
@@ -130,12 +131,12 @@ class DashboardController extends AbstractController
 
             $zone = $data['zone'];
             $zonesPayload[] = [
-                'id'        => $zone->getId(),
-                'nom'       => $zone->getNom(),
-                'couleur'   => $zone->getCouleur() ?? '#6b7280',
+                'id' => $zone->getId(),
+                'nom' => $zone->getNom(),
+                'couleur' => $zone->getCouleur() ?? '#6b7280',
                 'completed' => $zoneDone,
-                'total'     => $zoneTotal,
-                'pct'       => $zoneTotal > 0 ? round($zoneDone / $zoneTotal * 100, 1) : 0.0,
+                'total' => $zoneTotal,
+                'pct' => $zoneTotal > 0 ? round($zoneDone / $zoneTotal * 100, 1) : 0.0,
             ];
         }
 
@@ -148,28 +149,28 @@ class DashboardController extends AbstractController
 
         return [
             'today' => [
-                'id'         => $service->getId(),
-                'date'       => $service->getDate()?->format('Y-m-d'),
+                'id' => $service->getId(),
+                'date' => $service->getDate()?->format('Y-m-d'),
                 'heureDebut' => $service->getHeureDebut()?->format('H:i'),
-                'heureFin'   => $service->getHeureFin()?->format('H:i'),
-                'statut'     => $this->statutResolver->resolve($service),
-                'nbPostes'   => $service->getPostes()->count(),
-                'zones'      => $zonesPayload,
+                'heureFin' => $service->getHeureFin()?->format('H:i'),
+                'statut' => $this->statutResolver->resolve($service),
+                'nbPostes' => $service->getPostes()->count(),
+                'zones' => $zonesPayload,
                 'managersResponsables' => array_map(static fn (User $u) => [
-                    'id'     => $u->getId(),
-                    'nom'    => $u->getNom(),
+                    'id' => $u->getId(),
+                    'nom' => $u->getNom(),
                     'prenom' => $u->getPrenom(),
                 ], $service->getManagers()->toArray()),
                 'staffEnService' => array_values(array_map(static fn (User $u) => [
-                    'id'          => $u->getId(),
-                    'nom'         => $u->getNom(),
-                    'prenom'      => $u->getPrenom(),
+                    'id' => $u->getId(),
+                    'nom' => $u->getNom(),
+                    'prenom' => $u->getPrenom(),
                     'avatarColor' => $u->getAvatarColor() ?? '#6b7280',
                 ], $staffSeen)),
             ],
-            'tauxCompletion'   => $taux,
-            'staffActifCount'  => $this->userRepo->countActifByCentre($centreId),
-            'totalMissions'    => $totalMissions,
+            'tauxCompletion' => $taux,
+            'staffActifCount' => $this->userRepo->countActifByCentre($centreId),
+            'totalMissions' => $totalMissions,
             'pointsStaffActif' => $pointsTotal,
         ];
     }
@@ -195,13 +196,13 @@ class DashboardController extends AbstractController
         $staff = $this->userRepo->findByCentre($centreId);
 
         return [
-            'members' => array_map(fn(User $u) => [
-                'id'          => $u->getId(),
-                'nom'         => $u->getNom(),
-                'prenom'      => $u->getPrenom(),
-                'role'        => $u->getRole(),
+            'members' => array_map(fn (User $u) => [
+                'id' => $u->getId(),
+                'nom' => $u->getNom(),
+                'prenom' => $u->getPrenom(),
+                'role' => $u->getRole(),
                 'avatarColor' => $u->getAvatarColor(),
-                'points'      => $u->getPoints(),
+                'points' => $u->getPoints(),
             ], $staff),
             'nouveauxCeMois' => $this->countNouveauxCeMois($centreId),
         ];
@@ -213,7 +214,7 @@ class DashboardController extends AbstractController
      */
     private function buildIncidentsSection(int $centreId): array
     {
-        $open  = $this->incidentRepo->findOpenByCentre($centreId);
+        $open = $this->incidentRepo->findOpenByCentre($centreId);
         $bySev = $this->incidentRepo->countBySeverite($centreId);
 
         $sevMap = [];
@@ -222,35 +223,36 @@ class DashboardController extends AbstractController
         }
 
         return [
-            'total'   => count($open),
-            'haute'   => $sevMap[Incident::SEV_HAUTE]   ?? 0,
-            'moyenne' => $sevMap[Incident::SEV_MOYENNE]  ?? 0,
-            'basse'   => $sevMap[Incident::SEV_BASSE]    ?? 0,
+            'total' => count($open),
+            'haute' => $sevMap[Incident::SEV_HAUTE] ?? 0,
+            'moyenne' => $sevMap[Incident::SEV_MOYENNE] ?? 0,
+            'basse' => $sevMap[Incident::SEV_BASSE] ?? 0,
             'alertes' => array_map(function (Incident $i) {
                 $creePar = $i->getUser();
-                $zone    = $i->getZone();
+                $zone = $i->getZone();
+
                 return [
-                    'id'        => $i->getId(),
-                    'titre'     => $i->getTitre(),
-                    'severite'  => $i->getSeverite(),
-                    'statut'    => $i->getStatut(),
-                    'service'   => $i->getService()?->getId(),
-                    'zone'      => $zone ? [
-                        'id'      => $zone->getId(),
-                        'nom'     => $zone->getNom(),
+                    'id' => $i->getId(),
+                    'titre' => $i->getTitre(),
+                    'severite' => $i->getSeverite(),
+                    'statut' => $i->getStatut(),
+                    'service' => $i->getService()?->getId(),
+                    'zone' => $zone ? [
+                        'id' => $zone->getId(),
+                        'nom' => $zone->getNom(),
                         'couleur' => $zone->getCouleur(),
                     ] : null,
                     'createdAt' => $i->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-                    'creePar'   => $creePar ? [
-                        'id'          => $creePar->getId(),
-                        'nom'         => $creePar->getNom(),
-                        'prenom'      => $creePar->getPrenom(),
+                    'creePar' => $creePar ? [
+                        'id' => $creePar->getId(),
+                        'nom' => $creePar->getNom(),
+                        'prenom' => $creePar->getPrenom(),
                         'avatarColor' => $creePar->getAvatarColor() ?? '#6b7280',
                     ] : null,
-                    'staffImpliques' => array_map(fn(User $u) => [
-                        'id'          => $u->getId(),
-                        'nom'         => $u->getNom(),
-                        'prenom'      => $u->getPrenom(),
+                    'staffImpliques' => array_map(fn (User $u) => [
+                        'id' => $u->getId(),
+                        'nom' => $u->getNom(),
+                        'prenom' => $u->getPrenom(),
                         'avatarColor' => $u->getAvatarColor() ?? '#6b7280',
                     ], $i->getStaffImpliques()->toArray()),
                 ];
@@ -263,22 +265,22 @@ class DashboardController extends AbstractController
     {
         $leaders = $this->userRepo->findLeaderboard($centreId);
 
-        return array_map(fn(User $u) => [
-            'id'          => $u->getId(),
-            'nom'         => $u->getNom(),
-            'prenom'      => $u->getPrenom(),
-            'role'        => $u->getRole(),
+        return array_map(fn (User $u) => [
+            'id' => $u->getId(),
+            'nom' => $u->getNom(),
+            'prenom' => $u->getPrenom(),
+            'role' => $u->getRole(),
             'avatarColor' => $u->getAvatarColor(),
-            'points'      => $u->getPoints(),
+            'points' => $u->getPoints(),
         ], array_slice($leaders, 0, $limit));
     }
 
     private function buildTutorielsSection(int $centreId): array
     {
         $tutoriels = $this->tutorielRepo->findByCentre($centreId);
-        $total     = count($tutoriels);
+        $total = count($tutoriels);
 
-        if ($total === 0) {
+        if (0 === $total) {
             return ['total' => 0, 'tauxLecture' => 0.0];
         }
 
@@ -289,12 +291,12 @@ class DashboardController extends AbstractController
              WHERE t.centre = :centreId'
         )->setParameter('centreId', $centreId)->getSingleScalarResult();
 
-        $staffCount  = count($this->userRepo->findByCentre($centreId));
+        $staffCount = count($this->userRepo->findByCentre($centreId));
         $maxLectures = $total * max(1, $staffCount);
 
         return [
-            'total'       => $total,
-            'lectures'    => $lecturesCount,
+            'total' => $total,
+            'lectures' => $lecturesCount,
             'tauxLecture' => round($lecturesCount / $maxLectures * 100, 1),
         ];
     }
@@ -321,10 +323,10 @@ class DashboardController extends AbstractController
             }
 
             $totalM = 0;
-            $doneM  = 0;
+            $doneM = 0;
             foreach ($postesByZone as $zid => $data) {
                 $missions = $this->missionRepo->findForService($zid, $service->getId());
-                $totalM  += count($missions);
+                $totalM += count($missions);
                 $done = [];
                 foreach ($data['postes'] as $poste) {
                     foreach ($poste->getCompletions() as $c) {
@@ -341,7 +343,7 @@ class DashboardController extends AbstractController
 
         return [
             'moyenneCompletion' => round($cumul / $nbServices, 1),
-            'totalServices'     => $nbServices,
+            'totalServices' => $nbServices,
         ];
     }
 
@@ -349,7 +351,7 @@ class DashboardController extends AbstractController
 
     /**
      * GET /api/dashboard/completion-history?period=7d|30d|90d
-     *   ou  ?from=YYYY-MM-DD&to=YYYY-MM-DD
+     *   ou  ?from=YYYY-MM-DD&to=YYYY-MM-DD.
      *
      * Renvoie les agrégats EventLog sur la période demandée.
      * MANAGER uniquement — pas de fallback employé.
@@ -373,7 +375,7 @@ class DashboardController extends AbstractController
         $payload = [
             'periode' => [
                 'from' => $from->format('Y-m-d'),
-                'to'   => $to->format('Y-m-d'),
+                'to' => $to->format('Y-m-d'),
             ],
             ...$data,
         ];
@@ -381,6 +383,7 @@ class DashboardController extends AbstractController
         $response = $this->json($payload);
         $response->setPrivate();
         $response->setMaxAge(60); // Cache-Control: private, max-age=60
+
         return $response;
     }
 
@@ -404,10 +407,11 @@ class DashboardController extends AbstractController
 
         $response = $this->json([
             'serviceId' => $serviceId,
-            'events'    => $events,
+            'events' => $events,
         ]);
         $response->setPrivate();
         $response->setMaxAge(60);
+
         return $response;
     }
 
@@ -416,11 +420,11 @@ class DashboardController extends AbstractController
     {
         $tz = new \DateTimeZone('Europe/Paris');
         $from = $request->query->get('from');
-        $to   = $request->query->get('to');
+        $to = $request->query->get('to');
 
-        if (is_string($from) && is_string($to) && $from !== '' && $to !== '') {
+        if (is_string($from) && is_string($to) && '' !== $from && '' !== $to) {
             $fromDt = \DateTimeImmutable::createFromFormat('!Y-m-d', $from, $tz);
-            $toDt   = \DateTimeImmutable::createFromFormat('!Y-m-d', $to,   $tz);
+            $toDt = \DateTimeImmutable::createFromFormat('!Y-m-d', $to, $tz);
             if ($fromDt && $toDt) {
                 return [$fromDt->setTime(0, 0, 0), $toDt->setTime(23, 59, 59)];
             }
@@ -428,12 +432,13 @@ class DashboardController extends AbstractController
 
         $period = $request->query->get('period', '30d');
         $days = match ($period) {
-            '7d'  => 7,
+            '7d' => 7,
             '90d' => 90,
             default => 30,
         };
-        $now  = new \DateTimeImmutable('now', $tz);
+        $now = new \DateTimeImmutable('now', $tz);
         $fromDt = $now->modify("-{$days} days")->setTime(0, 0, 0);
+
         return [$fromDt, $now];
     }
 }

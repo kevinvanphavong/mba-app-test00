@@ -38,12 +38,16 @@ final class CentreHaccpSeedListener
         ['Réception fournisseur',              MissionHaccpSpec::TYPE_RECEPTION, true],
     ];
 
-    public function __construct(private readonly HaccpMissionGenerator $generator) {}
+    public function __construct(private readonly HaccpMissionGenerator $generator)
+    {
+    }
 
     public function postPersist(PostPersistEventArgs $args): void
     {
         $entity = $args->getObject();
-        if (!$entity instanceof Centre) return;
+        if (!$entity instanceof Centre) {
+            return;
+        }
 
         $em = $args->getObjectManager();
 

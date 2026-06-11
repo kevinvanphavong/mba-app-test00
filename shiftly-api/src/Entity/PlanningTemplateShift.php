@@ -49,21 +49,104 @@ class PlanningTemplateShift
     #[ORM\Column(type: 'string', length: 500, nullable: true)]
     private ?string $note = null;
 
-    public function getId(): ?int { return $this->id; }
-    public function getTemplate(): ?PlanningTemplate { return $this->template; }
-    public function setTemplate(?PlanningTemplate $t): static { $this->template = $t; return $this; }
-    public function getZone(): ?Zone { return $this->zone; }
-    public function setZone(?Zone $z): static { $this->zone = $z; return $this; }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $u): static { $this->user = $u; return $this; }
-    public function getDayOfWeek(): int { return $this->dayOfWeek; }
-    public function setDayOfWeek(int $d): static { $this->dayOfWeek = $d; return $this; }
-    public function getHeureDebut(): ?\DateTimeImmutable { return $this->heureDebut; }
-    public function setHeureDebut(?\DateTimeImmutable $h): static { $this->heureDebut = $h; return $this; }
-    public function getHeureFin(): ?\DateTimeImmutable { return $this->heureFin; }
-    public function setHeureFin(?\DateTimeImmutable $h): static { $this->heureFin = $h; return $this; }
-    public function getPauseMinutes(): int { return $this->pauseMinutes; }
-    public function setPauseMinutes(int $m): static { $this->pauseMinutes = $m; return $this; }
-    public function getNote(): ?string { return $this->note; }
-    public function setNote(?string $n): static { $this->note = $n; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTemplate(): ?PlanningTemplate
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(?PlanningTemplate $t): static
+    {
+        $this->template = $t;
+
+        return $this;
+    }
+
+    public function getZone(): ?Zone
+    {
+        return $this->zone;
+    }
+
+    public function setZone(?Zone $z): static
+    {
+        $this->zone = $z;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $u): static
+    {
+        $this->user = $u;
+
+        return $this;
+    }
+
+    public function getDayOfWeek(): int
+    {
+        return $this->dayOfWeek;
+    }
+
+    public function setDayOfWeek(int $d): static
+    {
+        $this->dayOfWeek = $d;
+
+        return $this;
+    }
+
+    public function getHeureDebut(): ?\DateTimeImmutable
+    {
+        return $this->heureDebut;
+    }
+
+    public function setHeureDebut(?\DateTimeImmutable $h): static
+    {
+        $this->heureDebut = $h;
+
+        return $this;
+    }
+
+    public function getHeureFin(): ?\DateTimeImmutable
+    {
+        return $this->heureFin;
+    }
+
+    public function setHeureFin(?\DateTimeImmutable $h): static
+    {
+        $this->heureFin = $h;
+
+        return $this;
+    }
+
+    public function getPauseMinutes(): int
+    {
+        return $this->pauseMinutes;
+    }
+
+    public function setPauseMinutes(int $m): static
+    {
+        $this->pauseMinutes = $m;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $n): static
+    {
+        $this->note = $n;
+
+        return $this;
+    }
 }

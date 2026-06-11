@@ -20,7 +20,8 @@ class PlanningGuardService
     public function __construct(
         private readonly ServiceRepository $serviceRepository,
         private readonly ActiveDayResolver $activeDayResolver,
-    ) {}
+    ) {
+    }
 
     /**
      * Date la plus ancienne autorisée pour créer/modifier un service —
@@ -37,16 +38,13 @@ class PlanningGuardService
      */
     public function assertDateNotInPast(\DateTimeInterface $date): void
     {
-        $min  = $this->getMinAllowedDate();
-        $cmp  = $date instanceof \DateTimeImmutable
+        $min = $this->getMinAllowedDate();
+        $cmp = $date instanceof \DateTimeImmutable
             ? $date->setTime(0, 0, 0)
             : \DateTimeImmutable::createFromInterface($date)->setTime(0, 0, 0);
 
         if ($cmp < $min) {
-            throw new BadRequestHttpException(sprintf(
-                'Impossible de créer ou modifier un service à une date antérieure au service du jour (%s).',
-                $min->format('d/m/Y')
-            ));
+            throw new BadRequestHttpException(sprintf('Impossible de créer ou modifier un service à une date antérieure au service du jour (%s).', $min->format('d/m/Y')));
         }
     }
 }

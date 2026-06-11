@@ -34,19 +34,20 @@ class CreateIncidentController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/incidents/create', name: 'api_incident_create', methods: ['POST'], format: 'json')]
     public function create(Request $request): JsonResponse
     {
         $body = json_decode($request->getContent(), true);
 
-        $titre     = trim((string) ($body['titre']     ?? ''));
-        $severite  = (string) ($body['severite']  ?? Incident::SEV_BASSE);
-        $centreId  = (int)    ($body['centreId']  ?? 0);
+        $titre = trim((string) ($body['titre'] ?? ''));
+        $severite = (string) ($body['severite'] ?? Incident::SEV_BASSE);
+        $centreId = (int) ($body['centreId'] ?? 0);
         $serviceId = isset($body['serviceId']) ? (int) $body['serviceId'] : null;
-        $zoneId    = isset($body['zoneId'])    ? (int) $body['zoneId']    : null;
-        $staffIds  = isset($body['staffIds'])  ? array_map('intval', (array) $body['staffIds']) : [];
+        $zoneId = isset($body['zoneId']) ? (int) $body['zoneId'] : null;
+        $staffIds = isset($body['staffIds']) ? array_map('intval', (array) $body['staffIds']) : [];
 
         if (!$titre) {
             throw new BadRequestHttpException('titre est requis.');
@@ -101,10 +102,10 @@ class CreateIncidentController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'        => $incident->getId(),
-            'titre'     => $incident->getTitre(),
-            'severite'  => $incident->getSeverite(),
-            'statut'    => $incident->getStatut(),
+            'id' => $incident->getId(),
+            'titre' => $incident->getTitre(),
+            'severite' => $incident->getSeverite(),
+            'statut' => $incident->getStatut(),
             'createdAt' => $incident->getCreatedAt()?->format(\DateTimeInterface::ATOM),
         ], 201);
     }

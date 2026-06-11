@@ -18,10 +18,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SuperAdminLeadController extends AbstractController
 {
     public function __construct(
-        private readonly LeadRepository          $leadRepo,
-        private readonly EntityManagerInterface  $em,
-        private readonly AuditLogService         $auditLog,
-    ) {}
+        private readonly LeadRepository $leadRepo,
+        private readonly EntityManagerInterface $em,
+        private readonly AuditLogService $auditLog,
+    ) {
+    }
 
     #[Route('/api/superadmin/leads/stats', methods: ['GET'])]
     public function stats(): JsonResponse
@@ -38,14 +39,14 @@ class SuperAdminLeadController extends AbstractController
         $totalThisMonth = $this->leadRepo->countCreatedSince($monthStart);
         $converted = $this->leadRepo->countByStatus(Lead::STATUS_CONVERTI);
         $totalAll = $this->em->createQuery('SELECT COUNT(l.id) FROM App\\Entity\\Lead l')->getSingleScalarResult();
-        $tauxConversion = $totalAll > 0 ? round(($converted / (int)$totalAll) * 100) : 0;
+        $tauxConversion = $totalAll > 0 ? round(($converted / (int) $totalAll) * 100) : 0;
 
         return $this->json([
-            'nouveaux'             => $this->leadRepo->countByStatus(Lead::STATUS_NOUVEAU),
-            'nouveauxCeMois'       => $totalThisMonth,
-            'tauxConversion'       => $tauxConversion,
+            'nouveaux' => $this->leadRepo->countByStatus(Lead::STATUS_NOUVEAU),
+            'nouveauxCeMois' => $totalThisMonth,
+            'tauxConversion' => $tauxConversion,
             'leadsNonTraitesVieux' => $this->leadRepo->countUnhandledOlderThan($oldThreshold),
-            'mrrPotentielEur'      => $mrrPotentiel,
+            'mrrPotentielEur' => $mrrPotentiel,
         ]);
     }
 
@@ -60,15 +61,15 @@ class SuperAdminLeadController extends AbstractController
         $result = $this->leadRepo->findFilteredForSuperAdmin([
             'status' => $request->query->get('status'),
             'intent' => $request->query->get('intent'),
-            'plan'   => $request->query->get('plan'),
-            'q'      => $request->query->get('q'),
+            'plan' => $request->query->get('plan'),
+            'q' => $request->query->get('q'),
         ], $page, $perPage);
 
         return $this->json([
-            'items'      => array_map([$this, 'serializeSummary'], $result['items']),
-            'total'      => $result['total'],
-            'page'       => $page,
-            'perPage'    => $perPage,
+            'items' => array_map([$this, 'serializeSummary'], $result['items']),
+            'total' => $result['total'],
+            'page' => $page,
+            'perPage' => $perPage,
             'totalPages' => max(1, (int) ceil($result['total'] / $perPage)),
         ]);
     }
@@ -77,7 +78,9 @@ class SuperAdminLeadController extends AbstractController
     public function detail(int $id): JsonResponse
     {
         $lead = $this->leadRepo->find($id);
-        if (!$lead) return $this->json(['message' => 'Lead introuvable'], 404);
+        if (!$lead) {
+            return $this->json(['message' => 'Lead introuvable'], 404);
+        }
 
         $this->denyAccessUnlessGranted(LeadVoter::VIEW, $lead);
 
@@ -88,7 +91,9 @@ class SuperAdminLeadController extends AbstractController
     public function update(int $id, Request $request): JsonResponse
     {
         $lead = $this->leadRepo->find($id);
-        if (!$lead) return $this->json(['message' => 'Lead introuvable'], 404);
+        if (!$lead) {
+            return $this->json(['message' => 'Lead introuvable'], 404);
+        }
 
         $this->denyAccessUnlessGranted(LeadVoter::EDIT, $lead);
 
@@ -112,7 +117,7 @@ class SuperAdminLeadController extends AbstractController
             $lead->setStatus($newStatus);
 
             // Premier passage hors "nouveau" → on horodate handledBy/handledAt
-            if ($previous === Lead::STATUS_NOUVEAU && $newStatus !== Lead::STATUS_NOUVEAU && $lead->getHandledBy() === null) {
+            if (Lead::STATUS_NOUVEAU === $previous && Lead::STATUS_NOUVEAU !== $newStatus && null === $lead->getHandledBy()) {
                 $lead->setHandledBy($currentUser);
                 $lead->setHandledAt(new \DateTimeImmutable());
             }
@@ -122,7 +127,7 @@ class SuperAdminLeadController extends AbstractController
 
         if (array_key_exists('notes', $data)) {
             $notes = $data['notes'];
-            $lead->setNotes($notes === null ? null : mb_substr((string)$notes, 0, 20000));
+            $lead->setNotes(null === $notes ? null : mb_substr((string) $notes, 0, 20000));
             $this->auditLog->log($currentUser, 'LEAD_NOTES', 'lead', $lead->getId(), [], $request);
         }
 
@@ -135,22 +140,22 @@ class SuperAdminLeadController extends AbstractController
     private function serializeSummary(Lead $l): array
     {
         return [
-            'id'        => $l->getId(),
-            'intent'    => $l->getIntent(),
-            'plan'      => $l->getPlan(),
-            'name'      => $l->getName(),
-            'email'     => $l->getEmail(),
-            'phone'     => $l->getPhone(),
-            'centre'    => $l->getCentre(),
-            'city'      => $l->getCity(),
-            'zip'       => $l->getZip(),
-            'activity'  => $l->getActivity(),
-            'status'    => $l->getStatus(),
+            'id' => $l->getId(),
+            'intent' => $l->getIntent(),
+            'plan' => $l->getPlan(),
+            'name' => $l->getName(),
+            'email' => $l->getEmail(),
+            'phone' => $l->getPhone(),
+            'centre' => $l->getCentre(),
+            'city' => $l->getCity(),
+            'zip' => $l->getZip(),
+            'activity' => $l->getActivity(),
+            'status' => $l->getStatus(),
             'createdAt' => $l->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             'handledBy' => $l->getHandledBy() ? [
-                'id'    => $l->getHandledBy()->getId(),
-                'nom'   => $l->getHandledBy()->getNom(),
-                'prenom'=> $l->getHandledBy()->getPrenom(),
+                'id' => $l->getHandledBy()->getId(),
+                'nom' => $l->getHandledBy()->getNom(),
+                'prenom' => $l->getHandledBy()->getPrenom(),
             ] : null,
             'handledAt' => $l->getHandledAt()?->format(\DateTimeInterface::ATOM),
         ];
@@ -161,16 +166,16 @@ class SuperAdminLeadController extends AbstractController
     {
         return [
             ...$this->serializeSummary($l),
-            'staffSize'      => $l->getStaffSize(),
-            'preferredSlot'  => $l->getPreferredSlot(),
-            'channel'        => $l->getChannel(),
-            'customNeeds'    => $l->getCustomNeeds(),
-            'message'        => $l->getMessage(),
-            'consent'        => $l->getConsent(),
-            'consentAt'      => $l->getConsentAt()?->format(\DateTimeInterface::ATOM),
-            'source'         => $l->getSource(),
-            'notes'          => $l->getNotes(),
-            'updatedAt'      => $l->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
+            'staffSize' => $l->getStaffSize(),
+            'preferredSlot' => $l->getPreferredSlot(),
+            'channel' => $l->getChannel(),
+            'customNeeds' => $l->getCustomNeeds(),
+            'message' => $l->getMessage(),
+            'consent' => $l->getConsent(),
+            'consentAt' => $l->getConsentAt()?->format(\DateTimeInterface::ATOM),
+            'source' => $l->getSource(),
+            'notes' => $l->getNotes(),
+            'updatedAt' => $l->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
         ];
     }
 
@@ -179,9 +184,9 @@ class SuperAdminLeadController extends AbstractController
     {
         return match ($plan) {
             Lead::PLAN_STARTER => 49,
-            Lead::PLAN_PRO     => 99,
+            Lead::PLAN_PRO => 99,
             Lead::PLAN_PREMIUM => 199,
-            default            => 0,
+            default => 0,
         };
     }
 }

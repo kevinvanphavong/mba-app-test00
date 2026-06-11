@@ -9,7 +9,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -18,20 +17,21 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SuperAdminUsersController extends AbstractController
 {
     public function __construct(
-        private readonly UserRepository               $userRepo,
-        private readonly EntityManagerInterface       $em,
-        private readonly AuditLogService              $auditLog,
-        private readonly UserPasswordHasherInterface  $hasher,
-    ) {}
+        private readonly UserRepository $userRepo,
+        private readonly EntityManagerInterface $em,
+        private readonly AuditLogService $auditLog,
+        private readonly UserPasswordHasherInterface $hasher,
+    ) {
+    }
 
     #[Route('/api/superadmin/users', methods: ['GET'])]
     public function list(Request $request): JsonResponse
     {
-        $search  = $request->query->get('search', '');
-        $role    = $request->query->get('role', '');
-        $centre  = $request->query->get('centre', '');
-        $statut  = $request->query->get('statut', '');
-        $sort    = $request->query->get('sort', 'lastLogin');
+        $search = $request->query->get('search', '');
+        $role = $request->query->get('role', '');
+        $centre = $request->query->get('centre', '');
+        $statut = $request->query->get('statut', '');
+        $sort = $request->query->get('sort', 'lastLogin');
 
         $qb = $this->userRepo->createQueryBuilder('u')
             ->leftJoin('u.centre', 'c')->addSelect('c');
@@ -46,27 +46,28 @@ class SuperAdminUsersController extends AbstractController
         if ($centre) {
             $qb->andWhere('c.id = :cid')->setParameter('cid', $centre);
         }
-        if ($statut === 'actif') {
+        if ('actif' === $statut) {
             $qb->andWhere('u.actif = true');
-            if ($sort !== 'lastLogin') {
+            if ('lastLogin' !== $sort) {
                 $qb->andWhere('u.lastLoginAt IS NULL OR u.lastLoginAt >= :d7')
                    ->setParameter('d7', new \DateTimeImmutable('-7 days'));
             }
-        } elseif ($statut === 'inactif') {
+        } elseif ('inactif' === $statut) {
             $qb->andWhere('u.actif = false OR u.lastLoginAt < :d30')
                ->setParameter('d30', new \DateTimeImmutable('-30 days'));
         }
 
         match ($sort) {
-            'lastLogin'  => $qb->orderBy('u.lastLoginAt', 'DESC'),
-            'joinDate'   => $qb->orderBy('u.createdAt', 'DESC'),
-            'name'       => $qb->orderBy('u.nom', 'ASC'),
-            default      => $qb->orderBy('u.lastLoginAt', 'DESC'),
+            'lastLogin' => $qb->orderBy('u.lastLoginAt', 'DESC'),
+            'joinDate' => $qb->orderBy('u.createdAt', 'DESC'),
+            'name' => $qb->orderBy('u.nom', 'ASC'),
+            default => $qb->orderBy('u.lastLoginAt', 'DESC'),
         };
 
         $users = $qb->getQuery()->getResult();
 
-        $data = array_map(fn(User $u) => $this->serializeUser($u), $users);
+        $data = array_map(fn (User $u) => $this->serializeUser($u), $users);
+
         return $this->json($data);
     }
 
@@ -74,20 +75,20 @@ class SuperAdminUsersController extends AbstractController
     public function stats(): JsonResponse
     {
         $all = $this->userRepo->findAll();
-        $total     = count($all);
-        $managers  = count(array_filter($all, fn(User $u) => $u->getRole() === User::ROLE_MANAGER));
-        $employes  = count(array_filter($all, fn(User $u) => $u->getRole() === User::ROLE_EMPLOYE));
+        $total = count($all);
+        $managers = count(array_filter($all, fn (User $u) => User::ROLE_MANAGER === $u->getRole()));
+        $employes = count(array_filter($all, fn (User $u) => User::ROLE_EMPLOYE === $u->getRole()));
         $d7 = new \DateTimeImmutable('-7 days');
         $d30 = new \DateTimeImmutable('-30 days');
-        $actifs7j    = count(array_filter($all, fn(User $u) => $u->getLastLoginAt() !== null && $u->getLastLoginAt() >= $d7));
-        $inactifs30j = count(array_filter($all, fn(User $u) => $u->getLastLoginAt() === null || $u->getLastLoginAt() < $d30));
+        $actifs7j = count(array_filter($all, fn (User $u) => null !== $u->getLastLoginAt() && $u->getLastLoginAt() >= $d7));
+        $inactifs30j = count(array_filter($all, fn (User $u) => null === $u->getLastLoginAt() || $u->getLastLoginAt() < $d30));
 
         return $this->json([
-            'total'        => $total,
-            'managers'     => $managers,
-            'employes'     => $employes,
-            'actifs7j'     => $actifs7j,
-            'inactifs30j'  => $inactifs30j,
+            'total' => $total,
+            'managers' => $managers,
+            'employes' => $employes,
+            'actifs7j' => $actifs7j,
+            'inactifs30j' => $inactifs30j,
         ]);
     }
 
@@ -102,12 +103,12 @@ class SuperAdminUsersController extends AbstractController
         return $this->json([
             ...$this->serializeUser($user),
             'centreDetail' => $user->getCentre() ? [
-                'id'  => $user->getCentre()->getId(),
+                'id' => $user->getCentre()->getId(),
                 'nom' => $user->getCentre()->getNom(),
             ] : null,
             'codePointage' => $user->getCodePointage(),
-            'heuresHebdo'  => $user->getHeuresHebdo(),
-            'typeContrat'  => $user->getTypeContrat(),
+            'heuresHebdo' => $user->getHeuresHebdo(),
+            'typeContrat' => $user->getTypeContrat(),
         ]);
     }
 
@@ -115,7 +116,9 @@ class SuperAdminUsersController extends AbstractController
     public function resetPassword(int $id, Request $request): JsonResponse
     {
         $user = $this->userRepo->find($id);
-        if (!$user) return $this->json(['message' => 'Utilisateur introuvable'], 404);
+        if (!$user) {
+            return $this->json(['message' => 'Utilisateur introuvable'], 404);
+        }
 
         $newPassword = bin2hex(random_bytes(5)); // 10 chars hex
         $user->setPassword($this->hasher->hashPassword($user, $newPassword));
@@ -142,7 +145,9 @@ class SuperAdminUsersController extends AbstractController
     private function toggleActif(int $id, bool $actif, Request $request): JsonResponse
     {
         $user = $this->userRepo->find($id);
-        if (!$user) return $this->json(['message' => 'Utilisateur introuvable'], 404);
+        if (!$user) {
+            return $this->json(['message' => 'Utilisateur introuvable'], 404);
+        }
 
         $user->setActif($actif);
         $this->em->flush();
@@ -157,18 +162,18 @@ class SuperAdminUsersController extends AbstractController
     private function serializeUser(User $u): array
     {
         return [
-            'id'          => $u->getId(),
-            'nom'         => $u->getNom(),
-            'prenom'      => $u->getPrenom(),
-            'email'       => $u->getEmail(),
-            'role'        => $u->getRole(),
-            'actif'       => $u->isActif(),
+            'id' => $u->getId(),
+            'nom' => $u->getNom(),
+            'prenom' => $u->getPrenom(),
+            'email' => $u->getEmail(),
+            'role' => $u->getRole(),
+            'actif' => $u->isActif(),
             'avatarColor' => $u->getAvatarColor(),
-            'points'      => $u->getPoints(),
-            'createdAt'   => $u->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'points' => $u->getPoints(),
+            'createdAt' => $u->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             'lastLoginAt' => $u->getLastLoginAt()?->format(\DateTimeInterface::ATOM),
-            'centre'      => $u->getCentre() ? [
-                'id'  => $u->getCentre()->getId(),
+            'centre' => $u->getCentre() ? [
+                'id' => $u->getCentre()->getId(),
                 'nom' => $u->getCentre()->getNom(),
             ] : null,
         ];

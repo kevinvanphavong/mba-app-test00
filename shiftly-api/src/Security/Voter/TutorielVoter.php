@@ -14,7 +14,7 @@ class TutorielVoter extends AbstractCentreVoter
 
     protected function getCentreId(mixed $subject): ?int
     {
-        /** @var Tutoriel $subject */
+        /* @var Tutoriel $subject */
         return $subject->getCentre()?->getId();
     }
 }

@@ -82,6 +82,7 @@ class SupportTicketRepository extends ServiceEntityRepository
     public function countResolusCetteSemaine(): int
     {
         $weekStart = new \DateTimeImmutable('monday this week');
+
         return (int) $this->createQueryBuilder('t')
             ->select('COUNT(t.id)')
             ->andWhere('t.statut = :r')

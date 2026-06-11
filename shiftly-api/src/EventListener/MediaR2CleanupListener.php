@@ -25,7 +25,8 @@ class MediaR2CleanupListener
 {
     public function __construct(
         private readonly R2StorageService $r2,
-    ) {}
+    ) {
+    }
 
     public function preRemove(Media $media): void
     {

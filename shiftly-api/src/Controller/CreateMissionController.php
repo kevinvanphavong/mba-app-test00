@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Mission;
 use App\Entity\Service;
-use App\Entity\Zone;
 use App\Entity\User;
+use App\Entity\Zone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,21 +34,22 @@ class CreateMissionController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
 
     #[Route('/api/missions/create', name: 'api_mission_create', methods: ['POST'], format: 'json')]
     public function create(Request $request): JsonResponse
     {
         $body = json_decode($request->getContent(), true);
 
-        $texte         = trim((string) ($body['texte']     ?? ''));
-        $categorie     = (string) ($body['categorie'] ?? Mission::CAT_PENDANT);
-        $frequence     = (string) ($body['frequence'] ?? Mission::FREQ_FIXE);
-        $priorite      = (string) ($body['priorite']  ?? Mission::PRIO_NE_PAS_OUBLIER);
-        $ordre         = (int)    ($body['ordre']     ?? 0);
-        $zoneId        = (int)    ($body['zoneId']    ?? 0);
-        $serviceId     = isset($body['serviceId']) ? (int) $body['serviceId'] : null;
-        $requiresPhoto = (bool)   ($body['requiresPhoto'] ?? false);
+        $texte = trim((string) ($body['texte'] ?? ''));
+        $categorie = (string) ($body['categorie'] ?? Mission::CAT_PENDANT);
+        $frequence = (string) ($body['frequence'] ?? Mission::FREQ_FIXE);
+        $priorite = (string) ($body['priorite'] ?? Mission::PRIO_NE_PAS_OUBLIER);
+        $ordre = (int) ($body['ordre'] ?? 0);
+        $zoneId = (int) ($body['zoneId'] ?? 0);
+        $serviceId = isset($body['serviceId']) ? (int) $body['serviceId'] : null;
+        $requiresPhoto = (bool) ($body['requiresPhoto'] ?? false);
 
         if (!$texte) {
             throw new BadRequestHttpException('texte est requis.');
@@ -79,7 +80,7 @@ class CreateMissionController extends AbstractController
         $mission->setRequiresPhoto($requiresPhoto);
 
         // Mission ponctuelle — rattachée à un service
-        if ($frequence === Mission::FREQ_PONCTUELLE && $serviceId) {
+        if (Mission::FREQ_PONCTUELLE === $frequence && $serviceId) {
             $service = $this->em->find(Service::class, $serviceId);
             if ($service) {
                 $mission->setService($service);
@@ -90,12 +91,12 @@ class CreateMissionController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'            => $mission->getId(),
-            'texte'         => $mission->getTexte(),
-            'categorie'     => $mission->getCategorie(),
-            'frequence'     => $mission->getFrequence(),
-            'priorite'      => $mission->getPriorite(),
-            'ordre'         => $mission->getOrdre(),
+            'id' => $mission->getId(),
+            'texte' => $mission->getTexte(),
+            'categorie' => $mission->getCategorie(),
+            'frequence' => $mission->getFrequence(),
+            'priorite' => $mission->getPriorite(),
+            'ordre' => $mission->getOrdre(),
             'requiresPhoto' => $mission->getRequiresPhoto(),
         ], 201);
     }

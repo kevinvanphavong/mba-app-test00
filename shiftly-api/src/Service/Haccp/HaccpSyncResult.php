@@ -9,13 +9,14 @@ final class HaccpSyncResult
         public int $archivees = 0,
         public int $reactivees = 0,
         public int $inchangees = 0,
-    ) {}
+    ) {
+    }
 
     public function toArray(): array
     {
         return [
-            'creees'     => $this->creees,
-            'archivees'  => $this->archivees,
+            'creees' => $this->creees,
+            'archivees' => $this->archivees,
             'reactivees' => $this->reactivees,
             'inchangees' => $this->inchangees,
         ];

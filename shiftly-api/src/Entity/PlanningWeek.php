@@ -13,8 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\UniqueConstraint(name: 'uniq_pw_centre_week', columns: ['centre_id', 'week_start'])]
 class PlanningWeek
 {
-    const STATUT_BROUILLON = 'BROUILLON';
-    const STATUT_PUBLIE    = 'PUBLIE';
+    public const STATUT_BROUILLON = 'BROUILLON';
+    public const STATUT_PUBLIE = 'PUBLIE';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
@@ -50,30 +50,99 @@ class PlanningWeek
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $lastModifiedAt = null;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $centre): static { $this->centre = $centre; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getWeekStart(): ?\DateTimeImmutable { return $this->weekStart; }
-    public function setWeekStart(\DateTimeImmutable $weekStart): static { $this->weekStart = $weekStart; return $this; }
+    public function setCentre(?Centre $centre): static
+    {
+        $this->centre = $centre;
 
-    public function getStatut(): string { return $this->statut; }
-    public function setStatut(string $statut): static { $this->statut = $statut; return $this; }
+        return $this;
+    }
 
-    public function isPublie(): bool { return $this->statut === self::STATUT_PUBLIE; }
+    public function getWeekStart(): ?\DateTimeImmutable
+    {
+        return $this->weekStart;
+    }
 
-    public function getPublishedAt(): ?\DateTimeImmutable { return $this->publishedAt; }
-    public function setPublishedAt(?\DateTimeImmutable $publishedAt): static { $this->publishedAt = $publishedAt; return $this; }
+    public function setWeekStart(\DateTimeImmutable $weekStart): static
+    {
+        $this->weekStart = $weekStart;
 
-    public function getPublishedBy(): ?User { return $this->publishedBy; }
-    public function setPublishedBy(?User $publishedBy): static { $this->publishedBy = $publishedBy; return $this; }
+        return $this;
+    }
 
-    public function getNote(): ?string { return $this->note; }
-    public function setNote(?string $note): static { $this->note = $note; return $this; }
+    public function getStatut(): string
+    {
+        return $this->statut;
+    }
 
-    public function getLastModifiedAt(): ?\DateTimeImmutable { return $this->lastModifiedAt; }
-    public function setLastModifiedAt(?\DateTimeImmutable $dt): static { $this->lastModifiedAt = $dt; return $this; }
+    public function setStatut(string $statut): static
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function isPublie(): bool
+    {
+        return self::STATUT_PUBLIE === $this->statut;
+    }
+
+    public function getPublishedAt(): ?\DateTimeImmutable
+    {
+        return $this->publishedAt;
+    }
+
+    public function setPublishedAt(?\DateTimeImmutable $publishedAt): static
+    {
+        $this->publishedAt = $publishedAt;
+
+        return $this;
+    }
+
+    public function getPublishedBy(): ?User
+    {
+        return $this->publishedBy;
+    }
+
+    public function setPublishedBy(?User $publishedBy): static
+    {
+        $this->publishedBy = $publishedBy;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $note): static
+    {
+        $this->note = $note;
+
+        return $this;
+    }
+
+    public function getLastModifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->lastModifiedAt;
+    }
+
+    public function setLastModifiedAt(?\DateTimeImmutable $dt): static
+    {
+        $this->lastModifiedAt = $dt;
+
+        return $this;
+    }
 
     /**
      * Vrai si la semaine a été publiée puis modifiée (le staff voit une
@@ -81,9 +150,10 @@ class PlanningWeek
      */
     public function hasUnpublishedChanges(): bool
     {
-        if ($this->publishedAt === null || $this->lastModifiedAt === null) {
+        if (null === $this->publishedAt || null === $this->lastModifiedAt) {
             return false;
         }
+
         return $this->lastModifiedAt > $this->publishedAt;
     }
 }

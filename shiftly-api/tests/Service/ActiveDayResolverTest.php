@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Tests\Service;
 
 use App\Service\ActiveDayResolver;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -88,7 +87,7 @@ final class ActiveDayResolverTest extends TestCase
 
     public function testReturnsDateAtMidnight(): void
     {
-        $now    = new \DateTimeImmutable('2026-05-04 14:33:42', new \DateTimeZone('Europe/Paris'));
+        $now = new \DateTimeImmutable('2026-05-04 14:33:42', new \DateTimeZone('Europe/Paris'));
         $active = $this->resolver->getActiveDate($now);
 
         self::assertSame('00:00:00', $active->format('H:i:s'));

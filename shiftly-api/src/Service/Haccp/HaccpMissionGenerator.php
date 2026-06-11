@@ -35,7 +35,8 @@ final class HaccpMissionGenerator
         private readonly EntityManagerInterface $em,
         private readonly HaccpEquipementRepository $equipements,
         private readonly MissionCategorieRepository $categories,
-    ) {}
+    ) {
+    }
 
     public function synchronizeForCentre(Centre $centre): HaccpSyncResult
     {
@@ -72,21 +73,21 @@ final class HaccpMissionGenerator
             $spec = $existing[$moment] ?? null;
 
             if ($equip->isActif()) {
-                if ($spec === null) {
+                if (null === $spec) {
                     $this->createTemperatureMission($equip, $moment, $zone);
-                    $result->creees++;
+                    ++$result->creees;
                 } elseif ($spec->isArchivee()) {
                     $spec->setArchivee(false);
-                    $result->reactivees++;
+                    ++$result->reactivees;
                 } else {
-                    $result->inchangees++;
+                    ++$result->inchangees;
                 }
             } else {
                 if ($spec && !$spec->isArchivee()) {
                     $spec->setArchivee(true);
-                    $result->archivees++;
+                    ++$result->archivees;
                 } elseif ($spec) {
-                    $result->inchangees++;
+                    ++$result->inchangees;
                 }
                 // Pas de spec → équipement inactif sans mission, rien à faire
             }
@@ -95,16 +96,14 @@ final class HaccpMissionGenerator
 
     private function createTemperatureMission(HaccpEquipement $equip, string $moment, ?Zone $zone): void
     {
-        $labelMoment = $moment === MissionHaccpSpec::MOMENT_DEBUT_SERVICE ? 'début de service' : 'fin de service';
+        $labelMoment = MissionHaccpSpec::MOMENT_DEBUT_SERVICE === $moment ? 'début de service' : 'fin de service';
         $texte = sprintf('Relevé T° %s — %s', $equip->getNom(), $labelMoment);
 
         // Mission rattachée à la zone HACCP (ou à la première zone du centre).
         // Si aucune zone existe, on lève une exception explicite — l'auto-seed
         // doit garantir au minimum une zone.
-        if ($zone === null) {
-            throw new \RuntimeException(
-                sprintf('Aucune zone disponible pour le centre %s — impossible de créer la mission HACCP.', $equip->getCentre()?->getId())
-            );
+        if (null === $zone) {
+            throw new \RuntimeException(sprintf('Aucune zone disponible pour le centre %s — impossible de créer la mission HACCP.', $equip->getCentre()?->getId()));
         }
 
         $mission = (new Mission())
@@ -113,7 +112,7 @@ final class HaccpMissionGenerator
             ->setCategorie('HACCP')
             ->setFrequence(Mission::FREQ_FIXE)
             ->setPriorite(Mission::PRIO_VITALE)
-            ->setOrdre($moment === MissionHaccpSpec::MOMENT_DEBUT_SERVICE ? 1 : 99)
+            ->setOrdre(MissionHaccpSpec::MOMENT_DEBUT_SERVICE === $moment ? 1 : 99)
             ->setRequiresPhoto(false);
 
         $spec = (new MissionHaccpSpec())
@@ -134,7 +133,9 @@ final class HaccpMissionGenerator
     private function ensureHaccpCategorie(Centre $centre): MissionCategorie
     {
         $existing = $this->categories->findOneBy(['centre' => $centre, 'nom' => 'HACCP']);
-        if ($existing) return $existing;
+        if ($existing) {
+            return $existing;
+        }
 
         $cat = (new MissionCategorie())
             ->setCentre($centre)
@@ -143,6 +144,7 @@ final class HaccpMissionGenerator
             ->setIcone('🍔')
             ->setOrdre(50);
         $this->em->persist($cat);
+
         return $cat;
     }
 
@@ -150,8 +152,11 @@ final class HaccpMissionGenerator
     {
         $zoneRepo = $this->em->getRepository(Zone::class);
         $bar = $zoneRepo->findOneBy(['centre' => $centre, 'nom' => 'Bar']);
-        if ($bar) return $bar;
+        if ($bar) {
+            return $bar;
+        }
         $any = $zoneRepo->findBy(['centre' => $centre], ['ordre' => 'ASC'], 1);
+
         return $any[0] ?? null;
     }
 }

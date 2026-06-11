@@ -30,17 +30,18 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CompletionController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface  $em,
+        private readonly EntityManagerInterface $em,
         private readonly CompletionPhotoUploader $photoUploader,
-        private readonly R2StorageService        $r2,
-    ) {}
+        private readonly R2StorageService $r2,
+    ) {
+    }
 
     #[Route('/api/completions/create', name: 'api_completion_create', methods: ['POST'], format: 'json')]
     public function create(Request $request): JsonResponse
     {
         $body = json_decode($request->getContent(), true);
 
-        $posteId   = (int) ($body['posteId']   ?? 0);
+        $posteId = (int) ($body['posteId'] ?? 0);
         $missionId = (int) ($body['missionId'] ?? 0);
 
         if (!$posteId || !$missionId) {
@@ -51,15 +52,13 @@ class CompletionController extends AbstractController
 
         // Une mission requiresPhoto doit passer par l'endpoint multipart
         if ($mission->getRequiresPhoto()) {
-            throw new BadRequestHttpException(
-                'Cette mission nécessite une preuve photo. Utilise /completions/create-with-photo.'
-            );
+            throw new BadRequestHttpException('Cette mission nécessite une preuve photo. Utilise /completions/create-with-photo.');
         }
 
         $completion = $this->persistCompletion($poste, $mission, $user);
 
         return $this->json([
-            'id'          => $completion->getId(),
+            'id' => $completion->getId(),
             'completedAt' => $completion->getCompletedAt()?->format(\DateTimeInterface::ATOM),
         ], 201);
     }
@@ -71,9 +70,9 @@ class CompletionController extends AbstractController
     #[Route('/api/completions/create-with-photo', name: 'api_completion_create_with_photo', methods: ['POST'])]
     public function createWithPhoto(Request $request): JsonResponse
     {
-        $posteId   = (int) $request->request->get('posteId', 0);
+        $posteId = (int) $request->request->get('posteId', 0);
         $missionId = (int) $request->request->get('missionId', 0);
-        $photo     = $request->files->get('photo');
+        $photo = $request->files->get('photo');
 
         if (!$posteId || !$missionId) {
             throw new BadRequestHttpException('posteId et missionId sont requis.');
@@ -85,9 +84,7 @@ class CompletionController extends AbstractController
         [$poste, $mission, $user] = $this->resolveAndGuard($posteId, $missionId);
 
         if (!$mission->getRequiresPhoto()) {
-            throw new BadRequestHttpException(
-                'Cette mission n\'attend pas de photo. Utilise /completions/create.'
-            );
+            throw new BadRequestHttpException('Cette mission n\'attend pas de photo. Utilise /completions/create.');
         }
 
         // Upload + validation MIME/taille (lance une exception si KO)
@@ -97,7 +94,7 @@ class CompletionController extends AbstractController
             throw new BadRequestHttpException($e->getMessage());
         } catch (\Throwable $e) {
             // Échec R2 (credentials, réseau, bucket) — on log et on renvoie un message générique
-            error_log('[CompletionController] Upload photo failed: ' . $e->getMessage());
+            error_log('[CompletionController] Upload photo failed: '.$e->getMessage());
             throw new BadRequestHttpException("Impossible de stocker la photo pour l'instant. Réessaye plus tard.");
         }
 
@@ -120,10 +117,10 @@ class CompletionController extends AbstractController
         }
 
         return $this->json([
-            'id'             => $completion->getId(),
-            'completedAt'    => $completion->getCompletedAt()?->format(\DateTimeInterface::ATOM),
-            'photoTakenAt'   => $completion->getPhotoTakenAt()?->format(\DateTimeInterface::ATOM),
-            'hasPhoto'       => true,
+            'id' => $completion->getId(),
+            'completedAt' => $completion->getCompletedAt()?->format(\DateTimeInterface::ATOM),
+            'photoTakenAt' => $completion->getPhotoTakenAt()?->format(\DateTimeInterface::ATOM),
+            'hasPhoto' => true,
         ], Response::HTTP_CREATED);
     }
 
@@ -146,7 +143,7 @@ class CompletionController extends AbstractController
 
         // Multi-tenant guard
         /** @var User $currentUser */
-        $currentUser    = $this->getUser();
+        $currentUser = $this->getUser();
         $completionCtre = $completion->getPoste()?->getService()?->getCentre()?->getId();
 
         if ($completionCtre !== $currentUser->getCentre()?->getId()) {
@@ -156,7 +153,7 @@ class CompletionController extends AbstractController
         try {
             $object = $this->r2->getObject($completion->getPhotoPath());
         } catch (\Throwable $e) {
-            error_log('[CompletionController] Fetch photo R2 failed: ' . $e->getMessage());
+            error_log('[CompletionController] Fetch photo R2 failed: '.$e->getMessage());
             throw $this->createNotFoundException('Photo introuvable sur le stockage.');
         }
 
@@ -164,7 +161,7 @@ class CompletionController extends AbstractController
         $mime = $completion->getPhotoMimeType() ?: $object['mime'];
 
         return new Response($object['body'], Response::HTTP_OK, [
-            'Content-Type'  => $mime,
+            'Content-Type' => $mime,
             // Cache privé court — la photo est immuable côté contenu mais l'auth
             // doit être revérifiée à chaque accès (jamais de cache partagé).
             'Cache-Control' => 'private, max-age=300, no-store',
@@ -175,11 +172,12 @@ class CompletionController extends AbstractController
 
     /**
      * Charge le poste, la mission, vérifie le multi-tenant.
+     *
      * @return array{0: Poste, 1: Mission, 2: User}
      */
     private function resolveAndGuard(int $posteId, int $missionId): array
     {
-        $poste   = $this->em->find(Poste::class, $posteId);
+        $poste = $this->em->find(Poste::class, $posteId);
         $mission = $this->em->find(Mission::class, $missionId);
 
         if (!$poste || !$mission) {
@@ -187,7 +185,7 @@ class CompletionController extends AbstractController
         }
 
         /** @var User $currentUser */
-        $currentUser   = $this->getUser();
+        $currentUser = $this->getUser();
         $posteCentreId = $poste->getService()?->getCentre()?->getId();
 
         if ($posteCentreId !== $currentUser->getCentre()?->getId()) {

@@ -32,15 +32,30 @@ final class HaccpEquipementSyncListener
     private array $pendingCentres = [];
     private bool $running = false;
 
-    public function __construct(private readonly HaccpMissionGenerator $generator) {}
+    public function __construct(private readonly HaccpMissionGenerator $generator)
+    {
+    }
 
-    public function postPersist(PostPersistEventArgs $args): void { $this->queue($args->getObject()); }
-    public function postUpdate(PostUpdateEventArgs $args): void   { $this->queue($args->getObject()); }
-    public function preRemove(PreRemoveEventArgs $args): void     { $this->queue($args->getObject()); }
+    public function postPersist(PostPersistEventArgs $args): void
+    {
+        $this->queue($args->getObject());
+    }
+
+    public function postUpdate(PostUpdateEventArgs $args): void
+    {
+        $this->queue($args->getObject());
+    }
+
+    public function preRemove(PreRemoveEventArgs $args): void
+    {
+        $this->queue($args->getObject());
+    }
 
     public function postFlush(PostFlushEventArgs $args): void
     {
-        if ($this->running || empty($this->pendingCentres)) return;
+        if ($this->running || empty($this->pendingCentres)) {
+            return;
+        }
         $this->running = true;
         try {
             $centres = $this->pendingCentres;
@@ -55,9 +70,13 @@ final class HaccpEquipementSyncListener
 
     private function queue(object $entity): void
     {
-        if (!$entity instanceof HaccpEquipement) return;
+        if (!$entity instanceof HaccpEquipement) {
+            return;
+        }
         $centre = $entity->getCentre();
-        if (!$centre || $centre->getId() === null) return;
+        if (!$centre || null === $centre->getId()) {
+            return;
+        }
         $this->pendingCentres[$centre->getId()] = $centre;
     }
 }

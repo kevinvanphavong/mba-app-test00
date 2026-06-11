@@ -4,8 +4,8 @@ namespace App\Security\Voter;
 
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * Base voter : vérifie que l'utilisateur connecté appartient
@@ -15,8 +15,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
  */
 abstract class AbstractCentreVoter extends Voter
 {
-    protected const VIEW   = 'VIEW';
-    protected const EDIT   = 'EDIT';
+    protected const VIEW = 'VIEW';
+    protected const EDIT = 'EDIT';
     protected const CREATE = 'CREATE';
     protected const DELETE = 'DELETE';
 
@@ -33,7 +33,7 @@ abstract class AbstractCentreVoter extends Voter
 
         $resourceCentreId = $this->getCentreId($subject);
 
-        if ($resourceCentreId === null) {
+        if (null === $resourceCentreId) {
             return false;
         }
 

@@ -59,28 +59,97 @@ class CorrectionPointage
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getPointage(): ?Pointage { return $this->pointage; }
-    public function setPointage(?Pointage $pointage): static { $this->pointage = $pointage; return $this; }
+    public function getPointage(): ?Pointage
+    {
+        return $this->pointage;
+    }
 
-    public function getPause(): ?PointagePause { return $this->pause; }
-    public function setPause(?PointagePause $pause): static { $this->pause = $pause; return $this; }
+    public function setPointage(?Pointage $pointage): static
+    {
+        $this->pointage = $pointage;
 
-    public function getChampModifie(): string { return $this->champModifie; }
-    public function setChampModifie(string $champ): static { $this->champModifie = $champ; return $this; }
+        return $this;
+    }
 
-    public function getAncienneValeur(): ?\DateTimeImmutable { return $this->ancienneValeur; }
-    public function setAncienneValeur(?\DateTimeImmutable $v): static { $this->ancienneValeur = $v; return $this; }
+    public function getPause(): ?PointagePause
+    {
+        return $this->pause;
+    }
 
-    public function getNouvelleValeur(): ?\DateTimeImmutable { return $this->nouvelleValeur; }
-    public function setNouvelleValeur(?\DateTimeImmutable $v): static { $this->nouvelleValeur = $v; return $this; }
+    public function setPause(?PointagePause $pause): static
+    {
+        $this->pause = $pause;
 
-    public function getMotif(): ?string { return $this->motif; }
-    public function setMotif(?string $motif): static { $this->motif = $motif; return $this; }
+        return $this;
+    }
 
-    public function getCorrigePar(): ?User { return $this->corrigePar; }
-    public function setCorrigePar(?User $user): static { $this->corrigePar = $user; return $this; }
+    public function getChampModifie(): string
+    {
+        return $this->champModifie;
+    }
 
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function setChampModifie(string $champ): static
+    {
+        $this->champModifie = $champ;
+
+        return $this;
+    }
+
+    public function getAncienneValeur(): ?\DateTimeImmutable
+    {
+        return $this->ancienneValeur;
+    }
+
+    public function setAncienneValeur(?\DateTimeImmutable $v): static
+    {
+        $this->ancienneValeur = $v;
+
+        return $this;
+    }
+
+    public function getNouvelleValeur(): ?\DateTimeImmutable
+    {
+        return $this->nouvelleValeur;
+    }
+
+    public function setNouvelleValeur(?\DateTimeImmutable $v): static
+    {
+        $this->nouvelleValeur = $v;
+
+        return $this;
+    }
+
+    public function getMotif(): ?string
+    {
+        return $this->motif;
+    }
+
+    public function setMotif(?string $motif): static
+    {
+        $this->motif = $motif;
+
+        return $this;
+    }
+
+    public function getCorrigePar(): ?User
+    {
+        return $this->corrigePar;
+    }
+
+    public function setCorrigePar(?User $user): static
+    {
+        $this->corrigePar = $user;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

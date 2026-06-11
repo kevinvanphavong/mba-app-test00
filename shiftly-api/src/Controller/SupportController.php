@@ -14,7 +14,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -26,11 +25,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class SupportController extends AbstractController
 {
     public function __construct(
-        private readonly SupportTicketRepository    $ticketRepo,
-        private readonly EntityManagerInterface     $em,
-        private readonly SupportAttachmentUploader  $uploader,
-        private readonly R2StorageService           $r2,
-    ) {}
+        private readonly SupportTicketRepository $ticketRepo,
+        private readonly EntityManagerInterface $em,
+        private readonly SupportAttachmentUploader $uploader,
+        private readonly R2StorageService $r2,
+    ) {
+    }
 
     #[Route('/api/support', methods: ['POST'])]
     public function create(Request $request): JsonResponse
@@ -41,9 +41,9 @@ class SupportController extends AbstractController
             return $this->json(['message' => 'Aucun centre associé'], 422);
         }
 
-        $sujet    = trim($request->request->get('sujet', ''));
-        $message  = trim($request->request->get('message', ''));
-        $categorie= $request->request->get('categorie', SupportTicket::CATEGORIE_QUESTION);
+        $sujet = trim($request->request->get('sujet', ''));
+        $message = trim($request->request->get('message', ''));
+        $categorie = $request->request->get('categorie', SupportTicket::CATEGORIE_QUESTION);
         $priorite = $request->request->get('priorite', SupportTicket::PRIORITE_MOYENNE);
 
         if (!$sujet || !$message) {
@@ -81,17 +81,17 @@ class SupportController extends AbstractController
     public function myTickets(): JsonResponse
     {
         /** @var User $user */
-        $user    = $this->getUser();
+        $user = $this->getUser();
         $tickets = $this->ticketRepo->findByAuteur($user);
 
-        return $this->json(array_map(fn($t) => [
-            'id'           => $t->getId(),
-            'sujet'        => $t->getSujet(),
-            'categorie'    => $t->getCategorie(),
-            'statut'       => $t->getStatut(),
-            'priorite'     => $t->getPriorite(),
-            'createdAt'    => $t->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-            'updatedAt'    => $t->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
+        return $this->json(array_map(fn ($t) => [
+            'id' => $t->getId(),
+            'sujet' => $t->getSujet(),
+            'categorie' => $t->getCategorie(),
+            'statut' => $t->getStatut(),
+            'priorite' => $t->getPriorite(),
+            'createdAt' => $t->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+            'updatedAt' => $t->getUpdatedAt()?->format(\DateTimeInterface::ATOM),
             'hasUnreadReply' => $this->hasUnreadReply($t, $user),
         ], $tickets));
     }
@@ -100,7 +100,9 @@ class SupportController extends AbstractController
     public function myTicketDetail(int $id): JsonResponse
     {
         $ticket = $this->ticketRepo->find($id);
-        if (!$ticket) return $this->json(['message' => 'Ticket introuvable'], 404);
+        if (!$ticket) {
+            return $this->json(['message' => 'Ticket introuvable'], 404);
+        }
 
         /** @var User $user */
         $user = $this->getUser();
@@ -114,27 +116,27 @@ class SupportController extends AbstractController
 
         $replies = array_values(array_filter(
             $ticket->getReplies()->toArray(),
-            fn(SupportReply $r) => !$r->isInterne()
+            fn (SupportReply $r) => !$r->isInterne()
         ));
 
         return $this->json([
-            'id'        => $ticket->getId(),
-            'sujet'     => $ticket->getSujet(),
-            'message'   => $ticket->getMessage(),
+            'id' => $ticket->getId(),
+            'sujet' => $ticket->getSujet(),
+            'message' => $ticket->getMessage(),
             'categorie' => $ticket->getCategorie(),
-            'statut'    => $ticket->getStatut(),
-            'priorite'  => $ticket->getPriorite(),
+            'statut' => $ticket->getStatut(),
+            'priorite' => $ticket->getPriorite(),
             'createdAt' => $ticket->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             'attachments' => array_map($this->serializeAttachment(...), $ticket->getAttachments()->toArray()),
-            'replies' => array_map(fn(SupportReply $r) => [
-                'id'        => $r->getId(),
-                'message'   => $r->getMessage(),
+            'replies' => array_map(fn (SupportReply $r) => [
+                'id' => $r->getId(),
+                'message' => $r->getMessage(),
                 'createdAt' => $r->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-                'auteur'    => [
-                    'id'     => $r->getAuteur()->getId(),
-                    'nom'    => $r->getAuteur()->getNom(),
+                'auteur' => [
+                    'id' => $r->getAuteur()->getId(),
+                    'nom' => $r->getAuteur()->getNom(),
                     'prenom' => $r->getAuteur()->getPrenom(),
-                    'role'   => $r->getAuteur()->getRole(),
+                    'role' => $r->getAuteur()->getRole(),
                 ],
                 'attachments' => array_map($this->serializeAttachment(...), $r->getAttachments()->toArray()),
             ], $replies),
@@ -145,7 +147,9 @@ class SupportController extends AbstractController
     public function replyToMyTicket(int $id, Request $request): JsonResponse
     {
         $ticket = $this->ticketRepo->find($id);
-        if (!$ticket) return $this->json(['message' => 'Ticket introuvable'], 404);
+        if (!$ticket) {
+            return $this->json(['message' => 'Ticket introuvable'], 404);
+        }
 
         /** @var User $user */
         $user = $this->getUser();
@@ -154,7 +158,9 @@ class SupportController extends AbstractController
         }
 
         $message = trim($request->request->get('message', ''));
-        if (!$message) return $this->json(['message' => 'Message requis'], 400);
+        if (!$message) {
+            return $this->json(['message' => 'Message requis'], 400);
+        }
 
         $reply = (new SupportReply())
             ->setTicket($ticket)
@@ -175,7 +181,7 @@ class SupportController extends AbstractController
         }
 
         // Réouvre le ticket si résolu et l'auteur répond
-        if ($ticket->getStatut() === SupportTicket::STATUT_RESOLU) {
+        if (SupportTicket::STATUT_RESOLU === $ticket->getStatut()) {
             $ticket->setStatut(SupportTicket::STATUT_EN_COURS);
         }
 
@@ -189,22 +195,22 @@ class SupportController extends AbstractController
     public function notifications(): JsonResponse
     {
         /** @var User $user */
-        $user    = $this->getUser();
+        $user = $this->getUser();
         $tickets = $this->ticketRepo->findByAuteur($user);
 
         $unreadTickets = [];
         foreach ($tickets as $t) {
             if ($this->hasUnreadReply($t, $user)) {
                 $unreadTickets[] = [
-                    'id'      => $t->getId(),
-                    'sujet'   => $t->getSujet(),
-                    'statut'  => $t->getStatut(),
+                    'id' => $t->getId(),
+                    'sujet' => $t->getSujet(),
+                    'statut' => $t->getStatut(),
                 ];
             }
         }
 
         return $this->json([
-            'count'   => count($unreadTickets),
+            'count' => count($unreadTickets),
             'tickets' => array_slice($unreadTickets, 0, 5),
         ]);
     }
@@ -223,11 +229,11 @@ class SupportController extends AbstractController
 
         $this->denyAccessUnlessGranted(SupportAttachmentVoter::VIEW, $attachment);
 
-        $ttl       = 3600;
+        $ttl = 3600;
         $expiresAt = (new \DateTimeImmutable())->modify("+{$ttl} seconds");
 
         return $this->json([
-            'url'       => $this->r2->presignedUrl($attachment->getStoredPath(), $ttl),
+            'url' => $this->r2->presignedUrl($attachment->getStoredPath(), $ttl),
             'expiresAt' => $expiresAt->format(\DateTimeInterface::ATOM),
         ]);
     }
@@ -236,10 +242,10 @@ class SupportController extends AbstractController
     private function serializeAttachment(SupportAttachment $a): array
     {
         return [
-            'id'       => $a->getId(),
+            'id' => $a->getId(),
             'filename' => $a->getFilename(),
             'mimeType' => $a->getMimeType(),
-            'size'     => $a->getSize(),
+            'size' => $a->getSize(),
         ];
     }
 
@@ -247,12 +253,17 @@ class SupportController extends AbstractController
     {
         $lastView = $t->getLastViewedByAuthor();
         foreach ($t->getReplies() as $r) {
-            if ($r->isInterne()) continue;
-            if ($r->getAuteur()?->getId() === $user->getId()) continue;
-            if ($lastView === null || $r->getCreatedAt() > $lastView) {
+            if ($r->isInterne()) {
+                continue;
+            }
+            if ($r->getAuteur()?->getId() === $user->getId()) {
+                continue;
+            }
+            if (null === $lastView || $r->getCreatedAt() > $lastView) {
                 return true;
             }
         }
+
         return false;
     }
 }

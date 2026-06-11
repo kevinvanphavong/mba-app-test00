@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Lead — prospect public capturé depuis la landing shiftly.fr.
  * Pas multi-tenant (pas de centre_id) : c'est un prospect, pas un user.
- * Workflow : nouveau → contacte → qualifie → converti | perdu
+ * Workflow : nouveau → contacte → qualifie → converti | perdu.
  */
 #[ORM\Entity(repositoryClass: LeadRepository::class)]
 #[ORM\Table(name: '`lead`')]
@@ -20,37 +20,37 @@ use Doctrine\ORM\Mapping as ORM;
 class Lead
 {
     // Intent — quel formulaire de la modale landing a été soumis
-    public const INTENT_TRIAL  = 'trial';
-    public const INTENT_DEMO   = 'demo';
+    public const INTENT_TRIAL = 'trial';
+    public const INTENT_DEMO = 'demo';
     public const INTENT_CUSTOM = 'custom';
 
     // Plan envisagé par le prospect
-    public const PLAN_STARTER   = 'starter';
-    public const PLAN_PRO       = 'pro';
-    public const PLAN_PREMIUM   = 'premium';
+    public const PLAN_STARTER = 'starter';
+    public const PLAN_PRO = 'pro';
+    public const PLAN_PREMIUM = 'premium';
     public const PLAN_UNDECIDED = 'undecided';
 
     // Workflow interne
-    public const STATUS_NOUVEAU   = 'nouveau';
-    public const STATUS_CONTACTE  = 'contacte';
-    public const STATUS_QUALIFIE  = 'qualifie';
-    public const STATUS_CONVERTI  = 'converti';
-    public const STATUS_PERDU     = 'perdu';
+    public const STATUS_NOUVEAU = 'nouveau';
+    public const STATUS_CONTACTE = 'contacte';
+    public const STATUS_QUALIFIE = 'qualifie';
+    public const STATUS_CONVERTI = 'converti';
+    public const STATUS_PERDU = 'perdu';
 
     // Canal demo
-    public const CHANNEL_MEET  = 'meet';
-    public const CHANNEL_ZOOM  = 'zoom';
+    public const CHANNEL_MEET = 'meet';
+    public const CHANNEL_ZOOM = 'zoom';
     public const CHANNEL_TEAMS = 'teams';
     public const CHANNEL_PHONE = 'phone';
 
     // Type d'activité du centre prospect
     public const ACTIVITY_BOWLING = 'bowling';
-    public const ACTIVITY_LASER   = 'laser';
-    public const ACTIVITY_ARCADE  = 'arcade';
+    public const ACTIVITY_LASER = 'laser';
+    public const ACTIVITY_ARCADE = 'arcade';
     public const ACTIVITY_KARAOKE = 'karaoke';
-    public const ACTIVITY_VR      = 'vr';
-    public const ACTIVITY_MIXTE   = 'mixte';
-    public const ACTIVITY_AUTRE   = 'autre';
+    public const ACTIVITY_VR = 'vr';
+    public const ACTIVITY_MIXTE = 'mixte';
+    public const ACTIVITY_AUTRE = 'autre';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
@@ -142,73 +142,277 @@ class Lead
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getIntent(): string { return $this->intent; }
-    public function setIntent(string $intent): static { $this->intent = $intent; return $this; }
+    public function getIntent(): string
+    {
+        return $this->intent;
+    }
 
-    public function getPlan(): string { return $this->plan; }
-    public function setPlan(string $plan): static { $this->plan = $plan; return $this; }
+    public function setIntent(string $intent): static
+    {
+        $this->intent = $intent;
 
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): static { $this->name = $name; return $this; }
+        return $this;
+    }
 
-    public function getEmail(): string { return $this->email; }
-    public function setEmail(string $email): static { $this->email = $email; return $this; }
+    public function getPlan(): string
+    {
+        return $this->plan;
+    }
 
-    public function getPhone(): string { return $this->phone; }
-    public function setPhone(string $phone): static { $this->phone = $phone; return $this; }
+    public function setPlan(string $plan): static
+    {
+        $this->plan = $plan;
 
-    public function getCentre(): string { return $this->centre; }
-    public function setCentre(string $centre): static { $this->centre = $centre; return $this; }
+        return $this;
+    }
 
-    public function getActivity(): string { return $this->activity; }
-    public function setActivity(string $activity): static { $this->activity = $activity; return $this; }
+    public function getName(): string
+    {
+        return $this->name;
+    }
 
-    public function getStaffSize(): string { return $this->staffSize; }
-    public function setStaffSize(string $staffSize): static { $this->staffSize = $staffSize; return $this; }
+    public function setName(string $name): static
+    {
+        $this->name = $name;
 
-    public function getCity(): ?string { return $this->city; }
-    public function setCity(?string $city): static { $this->city = $city; return $this; }
+        return $this;
+    }
 
-    public function getZip(): ?string { return $this->zip; }
-    public function setZip(?string $zip): static { $this->zip = $zip; return $this; }
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
 
-    public function getPreferredSlot(): ?string { return $this->preferredSlot; }
-    public function setPreferredSlot(?string $v): static { $this->preferredSlot = $v; return $this; }
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
 
-    public function getChannel(): ?string { return $this->channel; }
-    public function setChannel(?string $channel): static { $this->channel = $channel; return $this; }
+        return $this;
+    }
 
-    public function getCustomNeeds(): ?string { return $this->customNeeds; }
-    public function setCustomNeeds(?string $v): static { $this->customNeeds = $v; return $this; }
+    public function getPhone(): string
+    {
+        return $this->phone;
+    }
 
-    public function getMessage(): ?string { return $this->message; }
-    public function setMessage(?string $message): static { $this->message = $message; return $this; }
+    public function setPhone(string $phone): static
+    {
+        $this->phone = $phone;
 
-    public function getConsent(): bool { return $this->consent; }
-    public function setConsent(bool $consent): static { $this->consent = $consent; return $this; }
+        return $this;
+    }
 
-    public function getConsentAt(): ?\DateTimeImmutable { return $this->consentAt; }
-    public function setConsentAt(\DateTimeImmutable $at): static { $this->consentAt = $at; return $this; }
+    public function getCentre(): string
+    {
+        return $this->centre;
+    }
 
-    public function getSource(): string { return $this->source; }
-    public function setSource(string $source): static { $this->source = $source; return $this; }
+    public function setCentre(string $centre): static
+    {
+        $this->centre = $centre;
 
-    public function getStatus(): string { return $this->status; }
-    public function setStatus(string $status): static { $this->status = $status; return $this; }
+        return $this;
+    }
 
-    public function getNotes(): ?string { return $this->notes; }
-    public function setNotes(?string $notes): static { $this->notes = $notes; return $this; }
+    public function getActivity(): string
+    {
+        return $this->activity;
+    }
 
-    public function getHandledBy(): ?User { return $this->handledBy; }
-    public function setHandledBy(?User $u): static { $this->handledBy = $u; return $this; }
+    public function setActivity(string $activity): static
+    {
+        $this->activity = $activity;
 
-    public function getHandledAt(): ?\DateTimeImmutable { return $this->handledAt; }
-    public function setHandledAt(?\DateTimeImmutable $at): static { $this->handledAt = $at; return $this; }
+        return $this;
+    }
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function setCreatedAt(\DateTimeImmutable $at): static { $this->createdAt = $at; return $this; }
+    public function getStaffSize(): string
+    {
+        return $this->staffSize;
+    }
 
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
+    public function setStaffSize(string $staffSize): static
+    {
+        $this->staffSize = $staffSize;
+
+        return $this;
+    }
+
+    public function getCity(): ?string
+    {
+        return $this->city;
+    }
+
+    public function setCity(?string $city): static
+    {
+        $this->city = $city;
+
+        return $this;
+    }
+
+    public function getZip(): ?string
+    {
+        return $this->zip;
+    }
+
+    public function setZip(?string $zip): static
+    {
+        $this->zip = $zip;
+
+        return $this;
+    }
+
+    public function getPreferredSlot(): ?string
+    {
+        return $this->preferredSlot;
+    }
+
+    public function setPreferredSlot(?string $v): static
+    {
+        $this->preferredSlot = $v;
+
+        return $this;
+    }
+
+    public function getChannel(): ?string
+    {
+        return $this->channel;
+    }
+
+    public function setChannel(?string $channel): static
+    {
+        $this->channel = $channel;
+
+        return $this;
+    }
+
+    public function getCustomNeeds(): ?string
+    {
+        return $this->customNeeds;
+    }
+
+    public function setCustomNeeds(?string $v): static
+    {
+        $this->customNeeds = $v;
+
+        return $this;
+    }
+
+    public function getMessage(): ?string
+    {
+        return $this->message;
+    }
+
+    public function setMessage(?string $message): static
+    {
+        $this->message = $message;
+
+        return $this;
+    }
+
+    public function getConsent(): bool
+    {
+        return $this->consent;
+    }
+
+    public function setConsent(bool $consent): static
+    {
+        $this->consent = $consent;
+
+        return $this;
+    }
+
+    public function getConsentAt(): ?\DateTimeImmutable
+    {
+        return $this->consentAt;
+    }
+
+    public function setConsentAt(\DateTimeImmutable $at): static
+    {
+        $this->consentAt = $at;
+
+        return $this;
+    }
+
+    public function getSource(): string
+    {
+        return $this->source;
+    }
+
+    public function setSource(string $source): static
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    public function getNotes(): ?string
+    {
+        return $this->notes;
+    }
+
+    public function setNotes(?string $notes): static
+    {
+        $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function getHandledBy(): ?User
+    {
+        return $this->handledBy;
+    }
+
+    public function setHandledBy(?User $u): static
+    {
+        $this->handledBy = $u;
+
+        return $this;
+    }
+
+    public function getHandledAt(): ?\DateTimeImmutable
+    {
+        return $this->handledAt;
+    }
+
+    public function setHandledAt(?\DateTimeImmutable $at): static
+    {
+        $this->handledAt = $at;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $at): static
+    {
+        $this->createdAt = $at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
 }

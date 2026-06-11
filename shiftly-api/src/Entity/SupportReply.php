@@ -39,19 +39,76 @@ class SupportReply
     public function __construct()
     {
         $this->attachments = new ArrayCollection();
-        $this->createdAt   = new \DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getTicket(): ?SupportTicket { return $this->ticket; }
-    public function setTicket(?SupportTicket $ticket): static { $this->ticket = $ticket; return $this; }
-    public function getAuteur(): ?User { return $this->auteur; }
-    public function setAuteur(?User $auteur): static { $this->auteur = $auteur; return $this; }
-    public function getMessage(): ?string { return $this->message; }
-    public function setMessage(string $message): static { $this->message = $message; return $this; }
-    public function isInterne(): bool { return $this->interne; }
-    public function setInterne(bool $interne): static { $this->interne = $interne; return $this; }
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static { $this->createdAt = $createdAt; return $this; }
-    public function getAttachments(): Collection { return $this->attachments; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getTicket(): ?SupportTicket
+    {
+        return $this->ticket;
+    }
+
+    public function setTicket(?SupportTicket $ticket): static
+    {
+        $this->ticket = $ticket;
+
+        return $this;
+    }
+
+    public function getAuteur(): ?User
+    {
+        return $this->auteur;
+    }
+
+    public function setAuteur(?User $auteur): static
+    {
+        $this->auteur = $auteur;
+
+        return $this;
+    }
+
+    public function getMessage(): ?string
+    {
+        return $this->message;
+    }
+
+    public function setMessage(string $message): static
+    {
+        $this->message = $message;
+
+        return $this;
+    }
+
+    public function isInterne(): bool
+    {
+        return $this->interne;
+    }
+
+    public function setInterne(bool $interne): static
+    {
+        $this->interne = $interne;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getAttachments(): Collection
+    {
+        return $this->attachments;
+    }
 }

@@ -55,7 +55,7 @@ class EventLogRepository extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult();
 
-        $totalChecks   = 0;
+        $totalChecks = 0;
         $totalUnchecks = 0;
 
         /** @var array<string, array{zone:?string,couleur:?string,checks:int,unchecks:int}> */
@@ -71,35 +71,43 @@ class EventLogRepository extends ServiceEntityRepository
         $services = [];
 
         foreach ($rows as $r) {
-            $payload  = is_array($r['payload']) ? $r['payload'] : [];
-            $action   = $r['action'] ?? null;
-            $zoneNom  = $payload['zoneNom']        ?? null;
-            $zoneCol  = $payload['zoneCouleur']    ?? null;
-            $mNom     = $payload['missionNom']     ?? null;
-            $mPrio    = $payload['missionPriorite']?? null;
-            $uNom     = $payload['userNom']        ?? null;
-            $sId      = isset($payload['serviceId']) ? (int) $payload['serviceId'] : null;
-            $sDate    = $payload['serviceDate']    ?? null;
-            $sCre     = $payload['serviceCreneau'] ?? null;
-            $mId      = isset($r['missionId']) ? (int) $r['missionId'] : null;
-            $uId      = isset($r['userId'])    ? (int) $r['userId']    : null;
+            $payload = is_array($r['payload']) ? $r['payload'] : [];
+            $action = $r['action'] ?? null;
+            $zoneNom = $payload['zoneNom'] ?? null;
+            $zoneCol = $payload['zoneCouleur'] ?? null;
+            $mNom = $payload['missionNom'] ?? null;
+            $mPrio = $payload['missionPriorite'] ?? null;
+            $uNom = $payload['userNom'] ?? null;
+            $sId = isset($payload['serviceId']) ? (int) $payload['serviceId'] : null;
+            $sDate = $payload['serviceDate'] ?? null;
+            $sCre = $payload['serviceCreneau'] ?? null;
+            $mId = isset($r['missionId']) ? (int) $r['missionId'] : null;
+            $uId = isset($r['userId']) ? (int) $r['userId'] : null;
             $occurred = $r['occurredAt'] ?? null;
 
-            $isCheck   = $action === EventLog::ACTION_CHECK;
-            $isUncheck = $action === EventLog::ACTION_UNCHECK;
+            $isCheck = EventLog::ACTION_CHECK === $action;
+            $isUncheck = EventLog::ACTION_UNCHECK === $action;
 
-            if ($isCheck)   $totalChecks++;
-            if ($isUncheck) $totalUnchecks++;
+            if ($isCheck) {
+                ++$totalChecks;
+            }
+            if ($isUncheck) {
+                ++$totalUnchecks;
+            }
 
             // Zones (groupées par nom)
-            if ($zoneNom !== null) {
+            if (null !== $zoneNom) {
                 $zones[$zoneNom] ??= ['zone' => $zoneNom, 'couleur' => $zoneCol, 'checks' => 0, 'unchecks' => 0];
-                if ($isCheck)   $zones[$zoneNom]['checks']++;
-                if ($isUncheck) $zones[$zoneNom]['unchecks']++;
+                if ($isCheck) {
+                    ++$zones[$zoneNom]['checks'];
+                }
+                if ($isUncheck) {
+                    ++$zones[$zoneNom]['unchecks'];
+                }
             }
 
             // Missions (bucket par FK missionId si dispo, sinon ignorer)
-            if ($mId !== null) {
+            if (null !== $mId) {
                 $missions[$mId] ??= [
                     'missionId' => $mId,
                     'missionNom' => $mNom,
@@ -108,39 +116,53 @@ class EventLogRepository extends ServiceEntityRepository
                     'checks' => 0,
                     'unchecks' => 0,
                 ];
-                if ($isCheck)   $missions[$mId]['checks']++;
-                if ($isUncheck) $missions[$mId]['unchecks']++;
+                if ($isCheck) {
+                    ++$missions[$mId]['checks'];
+                }
+                if ($isUncheck) {
+                    ++$missions[$mId]['unchecks'];
+                }
             }
 
             // Users (bucket par FK userId)
-            if ($uId !== null) {
+            if (null !== $uId) {
                 $users[$uId] ??= [
-                    'userId'   => $uId,
-                    'userNom'  => $uNom,
-                    'checks'   => 0,
+                    'userId' => $uId,
+                    'userNom' => $uNom,
+                    'checks' => 0,
                     'unchecks' => 0,
                     'services' => [],
                 ];
-                if ($isCheck)   $users[$uId]['checks']++;
-                if ($isUncheck) $users[$uId]['unchecks']++;
-                if ($sId !== null) $users[$uId]['services'][$sId] = true;
+                if ($isCheck) {
+                    ++$users[$uId]['checks'];
+                }
+                if ($isUncheck) {
+                    ++$users[$uId]['unchecks'];
+                }
+                if (null !== $sId) {
+                    $users[$uId]['services'][$sId] = true;
+                }
             }
 
             // Services récents (bucket par serviceId payload)
-            if ($sId !== null) {
+            if (null !== $sId) {
                 $services[$sId] ??= [
-                    'serviceId'      => $sId,
-                    'serviceDate'    => $sDate,
+                    'serviceId' => $sId,
+                    'serviceDate' => $sDate,
                     'serviceCreneau' => $sCre,
-                    'checks'         => 0,
-                    'unchecks'       => 0,
-                    'lastAt'         => null,
+                    'checks' => 0,
+                    'unchecks' => 0,
+                    'lastAt' => null,
                 ];
-                if ($isCheck)   $services[$sId]['checks']++;
-                if ($isUncheck) $services[$sId]['unchecks']++;
+                if ($isCheck) {
+                    ++$services[$sId]['checks'];
+                }
+                if ($isUncheck) {
+                    ++$services[$sId]['unchecks'];
+                }
                 if ($occurred instanceof \DateTimeInterface) {
                     $iso = $occurred->format(\DateTimeInterface::ATOM);
-                    if ($services[$sId]['lastAt'] === null || $iso > $services[$sId]['lastAt']) {
+                    if (null === $services[$sId]['lastAt'] || $iso > $services[$sId]['lastAt']) {
                         $services[$sId]['lastAt'] = $iso;
                     }
                 }
@@ -151,72 +173,78 @@ class EventLogRepository extends ServiceEntityRepository
 
         $tauxCompletionParZone = [];
         foreach ($zones as $z) {
-            $checks   = $z['checks'];
+            $checks = $z['checks'];
             $unchecks = $z['unchecks'];
-            $total    = $checks + $unchecks;
+            $total = $checks + $unchecks;
             $tauxCompletionParZone[] = [
-                'zone'     => $z['zone'],
-                'couleur'  => $z['couleur'],
-                'taux'     => $total > 0 ? round($checks / $total * 100, 1) : 0.0,
-                'checks'   => $checks,
+                'zone' => $z['zone'],
+                'couleur' => $z['couleur'],
+                'taux' => $total > 0 ? round($checks / $total * 100, 1) : 0.0,
+                'checks' => $checks,
                 'unchecks' => $unchecks,
             ];
         }
-        usort($tauxCompletionParZone, static fn($a, $b) => $b['checks'] <=> $a['checks']);
+        usort($tauxCompletionParZone, static fn ($a, $b) => $b['checks'] <=> $a['checks']);
 
         $missionsLesPlusOubliees = array_values(array_filter(
-            array_map(static fn($m) => [
-                'missionId'  => $m['missionId'],
+            array_map(static fn ($m) => [
+                'missionId' => $m['missionId'],
                 'missionNom' => $m['missionNom'],
-                'zoneNom'    => $m['zoneNom'],
-                'priorite'   => $m['priorite'],
-                'fois'       => $m['unchecks'],
+                'zoneNom' => $m['zoneNom'],
+                'priorite' => $m['priorite'],
+                'fois' => $m['unchecks'],
             ], $missions),
-            static fn($m) => $m['fois'] > 0,
+            static fn ($m) => $m['fois'] > 0,
         ));
-        usort($missionsLesPlusOubliees, static fn($a, $b) => $b['fois'] <=> $a['fois']);
+        usort($missionsLesPlusOubliees, static fn ($a, $b) => $b['fois'] <=> $a['fois']);
         $missionsLesPlusOubliees = array_slice($missionsLesPlusOubliees, 0, 5);
 
         $rankingStaff = array_map(static function ($u) {
-            $checks    = $u['checks'];
-            $unchecks  = $u['unchecks'];
-            $total     = $checks + $unchecks;
+            $checks = $u['checks'];
+            $unchecks = $u['unchecks'];
+            $total = $checks + $unchecks;
+
             return [
-                'userId'        => $u['userId'],
-                'userNom'       => $u['userNom'],
-                'checks'        => $checks,
-                'services'      => count($u['services']),
+                'userId' => $u['userId'],
+                'userNom' => $u['userNom'],
+                'checks' => $checks,
+                'services' => count($u['services']),
                 'tauxPersonnel' => $total > 0 ? round($checks / $total * 100, 1) : 0.0,
             ];
         }, $users);
-        usort($rankingStaff, static fn($a, $b) => $b['checks'] <=> $a['checks']);
+        usort($rankingStaff, static fn ($a, $b) => $b['checks'] <=> $a['checks']);
         $rankingStaff = array_slice(array_values($rankingStaff), 0, 5);
 
         $servicesRecents = array_values($services);
         usort($servicesRecents, static function ($a, $b) {
             $la = $a['lastAt'] ?? '';
             $lb = $b['lastAt'] ?? '';
-            if ($la !== $lb) return $lb <=> $la;
+            if ($la !== $lb) {
+                return $lb <=> $la;
+            }
             $da = $a['serviceDate'] ?? '';
             $db = $b['serviceDate'] ?? '';
-            if ($da !== $db) return $db <=> $da;
+            if ($da !== $db) {
+                return $db <=> $da;
+            }
+
             return $b['serviceId'] <=> $a['serviceId'];
         });
-        $servicesRecents = array_slice(array_map(static fn($s) => [
-            'serviceId'      => $s['serviceId'],
-            'serviceDate'    => $s['serviceDate'],
+        $servicesRecents = array_slice(array_map(static fn ($s) => [
+            'serviceId' => $s['serviceId'],
+            'serviceDate' => $s['serviceDate'],
             'serviceCreneau' => $s['serviceCreneau'],
-            'checks'         => $s['checks'],
-            'unchecks'       => $s['unchecks'],
+            'checks' => $s['checks'],
+            'unchecks' => $s['unchecks'],
         ], $servicesRecents), 0, 10);
 
         return [
-            'totalChecks'             => $totalChecks,
-            'totalUnchecks'           => $totalUnchecks,
-            'tauxCompletionParZone'   => $tauxCompletionParZone,
+            'totalChecks' => $totalChecks,
+            'totalUnchecks' => $totalUnchecks,
+            'tauxCompletionParZone' => $tauxCompletionParZone,
             'missionsLesPlusOubliees' => $missionsLesPlusOubliees,
-            'rankingStaff'            => $rankingStaff,
-            'servicesRecents'         => $servicesRecents,
+            'rankingStaff' => $rankingStaff,
+            'servicesRecents' => $servicesRecents,
         ];
     }
 
@@ -248,12 +276,12 @@ class EventLogRepository extends ServiceEntityRepository
             if (($payload['serviceId'] ?? null) !== null && (int) $payload['serviceId'] === $serviceId) {
                 $occurred = $r['occurredAt'] ?? null;
                 $out[] = [
-                    'id'         => (string) ($r['id'] ?? ''),
-                    'action'     => (string) ($r['action'] ?? ''),
+                    'id' => (string) ($r['id'] ?? ''),
+                    'action' => (string) ($r['action'] ?? ''),
                     'occurredAt' => $occurred instanceof \DateTimeInterface
                         ? $occurred->format(\DateTimeInterface::ATOM)
                         : (string) $occurred,
-                    'payload'    => $payload,
+                    'payload' => $payload,
                 ];
             }
         }

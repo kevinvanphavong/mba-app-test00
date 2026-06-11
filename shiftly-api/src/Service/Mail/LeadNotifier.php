@@ -21,9 +21,10 @@ class LeadNotifier
     public function __construct(
         private readonly MailerInterface $mailer,
         private readonly LoggerInterface $logger,
-        private readonly string          $notificationEmail,
-        private readonly string          $appBaseUrl,
-    ) {}
+        private readonly string $notificationEmail,
+        private readonly string $appBaseUrl,
+    ) {
+    }
 
     public function __invoke(LeadCreatedEvent $event): void
     {
@@ -50,12 +51,12 @@ class LeadNotifier
         } catch (TransportExceptionInterface $e) {
             $this->logger->error('Lead notification email failed', [
                 'leadId' => $lead->getId(),
-                'error'  => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         } catch (\Throwable $e) {
             $this->logger->error('Lead notification email unexpected error', [
                 'leadId' => $lead->getId(),
-                'error'  => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
         }
     }
@@ -72,7 +73,7 @@ class LeadNotifier
             );
         }
 
-        $link = rtrim($this->appBaseUrl, '/') . '/superadmin/leads/' . $lead->getId();
+        $link = rtrim($this->appBaseUrl, '/').'/superadmin/leads/'.$lead->getId();
 
         return <<<HTML
 <!doctype html>
@@ -97,7 +98,8 @@ HTML;
         foreach ($this->buildRows($lead) as [$label, $value]) {
             $out .= "{$label} : {$value}\n";
         }
-        $out .= "\nOuvrir : " . rtrim($this->appBaseUrl, '/') . '/superadmin/leads/' . $lead->getId() . "\n";
+        $out .= "\nOuvrir : ".rtrim($this->appBaseUrl, '/').'/superadmin/leads/'.$lead->getId()."\n";
+
         return $out;
     }
 
@@ -113,14 +115,14 @@ HTML;
             ['Centre',         $lead->getCentre()],
             ['Activité',       $lead->getActivity()],
             ['Effectif',       $lead->getStaffSize() ?: '—'],
-            ['Ville',          trim(($lead->getZip() ?? '') . ' ' . ($lead->getCity() ?? '')) ?: '—'],
+            ['Ville',          trim(($lead->getZip() ?? '').' '.($lead->getCity() ?? '')) ?: '—'],
             $lead->getPreferredSlot() ? ['Créneau souhaité', $lead->getPreferredSlot()] : null,
-            $lead->getChannel()       ? ['Canal',            $lead->getChannel()]       : null,
-            $lead->getCustomNeeds()   ? ['Besoins sur-mesure', $lead->getCustomNeeds()] : null,
-            $lead->getMessage()       ? ['Message',          $lead->getMessage()]       : null,
+            $lead->getChannel() ? ['Canal',            $lead->getChannel()] : null,
+            $lead->getCustomNeeds() ? ['Besoins sur-mesure', $lead->getCustomNeeds()] : null,
+            $lead->getMessage() ? ['Message',          $lead->getMessage()] : null,
             ['Source',         $lead->getSource()],
-            ['Consentement',   $lead->getConsent() ? ('oui · ' . ($lead->getConsentAt()?->format('Y-m-d H:i:s') ?? '')) : 'NON'],
-        ], static fn($row) => $row !== null);
+            ['Consentement',   $lead->getConsent() ? ('oui · '.($lead->getConsentAt()?->format('Y-m-d H:i:s') ?? '')) : 'NON'],
+        ], static fn ($row) => null !== $row);
     }
 
     private function safe(string $s): string
@@ -131,21 +133,21 @@ HTML;
     public static function intentLabel(string $intent): string
     {
         return match ($intent) {
-            Lead::INTENT_TRIAL  => 'Essai gratuit',
-            Lead::INTENT_DEMO   => 'Démo en visio',
+            Lead::INTENT_TRIAL => 'Essai gratuit',
+            Lead::INTENT_DEMO => 'Démo en visio',
             Lead::INTENT_CUSTOM => 'Projet sur mesure',
-            default             => $intent,
+            default => $intent,
         };
     }
 
     public static function planLabel(string $plan): string
     {
         return match ($plan) {
-            Lead::PLAN_STARTER   => 'Starter',
-            Lead::PLAN_PRO       => 'Pro',
-            Lead::PLAN_PREMIUM   => 'Premium',
+            Lead::PLAN_STARTER => 'Starter',
+            Lead::PLAN_PRO => 'Pro',
+            Lead::PLAN_PREMIUM => 'Premium',
             Lead::PLAN_UNDECIDED => 'Indécis',
-            default              => $plan,
+            default => $plan,
         };
     }
 }

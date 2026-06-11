@@ -18,11 +18,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class PlanningController extends AbstractController
 {
     public function __construct(
-        private readonly PlanningService           $planningService,
-        private readonly CentreRepository          $centreRepository,
+        private readonly PlanningService $planningService,
+        private readonly CentreRepository $centreRepository,
         private readonly PlanningSnapshotRepository $snapshotRepository,
-        private readonly PlanningGuardService       $planningGuard,
-    ) {}
+        private readonly PlanningGuardService $planningGuard,
+    ) {
+    }
 
     /**
      * GET /api/planning/week?centreId={id}&weekStart=YYYY-MM-DD
@@ -32,7 +33,7 @@ class PlanningController extends AbstractController
     #[IsGranted('ROLE_MANAGER')]
     public function week(Request $request): JsonResponse
     {
-        $centreId  = (int) $request->query->get('centreId', 0);
+        $centreId = (int) $request->query->get('centreId', 0);
         $weekParam = $request->query->get('weekStart', '');
 
         if (!$centreId) {
@@ -61,7 +62,7 @@ class PlanningController extends AbstractController
 
     /**
      * POST /api/planning/publish
-     * Body : { "weekStart": "2026-04-13", "motifModification"?: "...", "forcePublication"?: false }
+     * Body : { "weekStart": "2026-04-13", "motifModification"?: "...", "forcePublication"?: false }.
      *
      * Garde-fou IDCC 1790 : retourne 422 si délai < 7j et forcePublication=false.
      * Crée automatiquement un PlanningSnapshot immuable après publication.
@@ -70,14 +71,14 @@ class PlanningController extends AbstractController
     #[IsGranted('ROLE_MANAGER')]
     public function publish(Request $request): JsonResponse
     {
-        $body      = json_decode($request->getContent(), true);
-        $weekParam = $body['weekStart']          ?? '';
-        $motif     = $body['motifModification']  ?? null;
-        $force     = (bool) ($body['forcePublication'] ?? false);
+        $body = json_decode($request->getContent(), true);
+        $weekParam = $body['weekStart'] ?? '';
+        $motif = $body['motifModification'] ?? null;
+        $force = (bool) ($body['forcePublication'] ?? false);
 
         /** @var \App\Entity\User $currentUser */
         $currentUser = $this->getUser();
-        $centre      = $currentUser->getCentre();
+        $centre = $currentUser->getCentre();
 
         if (!$centre) {
             return $this->json(['error' => 'Centre introuvable'], 404);
@@ -88,17 +89,17 @@ class PlanningController extends AbstractController
         try {
             $pw = $this->planningService->publishWeek($centre, $weekStart, $currentUser, $motif, $force);
         } catch (DelaiPrevenanceException $e) {
-            $delai    = $e->getDelaiJours();
+            $delai = $e->getDelaiJours();
             $severity = $e->getSeverity();
-            $message  = $severity === 'critique'
+            $message = 'critique' === $severity
                 ? "Le minimum exceptionnel de 3 jours calendaires est atteint. Vous publiez à {$delai} jour(s)."
                 : "La Convention Collective IDCC 1790 impose 7 jours calendaires de prévenance. Vous publiez à {$delai} jours.";
 
             return $this->json([
-                'warning'       => 'DELAI_PREVENANCE_NON_RESPECTE',
-                'delaiJours'    => $delai,
-                'message'       => $message,
-                'severity'      => $severity,
+                'warning' => 'DELAI_PREVENANCE_NON_RESPECTE',
+                'delaiJours' => $delai,
+                'message' => $message,
+                'severity' => $severity,
                 'requiresMotif' => true,
             ], 422);
         } catch (\InvalidArgumentException $e) {
@@ -106,8 +107,8 @@ class PlanningController extends AbstractController
         }
 
         return $this->json([
-            'weekStart'   => $pw->getWeekStart()->format('Y-m-d'),
-            'statut'      => $pw->getStatut(),
+            'weekStart' => $pw->getWeekStart()->format('Y-m-d'),
+            'statut' => $pw->getStatut(),
             'publishedAt' => $pw->getPublishedAt()?->format(\DATE_ATOM),
         ]);
     }
@@ -120,7 +121,7 @@ class PlanningController extends AbstractController
     #[IsGranted('ROLE_MANAGER')]
     public function snapshots(Request $request): JsonResponse
     {
-        $centreId  = (int) $request->query->get('centreId', 0);
+        $centreId = (int) $request->query->get('centreId', 0);
         $weekParam = $request->query->get('weekStart', '');
 
         if (!$centreId) {
@@ -136,13 +137,13 @@ class PlanningController extends AbstractController
         $weekStart = $this->resolveMonday($weekParam);
         $snapshots = $this->snapshotRepository->findByWeek($centreId, $weekStart);
 
-        return $this->json(array_map(fn($s) => [
-            'id'                => $s->getId(),
-            'weekStart'         => $s->getWeekStart()->format('Y-m-d'),
-            'publishedAt'       => $s->getPublishedAt()->format(\DATE_ATOM),
-            'publishedByNom'    => $s->getPublishedBy()->getNom(),
+        return $this->json(array_map(fn ($s) => [
+            'id' => $s->getId(),
+            'weekStart' => $s->getWeekStart()->format('Y-m-d'),
+            'publishedAt' => $s->getPublishedAt()->format(\DATE_ATOM),
+            'publishedByNom' => $s->getPublishedBy()->getNom(),
             'motifModification' => $s->getMotifModification(),
-            'delaiRespect'      => $s->isDelaiRespect(),
+            'delaiRespect' => $s->isDelaiRespect(),
         ], $snapshots));
     }
 
@@ -159,7 +160,7 @@ class PlanningController extends AbstractController
     #[IsGranted('ROLE_MANAGER')]
     public function publishedSnapshot(Request $request): JsonResponse
     {
-        $centreId  = (int) $request->query->get('centreId', 0);
+        $centreId = (int) $request->query->get('centreId', 0);
         $weekParam = $request->query->get('weekStart', '');
 
         if (!$centreId) {
@@ -173,17 +174,17 @@ class PlanningController extends AbstractController
         }
 
         $weekStart = $this->resolveMonday($weekParam);
-        $snapshot  = $this->snapshotRepository->findLatestByWeek($centreId, $weekStart);
+        $snapshot = $this->snapshotRepository->findLatestByWeek($centreId, $weekStart);
 
         if (!$snapshot) {
             return $this->json(['error' => 'Aucun snapshot publié pour cette semaine'], 404);
         }
 
         return $this->json([
-            'weekStart'      => $snapshot->getWeekStart()->format('Y-m-d'),
-            'publishedAt'    => $snapshot->getPublishedAt()->format(\DATE_ATOM),
+            'weekStart' => $snapshot->getWeekStart()->format('Y-m-d'),
+            'publishedAt' => $snapshot->getPublishedAt()->format(\DATE_ATOM),
             'publishedByNom' => $snapshot->getPublishedBy()->getNom(),
-            'data'           => $snapshot->getData(),
+            'data' => $snapshot->getData(),
         ]);
     }
 
@@ -196,13 +197,13 @@ class PlanningController extends AbstractController
     #[IsGranted('ROLE_MANAGER')]
     public function duplicate(Request $request): JsonResponse
     {
-        $body   = json_decode($request->getContent(), true);
+        $body = json_decode($request->getContent(), true);
         $source = $body['sourceWeekStart'] ?? '';
         $target = $body['targetWeekStart'] ?? '';
 
         /** @var \App\Entity\User $currentUser */
         $currentUser = $this->getUser();
-        $centre      = $currentUser->getCentre();
+        $centre = $currentUser->getCentre();
 
         if (!$centre) {
             return $this->json(['error' => 'Centre introuvable'], 404);
@@ -223,7 +224,7 @@ class PlanningController extends AbstractController
 
         return $this->json([
             'targetWeekStart' => $targetWeek->format('Y-m-d'),
-            'message'         => 'Semaine dupliquée avec succès.',
+            'message' => 'Semaine dupliquée avec succès.',
         ]);
     }
 
@@ -238,7 +239,7 @@ class PlanningController extends AbstractController
     #[IsGranted('ROLE_MANAGER')]
     public function clearWeek(Request $request): JsonResponse
     {
-        $centreId  = (int) $request->query->get('centreId', 0);
+        $centreId = (int) $request->query->get('centreId', 0);
         $weekParam = $request->query->get('weekStart', '');
 
         if (!$centreId) {
@@ -257,12 +258,12 @@ class PlanningController extends AbstractController
             return $this->json(['error' => 'Centre introuvable'], 404);
         }
 
-        $weekStart  = $this->resolveMonday($weekParam);
+        $weekStart = $this->resolveMonday($weekParam);
         $minAllowed = $this->planningGuard->getMinAllowedDate();
-        $deleted    = $this->planningService->clearWeek($centre, $weekStart, $minAllowed, alsoAbsences: true);
+        $deleted = $this->planningService->clearWeek($centre, $weekStart, $minAllowed, alsoAbsences: true);
 
         return $this->json([
-            'deletedPostes'   => $deleted['postes'],
+            'deletedPostes' => $deleted['postes'],
             'deletedAbsences' => $deleted['absences'],
         ]);
     }
@@ -278,7 +279,7 @@ class PlanningController extends AbstractController
     {
         /** @var \App\Entity\User $currentUser */
         $currentUser = $this->getUser();
-        $data        = $this->planningService->getEmployeeWeeks($currentUser);
+        $data = $this->planningService->getEmployeeWeeks($currentUser);
 
         return $this->json($data);
     }
@@ -291,7 +292,7 @@ class PlanningController extends AbstractController
     #[IsGranted('ROLE_MANAGER')]
     public function alerts(Request $request): JsonResponse
     {
-        $centreId  = (int) $request->query->get('centreId', 0);
+        $centreId = (int) $request->query->get('centreId', 0);
         $weekParam = $request->query->get('weekStart', '');
 
         if (!$centreId) {
@@ -310,7 +311,7 @@ class PlanningController extends AbstractController
         }
 
         $weekStart = $this->resolveMonday($weekParam);
-        $alertes   = $this->planningService->getAlerts($centre, $weekStart);
+        $alertes = $this->planningService->getAlerts($centre, $weekStart);
 
         return $this->json($alertes);
     }
@@ -323,7 +324,7 @@ class PlanningController extends AbstractController
     #[IsGranted('ROLE_MANAGER')]
     public function exportPdf(Request $request): Response
     {
-        $centreId  = (int) $request->query->get('centreId', 0);
+        $centreId = (int) $request->query->get('centreId', 0);
         $weekParam = $request->query->get('weekStart', '');
 
         if (!$centreId) {
@@ -342,11 +343,11 @@ class PlanningController extends AbstractController
         }
 
         $weekStart = $this->resolveMonday($weekParam);
-        $pdf       = $this->planningService->generatePdf($centre, $weekStart);
-        $filename  = sprintf('planning_%s.pdf', $weekStart->format('Y-m-d'));
+        $pdf = $this->planningService->generatePdf($centre, $weekStart);
+        $filename = sprintf('planning_%s.pdf', $weekStart->format('Y-m-d'));
 
         return new Response($pdf, 200, [
-            'Content-Type'        => 'application/pdf',
+            'Content-Type' => 'application/pdf',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
     }
@@ -365,8 +366,8 @@ class PlanningController extends AbstractController
 
         // Calcule le lundi : ISO day of week, lundi = 1
         $dayOfWeek = (int) $date->format('N');
-        if ($dayOfWeek !== 1) {
-            $date = $date->modify('-' . ($dayOfWeek - 1) . ' days');
+        if (1 !== $dayOfWeek) {
+            $date = $date->modify('-'.($dayOfWeek - 1).' days');
         }
 
         // Le modificateur | force minuit (sans lui, createFromFormat garde l'heure courante)

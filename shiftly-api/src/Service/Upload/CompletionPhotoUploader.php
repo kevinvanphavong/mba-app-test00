@@ -18,15 +18,17 @@ use Symfony\Component\Uid\Uuid;
  */
 class CompletionPhotoUploader
 {
-    private const MAX_SIZE      = 5 * 1024 * 1024;
+    private const MAX_SIZE = 5 * 1024 * 1024;
     private const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
     public function __construct(
         private readonly R2StorageService $r2,
-    ) {}
+    ) {
+    }
 
     /**
      * @return array{storedPath: string, mime: string}
+     *
      * @throws \InvalidArgumentException si MIME ou taille invalide
      */
     public function upload(UploadedFile $file): array
@@ -54,7 +56,7 @@ class CompletionPhotoUploader
 
         return [
             'storedPath' => $key,
-            'mime'       => $mime,
+            'mime' => $mime,
         ];
     }
 }

@@ -20,9 +20,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ImpersonationGuardSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Security                $security,
+        private readonly Security $security,
         private readonly JWTTokenManagerInterface $jwtManager,
-    ) {}
+    ) {
+    }
 
     public static function getSubscribedEvents(): array
     {
@@ -43,7 +44,7 @@ class ImpersonationGuardSubscriber implements EventSubscriberInterface
         if (!str_starts_with($request->getPathInfo(), '/api')) {
             return;
         }
-        if ($request->getMethod() !== 'DELETE') {
+        if ('DELETE' !== $request->getMethod()) {
             return;
         }
 

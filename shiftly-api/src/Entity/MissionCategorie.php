@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -10,8 +12,6 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\MissionCategorieRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -30,19 +30,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'uniq_mission_cat_centre_nom', columns: ['centre_id', 'nom'])]
 #[ApiResource(
     shortName: 'MissionCategorie',
-    normalizationContext:   ['groups' => ['mission_categorie:read']],
+    normalizationContext: ['groups' => ['mission_categorie:read']],
     denormalizationContext: ['groups' => ['mission_categorie:write']],
     operations: [
         new GetCollection(security: "is_granted('ROLE_USER')"),
-        new Get(security:           "is_granted('ROLE_USER')"),
-        new Post(security:          "is_granted('ROLE_MANAGER')"),
-        new Put(security:           "is_granted('ROLE_MANAGER')"),
-        new Patch(security:         "is_granted('ROLE_MANAGER')"),
-        new Delete(security:        "is_granted('ROLE_MANAGER')"),
+        new Get(security: "is_granted('ROLE_USER')"),
+        new Post(security: "is_granted('ROLE_MANAGER')"),
+        new Put(security: "is_granted('ROLE_MANAGER')"),
+        new Patch(security: "is_granted('ROLE_MANAGER')"),
+        new Delete(security: "is_granted('ROLE_MANAGER')"),
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['centre' => 'exact', 'nom' => 'partial'])]
-#[ApiFilter(OrderFilter::class,  properties: ['ordre', 'nom'])]
+#[ApiFilter(OrderFilter::class, properties: ['ordre', 'nom'])]
 class MissionCategorie
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
@@ -78,20 +78,68 @@ class MissionCategorie
     #[Groups(['mission_categorie:read', 'mission_categorie:write'])]
     private int $ordre = 0;
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $centre): static { $this->centre = $centre; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(?string $nom): static { $this->nom = $nom; return $this; }
+    public function setCentre(?Centre $centre): static
+    {
+        $this->centre = $centre;
 
-    public function getCouleur(): ?string { return $this->couleur; }
-    public function setCouleur(?string $couleur): static { $this->couleur = $couleur; return $this; }
+        return $this;
+    }
 
-    public function getIcone(): ?string { return $this->icone; }
-    public function setIcone(?string $icone): static { $this->icone = $icone; return $this; }
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
 
-    public function getOrdre(): int { return $this->ordre; }
-    public function setOrdre(int $ordre): static { $this->ordre = $ordre; return $this; }
+    public function setNom(?string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getCouleur(): ?string
+    {
+        return $this->couleur;
+    }
+
+    public function setCouleur(?string $couleur): static
+    {
+        $this->couleur = $couleur;
+
+        return $this;
+    }
+
+    public function getIcone(): ?string
+    {
+        return $this->icone;
+    }
+
+    public function setIcone(?string $icone): static
+    {
+        $this->icone = $icone;
+
+        return $this;
+    }
+
+    public function getOrdre(): int
+    {
+        return $this->ordre;
+    }
+
+    public function setOrdre(int $ordre): static
+    {
+        $this->ordre = $ordre;
+
+        return $this;
+    }
 }

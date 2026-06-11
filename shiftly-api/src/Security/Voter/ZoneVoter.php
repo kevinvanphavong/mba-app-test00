@@ -14,7 +14,7 @@ class ZoneVoter extends AbstractCentreVoter
 
     protected function getCentreId(mixed $subject): ?int
     {
-        /** @var Zone $subject */
+        /* @var Zone $subject */
         return $subject->getCentre()?->getId();
     }
 }

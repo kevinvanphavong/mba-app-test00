@@ -25,10 +25,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: EventLogRepository::class)]
 #[ORM\Table(name: 'event_log')]
 #[ORM\Index(columns: ['centre_id', 'entity_type', 'occurred_at'], name: 'idx_eventlog_centre_type_date')]
-#[ORM\Index(columns: ['centre_id', 'user_id', 'occurred_at'],     name: 'idx_eventlog_centre_user_date')]
-#[ORM\Index(columns: ['poste_id'],                                 name: 'idx_eventlog_poste')]
-#[ORM\Index(columns: ['mission_id'],                               name: 'idx_eventlog_mission')]
-#[ORM\Index(columns: ['user_id'],                                  name: 'idx_eventlog_user')]
+#[ORM\Index(columns: ['centre_id', 'user_id', 'occurred_at'], name: 'idx_eventlog_centre_user_date')]
+#[ORM\Index(columns: ['poste_id'], name: 'idx_eventlog_poste')]
+#[ORM\Index(columns: ['mission_id'], name: 'idx_eventlog_mission')]
+#[ORM\Index(columns: ['user_id'], name: 'idx_eventlog_user')]
 #[ApiResource(
     normalizationContext: ['groups' => ['eventlog:read']],
     operations: [
@@ -37,19 +37,19 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: [
-    'centre'     => 'exact',
+    'centre' => 'exact',
     'entityType' => 'exact',
-    'action'     => 'exact',
-    'user'       => 'exact',
-    'poste'      => 'exact',
-    'mission'    => 'exact',
+    'action' => 'exact',
+    'user' => 'exact',
+    'poste' => 'exact',
+    'mission' => 'exact',
 ])]
 #[ApiFilter(DateFilter::class, properties: ['occurredAt'])]
 class EventLog
 {
     public const ENTITY_COMPLETION = 'completion';
-    public const ACTION_CHECK      = 'CHECK';
-    public const ACTION_UNCHECK    = 'UNCHECK';
+    public const ACTION_CHECK = 'CHECK';
+    public const ACTION_UNCHECK = 'UNCHECK';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column(type: 'bigint')]
     #[Groups(['eventlog:read'])]
@@ -104,31 +104,109 @@ class EventLog
         $this->occurredAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?string { return $this->id; }
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $c): static { $this->centre = $c; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getEntityType(): string { return $this->entityType; }
-    public function setEntityType(string $t): static { $this->entityType = $t; return $this; }
+    public function setCentre(?Centre $c): static
+    {
+        $this->centre = $c;
 
-    public function getEntityId(): ?int { return $this->entityId; }
-    public function setEntityId(?int $id): static { $this->entityId = $id; return $this; }
+        return $this;
+    }
 
-    public function getAction(): string { return $this->action; }
-    public function setAction(string $a): static { $this->action = $a; return $this; }
+    public function getEntityType(): string
+    {
+        return $this->entityType;
+    }
 
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $u): static { $this->user = $u; return $this; }
+    public function setEntityType(string $t): static
+    {
+        $this->entityType = $t;
 
-    public function getPoste(): ?Poste { return $this->poste; }
-    public function setPoste(?Poste $p): static { $this->poste = $p; return $this; }
+        return $this;
+    }
 
-    public function getMission(): ?Mission { return $this->mission; }
-    public function setMission(?Mission $m): static { $this->mission = $m; return $this; }
+    public function getEntityId(): ?int
+    {
+        return $this->entityId;
+    }
 
-    public function getPayload(): array { return $this->payload; }
-    public function setPayload(array $payload): static { $this->payload = $payload; return $this; }
+    public function setEntityId(?int $id): static
+    {
+        $this->entityId = $id;
 
-    public function getOccurredAt(): \DateTimeImmutable { return $this->occurredAt; }
+        return $this;
+    }
+
+    public function getAction(): string
+    {
+        return $this->action;
+    }
+
+    public function setAction(string $a): static
+    {
+        $this->action = $a;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $u): static
+    {
+        $this->user = $u;
+
+        return $this;
+    }
+
+    public function getPoste(): ?Poste
+    {
+        return $this->poste;
+    }
+
+    public function setPoste(?Poste $p): static
+    {
+        $this->poste = $p;
+
+        return $this;
+    }
+
+    public function getMission(): ?Mission
+    {
+        return $this->mission;
+    }
+
+    public function setMission(?Mission $m): static
+    {
+        $this->mission = $m;
+
+        return $this;
+    }
+
+    public function getPayload(): array
+    {
+        return $this->payload;
+    }
+
+    public function setPayload(array $payload): static
+    {
+        $this->payload = $payload;
+
+        return $this;
+    }
+
+    public function getOccurredAt(): \DateTimeImmutable
+    {
+        return $this->occurredAt;
+    }
 }

@@ -48,9 +48,9 @@ class CompletionHaccpProofRepository extends ServiceEntityRepository
         if ($typeReleve) {
             $qb->andWhere('s.typeReleve = :tr')->setParameter('tr', $typeReleve);
         }
-        if ($conforme === false) {
+        if (false === $conforme) {
             $qb->andWhere('p.estConforme = false');
-        } elseif ($conforme === true) {
+        } elseif (true === $conforme) {
             $qb->andWhere('p.estConforme = true');
         }
 

@@ -29,12 +29,13 @@ class TutorielRepository extends ServiceEntityRepository
             ->setParameter('centreId', $centreId)
             ->orderBy('t.createdAt', 'DESC');
 
-        if ($zone !== null) {
+        if (null !== $zone) {
             $qb->andWhere('t.zone = :zone')->setParameter('zone', $zone);
         }
-        if ($niveau !== null) {
+        if (null !== $niveau) {
             $qb->andWhere('t.niveau = :niveau')->setParameter('niveau', $niveau);
         }
+
         return $qb->getQuery()->getResult();
     }
 }

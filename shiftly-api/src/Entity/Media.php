@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Get(security: "is_granted('MEDIA_VIEW', object)"),
         new Delete(security: "is_granted('ROLE_MANAGER') and is_granted('MEDIA_DELETE', object)"),
     ],
-    normalizationContext:   ['groups' => ['media:read']],
+    normalizationContext: ['groups' => ['media:read']],
     denormalizationContext: ['groups' => ['media:write']],
 )]
 class Media
@@ -85,31 +85,109 @@ class Media
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(Centre $centre): static { $this->centre = $centre; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getEntityType(): MediaEntityType { return $this->entityType; }
-    public function setEntityType(MediaEntityType $type): static { $this->entityType = $type; return $this; }
+    public function setCentre(Centre $centre): static
+    {
+        $this->centre = $centre;
 
-    public function getEntityId(): int { return $this->entityId; }
-    public function setEntityId(int $id): static { $this->entityId = $id; return $this; }
+        return $this;
+    }
 
-    public function getFilename(): string { return $this->filename; }
-    public function setFilename(string $filename): static { $this->filename = $filename; return $this; }
+    public function getEntityType(): MediaEntityType
+    {
+        return $this->entityType;
+    }
 
-    public function getMimeType(): string { return $this->mimeType; }
-    public function setMimeType(string $mime): static { $this->mimeType = $mime; return $this; }
+    public function setEntityType(MediaEntityType $type): static
+    {
+        $this->entityType = $type;
 
-    public function getSizeBytes(): int { return $this->sizeBytes; }
-    public function setSizeBytes(int $size): static { $this->sizeBytes = $size; return $this; }
+        return $this;
+    }
 
-    public function getStoragePath(): string { return $this->storagePath; }
-    public function setStoragePath(string $path): static { $this->storagePath = $path; return $this; }
+    public function getEntityId(): int
+    {
+        return $this->entityId;
+    }
 
-    public function getUploadedBy(): ?User { return $this->uploadedBy; }
-    public function setUploadedBy(User $user): static { $this->uploadedBy = $user; return $this; }
+    public function setEntityId(int $id): static
+    {
+        $this->entityId = $id;
 
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+        return $this;
+    }
+
+    public function getFilename(): string
+    {
+        return $this->filename;
+    }
+
+    public function setFilename(string $filename): static
+    {
+        $this->filename = $filename;
+
+        return $this;
+    }
+
+    public function getMimeType(): string
+    {
+        return $this->mimeType;
+    }
+
+    public function setMimeType(string $mime): static
+    {
+        $this->mimeType = $mime;
+
+        return $this;
+    }
+
+    public function getSizeBytes(): int
+    {
+        return $this->sizeBytes;
+    }
+
+    public function setSizeBytes(int $size): static
+    {
+        $this->sizeBytes = $size;
+
+        return $this;
+    }
+
+    public function getStoragePath(): string
+    {
+        return $this->storagePath;
+    }
+
+    public function setStoragePath(string $path): static
+    {
+        $this->storagePath = $path;
+
+        return $this;
+    }
+
+    public function getUploadedBy(): ?User
+    {
+        return $this->uploadedBy;
+    }
+
+    public function setUploadedBy(User $user): static
+    {
+        $this->uploadedBy = $user;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

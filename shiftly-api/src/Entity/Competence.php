@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -9,8 +11,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\CompetenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -24,13 +24,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Entity(repositoryClass: CompetenceRepository::class)]
 #[ApiResource(
-    normalizationContext:   ['groups' => ['competence:read']],
+    normalizationContext: ['groups' => ['competence:read']],
     denormalizationContext: ['groups' => ['competence:write']],
     operations: [
         new GetCollection(security: "is_granted('ROLE_USER')"),
-        new Get(security:           "is_granted('ROLE_USER')"),
+        new Get(security: "is_granted('ROLE_USER')"),
         new Post(
-            security:                "is_granted('ROLE_MANAGER')",
+            security: "is_granted('ROLE_MANAGER')",
             securityPostDenormalize: "is_granted('CREATE', object)"
         ),
         new Put(
@@ -42,16 +42,16 @@ use Symfony\Component\Validator\Constraints as Assert;
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: [
-    'nom'        => 'partial',   // ?nom=caisse
+    'nom' => 'partial',   // ?nom=caisse
     'difficulte' => 'exact',     // ?difficulte=avancee
-    'zone'       => 'exact',     // ?zone=/api/zones/1
+    'zone' => 'exact',     // ?zone=/api/zones/1
 ])]
 #[ApiFilter(OrderFilter::class, properties: ['points', 'difficulte', 'nom'])]
 class Competence
 {
-    const DIFF_SIMPLE      = 'simple';
-    const DIFF_AVANCEE     = 'avancee';
-    const DIFF_EXPERIMENTE = 'experimente';
+    public const DIFF_SIMPLE = 'simple';
+    public const DIFF_AVANCEE = 'avancee';
+    public const DIFF_EXPERIMENTE = 'experimente';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['competence:read', 'staffcompetence:read'])]
@@ -87,16 +87,73 @@ class Competence
         $this->staffCompetences = new ArrayCollection();
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getZone(): ?Zone { return $this->zone; }
-    public function setZone(?Zone $zone): static { $this->zone = $zone; return $this; }
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
-    public function getPoints(): int { return $this->points; }
-    public function setPoints(int $points): static { $this->points = $points; return $this; }
-    public function getDifficulte(): string { return $this->difficulte; }
-    public function setDifficulte(string $difficulte): static { $this->difficulte = $difficulte; return $this; }
-    public function getDescription(): ?string { return $this->description; }
-    public function setDescription(?string $description): static { $this->description = $description; return $this; }
-    public function getStaffCompetences(): Collection { return $this->staffCompetences; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getZone(): ?Zone
+    {
+        return $this->zone;
+    }
+
+    public function setZone(?Zone $zone): static
+    {
+        $this->zone = $zone;
+
+        return $this;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getPoints(): int
+    {
+        return $this->points;
+    }
+
+    public function setPoints(int $points): static
+    {
+        $this->points = $points;
+
+        return $this;
+    }
+
+    public function getDifficulte(): string
+    {
+        return $this->difficulte;
+    }
+
+    public function setDifficulte(string $difficulte): static
+    {
+        $this->difficulte = $difficulte;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getStaffCompetences(): Collection
+    {
+        return $this->staffCompetences;
+    }
 }

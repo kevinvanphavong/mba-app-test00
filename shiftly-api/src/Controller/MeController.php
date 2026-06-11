@@ -19,19 +19,19 @@ class MeController extends AbstractController
         $centre = $user->getCentre();
 
         return $this->json([
-            'id'          => $user->getId(),
-            'nom'         => $user->getNom(),
-            'prenom'      => $user->getPrenom(),
-            'email'       => $user->getEmail(),
-            'role'        => $user->getRole(),
+            'id' => $user->getId(),
+            'nom' => $user->getNom(),
+            'prenom' => $user->getPrenom(),
+            'email' => $user->getEmail(),
+            'role' => $user->getRole(),
             'avatarColor' => $user->getAvatarColor(),
-            'points'      => $user->getPoints(),
-            'centre'      => $centre ? [
-                'id'           => $centre->getId(),
-                'nom'          => $centre->getNom(),
-                'adresse'      => $centre->getAdresse(),
-                'telephone'    => $centre->getTelephone(),
-                'siteWeb'      => $centre->getSiteWeb(),
+            'points' => $user->getPoints(),
+            'centre' => $centre ? [
+                'id' => $centre->getId(),
+                'nom' => $centre->getNom(),
+                'adresse' => $centre->getAdresse(),
+                'telephone' => $centre->getTelephone(),
+                'siteWeb' => $centre->getSiteWeb(),
                 'openingHours' => $centre->getOpeningHours(),
             ] : null,
         ]);

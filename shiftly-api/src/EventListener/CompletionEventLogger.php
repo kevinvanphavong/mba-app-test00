@@ -24,28 +24,38 @@ use Symfony\Bundle\SecurityBundle\Security;
 #[AsDoctrineListener(event: Events::onFlush)]
 final class CompletionEventLogger
 {
-    public function __construct(private readonly Security $security) {}
+    public function __construct(private readonly Security $security)
+    {
+    }
 
     public function onFlush(OnFlushEventArgs $args): void
     {
-        $em  = $args->getObjectManager();
+        $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
         $meta = $em->getClassMetadata(EventLog::class);
 
         // CHECK — insertions de Completion
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
-            if (!$entity instanceof Completion) continue;
+            if (!$entity instanceof Completion) {
+                continue;
+            }
             $event = $this->buildEvent($entity, EventLog::ACTION_CHECK);
-            if ($event === null) continue;
+            if (null === $event) {
+                continue;
+            }
             $em->persist($event);
             $uow->computeChangeSet($meta, $event);
         }
 
         // UNCHECK — suppressions de Completion
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
-            if (!$entity instanceof Completion) continue;
+            if (!$entity instanceof Completion) {
+                continue;
+            }
             $event = $this->buildEvent($entity, EventLog::ACTION_UNCHECK);
-            if ($event === null) continue;
+            if (null === $event) {
+                continue;
+            }
             $em->persist($event);
             $uow->computeChangeSet($meta, $event);
         }
@@ -55,14 +65,16 @@ final class CompletionEventLogger
 
     private function buildEvent(Completion $c, string $action): ?EventLog
     {
-        $poste   = $c->getPoste();
+        $poste = $c->getPoste();
         $mission = $c->getMission();
-        $zone    = $poste?->getZone();
+        $zone = $poste?->getZone();
         $service = $poste?->getService();
-        $centre  = $zone?->getCentre() ?? $service?->getCentre();
+        $centre = $zone?->getCentre() ?? $service?->getCentre();
 
         // Sans centre on n'écrit rien : centre_id NOT NULL.
-        if ($centre === null) return null;
+        if (null === $centre) {
+            return null;
+        }
 
         $author = $this->resolveAuthor($c);
 
@@ -76,13 +88,13 @@ final class CompletionEventLogger
             ->setMission($mission)
             // 8 clés exactement — cf. EVENTLOG_MODULE.md §4
             ->setPayload([
-                'missionNom'     => $mission?->getTexte(),
-                'missionPriorite'=> $mission?->getPriorite(),
-                'zoneNom'        => $zone?->getNom(),
-                'zoneCouleur'    => $zone?->getCouleur(),
-                'userNom'        => $this->formatUserName($author),
-                'serviceId'      => $service?->getId(),
-                'serviceDate'    => $service?->getDate()?->format('Y-m-d'),
+                'missionNom' => $mission?->getTexte(),
+                'missionPriorite' => $mission?->getPriorite(),
+                'zoneNom' => $zone?->getNom(),
+                'zoneCouleur' => $zone?->getCouleur(),
+                'userNom' => $this->formatUserName($author),
+                'serviceId' => $service?->getId(),
+                'serviceDate' => $service?->getDate()?->format('Y-m-d'),
                 'serviceCreneau' => $this->resolveCreneau($service?->getHeureDebut()),
             ]);
     }
@@ -90,26 +102,41 @@ final class CompletionEventLogger
     private function resolveAuthor(Completion $c): ?User
     {
         $user = $this->security->getUser();
-        if ($user instanceof User) return $user;
+        if ($user instanceof User) {
+            return $user;
+        }
+
         return $c->getUser();
     }
 
     private function formatUserName(?User $u): ?string
     {
-        if (!$u) return null;
+        if (!$u) {
+            return null;
+        }
         $prenom = $u->getPrenom();
-        $nom    = $u->getNom();
-        if ($prenom && $nom) return $prenom . ' ' . mb_strtoupper(mb_substr($nom, 0, 1)) . '.';
+        $nom = $u->getNom();
+        if ($prenom && $nom) {
+            return $prenom.' '.mb_strtoupper(mb_substr($nom, 0, 1)).'.';
+        }
+
         return $nom ?? $prenom;
     }
 
     /** Daypart label dérivé de l'heure de début. */
     private function resolveCreneau(?\DateTimeImmutable $heureDebut): ?string
     {
-        if (!$heureDebut) return null;
+        if (!$heureDebut) {
+            return null;
+        }
         $h = (int) $heureDebut->format('G');
-        if ($h < 12) return 'matin';
-        if ($h < 17) return 'apresmidi';
+        if ($h < 12) {
+            return 'matin';
+        }
+        if ($h < 17) {
+            return 'apresmidi';
+        }
+
         return 'soir';
     }
 }

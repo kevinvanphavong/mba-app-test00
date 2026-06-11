@@ -5,8 +5,8 @@ namespace App\Security\Voter;
 use App\Entity\HaccpEquipement;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * VIEW : tout user du centre.
@@ -14,8 +14,8 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
  */
 class HaccpEquipementVoter extends Voter
 {
-    public const VIEW   = 'VIEW';
-    public const EDIT   = 'EDIT';
+    public const VIEW = 'VIEW';
+    public const EDIT = 'EDIT';
     public const CREATE = 'CREATE';
     public const DELETE = 'DELETE';
 
@@ -29,14 +29,18 @@ class HaccpEquipementVoter extends Voter
     {
         /** @var HaccpEquipement $subject */
         $user = $token->getUser();
-        if (!$user instanceof User) return false;
+        if (!$user instanceof User) {
+            return false;
+        }
 
-        if ($subject->getCentre()?->getId() !== $user->getCentre()?->getId()) return false;
+        if ($subject->getCentre()?->getId() !== $user->getCentre()?->getId()) {
+            return false;
+        }
 
         return match ($attribute) {
-            self::VIEW   => true,
-            self::EDIT, self::CREATE, self::DELETE => $user->getRole() === User::ROLE_MANAGER,
-            default      => false,
+            self::VIEW => true,
+            self::EDIT, self::CREATE, self::DELETE => User::ROLE_MANAGER === $user->getRole(),
+            default => false,
         };
     }
 }

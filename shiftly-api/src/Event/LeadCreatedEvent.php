@@ -11,5 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class LeadCreatedEvent extends Event
 {
-    public function __construct(public readonly Lead $lead) {}
+    public function __construct(public readonly Lead $lead)
+    {
+    }
 }

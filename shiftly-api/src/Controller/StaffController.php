@@ -14,7 +14,6 @@ use App\Service\ActiveDayResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -27,16 +26,17 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class StaffController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface      $em,
-        private readonly UserRepository             $userRepo,
-        private readonly CompetenceRepository       $competenceRepo,
-        private readonly TutorielRepository         $tutorielRepo,
-        private readonly PosteRepository            $posteRepo,
-        private readonly ServiceRepository          $serviceRepo,
-        private readonly ZoneRepository             $zoneRepo,
+        private readonly EntityManagerInterface $em,
+        private readonly UserRepository $userRepo,
+        private readonly CompetenceRepository $competenceRepo,
+        private readonly TutorielRepository $tutorielRepo,
+        private readonly PosteRepository $posteRepo,
+        private readonly ServiceRepository $serviceRepo,
+        private readonly ZoneRepository $zoneRepo,
         private readonly UserPasswordHasherInterface $hasher,
-        private readonly ActiveDayResolver          $activeDayResolver,
-    ) {}
+        private readonly ActiveDayResolver $activeDayResolver,
+    ) {
+    }
 
     // ─── Liste enrichie ───────────────────────────────────────────────────────
 
@@ -45,14 +45,14 @@ class StaffController extends AbstractController
     public function list(): JsonResponse
     {
         /** @var User $me */
-        $me     = $this->getUser();
+        $me = $this->getUser();
         $centre = $me->getCentre();
         $isManager = in_array(User::ROLE_MANAGER, $me->getRoles(), true);
 
         if (!$centre) {
             return $this->json([
                 'members' => [],
-                'meta'    => $this->buildEmptyMeta(),
+                'meta' => $this->buildEmptyMeta(),
             ]);
         }
 
@@ -61,10 +61,10 @@ class StaffController extends AbstractController
         // Membres du centre (tous, actifs ou non)
         $users = $this->userRepo->findBy(['centre' => $centre], ['nom' => 'ASC']);
 
-        $tutorielsTotal      = $this->tutorielRepo->countByCentre($centreId);
-        $competencesTotal    = $this->competenceRepo->countByCentre($centreId);
-        $competencesParZone  = $this->buildCompetencesParZone($centreId);
-        $presentUserIds      = $this->getPresentUserIds($centreId);
+        $tutorielsTotal = $this->tutorielRepo->countByCentre($centreId);
+        $competencesTotal = $this->competenceRepo->countByCentre($centreId);
+        $competencesParZone = $this->buildCompetencesParZone($centreId);
+        $presentUserIds = $this->getPresentUserIds($centreId);
 
         $members = [];
         foreach ($users as $user) {
@@ -74,16 +74,18 @@ class StaffController extends AbstractController
             $staffComps = [];
             foreach ($user->getStaffCompetences() as $sc) {
                 $comp = $sc->getCompetence();
-                if (!$comp) continue;
+                if (!$comp) {
+                    continue;
+                }
                 $zone = $comp->getZone();
                 $staffComps[] = [
-                    'id'          => $sc->getId(),
-                    'competenceId'=> $comp->getId(),
-                    'nom'         => $comp->getNom(),
-                    'zoneName'    => $zone?->getNom(),
+                    'id' => $sc->getId(),
+                    'competenceId' => $comp->getId(),
+                    'nom' => $comp->getNom(),
+                    'zoneName' => $zone?->getNom(),
                     'zoneCouleur' => $zone?->getCouleur(),
-                    'points'      => $comp->getPoints(),
-                    'difficulte'  => $comp->getDifficulte(),
+                    'points' => $comp->getPoints(),
+                    'difficulte' => $comp->getDifficulte(),
                 ];
             }
 
@@ -94,53 +96,53 @@ class StaffController extends AbstractController
             $exposeContract = $isManager || $isSelf;
 
             $members[] = [
-                'id'               => $user->getId(),
-                'nom'              => $user->getNom(),
-                'prenom'           => $user->getPrenom(),
-                'email'            => $user->getEmail(),
-                'role'             => $user->getRole(),
-                'points'           => $user->getPoints(),
-                'actif'            => $user->isActif(),
-                'avatarColor'      => $user->getAvatarColor() ?? '#6b7280',
-                'tailleHaut'       => $user->getTailleHaut(),
-                'tailleBas'        => $user->getTailleBas(),
-                'pointure'         => $user->getPointure(),
+                'id' => $user->getId(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'email' => $user->getEmail(),
+                'role' => $user->getRole(),
+                'points' => $user->getPoints(),
+                'actif' => $user->isActif(),
+                'avatarColor' => $user->getAvatarColor() ?? '#6b7280',
+                'tailleHaut' => $user->getTailleHaut(),
+                'tailleBas' => $user->getTailleBas(),
+                'pointure' => $user->getPointure(),
                 // Champs contrat — null pour un employé qui regarde un autre membre
-                'heuresHebdo'      => $exposeContract ? $user->getHeuresHebdo() : null,
-                'typeContrat'      => $exposeContract ? $user->getTypeContrat() : null,
-                'dateEmbauche'     => $exposeContract ? $user->getDateEmbauche()?->format('Y-m-d') : null,
-                'codePointage'     => $exposeContract ? $user->getCodePointage()        : null,
+                'heuresHebdo' => $exposeContract ? $user->getHeuresHebdo() : null,
+                'typeContrat' => $exposeContract ? $user->getTypeContrat() : null,
+                'dateEmbauche' => $exposeContract ? $user->getDateEmbauche()?->format('Y-m-d') : null,
+                'codePointage' => $exposeContract ? $user->getCodePointage() : null,
                 // ─── Registre du personnel — manager OU soi-même ───
-                'dateNaissance'            => $exposeContract ? $user->getDateNaissance()?->format('Y-m-d') : null,
-                'lieuNaissanceCommune'     => $exposeContract ? $user->getLieuNaissanceCommune()     : null,
+                'dateNaissance' => $exposeContract ? $user->getDateNaissance()?->format('Y-m-d') : null,
+                'lieuNaissanceCommune' => $exposeContract ? $user->getLieuNaissanceCommune() : null,
                 'lieuNaissanceDepartement' => $exposeContract ? $user->getLieuNaissanceDepartement() : null,
-                'sexe'                     => $exposeContract ? $user->getSexe()         : null,
-                'nationalite'              => $exposeContract ? $user->getNationalite()  : null,
-                'emploi'                   => $exposeContract ? $user->getEmploi()       : null,
-                'adresse'                  => $exposeContract ? $user->getAdresse()      : null,
-                'codePostal'               => $exposeContract ? $user->getCodePostal()   : null,
-                'ville'                    => $exposeContract ? $user->getVille()        : null,
-                'telephone'                => $exposeContract ? $user->getTelephone()    : null,
+                'sexe' => $exposeContract ? $user->getSexe() : null,
+                'nationalite' => $exposeContract ? $user->getNationalite() : null,
+                'emploi' => $exposeContract ? $user->getEmploi() : null,
+                'adresse' => $exposeContract ? $user->getAdresse() : null,
+                'codePostal' => $exposeContract ? $user->getCodePostal() : null,
+                'ville' => $exposeContract ? $user->getVille() : null,
+                'telephone' => $exposeContract ? $user->getTelephone() : null,
                 // dateSortie / motifSortie : exposés à tous (ne sont pas confidentiels —
                 // un employé voit qui est parti, mais ne peut pas les écrire).
-                'dateSortie'   => $user->getDateSortie()?->format('Y-m-d'),
-                'motifSortie'  => $user->getMotifSortie(),
+                'dateSortie' => $user->getDateSortie()?->format('Y-m-d'),
+                'motifSortie' => $user->getMotifSortie(),
                 'staffCompetences' => $staffComps,
-                'tutorielsLus'     => $tutorielsLus,
-                'isPresent'        => in_array($user->getId(), $presentUserIds, true),
+                'tutorielsLus' => $tutorielsLus,
+                'isPresent' => in_array($user->getId(), $presentUserIds, true),
             ];
         }
 
         return $this->json([
             'members' => $members,
-            'meta'    => [
-                'tutorielsTotal'     => $tutorielsTotal,
-                'competencesTotal'   => $competencesTotal,
+            'meta' => [
+                'tutorielsTotal' => $tutorielsTotal,
+                'competencesTotal' => $competencesTotal,
                 'competencesParZone' => $competencesParZone,
                 'competencesCatalog' => $this->buildCompetencesCatalog($centreId),
-                'tenueHaut'          => $centre->getTenueHaut(),
-                'tenueBas'           => $centre->getTenueBas(),
-                'tenueChaussures'    => $centre->getTenueChaussures(),
+                'tenueHaut' => $centre->getTenueHaut(),
+                'tenueBas' => $centre->getTenueBas(),
+                'tenueChaussures' => $centre->getTenueChaussures(),
             ],
         ]);
     }
@@ -161,20 +163,20 @@ class StaffController extends AbstractController
              ORDER BY z.ordre ASC, c.points DESC, c.nom ASC'
         )->setParameter('centreId', $centreId)->getArrayResult();
 
-        return array_map(fn(array $r) => [
-            'id'          => (int) $r['id'],
-            'nom'         => $r['nom'],
-            'difficulte'  => $r['difficulte'],
-            'points'      => (int) $r['points'],
-            'zoneId'      => (int) $r['zoneId'],
-            'zoneName'    => $r['zoneName'],
+        return array_map(fn (array $r) => [
+            'id' => (int) $r['id'],
+            'nom' => $r['nom'],
+            'difficulte' => $r['difficulte'],
+            'points' => (int) $r['points'],
+            'zoneId' => (int) $r['zoneId'],
+            'zoneName' => $r['zoneName'],
             'zoneCouleur' => $r['zoneCouleur'] ?? '#6b7280',
         ], $rows);
     }
 
     /**
      * Retourne les totaux compétences groupés par zone du centre.
-     * Format : ['Accueil' => ['total' => 5, 'couleur' => '#3b82f6'], ...]
+     * Format : ['Accueil' => ['total' => 5, 'couleur' => '#3b82f6'], ...].
      */
     private function buildCompetencesParZone(int $centreId): array
     {
@@ -189,23 +191,24 @@ class StaffController extends AbstractController
         $result = [];
         foreach ($rows as $row) {
             $result[$row['zoneName']] = [
-                'total'   => (int) $row['total'],
+                'total' => (int) $row['total'],
                 'couleur' => $row['zoneCouleur'] ?? '#6b7280',
             ];
         }
+
         return $result;
     }
 
     private function buildEmptyMeta(): array
     {
         return [
-            'tutorielsTotal'     => 0,
-            'competencesTotal'   => 0,
+            'tutorielsTotal' => 0,
+            'competencesTotal' => 0,
             'competencesParZone' => (object) [],
             'competencesCatalog' => [],
-            'tenueHaut'          => null,
-            'tenueBas'           => null,
-            'tenueChaussures'    => null,
+            'tenueHaut' => null,
+            'tenueBas' => null,
+            'tenueChaussures' => null,
         ];
     }
 
@@ -214,22 +217,25 @@ class StaffController extends AbstractController
     /** Retourne les IDs des utilisateurs affectés au service EN_COURS du jour. */
     private function getPresentUserIds(int $centreId): array
     {
-        $today   = $this->activeDayResolver->getActiveDate();
+        $today = $this->activeDayResolver->getActiveDate();
         $service = $this->serviceRepo->findOneBy([
             'centre' => $centreId,
             'statut' => Service::STATUT_EN_COURS,
-            'date'   => $today,
+            'date' => $today,
         ]);
 
-        if (!$service) return [];
+        if (!$service) {
+            return [];
+        }
 
         $postes = $this->posteRepo->findBy(['service' => $service]);
-        $ids    = [];
+        $ids = [];
         foreach ($postes as $poste) {
             if ($poste->getUser()) {
                 $ids[] = $poste->getUser()->getId();
             }
         }
+
         return array_unique($ids);
     }
 }

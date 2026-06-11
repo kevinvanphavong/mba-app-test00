@@ -51,22 +51,62 @@ class PlanningTemplate
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->shifts    = new ArrayCollection();
-        $this->absences  = new ArrayCollection();
-        $this->nom       = '';
+        $this->shifts = new ArrayCollection();
+        $this->absences = new ArrayCollection();
+        $this->nom = '';
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $centre): static { $this->centre = $centre; return $this; }
-    public function getNom(): string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
-    public function getCreatedBy(): ?User { return $this->createdBy; }
-    public function setCreatedBy(?User $u): static { $this->createdBy = $u; return $this; }
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
+
+    public function setCentre(?Centre $centre): static
+    {
+        $this->centre = $centre;
+
+        return $this;
+    }
+
+    public function getNom(): string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $u): static
+    {
+        $this->createdBy = $u;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 
     /** @return Collection<int, PlanningTemplateShift> */
-    public function getShifts(): Collection { return $this->shifts; }
+    public function getShifts(): Collection
+    {
+        return $this->shifts;
+    }
 
     public function addShift(PlanningTemplateShift $shift): static
     {
@@ -74,17 +114,22 @@ class PlanningTemplate
             $this->shifts->add($shift);
             $shift->setTemplate($this);
         }
+
         return $this;
     }
 
     public function removeShift(PlanningTemplateShift $shift): static
     {
         $this->shifts->removeElement($shift);
+
         return $this;
     }
 
     /** @return Collection<int, PlanningTemplateAbsence> */
-    public function getAbsences(): Collection { return $this->absences; }
+    public function getAbsences(): Collection
+    {
+        return $this->absences;
+    }
 
     public function addAbsence(PlanningTemplateAbsence $absence): static
     {
@@ -92,12 +137,14 @@ class PlanningTemplate
             $this->absences->add($absence);
             $absence->setTemplate($this);
         }
+
         return $this;
     }
 
     public function removeAbsence(PlanningTemplateAbsence $absence): static
     {
         $this->absences->removeElement($absence);
+
         return $this;
     }
 }

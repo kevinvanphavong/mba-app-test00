@@ -7,8 +7,8 @@ namespace App\Security\Voter;
 use App\Entity\Lead;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * Voter sur Lead — réservé strictement à ROLE_SUPERADMIN.
@@ -22,7 +22,7 @@ class LeadVoter extends Voter
     protected function supports(string $attribute, mixed $subject): bool
     {
         return in_array($attribute, [self::VIEW, self::EDIT], true)
-            && ($subject === null || $subject instanceof Lead);
+            && (null === $subject || $subject instanceof Lead);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool

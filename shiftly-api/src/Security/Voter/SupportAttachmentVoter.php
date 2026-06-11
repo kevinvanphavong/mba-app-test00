@@ -8,8 +8,8 @@ use App\Entity\SupportAttachment;
 use App\Entity\SupportTicket;
 use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
+use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
  * Voter sur SupportAttachment pour la lecture via URL signée R2.
@@ -28,7 +28,7 @@ class SupportAttachmentVoter extends Voter
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return $attribute === self::VIEW && $subject instanceof SupportAttachment;
+        return self::VIEW === $attribute && $subject instanceof SupportAttachment;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
@@ -45,7 +45,7 @@ class SupportAttachmentVoter extends Voter
 
         /** @var SupportAttachment $subject */
         $ticket = $this->resolveParentTicket($subject);
-        if ($ticket === null) {
+        if (null === $ticket) {
             return false;
         }
 
@@ -55,10 +55,10 @@ class SupportAttachmentVoter extends Voter
         }
 
         // Manager du centre du ticket
-        $userCentreId   = $user->getCentre()?->getId();
+        $userCentreId = $user->getCentre()?->getId();
         $ticketCentreId = $ticket->getCentre()?->getId();
         if (
-            $userCentreId !== null
+            null !== $userCentreId
             && $ticketCentreId === $userCentreId
             && in_array('ROLE_MANAGER', $user->getRoles(), true)
         ) {

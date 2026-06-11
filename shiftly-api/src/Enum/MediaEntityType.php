@@ -11,7 +11,7 @@ namespace App\Enum;
  */
 enum MediaEntityType: string
 {
-    case Mission   = 'mission';
-    case Tutoriel  = 'tutoriel';
-    case Document  = 'document';
+    case Mission = 'mission';
+    case Tutoriel = 'tutoriel';
+    case Document = 'document';
 }

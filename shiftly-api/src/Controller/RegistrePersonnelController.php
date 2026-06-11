@@ -24,8 +24,9 @@ class RegistrePersonnelController extends AbstractController
 {
     public function __construct(
         private readonly UserRepository $userRepo,
-        private readonly Environment    $twig,
-    ) {}
+        private readonly Environment $twig,
+    ) {
+    }
 
     #[Route('/api/registre-personnel/export.pdf', name: 'registre_personnel_export', methods: ['GET'])]
     #[IsGranted('ROLE_MANAGER')]
@@ -33,14 +34,14 @@ class RegistrePersonnelController extends AbstractController
     {
         /** @var User $manager */
         $manager = $this->getUser();
-        $centre  = $manager->getCentre();
+        $centre = $manager->getCentre();
         if (!$centre) {
             throw $this->createAccessDeniedException('Centre absent du JWT.');
         }
 
         // Sortis < 5 ans OU encore présents (actifs)
         $cutoff = new \DateTimeImmutable('-5 years');
-        $users  = $this->userRepo->createQueryBuilder('u')
+        $users = $this->userRepo->createQueryBuilder('u')
             ->andWhere('u.centre = :centre')->setParameter('centre', $centre)
             ->andWhere('u.actif = true OR u.dateSortie IS NULL OR u.dateSortie >= :cutoff')
             ->setParameter('cutoff', $cutoff)
@@ -49,18 +50,18 @@ class RegistrePersonnelController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        $presents = array_filter($users, fn(User $u) => $u->isActif() && $u->getDateSortie() === null);
-        $sortis   = array_filter($users, fn(User $u) => $u->getDateSortie() !== null);
+        $presents = array_filter($users, fn (User $u) => $u->isActif() && null === $u->getDateSortie());
+        $sortis = array_filter($users, fn (User $u) => null !== $u->getDateSortie());
 
         $html = $this->twig->render('registre/export.html.twig', [
-            'centre'       => $centre,
-            'manager'      => $manager,
-            'users'        => $users,
-            'totalCount'   => count($users),
+            'centre' => $centre,
+            'manager' => $manager,
+            'users' => $users,
+            'totalCount' => count($users),
             'presentCount' => count($presents),
-            'sortisCount'  => count($sortis),
-            'generatedAt'  => new \DateTimeImmutable(),
-            'motifLabels'  => self::motifLabels(),
+            'sortisCount' => count($sortis),
+            'generatedAt' => new \DateTimeImmutable(),
+            'motifLabels' => self::motifLabels(),
         ]);
 
         $options = new Options();
@@ -73,13 +74,13 @@ class RegistrePersonnelController extends AbstractController
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
-        $slug     = $centre->getSlug() ?: 'centre';
+        $slug = $centre->getSlug() ?: 'centre';
         $filename = sprintf('registre-personnel-%s-%s.pdf', $slug, (new \DateTimeImmutable())->format('Ymd'));
 
         return new Response($dompdf->output(), 200, [
-            'Content-Type'        => 'application/pdf',
+            'Content-Type' => 'application/pdf',
             'Content-Disposition' => sprintf('attachment; filename="%s"', $filename),
-            'Cache-Control'       => 'private, no-store',
+            'Cache-Control' => 'private, no-store',
         ]);
     }
 
@@ -87,13 +88,13 @@ class RegistrePersonnelController extends AbstractController
     public static function motifLabels(): array
     {
         return [
-            User::MOTIF_DEMISSION               => 'Démission',
+            User::MOTIF_DEMISSION => 'Démission',
             User::MOTIF_RUPTURE_CONVENTIONNELLE => 'Rupture conventionnelle',
-            User::MOTIF_LICENCIEMENT            => 'Licenciement',
-            User::MOTIF_FIN_CDD                 => 'Fin de CDD',
-            User::MOTIF_FIN_PERIODE_ESSAI       => 'Fin de période d\'essai',
-            User::MOTIF_RETRAITE                => 'Retraite',
-            User::MOTIF_AUTRE                   => 'Autre',
+            User::MOTIF_LICENCIEMENT => 'Licenciement',
+            User::MOTIF_FIN_CDD => 'Fin de CDD',
+            User::MOTIF_FIN_PERIODE_ESSAI => 'Fin de période d\'essai',
+            User::MOTIF_RETRAITE => 'Retraite',
+            User::MOTIF_AUTRE => 'Autre',
         ];
     }
 }

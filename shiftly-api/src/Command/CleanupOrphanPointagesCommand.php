@@ -50,7 +50,7 @@ class CleanupOrphanPointagesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io    = new SymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $apply = (bool) $input->getOption('apply');
 
         $io->title('Nettoyage des pointages orphelins');
@@ -75,18 +75,20 @@ class CleanupOrphanPointagesCommand extends Command
             ->getSingleColumnResult();
 
         $allIds = array_unique(array_merge($nullPosteIds, $danglingPosteIds));
-        $count  = count($allIds);
+        $count = count($allIds);
 
-        if ($count === 0) {
+        if (0 === $count) {
             $io->success('Aucun pointage orphelin trouvé. Base propre.');
+
             return Command::SUCCESS;
         }
 
         $io->section("$count pointage(s) orphelin(s) détecté(s)");
-        $io->writeln('IDs : ' . implode(', ', $allIds));
+        $io->writeln('IDs : '.implode(', ', $allIds));
 
         if (!$apply) {
             $io->warning('Dry-run : aucune suppression effectuée. Relance avec --apply pour purger.');
+
             return Command::SUCCESS;
         }
 
@@ -98,6 +100,7 @@ class CleanupOrphanPointagesCommand extends Command
             ->execute();
 
         $io->success("$deleted pointage(s) supprimé(s).");
+
         return Command::SUCCESS;
     }
 }

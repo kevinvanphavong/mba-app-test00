@@ -14,7 +14,7 @@ class IncidentVoter extends AbstractCentreVoter
 
     protected function getCentreId(mixed $subject): ?int
     {
-        /** @var Incident $subject */
+        /* @var Incident $subject */
         return $subject->getCentre()?->getId();
     }
 }

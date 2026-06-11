@@ -49,25 +49,85 @@ class Absence
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $centre): static { $this->centre = $centre; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): static { $this->user = $user; return $this; }
+    public function setCentre(?Centre $centre): static
+    {
+        $this->centre = $centre;
 
-    public function getDate(): ?\DateTimeImmutable { return $this->date; }
-    public function setDate(\DateTimeImmutable $date): static { $this->date = $date; return $this; }
+        return $this;
+    }
 
-    public function getType(): string { return $this->type; }
-    public function setType(string $type): static { $this->type = $type; return $this; }
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
 
-    public function getMotif(): ?string { return $this->motif; }
-    public function setMotif(?string $motif): static { $this->motif = $motif; return $this; }
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
-    public function getCreatedAt(): \DateTimeImmutable { return $this->createdAt; }
+        return $this;
+    }
 
-    public function getCreatedBy(): ?User { return $this->createdBy; }
-    public function setCreatedBy(?User $createdBy): static { $this->createdBy = $createdBy; return $this; }
+    public function getDate(): ?\DateTimeImmutable
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeImmutable $date): static
+    {
+        $this->date = $date;
+
+        return $this;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getMotif(): ?string
+    {
+        return $this->motif;
+    }
+
+    public function setMotif(?string $motif): static
+    {
+        $this->motif = $motif;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
+
+        return $this;
+    }
 }

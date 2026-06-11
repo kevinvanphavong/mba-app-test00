@@ -14,7 +14,7 @@ class CompletionVoter extends AbstractCentreVoter
 
     protected function getCentreId(mixed $subject): ?int
     {
-        /** @var Completion $subject */
+        /* @var Completion $subject */
         return $subject->getPoste()?->getService()?->getCentre()?->getId();
     }
 }

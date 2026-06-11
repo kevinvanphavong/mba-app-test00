@@ -9,15 +9,17 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AuditLogService
 {
-    public function __construct(private EntityManagerInterface $em) {}
+    public function __construct(private EntityManagerInterface $em)
+    {
+    }
 
     public function log(
-        User    $superAdmin,
-        string  $action,
-        string  $targetType,
-        ?int    $targetId,
-        array   $metadata,
-        Request $request
+        User $superAdmin,
+        string $action,
+        string $targetType,
+        ?int $targetId,
+        array $metadata,
+        Request $request,
     ): void {
         $log = (new AuditLog())
             ->setSuperAdminUser($superAdmin)

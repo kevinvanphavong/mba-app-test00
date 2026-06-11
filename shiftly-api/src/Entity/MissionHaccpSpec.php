@@ -27,17 +27,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'mission_haccp_spec')]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\UniqueConstraint(name: 'uniq_haccp_spec_mission', columns: ['mission_id'])]
-#[ORM\Index(columns: ['centre_id'],     name: 'idx_haccp_spec_centre')]
+#[ORM\Index(columns: ['centre_id'], name: 'idx_haccp_spec_centre')]
 #[ORM\Index(columns: ['equipement_id'], name: 'idx_haccp_spec_equipement')]
 #[ApiResource(
     shortName: 'MissionHaccpSpec',
-    normalizationContext:   ['groups' => ['haccp_spec:read']],
+    normalizationContext: ['groups' => ['haccp_spec:read']],
     denormalizationContext: ['groups' => ['haccp_spec:write']],
     operations: [
         new GetCollection(security: "is_granted('ROLE_USER')"),
-        new Get(security:           "is_granted('ROLE_USER') and is_granted('VIEW', object)"),
+        new Get(security: "is_granted('ROLE_USER') and is_granted('VIEW', object)"),
         new Post(
-            security:                "is_granted('ROLE_MANAGER')",
+            security: "is_granted('ROLE_MANAGER')",
             securityPostDenormalize: "is_granted('CREATE', object)"
         ),
         new Patch(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
@@ -45,17 +45,17 @@ use Symfony\Component\Validator\Constraints as Assert;
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: [
-    'centre'     => 'exact',
-    'mission'    => 'exact',
+    'centre' => 'exact',
+    'mission' => 'exact',
     'equipement' => 'exact',
     'typeReleve' => 'exact',
 ])]
 class MissionHaccpSpec
 {
     public const TYPE_TEMPERATURE = 'TEMPERATURE';
-    public const TYPE_DLC         = 'DLC';
-    public const TYPE_PHOTO       = 'PHOTO';
-    public const TYPE_RECEPTION   = 'RECEPTION';
+    public const TYPE_DLC = 'DLC';
+    public const TYPE_PHOTO = 'PHOTO';
+    public const TYPE_RECEPTION = 'RECEPTION';
 
     public const TYPES = [
         self::TYPE_TEMPERATURE,
@@ -65,7 +65,7 @@ class MissionHaccpSpec
     ];
 
     public const MOMENT_DEBUT_SERVICE = 'DEBUT_SERVICE';
-    public const MOMENT_FIN_SERVICE   = 'FIN_SERVICE';
+    public const MOMENT_FIN_SERVICE = 'FIN_SERVICE';
 
     public const MOMENTS = [
         self::MOMENT_DEBUT_SERVICE,
@@ -146,59 +146,173 @@ class MissionHaccpSpec
     }
 
     #[ORM\PreUpdate]
-    public function touch(): void { $this->updatedAt = new \DateTime(); }
+    public function touch(): void
+    {
+        $this->updatedAt = new \DateTime();
+    }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getMission(): ?Mission { return $this->mission; }
-    public function setMission(?Mission $m): static { $this->mission = $m; return $this; }
+    public function getMission(): ?Mission
+    {
+        return $this->mission;
+    }
 
-    public function getCentre(): ?Centre { return $this->centre; }
-    public function setCentre(?Centre $c): static { $this->centre = $c; return $this; }
+    public function setMission(?Mission $m): static
+    {
+        $this->mission = $m;
 
-    public function getEquipement(): ?HaccpEquipement { return $this->equipement; }
-    public function setEquipement(?HaccpEquipement $e): static { $this->equipement = $e; return $this; }
+        return $this;
+    }
 
-    public function getTypeReleve(): string { return $this->typeReleve; }
-    public function setTypeReleve(string $t): static { $this->typeReleve = $t; return $this; }
+    public function getCentre(): ?Centre
+    {
+        return $this->centre;
+    }
 
-    public function getMoment(): ?string { return $this->moment; }
-    public function setMoment(?string $m): static { $this->moment = $m; return $this; }
+    public function setCentre(?Centre $c): static
+    {
+        $this->centre = $c;
 
-    public function getSeuilMin(): ?float { return $this->seuilMin === null ? null : (float) $this->seuilMin; }
-    public function setSeuilMin(?float $v): static { $this->seuilMin = $v === null ? null : number_format($v, 2, '.', ''); return $this; }
+        return $this;
+    }
 
-    public function getSeuilMax(): ?float { return $this->seuilMax === null ? null : (float) $this->seuilMax; }
-    public function setSeuilMax(?float $v): static { $this->seuilMax = $v === null ? null : number_format($v, 2, '.', ''); return $this; }
+    public function getEquipement(): ?HaccpEquipement
+    {
+        return $this->equipement;
+    }
 
-    public function getUnite(): ?string { return $this->unite; }
-    public function setUnite(?string $u): static { $this->unite = $u; return $this; }
+    public function setEquipement(?HaccpEquipement $e): static
+    {
+        $this->equipement = $e;
 
-    public function isPhotoObligatoire(): bool { return $this->photoObligatoire; }
-    public function setPhotoObligatoire(bool $b): static { $this->photoObligatoire = $b; return $this; }
+        return $this;
+    }
 
-    public function isCommentaireObligatoire(): bool { return $this->commentaireObligatoire; }
-    public function setCommentaireObligatoire(bool $b): static { $this->commentaireObligatoire = $b; return $this; }
+    public function getTypeReleve(): string
+    {
+        return $this->typeReleve;
+    }
 
-    public function isArchivee(): bool { return $this->archivee; }
-    public function setArchivee(bool $a): static { $this->archivee = $a; return $this; }
+    public function setTypeReleve(string $t): static
+    {
+        $this->typeReleve = $t;
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function getUpdatedAt(): ?\DateTime { return $this->updatedAt; }
+        return $this;
+    }
+
+    public function getMoment(): ?string
+    {
+        return $this->moment;
+    }
+
+    public function setMoment(?string $m): static
+    {
+        $this->moment = $m;
+
+        return $this;
+    }
+
+    public function getSeuilMin(): ?float
+    {
+        return null === $this->seuilMin ? null : (float) $this->seuilMin;
+    }
+
+    public function setSeuilMin(?float $v): static
+    {
+        $this->seuilMin = null === $v ? null : number_format($v, 2, '.', '');
+
+        return $this;
+    }
+
+    public function getSeuilMax(): ?float
+    {
+        return null === $this->seuilMax ? null : (float) $this->seuilMax;
+    }
+
+    public function setSeuilMax(?float $v): static
+    {
+        $this->seuilMax = null === $v ? null : number_format($v, 2, '.', '');
+
+        return $this;
+    }
+
+    public function getUnite(): ?string
+    {
+        return $this->unite;
+    }
+
+    public function setUnite(?string $u): static
+    {
+        $this->unite = $u;
+
+        return $this;
+    }
+
+    public function isPhotoObligatoire(): bool
+    {
+        return $this->photoObligatoire;
+    }
+
+    public function setPhotoObligatoire(bool $b): static
+    {
+        $this->photoObligatoire = $b;
+
+        return $this;
+    }
+
+    public function isCommentaireObligatoire(): bool
+    {
+        return $this->commentaireObligatoire;
+    }
+
+    public function setCommentaireObligatoire(bool $b): static
+    {
+        $this->commentaireObligatoire = $b;
+
+        return $this;
+    }
+
+    public function isArchivee(): bool
+    {
+        return $this->archivee;
+    }
+
+    public function setArchivee(bool $a): static
+    {
+        $this->archivee = $a;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
 
     /**
      * Résout les seuils effectifs (équipement prioritaire sur spec standalone).
+     *
      * @return array{min:?float,max:?float,unite:?string}
      */
     public function getEffectiveSeuils(): array
     {
         if ($this->equipement) {
             return [
-                'min'   => $this->equipement->getSeuilMin(),
-                'max'   => $this->equipement->getSeuilMax(),
+                'min' => $this->equipement->getSeuilMin(),
+                'max' => $this->equipement->getSeuilMax(),
                 'unite' => $this->equipement->getUnite(),
             ];
         }
+
         return ['min' => $this->getSeuilMin(), 'max' => $this->getSeuilMax(), 'unite' => $this->unite];
     }
 }

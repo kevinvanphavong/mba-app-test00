@@ -44,28 +44,97 @@ class AuditLog
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int { return $this->id; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getSuperAdminUser(): ?User { return $this->superAdminUser; }
-    public function setSuperAdminUser(?User $user): static { $this->superAdminUser = $user; return $this; }
+    public function getSuperAdminUser(): ?User
+    {
+        return $this->superAdminUser;
+    }
 
-    public function getAction(): ?string { return $this->action; }
-    public function setAction(string $action): static { $this->action = $action; return $this; }
+    public function setSuperAdminUser(?User $user): static
+    {
+        $this->superAdminUser = $user;
 
-    public function getTargetType(): ?string { return $this->targetType; }
-    public function setTargetType(string $targetType): static { $this->targetType = $targetType; return $this; }
+        return $this;
+    }
 
-    public function getTargetId(): ?int { return $this->targetId; }
-    public function setTargetId(?int $targetId): static { $this->targetId = $targetId; return $this; }
+    public function getAction(): ?string
+    {
+        return $this->action;
+    }
 
-    public function getMetadata(): ?array { return $this->metadata; }
-    public function setMetadata(?array $metadata): static { $this->metadata = $metadata; return $this; }
+    public function setAction(string $action): static
+    {
+        $this->action = $action;
 
-    public function getIp(): ?string { return $this->ip; }
-    public function setIp(?string $ip): static { $this->ip = $ip; return $this; }
+        return $this;
+    }
 
-    public function getUserAgent(): ?string { return $this->userAgent; }
-    public function setUserAgent(?string $userAgent): static { $this->userAgent = $userAgent; return $this; }
+    public function getTargetType(): ?string
+    {
+        return $this->targetType;
+    }
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function setTargetType(string $targetType): static
+    {
+        $this->targetType = $targetType;
+
+        return $this;
+    }
+
+    public function getTargetId(): ?int
+    {
+        return $this->targetId;
+    }
+
+    public function setTargetId(?int $targetId): static
+    {
+        $this->targetId = $targetId;
+
+        return $this;
+    }
+
+    public function getMetadata(): ?array
+    {
+        return $this->metadata;
+    }
+
+    public function setMetadata(?array $metadata): static
+    {
+        $this->metadata = $metadata;
+
+        return $this;
+    }
+
+    public function getIp(): ?string
+    {
+        return $this->ip;
+    }
+
+    public function setIp(?string $ip): static
+    {
+        $this->ip = $ip;
+
+        return $this;
+    }
+
+    public function getUserAgent(): ?string
+    {
+        return $this->userAgent;
+    }
+
+    public function setUserAgent(?string $userAgent): static
+    {
+        $this->userAgent = $userAgent;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
 }

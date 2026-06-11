@@ -3,7 +3,6 @@
 namespace App\Service;
 
 use App\Entity\Pointage;
-use App\Entity\PointagePause;
 use App\Entity\Poste;
 use App\Entity\Service;
 use App\Repository\PointageRepository;
@@ -14,9 +13,10 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 class PointageService
 {
     public function __construct(
-        private readonly PointageRepository    $pointageRepository,
+        private readonly PointageRepository $pointageRepository,
         private readonly EntityManagerInterface $em,
-    ) {}
+    ) {
+    }
 
     /**
      * Crée un Pointage PREVU pour chaque poste du service qui n'en a pas encore.
@@ -61,11 +61,11 @@ class PointageService
     public function calculerTotalPauses(Pointage $pointage): int
     {
         $total = 0;
-        $now   = new \DateTimeImmutable('now');
+        $now = new \DateTimeImmutable('now');
 
         foreach ($pointage->getPauses() as $pause) {
             $debut = $pause->getHeureDebut();
-            $fin   = $pause->getHeureFin() ?? $now;
+            $fin = $pause->getHeureFin() ?? $now;
             $total += (int) round(($fin->getTimestamp() - $debut->getTimestamp()) / 60);
         }
 
@@ -107,7 +107,7 @@ class PointageService
 
         return \DateTimeImmutable::createFromFormat(
             'Y-m-d H:i',
-            $pointage->getService()->getDate()->format('Y-m-d') . ' ' . $poste->getHeureDebut()->format('H:i'),
+            $pointage->getService()->getDate()->format('Y-m-d').' '.$poste->getHeureDebut()->format('H:i'),
             new \DateTimeZone('Europe/Paris')
         ) ?: null;
     }
@@ -121,6 +121,7 @@ class PointageService
         }
 
         $heureDebutPrevue = $this->heureDebutPrevueAbs($pointage);
+
         return $heureDebutPrevue && $arrivee > $heureDebutPrevue;
     }
 
@@ -145,13 +146,13 @@ class PointageService
     public function calculerStats(array $pointages): array
     {
         $stats = [
-            'total'         => count($pointages),
-            'presents'      => 0,
-            'enPause'       => 0,
-            'absents'       => 0,
-            'termines'      => 0,
-            'prevus'        => 0,
-            'retards'       => 0,
+            'total' => count($pointages),
+            'presents' => 0,
+            'enPause' => 0,
+            'absents' => 0,
+            'termines' => 0,
+            'prevus' => 0,
+            'retards' => 0,
             'heuresCumulees' => 0.0,
         ];
 
@@ -159,14 +160,14 @@ class PointageService
             match ($p->getStatut()) {
                 Pointage::STATUT_EN_COURS => $stats['presents']++,
                 Pointage::STATUT_EN_PAUSE => $stats['enPause']++,
-                Pointage::STATUT_ABSENT   => $stats['absents']++,
-                Pointage::STATUT_TERMINE  => $stats['termines']++,
-                Pointage::STATUT_PREVU    => $stats['prevus']++,
+                Pointage::STATUT_ABSENT => $stats['absents']++,
+                Pointage::STATUT_TERMINE => $stats['termines']++,
+                Pointage::STATUT_PREVU => $stats['prevus']++,
                 default => null,
             };
 
             if ($this->estEnRetard($p)) {
-                $stats['retards']++;
+                ++$stats['retards'];
             }
 
             $stats['heuresCumulees'] += $this->calculerDureeEffective($p) / 60;
@@ -185,26 +186,26 @@ class PointageService
     public function cloturerService(Service $service): array
     {
         $pointages = $this->pointageRepository->findByService($service->getId());
-        $now       = new \DateTimeImmutable('now');
-        $clotures  = 0;
-        $absents   = 0;
+        $now = new \DateTimeImmutable('now');
+        $clotures = 0;
+        $absents = 0;
 
         foreach ($pointages as $p) {
             if (in_array($p->getStatut(), [Pointage::STATUT_EN_COURS, Pointage::STATUT_EN_PAUSE], true)) {
                 // Clôture la pause en cours si nécessaire
                 foreach ($p->getPauses() as $pause) {
-                    if ($pause->getHeureFin() === null) {
+                    if (null === $pause->getHeureFin()) {
                         $pause->setHeureFin($now);
                     }
                 }
                 $p->setHeureDepart($now);
                 $p->setStatut(Pointage::STATUT_TERMINE);
                 $p->setUpdatedAt($now);
-                $clotures++;
-            } elseif ($p->getStatut() === Pointage::STATUT_PREVU) {
+                ++$clotures;
+            } elseif (Pointage::STATUT_PREVU === $p->getStatut()) {
                 $p->setStatut(Pointage::STATUT_ABSENT);
                 $p->setUpdatedAt($now);
-                $absents++;
+                ++$absents;
             }
         }
 
@@ -226,10 +227,8 @@ class PointageService
 
         $codeDefini = $pointage->getUser()->getCodePointage();
 
-        if ($codeDefini === null) {
-            throw new BadRequestHttpException(
-                'Aucun code PIN défini pour cet employé. Le manager doit en définir un dans Réglages.'
-            );
+        if (null === $codeDefini) {
+            throw new BadRequestHttpException('Aucun code PIN défini pour cet employé. Le manager doit en définir un dans Réglages.');
         }
 
         if ($codePin !== $codeDefini) {

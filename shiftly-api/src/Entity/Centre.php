@@ -2,14 +2,14 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\CentreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\HasLifecycleCallbacks]
 #[UniqueEntity('slug')]
 #[ApiResource(
-    normalizationContext:   ['groups' => ['centre:read']],
+    normalizationContext: ['groups' => ['centre:read']],
     denormalizationContext: ['groups' => ['centre:write']],
     operations: [
         new GetCollection(
@@ -40,12 +40,12 @@ use Symfony\Component\Validator\Constraints as Assert;
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['nom' => 'partial', 'slug' => 'exact'])]
-#[ApiFilter(OrderFilter::class,  properties: ['nom', 'createdAt'])]
+#[ApiFilter(OrderFilter::class, properties: ['nom', 'createdAt'])]
 class Centre
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['centre:read', 'user:read', 'service:read', 'zone:read',
-              'incident:read', 'tutoriel:read', 'poste:read', 'staffcompetence:read'])]
+        'incident:read', 'tutoriel:read', 'poste:read', 'staffcompetence:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
@@ -102,10 +102,10 @@ class Centre
 
     public function __construct()
     {
-        $this->users         = new ArrayCollection();
-        $this->zones         = new ArrayCollection();
-        $this->createdAt     = new \DateTimeImmutable();
-        $this->openingHours  = self::defaultOpeningHours();
+        $this->users = new ArrayCollection();
+        $this->zones = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->openingHours = self::defaultOpeningHours();
     }
 
     /**
@@ -123,6 +123,7 @@ class Centre
         foreach ($jours as $jour) {
             $out[$jour] = ['ouvert' => false, 'ouverture' => null, 'fermeture' => null];
         }
+
         return $out;
     }
 
@@ -130,37 +131,150 @@ class Centre
     #[ORM\PreUpdate]
     public function generateSlug(): void
     {
-        if ($this->nom !== null && ($this->slug === null || $this->slug === '')) {
+        if (null !== $this->nom && (null === $this->slug || '' === $this->slug)) {
             $slug = mb_strtolower($this->nom);
             $slug = preg_replace('/[^a-z0-9]+/', '-', $slug) ?? $slug;
             $this->slug = trim($slug, '-');
         }
     }
 
-    public function getAdresse(): ?string { return $this->adresse; }
-    public function setAdresse(?string $adresse): static { $this->adresse = $adresse; return $this; }
-    public function getTelephone(): ?string { return $this->telephone; }
-    public function setTelephone(?string $telephone): static { $this->telephone = $telephone; return $this; }
-    public function getSiteWeb(): ?string { return $this->siteWeb; }
-    public function setSiteWeb(?string $siteWeb): static { $this->siteWeb = $siteWeb; return $this; }
-    public function getOpeningHours(): ?array { return $this->openingHours; }
-    public function setOpeningHours(?array $openingHours): static { $this->openingHours = $openingHours; return $this; }
+    public function getAdresse(): ?string
+    {
+        return $this->adresse;
+    }
 
-    public function getTenueHaut(): ?string { return $this->tenueHaut; }
-    public function setTenueHaut(?string $t): static { $this->tenueHaut = $t; return $this; }
-    public function getTenueBas(): ?string { return $this->tenueBas; }
-    public function setTenueBas(?string $t): static { $this->tenueBas = $t; return $this; }
-    public function getTenueChaussures(): ?string { return $this->tenueChaussures; }
-    public function setTenueChaussures(?string $t): static { $this->tenueChaussures = $t; return $this; }
+    public function setAdresse(?string $adresse): static
+    {
+        $this->adresse = $adresse;
 
-    public function getId(): ?int { return $this->id; }
-    public function getNom(): ?string { return $this->nom; }
-    public function setNom(string $nom): static { $this->nom = $nom; return $this; }
-    public function getSlug(): ?string { return $this->slug; }
-    public function setSlug(string $slug): static { $this->slug = $slug; return $this; }
-    public function isActif(): bool { return $this->actif; }
-    public function setActif(bool $actif): static { $this->actif = $actif; return $this; }
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function getUsers(): Collection { return $this->users; }
-    public function getZones(): Collection { return $this->zones; }
+        return $this;
+    }
+
+    public function getTelephone(): ?string
+    {
+        return $this->telephone;
+    }
+
+    public function setTelephone(?string $telephone): static
+    {
+        $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function getSiteWeb(): ?string
+    {
+        return $this->siteWeb;
+    }
+
+    public function setSiteWeb(?string $siteWeb): static
+    {
+        $this->siteWeb = $siteWeb;
+
+        return $this;
+    }
+
+    public function getOpeningHours(): ?array
+    {
+        return $this->openingHours;
+    }
+
+    public function setOpeningHours(?array $openingHours): static
+    {
+        $this->openingHours = $openingHours;
+
+        return $this;
+    }
+
+    public function getTenueHaut(): ?string
+    {
+        return $this->tenueHaut;
+    }
+
+    public function setTenueHaut(?string $t): static
+    {
+        $this->tenueHaut = $t;
+
+        return $this;
+    }
+
+    public function getTenueBas(): ?string
+    {
+        return $this->tenueBas;
+    }
+
+    public function setTenueBas(?string $t): static
+    {
+        $this->tenueBas = $t;
+
+        return $this;
+    }
+
+    public function getTenueChaussures(): ?string
+    {
+        return $this->tenueChaussures;
+    }
+
+    public function setTenueChaussures(?string $t): static
+    {
+        $this->tenueChaussures = $t;
+
+        return $this;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function getZones(): Collection
+    {
+        return $this->zones;
+    }
 }

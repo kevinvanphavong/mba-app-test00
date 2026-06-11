@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -9,7 +10,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\PosteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -26,31 +26,31 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: PosteRepository::class)]
 #[ORM\UniqueConstraint(name: 'uniq_poste', columns: ['service_id', 'zone_id', 'user_id'])]
 #[ApiResource(
-    normalizationContext:   ['groups' => ['poste:read']],
+    normalizationContext: ['groups' => ['poste:read']],
     denormalizationContext: ['groups' => ['poste:write']],
     operations: [
         new GetCollection(security: "is_granted('ROLE_USER')"),
         new Get(
-            security:             "is_granted('ROLE_USER') and is_granted('VIEW', object)",
+            security: "is_granted('ROLE_USER') and is_granted('VIEW', object)",
             normalizationContext: ['groups' => ['poste:read', 'poste:item:read']]
         ),
         new Post(
-            security:                "is_granted('ROLE_MANAGER')",
+            security: "is_granted('ROLE_MANAGER')",
             securityPostDenormalize: "is_granted('CREATE', object)"
         ),
         new Delete(
             security: "is_granted('ROLE_MANAGER') and is_granted('DELETE', object)"
         ),
         new Patch(
-            security:               "is_granted('ROLE_MANAGER')",
+            security: "is_granted('ROLE_MANAGER')",
             denormalizationContext: ['groups' => ['poste:write']]
         ),
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: [
     'service' => 'exact',   // ?service=/api/services/2
-    'zone'    => 'exact',   // ?zone=/api/zones/1
-    'user'    => 'exact',   // ?user=/api/users/3
+    'zone' => 'exact',   // ?zone=/api/zones/1
+    'user' => 'exact',   // ?user=/api/users/3
 ])]
 class Poste
 {
@@ -105,27 +105,104 @@ class Poste
 
     public function tauxCompletion(int $totalMissions): float
     {
-        if ($totalMissions === 0) return 0.0;
+        if (0 === $totalMissions) {
+            return 0.0;
+        }
+
         return round($this->completions->count() / $totalMissions * 100, 1);
     }
 
-    public function getId(): ?int { return $this->id; }
-    public function getService(): ?Service { return $this->service; }
-    public function setService(?Service $s): static { $this->service = $s; return $this; }
-    public function getZone(): ?Zone { return $this->zone; }
-    public function setZone(?Zone $z): static { $this->zone = $z; return $this; }
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $u): static { $this->user = $u; return $this; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
-    public function getHeureDebut(): ?\DateTimeImmutable { return $this->heureDebut; }
-    public function setHeureDebut(?\DateTimeImmutable $h): static { $this->heureDebut = $h; return $this; }
-    public function getHeureFin(): ?\DateTimeImmutable { return $this->heureFin; }
-    public function setHeureFin(?\DateTimeImmutable $h): static { $this->heureFin = $h; return $this; }
-    public function getPauseMinutes(): int { return $this->pauseMinutes; }
-    public function setPauseMinutes(int $p): static { $this->pauseMinutes = $p; return $this; }
+    public function getService(): ?Service
+    {
+        return $this->service;
+    }
 
-    public function getNote(): ?string { return $this->note; }
-    public function setNote(?string $n): static { $this->note = $n; return $this; }
+    public function setService(?Service $s): static
+    {
+        $this->service = $s;
 
-    public function getCompletions(): Collection { return $this->completions; }
+        return $this;
+    }
+
+    public function getZone(): ?Zone
+    {
+        return $this->zone;
+    }
+
+    public function setZone(?Zone $z): static
+    {
+        $this->zone = $z;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $u): static
+    {
+        $this->user = $u;
+
+        return $this;
+    }
+
+    public function getHeureDebut(): ?\DateTimeImmutable
+    {
+        return $this->heureDebut;
+    }
+
+    public function setHeureDebut(?\DateTimeImmutable $h): static
+    {
+        $this->heureDebut = $h;
+
+        return $this;
+    }
+
+    public function getHeureFin(): ?\DateTimeImmutable
+    {
+        return $this->heureFin;
+    }
+
+    public function setHeureFin(?\DateTimeImmutable $h): static
+    {
+        $this->heureFin = $h;
+
+        return $this;
+    }
+
+    public function getPauseMinutes(): int
+    {
+        return $this->pauseMinutes;
+    }
+
+    public function setPauseMinutes(int $p): static
+    {
+        $this->pauseMinutes = $p;
+
+        return $this;
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $n): static
+    {
+        $this->note = $n;
+
+        return $this;
+    }
+
+    public function getCompletions(): Collection
+    {
+        return $this->completions;
+    }
 }

@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * PATCH /api/services/{id}/horaires
+ * PATCH /api/services/{id}/horaires.
  *
  * Met à jour les horaires d'ouverture/fermeture d'un service existant.
  * Body : { "heureDebut": "10:00" | null, "heureFin": "22:00" | null }
@@ -28,8 +28,9 @@ class UpdateServiceHoursController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly PlanningGuardService   $planningGuard,
-    ) {}
+        private readonly PlanningGuardService $planningGuard,
+    ) {
+    }
 
     #[Route('/api/services/{id}/horaires', name: 'api_service_update_hours', methods: ['PATCH'], format: 'json')]
     public function __invoke(int $id, Request $request): JsonResponse
@@ -68,24 +69,21 @@ class UpdateServiceHoursController extends AbstractController
         $this->em->flush();
 
         return $this->json([
-            'id'         => $service->getId(),
+            'id' => $service->getId(),
             'heureDebut' => $service->getHeureDebut()?->format('H:i'),
-            'heureFin'   => $service->getHeureFin()?->format('H:i'),
+            'heureFin' => $service->getHeureFin()?->format('H:i'),
         ]);
     }
 
     private function parseTime(mixed $value, string $field): ?\DateTimeImmutable
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
 
         $parsed = \DateTimeImmutable::createFromFormat('H:i', (string) $value);
         if (!$parsed) {
-            throw new BadRequestHttpException(sprintf(
-                'Format de %s invalide. Utiliser HH:MM.',
-                $field
-            ));
+            throw new BadRequestHttpException(sprintf('Format de %s invalide. Utiliser HH:MM.', $field));
         }
 
         return $parsed;

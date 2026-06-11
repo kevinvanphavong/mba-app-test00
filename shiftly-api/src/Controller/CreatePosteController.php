@@ -5,8 +5,8 @@ namespace App\Controller;
 use App\Entity\Centre;
 use App\Entity\Poste;
 use App\Entity\Service;
-use App\Entity\Zone;
 use App\Entity\User;
+use App\Entity\Zone;
 use App\Service\PlanningGuardService;
 use App\Service\PlanningService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -38,38 +38,39 @@ class CreatePosteController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly PlanningGuardService   $planningGuard,
-        private readonly PlanningService        $planningService,
-    ) {}
+        private readonly PlanningGuardService $planningGuard,
+        private readonly PlanningService $planningService,
+    ) {
+    }
 
     #[Route('/api/postes/create', name: 'api_poste_create', methods: ['POST'], format: 'json')]
     public function create(Request $request): JsonResponse
     {
         $body = json_decode($request->getContent(), true);
 
-        $serviceId    = isset($body['serviceId'])    ? (int) $body['serviceId']    : null;
-        $date         = $body['date']                ?? null;    // 'YYYY-MM-DD'
-        $zoneId       = (int) ($body['zoneId']       ?? 0);
-        $userId       = (int) ($body['userId']        ?? 0);
-        $heureDebut   = $body['heureDebut']          ?? null;    // 'HH:mm'
-        $heureFin     = $body['heureFin']            ?? null;    // 'HH:mm'
+        $serviceId = isset($body['serviceId']) ? (int) $body['serviceId'] : null;
+        $date = $body['date'] ?? null;    // 'YYYY-MM-DD'
+        $zoneId = (int) ($body['zoneId'] ?? 0);
+        $userId = (int) ($body['userId'] ?? 0);
+        $heureDebut = $body['heureDebut'] ?? null;    // 'HH:mm'
+        $heureFin = $body['heureFin'] ?? null;    // 'HH:mm'
         $pauseMinutes = (int) ($body['pauseMinutes'] ?? 0);
-        $note         = isset($body['note']) ? trim((string) $body['note']) : null;
+        $note = isset($body['note']) ? trim((string) $body['note']) : null;
 
         if ((!$serviceId && !$date) || !$zoneId || !$userId) {
             throw new BadRequestHttpException('(serviceId ou date), zoneId et userId sont requis.');
         }
 
-        if ($note !== null && mb_strlen($note) > 500) {
+        if (null !== $note && mb_strlen($note) > 500) {
             throw new BadRequestHttpException('La note ne peut pas dépasser 500 caractères.');
         }
-        if ($note === '') {
+        if ('' === $note) {
             $note = null;
         }
 
         /** @var User $currentUser */
         $currentUser = $this->getUser();
-        $centre      = $currentUser->getCentre();
+        $centre = $currentUser->getCentre();
 
         // ── Résoudre le Service ──────────────────────────────────────────────
         if ($serviceId) {
@@ -122,12 +123,12 @@ class CreatePosteController extends AbstractController
         }
 
         return $this->json([
-            'id'        => $poste->getId(),
+            'id' => $poste->getId(),
             'serviceId' => $service->getId(),
-            'user'      => [
-                'id'          => $user->getId(),
-                'nom'         => $user->getNom(),
-                'role'        => $user->getRole(),
+            'user' => [
+                'id' => $user->getId(),
+                'nom' => $user->getNom(),
+                'role' => $user->getRole(),
                 'avatarColor' => $user->getAvatarColor() ?? '#6b7280',
             ],
         ], Response::HTTP_CREATED);
@@ -143,7 +144,7 @@ class CreatePosteController extends AbstractController
 
         $existing = $this->em->getRepository(Service::class)->findOneBy([
             'centre' => $centre,
-            'date'   => $date,
+            'date' => $date,
         ]);
 
         if ($existing) {

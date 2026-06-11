@@ -33,11 +33,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class PurgeOldCompletionPhotosCommand extends Command
 {
     private const RETENTION_DAYS = 90;
-    private const BATCH_SIZE     = 50;
+    private const BATCH_SIZE = 50;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly R2StorageService       $r2,
+        private readonly R2StorageService $r2,
     ) {
         parent::__construct();
     }
@@ -54,11 +54,11 @@ class PurgeOldCompletionPhotosCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io     = new SymfonyStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $dryRun = (bool) $input->getOption('dry-run');
 
-        $cutoff = (new \DateTimeImmutable())->modify('-' . self::RETENTION_DAYS . ' days');
-        $io->title('Purge photos Completion > ' . self::RETENTION_DAYS . ' jours');
+        $cutoff = (new \DateTimeImmutable())->modify('-'.self::RETENTION_DAYS.' days');
+        $io->title('Purge photos Completion > '.self::RETENTION_DAYS.' jours');
         $io->writeln(sprintf('Cutoff : %s', $cutoff->format(\DateTimeInterface::ATOM)));
         if ($dryRun) {
             $io->warning('DRY-RUN — aucune suppression réelle.');
@@ -73,19 +73,19 @@ class PurgeOldCompletionPhotosCommand extends Command
         $iter = $qb->getQuery()->toIterable();
 
         $deleted = 0;
-        $failed  = 0;
-        $batch   = 0;
+        $failed = 0;
+        $batch = 0;
 
         foreach ($iter as $completion) {
             /** @var Completion $completion */
             $key = $completion->getPhotoPath();
-            if ($key === null) {
+            if (null === $key) {
                 continue;
             }
 
             if ($dryRun) {
                 $io->writeln(sprintf('  - #%d %s', $completion->getId(), $key));
-                $deleted++;
+                ++$deleted;
                 continue;
             }
 
@@ -93,7 +93,7 @@ class PurgeOldCompletionPhotosCommand extends Command
             try {
                 $this->r2->delete($key);
             } catch (\Throwable $e) {
-                $failed++;
+                ++$failed;
                 $io->writeln(sprintf('  ✗ #%d delete R2 KO : %s', $completion->getId(), $e->getMessage()));
                 // On null quand même la BDD : R2 a peut-être déjà supprimé en amont
             }
@@ -102,8 +102,8 @@ class PurgeOldCompletionPhotosCommand extends Command
             $completion->setPhotoMimeType(null);
             $completion->setPhotoTakenAt(null);
 
-            $deleted++;
-            $batch++;
+            ++$deleted;
+            ++$batch;
 
             if ($batch >= self::BATCH_SIZE) {
                 $this->em->flush();
