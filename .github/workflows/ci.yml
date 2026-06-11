@@ -51,6 +51,10 @@ jobs:
 
       - run: composer install --no-interaction --prefer-dist
 
+      # Clés JWT (gitignored) : générées avec la passphrase de test (.env.test).
+      - name: Générer les clés JWT
+        run: php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction --env=test
+
       # Conteneur dev compilé : nécessaire au containerXmlPath de phpstan-symfony.
       - name: Warmup cache (dev)
         run: php bin/console cache:warmup --env=dev

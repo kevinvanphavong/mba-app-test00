@@ -40,5 +40,7 @@
     </source>
 
     <extensions>
+        <!-- Chaque test tourne dans une transaction rollback (isolation BDD). -->
+        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
     </extensions>
 </phpunit>
