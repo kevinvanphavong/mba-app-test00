@@ -1,0 +1,28 @@
+# Image PHP de DÉVELOPPEMENT du backend Shiftly — Postgres-ready.
+# (Le Dockerfile de PROD, lui, vit dans ./Dockerfile : nginx + supervisor + Railway.)
+FROM php:8.4-fpm
+
+# Paquets système nécessaires à pdo_pgsql (libpq), intl (libicu), aux uploads (libzip) et à Composer
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libpq-dev \
+        libicu-dev \
+        libzip-dev \
+        git \
+        unzip \
+        zip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Extensions PHP : Postgres (pdo_pgsql), intl, zip, opcache
+RUN docker-php-ext-install pdo pdo_pgsql intl zip opcache
+
+# Composer (depuis l'image officielle, pas de curl pipe)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Uploads jusqu'à 25 MB (cohérent avec le module Media)
+RUN { \
+        echo "upload_max_filesize = 25M"; \
+        echo "post_max_size = 25M"; \
+        echo "memory_limit = 512M"; \
+    } > /usr/local/etc/php/conf.d/zz-shiftly-dev.ini
+
+WORKDIR /var/www/api
