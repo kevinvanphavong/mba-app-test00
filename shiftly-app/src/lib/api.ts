@@ -18,13 +18,19 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Auto-logout sur 401 (cookie expiré/invalide) — plus rien à nettoyer côté JS.
+// Auto-logout sur 401 (cookie expiré/invalide). On demande au backend d'expirer
+// le cookie httpOnly (le JS ne peut pas l'effacer lui-même) avant de rediriger —
+// ça évite toute boucle de redirection sur un cookie périmé.
+let clearing = false
 api.interceptors.response.use(
   (res) => res,
-  (err) => {
+  async (err) => {
     if (err.response?.status === 401 && typeof window !== 'undefined') {
       const onPublic = ['/login', '/'].includes(window.location.pathname)
-      if (!onPublic) {
+      const isLogout = (err.config?.url ?? '').includes('/auth/logout')
+      if (!onPublic && !isLogout && !clearing) {
+        clearing = true
+        try { await api.post('/auth/logout') } catch { /* best-effort */ }
         window.location.href = '/login'
       }
     }
