@@ -129,6 +129,7 @@ export default function AbsenceModal({
             onChange={e => setMotif(e.target.value)}
             placeholder="Motif (facultatif)"
             rows={2}
+            maxLength={255}
             className="w-full rounded-lg px-3 py-2 text-sm resize-none outline-none transition-colors"
             style={{
               background: 'var(--surface2)',
