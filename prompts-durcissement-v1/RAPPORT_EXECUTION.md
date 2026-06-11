@@ -4,6 +4,71 @@
 
 ---
 
+## Palier 1 — Auth JWT en cookie httpOnly + rate limiting — 2026-06-11
+
+### Commits
+- `c707d37` feat(auth): JWT en cookie httpOnly + rate limiting + CSRF (app + superadmin)
+- `5e7034e` test(auth): flux cookie + CSRF + rate limit (dama) + CI keygen JWT
+- `a6a9119` fix(security): supprime le CorsSubscriber hardcodé (incompatible cookies)
+- `daa6824` feat(auth): front app en cookie httpOnly (withCredentials, sans localStorage)
+- `f89f25a` feat(auth): superadmin + impersonation en cookie httpOnly
+- `<baseline>` chore(quality): régénère le baseline phpstan
+
+### Décisions prises
+- **2 cookies httpOnly path-aware** (choix de Kévin : cookie partout, superadmin migré) :
+  `token` (app/centre + impersonation) et `sa_token` (superadmin), via
+  `PathAwareCookieTokenExtractor` qui décore la chaîne lexik. Extractor header **désactivé**.
+- Cookie posé par un `CookieAuthenticationSuccessHandler` ; la réponse de login ne
+  contient **jamais** le token (juste user/centre). Secure = `request->isSecure()`
+  (false en http://localhost, true en prod), SameSite=Lax, TTL aligné (8h).
+- **Rate limiting login** : `login_throttling` natif ne se déclenchait pas de façon
+  fiable → remplacé par `LoginRateLimitSubscriber` explicite (compte les `LoginFailureEvent`,
+  5/15min par IP+email). Anti-flood leads → rate limiter framework (5/h par IP).
+- **CSRF** : en-tête custom `X-CSRF` exigé sur les mutations (`CsrfHeaderSubscriber`) ;
+  efficace car le CORS n'autorise que l'origine du front. CORS : `allow_credentials: true`,
+  `allow_headers` explicite (Content-Type, X-CSRF), fini le `*`.
+- **CorsSubscriber custom supprimé** : il forçait `Allow-Origin: *` (incompatible cookies)
+  et court-circuitait nelmio. nelmio gère désormais tout.
+- **Impersonation** préservée : l'endpoint pose le cookie `token` (JWT centre), `sa_token`
+  reste ; "Quitter" appelle `/api/auth/logout` (efface `token`). Guard DELETE lit le cookie.
+
+### Vérifications (toutes vertes)
+| Case | Résultat |
+|---|---|
+| login → Set-Cookie httpOnly, **aucun token dans le body** | OK (curl + test auto) |
+| requête cookie seul → 200 ; sans cookie → 401 | OK |
+| ancien header `Authorization: Bearer` → 401 (extractor désactivé) | OK |
+| logout → cookie expiré → 401 | OK |
+| 6e login échoué en 15 min → 429 | OK |
+| mutation sans `X-CSRF` → 403 ; avec → passe | OK |
+| superadmin login/me/logout via `sa_token` | OK |
+| impersonation : DELETE → 403, stop impersonation (token effacé, sa_token intact) | OK |
+| CORS preflight : `Allow-Credentials: true`, origin spécifique, `X-CSRF` | OK |
+| flux cross-origin (Origin front + cookie jar) login → /api/me | 200 |
+| PHPUnit (dont 5 tests fonctionnels auth, isolation dama) | OK 19 tests |
+| PHPStan / cs-fixer / lint:container | OK |
+| Front lint / tsc / vitest / build | OK |
+
+Identifiants test : app `fabrice@speedpark-bourges.fr` / `shiftly2026` ·
+superadmin `kevin@shiftly.app` / `superadmin2026`.
+
+### Risques / à retester manuellement
+1. **Click-through navigateur** : tout est prouvé en curl (mêmes requêtes que le navigateur)
+   + build/tsc/vitest verts, mais une connexion réelle dans le navigateur (login →
+   dashboard → refresh → logout, + impersonation) reste à faire par Kévin pour confirmer
+   l'UX. Le mécanisme cookie cross-origin est validé (CORS credentials + SameSite=Lax).
+2. **Prod cross-site** : en dev front/back sont same-site (localhost) → SameSite=Lax OK.
+   En prod, si l'API et le front ne sont pas sur le même domaine racine (ex : *.railway.app
+   vs *.vercel.app), Lax ne transmettra PAS le cookie sur les XHR → il faudra des
+   sous-domaines d'un même domaine (api.shiftly.fr / app.shiftly.fr) ou SameSite=None.
+   **À border avant déploiement.**
+3. **Sessions actives à la MEP** : les anciens tokens en localStorage deviennent inertes
+   (plus lus) ; les utilisateurs devront se reconnecter une fois. Sans impact données.
+4. **Clés JWT** : générées en CI avec la passphrase de `.env.test`. En local, `.env.test`
+   pointe la passphrase des clés dev existantes.
+
+---
+
 ## Palier 0 — Infra Docker Postgres + CI — 2026-06-11
 
 ### Commits (atomiques)
