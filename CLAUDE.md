@@ -20,19 +20,23 @@ Fondateur solo : Kévin (tutoiement, réponses en français, franc-parler attend
 
 ## Layout du dépôt (important)
 
-Ce dépôt contient **la v1 (référence) ET la v2 (active)** :
+> **Décision 2026-06-11 : la refonte v2 est GELÉE.** On durcit la **v1 en place**
+> (paliers 0→4, cf. `PLAN_DURCISSEMENT_V1.md`). **Le code actif est à la racine**
+> (`shiftly-api/` + `shiftly-app/`). `v2/` reste comme référence d'infra, non modifié.
 
 ```
-shiftly-api/   shiftly-app/    ← code v1 = RÉFÉRENCE EN LECTURE (spec vivante). NE PAS modifier.
-v2/                            ← on construit la v2 ICI (v2/shiftly-api + v2/shiftly-app)
-docs/                          ← v1 docs + archive/CLAUDE_V1.md (ancien règlement, périmé)
-BRIEF_PROJET_SHIFTLY_V2.md · CADRAGE_SHIFTLY_V2.md · benchmark_*.md   ← cadrage v2
+shiftly-api/   shiftly-app/    ← code v1 = ACTIF. On code ICI désormais.
+v2/                            ← GELÉ. Référence d'infra (ne pas modifier).
+docs/                          ← docs domaine + prompts ; archive/CLAUDE_V1.md (périmé)
+PLAN_DURCISSEMENT_V1.md                              ← le plan de durcissement (fait foi)
+prompts-durcissement-v1/                             ← 1 prompt par palier + orchestrateur
+BRIEF_PROJET_SHIFTLY_V2.md · CADRAGE_SHIFTLY_V2.md   ← cadrage (historique v2)
 ```
 
-On s'inspire de la v1 pour ce qui marche (tokens, kit UI, helpers, pattern
-multi-tenant, landing), on réimplémente proprement ce qu'on améliore (controllers →
-State Processors, listeners onFlush → Messenger, types → générés, auth → cookie).
-**Tout le code neuf va dans `v2/`.**
+On garde la **méthode** v2 (paliers, prompts structurés, CI, commit atomique) et on
+l'applique à la v1 : on répare ce qui marche déjà (Symfony 8, API Platform 4, React
+Query, tokens) et on durcit le reste (auth cookie, isolation multi-tenant, Messenger,
+validation). **Tout le code neuf va à la racine, plus dans `v2/`.**
 
 ---
 
