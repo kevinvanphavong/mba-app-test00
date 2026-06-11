@@ -42,11 +42,11 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext: ['groups' => ['user:write', 'user:create']]
         ),
         new Put(
-            security: "is_granted('ROLE_MANAGER') or object == user",
-            description: 'Modifier un membre : MANAGER ou soi-même'
+            security: "(is_granted('ROLE_MANAGER') and is_granted('EDIT', object)) or object == user",
+            description: 'Modifier un membre : MANAGER du même centre ou soi-même'
         ),
         new Delete(
-            security: "is_granted('ROLE_MANAGER')"
+            security: "is_granted('ROLE_MANAGER') and is_granted('DELETE', object)"
         ),
     ]
 )]

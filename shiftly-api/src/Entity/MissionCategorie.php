@@ -36,9 +36,9 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(security: "is_granted('ROLE_USER')"),
         new Get(security: "is_granted('ROLE_USER')"),
         new Post(security: "is_granted('ROLE_MANAGER')"),
-        new Put(security: "is_granted('ROLE_MANAGER')"),
-        new Patch(security: "is_granted('ROLE_MANAGER')"),
-        new Delete(security: "is_granted('ROLE_MANAGER')"),
+        new Put(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
+        new Patch(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
+        new Delete(security: "is_granted('ROLE_MANAGER') and is_granted('DELETE', object)"),
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['centre' => 'exact', 'nom' => 'partial'])]
