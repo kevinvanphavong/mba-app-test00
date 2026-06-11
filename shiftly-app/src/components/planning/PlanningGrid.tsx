@@ -7,7 +7,7 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import type { PlanningAbsence, PlanningShift, PlanningWeekData, AbsenceType } from '@/types/planning'
-import { useCopyShift, useCreateAbsence, useDeleteAbsence } from '@/hooks/usePlanning'
+import { useCopyShift, useCreateAbsence, useUpdateAbsence, useDeleteAbsence } from '@/hooks/usePlanning'
 import { useAuthStore } from '@/store/authStore'
 import { useToastStore } from '@/store/toastStore'
 import { isAxiosError } from 'axios'
@@ -54,15 +54,22 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
   const today         = new Date().toISOString().split('T')[0]
   const copyShift     = useCopyShift()
   const createAbsence = useCreateAbsence()
+  const updateAbsence = useUpdateAbsence()
   const deleteAbsence = useDeleteAbsence()
   const centreId      = useAuthStore(s => s.centreId)
   const toast         = useToastStore(s => s.show)
   const storageKey    = `shiftly_row_order_${centreId}`
 
-  // État modal absence
+  // État modal absence (création)
   const [absenceTarget, setAbsenceTarget] = useState<{ date: string; employeeId: number } | null>(null)
   const absenceEmployee = absenceTarget
     ? data.employees.find(e => e.id === absenceTarget.employeeId)
+    : null
+
+  // État modal absence (édition)
+  const [editAbsence, setEditAbsence] = useState<{ absence: PlanningAbsence; employeeId: number } | null>(null)
+  const editAbsenceEmployee = editAbsence
+    ? data.employees.find(e => e.id === editAbsence.employeeId)
     : null
 
   const weekDates = Array.from({ length: 7 }, (_, i) => {
@@ -202,7 +209,7 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
                 onAddShift={onAddShift}
                 onEditShift={onEditShift}
                 onAddAbsence={(date, employeeId) => setAbsenceTarget({ date, employeeId })}
-                onDelAbsence={(absence: PlanningAbsence) => deleteAbsence.mutate(absence.id)}
+                onEditAbsence={(absence: PlanningAbsence) => setEditAbsence({ absence, employeeId: emp.id })}
               />
             ))}
           </SortableContext>
@@ -215,7 +222,7 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
       </DragOverlay>
     </DndContext>
 
-    {/* Modal absence */}
+    {/* Modal absence — création */}
     {absenceTarget && absenceEmployee && (
       <AbsenceModal
         employeNom={`${absenceEmployee.prenom ?? ''} ${absenceEmployee.nom}`.trim()}
@@ -230,6 +237,28 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
             motif,
           })
           setAbsenceTarget(null)
+        }}
+      />
+    )}
+
+    {/* Modal absence — édition */}
+    {editAbsence && editAbsenceEmployee && (
+      <AbsenceModal
+        employeNom={`${editAbsenceEmployee.prenom ?? ''} ${editAbsenceEmployee.nom}`.trim()}
+        date={editAbsence.absence.date}
+        absence={editAbsence.absence}
+        loading={false}
+        updateLoading={updateAbsence.isPending}
+        deleteLoading={deleteAbsence.isPending}
+        onClose={() => setEditAbsence(null)}
+        onConfirm={() => {}}
+        onUpdate={async (type: AbsenceType, motif: string | null) => {
+          await updateAbsence.mutateAsync({ id: editAbsence.absence.id, type, motif })
+          setEditAbsence(null)
+        }}
+        onDelete={async () => {
+          await deleteAbsence.mutateAsync(editAbsence.absence.id)
+          setEditAbsence(null)
         }}
       />
     )}

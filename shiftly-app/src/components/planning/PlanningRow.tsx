@@ -10,24 +10,24 @@ import ShiftBlock from './ShiftBlock'
 import AbsenceBlock from './AbsenceBlock'
 
 interface PlanningRowProps {
-  employee:      PlanningEmployee
-  weekDates:     string[]
-  today:         string
-  isDraggingRow: boolean
-  onAddShift:    (date: string, employeeId: number) => void
-  onEditShift:   (shift: PlanningShift) => void
-  onAddAbsence:  (date: string, employeeId: number) => void
-  onDelAbsence:  (absence: PlanningAbsence) => void
+  employee:       PlanningEmployee
+  weekDates:      string[]
+  today:          string
+  isDraggingRow:  boolean
+  onAddShift:     (date: string, employeeId: number) => void
+  onEditShift:    (shift: PlanningShift) => void
+  onAddAbsence:   (date: string, employeeId: number) => void
+  onEditAbsence:  (absence: PlanningAbsence) => void
 }
 
 /** Cellule droppable pour un jour */
 function DayCell({
-  date, employeeId, shifts, absence, isToday, isPast, isDraggingRow, onAdd, onEdit, onAddAbsence, onDelAbsence,
+  date, employeeId, shifts, absence, isToday, isPast, isDraggingRow, onAdd, onEdit, onAddAbsence, onEditAbsence,
 }: {
   date: string; employeeId: number; shifts: PlanningShift[]; absence: PlanningAbsence | null
   isToday: boolean; isPast: boolean; isDraggingRow: boolean
   onAdd: () => void; onEdit: (s: PlanningShift) => void
-  onAddAbsence: () => void; onDelAbsence: (a: PlanningAbsence) => void
+  onAddAbsence: () => void; onEditAbsence: (a: PlanningAbsence) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: `drop-${employeeId}-${date}`, data: { date, employeeId } })
   const toast = useToastStore(s => s.show)
@@ -63,7 +63,7 @@ function DayCell({
       {absence ? (
         <AbsenceBlock
           absence={absence}
-          onDelete={() => onDelAbsence(absence)}
+          onEdit={() => onEditAbsence(absence)}
         />
       ) : (
         <>
@@ -90,7 +90,7 @@ function DayCell({
 
 /** Ligne d'un employé dans la grille planning — sortable + droppable */
 export default function PlanningRow({
-  employee, weekDates, today, isDraggingRow, onAddShift, onEditShift, onAddAbsence, onDelAbsence,
+  employee, weekDates, today, isDraggingRow, onAddShift, onEditShift, onAddAbsence, onEditAbsence,
 }: PlanningRowProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id:   `row-${employee.id}`,
@@ -182,7 +182,7 @@ export default function PlanningRow({
           onAdd={() => onAddShift(date, employee.id)}
           onEdit={onEditShift}
           onAddAbsence={() => onAddAbsence(date, employee.id)}
-          onDelAbsence={onDelAbsence}
+          onEditAbsence={onEditAbsence}
         />
       ))}
     </div>

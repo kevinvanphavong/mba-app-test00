@@ -79,6 +79,45 @@ class AbsenceController extends AbstractController
     }
 
     /**
+     * PATCH /api/planning/absence/{id}
+     * Modifie le type et/ou le motif d'une absence existante.
+     */
+    #[Route('/absence/{id}', name: 'update', methods: ['PATCH'])]
+    #[IsGranted('ROLE_MANAGER')]
+    public function update(int $id, Request $request): JsonResponse
+    {
+        /** @var \App\Entity\User $manager */
+        $manager = $this->getUser();
+        $absence = $this->absenceRepository->find($id);
+
+        if (!$absence || $absence->getCentre()->getId() !== $manager->getCentre()->getId()) {
+            return $this->json(['error' => 'Absence introuvable'], Response::HTTP_NOT_FOUND);
+        }
+
+        $body = json_decode($request->getContent(), true) ?? [];
+
+        if (isset($body['type'])) {
+            if (!in_array($body['type'], Absence::TYPES, true)) {
+                return $this->json(['error' => 'Type d\'absence invalide'], Response::HTTP_BAD_REQUEST);
+            }
+            $absence->setType($body['type']);
+        }
+
+        if (array_key_exists('motif', $body)) {
+            $absence->setMotif($body['motif'] ?: null);
+        }
+
+        $this->em->flush();
+
+        return $this->json([
+            'id'    => $absence->getId(),
+            'date'  => $absence->getDate()->format('Y-m-d'),
+            'type'  => $absence->getType(),
+            'motif' => $absence->getMotif(),
+        ]);
+    }
+
+    /**
      * DELETE /api/planning/absence/{id}
      * Supprime une absence (vérification multi-tenant).
      */
