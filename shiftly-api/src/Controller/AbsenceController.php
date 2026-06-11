@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/planning', name: 'planning_absence_')]
 class AbsenceController extends AbstractController
@@ -20,7 +21,27 @@ class AbsenceController extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly AbsenceRepository $absenceRepository,
         private readonly UserRepository $userRepository,
+        private readonly ValidatorInterface $validator,
     ) {
+    }
+
+    /**
+     * Valide une absence contre ses contraintes Symfony Validator.
+     * Retourne une réponse 422 normalisée (champ → message) si invalide, sinon null.
+     */
+    private function validationErrors(Absence $absence): ?JsonResponse
+    {
+        $violations = $this->validator->validate($absence);
+        if (0 === count($violations)) {
+            return null;
+        }
+
+        $errors = [];
+        foreach ($violations as $v) {
+            $errors[$v->getPropertyPath()] = $v->getMessage();
+        }
+
+        return $this->json(['message' => 'Validation échouée', 'errors' => $errors], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     /**
@@ -45,9 +66,7 @@ class AbsenceController extends AbstractController
             return $this->json(['error' => 'userId et date sont requis'], Response::HTTP_BAD_REQUEST);
         }
 
-        if (!in_array($type, Absence::TYPES, true)) {
-            return $this->json(['error' => 'Type d\'absence invalide'], Response::HTTP_BAD_REQUEST);
-        }
+        // Le type est validé par les contraintes de l'entité (→ 422 normalisé plus bas).
 
         $date = \DateTimeImmutable::createFromFormat('Y-m-d', $dateStr);
         if (!$date) {
@@ -66,6 +85,10 @@ class AbsenceController extends AbstractController
         $absence->setType($type);
         $absence->setMotif($motif ?: null);
         $absence->setCreatedBy($manager);
+
+        if ($error = $this->validationErrors($absence)) {
+            return $error;
+        }
 
         $this->em->persist($absence);
         $this->em->flush();
@@ -98,14 +121,16 @@ class AbsenceController extends AbstractController
         $body = json_decode($request->getContent(), true) ?? [];
 
         if (isset($body['type'])) {
-            if (!in_array($body['type'], Absence::TYPES, true)) {
-                return $this->json(['error' => 'Type d\'absence invalide'], Response::HTTP_BAD_REQUEST);
-            }
+            // Validé par les contraintes de l'entité (→ 422 normalisé plus bas).
             $absence->setType($body['type']);
         }
 
         if (array_key_exists('motif', $body)) {
             $absence->setMotif($body['motif'] ?: null);
+        }
+
+        if ($error = $this->validationErrors($absence)) {
+            return $error;
         }
 
         $this->em->flush();
