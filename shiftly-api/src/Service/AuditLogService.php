@@ -2,17 +2,23 @@
 
 namespace App\Service;
 
-use App\Entity\AuditLog;
 use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Message\LogAuditEventMessage;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class AuditLogService
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private MessageBusInterface $bus)
     {
     }
 
+    /**
+     * Journalise une action sensible. Effet de bord asynchrone (Messenger) :
+     * la persistance de l'AuditLog ne bloque ni ne casse la requête courante.
+     *
+     * @param array<string, mixed> $metadata
+     */
     public function log(
         User $superAdmin,
         string $action,
@@ -21,16 +27,14 @@ class AuditLogService
         array $metadata,
         Request $request,
     ): void {
-        $log = (new AuditLog())
-            ->setSuperAdminUser($superAdmin)
-            ->setAction($action)
-            ->setTargetType($targetType)
-            ->setTargetId($targetId)
-            ->setMetadata($metadata ?: null)
-            ->setIp($request->getClientIp())
-            ->setUserAgent($request->headers->get('User-Agent'));
-
-        $this->em->persist($log);
-        $this->em->flush();
+        $this->bus->dispatch(new LogAuditEventMessage(
+            superAdminUserId: $superAdmin->getId(),
+            action: $action,
+            targetType: $targetType,
+            targetId: $targetId,
+            metadata: $metadata,
+            ip: $request->getClientIp(),
+            userAgent: $request->headers->get('User-Agent'),
+        ));
     }
 }

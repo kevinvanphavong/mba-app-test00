@@ -6,11 +6,12 @@ namespace App\EventListener;
 
 use App\Entity\Mission;
 use App\Enum\MediaEntityType;
+use App\Message\CleanupR2ObjectMessage;
 use App\Repository\MediaRepository;
-use App\Service\R2StorageService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Quand une Mission est supprimée, on nettoie les Media polymorphes attachés :
@@ -28,7 +29,7 @@ class MissionMediaCleanupListener
 {
     public function __construct(
         private readonly MediaRepository $mediaRepository,
-        private readonly R2StorageService $r2,
+        private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
     ) {
     }
@@ -43,18 +44,9 @@ class MissionMediaCleanupListener
         $medias = $this->mediaRepository->findAllByEntity(MediaEntityType::Mission, $missionId);
 
         foreach ($medias as $media) {
-            // Supprime le binaire R2 d'abord — si ça plante, on log et on continue,
-            // mais la ligne BDD doit aussi partir pour rester cohérent côté UI.
-            try {
-                $this->r2->delete($media->getStoragePath());
-            } catch (\Throwable $e) {
-                error_log(sprintf(
-                    '[MissionMediaCleanupListener] Échec suppression R2 (%s) : %s',
-                    $media->getStoragePath(),
-                    $e->getMessage(),
-                ));
-            }
-
+            // Suppression du binaire R2 en asynchrone (idempotent + retry) ; la ligne
+            // BDD part dans la transaction courante.
+            $this->bus->dispatch(new CleanupR2ObjectMessage($media->getStoragePath()));
             $this->em->remove($media);
         }
     }

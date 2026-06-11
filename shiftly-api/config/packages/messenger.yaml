@@ -1,0 +1,30 @@
+framework:
+    messenger:
+        # Les messages en échec définitif (après retries) atterrissent ici pour rejeu manuel.
+        failure_transport: failed
+
+        transports:
+            # Effets de bord asynchrones (mails, cleanup R2, audit) — transport Doctrine.
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+            failed: 'doctrine://default?queue_name=failed'
+            sync: 'sync://'
+
+        routing:
+            # Tous les mails Symfony partent en async (un envoi qui échoue ne casse plus la requête).
+            Symfony\Component\Mailer\Messenger\SendEmailMessage: async
+            App\Message\CleanupR2ObjectMessage: async
+            App\Message\LogAuditEventMessage: async
+
+when@test:
+    framework:
+        messenger:
+            # En test : messages collectés en mémoire (pas d'appel réseau R2/SMTP réel),
+            # on peut les inspecter via le transport. Déterministe.
+            transports:
+                async: 'in-memory://'
+                failed: 'in-memory://'

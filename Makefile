@@ -33,6 +33,17 @@ stan-baseline:
 csfix:
 	docker compose exec php vendor/bin/php-cs-fixer fix
 
+# Worker Messenger : consomme les effets de bord async (mails, cleanup R2, audit).
+# En prod : superviser cette commande (systemd / supervisor) avec --time-limit.
+worker:
+	docker compose exec php php bin/console messenger:consume async -vv --time-limit=3600
+
+# État des files (async / failed) et rejeu des messages en échec.
+worker-stats:
+	docker compose exec php php bin/console messenger:stats
+worker-retry:
+	docker compose exec php php bin/console messenger:failed:retry -vv
+
 # Tests back + front
 test:
 	docker compose exec php vendor/bin/phpunit

@@ -5,25 +5,23 @@ declare(strict_types=1);
 namespace App\EventListener;
 
 use App\Entity\Completion;
-use App\Service\R2StorageService;
+use App\Message\CleanupR2ObjectMessage;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Events;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Supprime le binaire R2 d'une Completion supprimée (preRemove).
+ * Planifie la suppression asynchrone du binaire R2 d'une Completion supprimée.
  *
- * Pourquoi preRemove (et pas postRemove) :
- *   - L'entité est encore hydratée (on a getPhotoPath()).
- *   - On supprime le binaire R2 AVANT le DELETE BDD pour éviter les orphelins.
- *
- * Idempotent : R2 ignore les delete sur clé inexistante. Si l'appel R2
- * plante (réseau, credentials), on log mais on ne casse pas la transaction.
+ * preRemove : l'entité est encore hydratée (getPhotoPath() lisible). On dispatche
+ * un CleanupR2ObjectMessage (idempotent + retry) au lieu d'appeler R2 en synchrone
+ * dans la transaction.
  */
 #[AsEntityListener(event: Events::preRemove, entity: Completion::class, method: 'preRemove')]
 class CompletionPhotoCleanupListener
 {
     public function __construct(
-        private readonly R2StorageService $r2,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -34,14 +32,6 @@ class CompletionPhotoCleanupListener
             return;
         }
 
-        try {
-            $this->r2->delete($photoPath);
-        } catch (\Throwable $e) {
-            error_log(sprintf(
-                '[CompletionPhotoCleanupListener] Échec suppression R2 (%s) : %s',
-                $photoPath,
-                $e->getMessage(),
-            ));
-        }
+        $this->bus->dispatch(new CleanupR2ObjectMessage($photoPath));
     }
 }

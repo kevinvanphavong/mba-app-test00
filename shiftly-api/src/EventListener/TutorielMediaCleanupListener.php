@@ -6,22 +6,24 @@ namespace App\EventListener;
 
 use App\Entity\Tutoriel;
 use App\Enum\MediaEntityType;
+use App\Message\CleanupR2ObjectMessage;
 use App\Repository\MediaRepository;
-use App\Service\R2StorageService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Pendant Mission : nettoie les Media attachés à un Tutoriel à sa suppression.
+ * Nettoie les Media attachés à un Tutoriel à sa suppression.
  * Cf. MissionMediaCleanupListener pour la motivation (polymorphisme sans FK).
+ * Le binaire R2 part en suppression asynchrone (CleanupR2ObjectMessage).
  */
 #[AsEntityListener(event: Events::preRemove, entity: Tutoriel::class, method: 'preRemove')]
 class TutorielMediaCleanupListener
 {
     public function __construct(
         private readonly MediaRepository $mediaRepository,
-        private readonly R2StorageService $r2,
+        private readonly MessageBusInterface $bus,
         private readonly EntityManagerInterface $em,
     ) {
     }
@@ -36,16 +38,7 @@ class TutorielMediaCleanupListener
         $medias = $this->mediaRepository->findAllByEntity(MediaEntityType::Tutoriel, $tutorielId);
 
         foreach ($medias as $media) {
-            try {
-                $this->r2->delete($media->getStoragePath());
-            } catch (\Throwable $e) {
-                error_log(sprintf(
-                    '[TutorielMediaCleanupListener] Échec suppression R2 (%s) : %s',
-                    $media->getStoragePath(),
-                    $e->getMessage(),
-                ));
-            }
-
+            $this->bus->dispatch(new CleanupR2ObjectMessage($media->getStoragePath()));
             $this->em->remove($media);
         }
     }

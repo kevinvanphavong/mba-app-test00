@@ -955,12 +955,6 @@ parameters:
 			path: src/Security/Voter/TutoReadVoter.php
 
 		-
-			message: '#^Method App\\Service\\AuditLogService\:\:log\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Service/AuditLogService.php
-
-		-
 			message: '#^Constant App\\Service\\Haccp\\HaccpMissionGenerator\:\:HACCP_CATEGORY_SLUG is unused\.$#'
 			identifier: classConstant.unused
 			count: 1
