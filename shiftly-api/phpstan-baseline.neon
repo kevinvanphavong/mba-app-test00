@@ -595,12 +595,6 @@ parameters:
 			path: src/Entity/Zone.php
 
 		-
-			message: '#^Method App\\EventSubscriber\\CorsSubscriber\:\:corsHeaders\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/EventSubscriber/CorsSubscriber.php
-
-		-
 			message: '#^Class App\\Repository\\AbsenceRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
 			identifier: missingType.generics
 			count: 1
