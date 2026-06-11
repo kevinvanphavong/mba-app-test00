@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AbsenceRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Absence journalière d'un employé — congés, repos, maladie, etc.
@@ -28,13 +29,16 @@ class Absence
     private ?User $user = null;
 
     #[ORM\Column(type: 'date_immutable')]
+    #[Assert\NotNull(message: 'La date de l\'absence est requise.')]
     private ?\DateTimeImmutable $date = null;
 
     /** CP | RTT | MALADIE | REPOS | EVENEMENT_FAMILLE | AUTRE */
     #[ORM\Column(length: 30)]
+    #[Assert\Choice(choices: self::TYPES, message: 'Type d\'absence invalide.')]
     private string $type = 'AUTRE';
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255, maxMessage: 'Le motif ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $motif = null;
 
     #[ORM\Column(type: 'datetime_immutable')]

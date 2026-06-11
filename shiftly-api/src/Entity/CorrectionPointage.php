@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CorrectionPointageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Trace toutes les corrections manuelles effectuées par un manager sur un pointage.
@@ -35,6 +36,7 @@ class CorrectionPointage
 
     /** 'heureArrivee' | 'heureDepart' | 'pauseDebut' | 'pauseFin' */
     #[ORM\Column(length: 50)]
+    #[Assert\Choice(choices: self::CHAMPS, message: 'Champ corrigé invalide.')]
     private string $champModifie = '';
 
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
@@ -44,6 +46,7 @@ class CorrectionPointage
     private ?\DateTimeImmutable $nouvelleValeur = null;
 
     #[ORM\Column(type: 'text', nullable: true)]
+    #[Assert\Length(max: 1000, maxMessage: 'Le motif ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $motif = null;
 
     /** Manager qui a effectué la correction */

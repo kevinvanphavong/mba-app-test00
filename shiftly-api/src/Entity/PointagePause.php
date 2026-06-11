@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'pointage_pause')]
@@ -31,6 +32,7 @@ class PointagePause
 
     #[ORM\Column(length: 20)]
     #[Groups(['pointage:read'])]
+    #[Assert\Choice(choices: [self::TYPE_COURTE, self::TYPE_REPAS], message: 'Type de pause invalide.')]
     private string $type = self::TYPE_COURTE;
 
     public function getId(): ?int

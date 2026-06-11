@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CentreNoteRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CentreNoteRepository::class)]
 #[ORM\Table(name: 'centre_note')]
@@ -22,6 +23,8 @@ class CentreNote
     private ?User $superAdminUser = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La note ne peut pas être vide.')]
+    #[Assert\Length(max: 5000, maxMessage: 'La note ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $contenu = null;
 
     #[ORM\Column]

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SupportReplyRepository::class)]
 #[ORM\Table(name: 'support_reply')]
@@ -24,6 +25,8 @@ class SupportReply
     private ?User $auteur = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Le message est requis.')]
+    #[Assert\Length(max: 5000, maxMessage: 'Le message ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $message = null;
 
     /** Si true : note interne superadmin, invisible pour l'auteur du ticket */

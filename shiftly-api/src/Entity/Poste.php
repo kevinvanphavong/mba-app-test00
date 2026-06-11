@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Affectation d'un User à une Zone pour un Service donné.
@@ -86,11 +87,14 @@ class Poste
     /** Durée de pause en minutes */
     #[ORM\Column(options: ['default' => 0])]
     #[Groups(['poste:read', 'poste:write'])]
+    #[Assert\GreaterThanOrEqual(value: 0, message: 'La pause ne peut pas être négative.')]
+    #[Assert\LessThanOrEqual(value: 1440, message: 'La pause ne peut pas dépasser 24h.')]
     private int $pauseMinutes = 0;
 
     /** Note libre manager (visible staff) */
     #[ORM\Column(type: 'string', length: 500, nullable: true)]
     #[Groups(['poste:read', 'poste:write'])]
+    #[Assert\Length(max: 500, maxMessage: 'La note ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $note = null;
 
     /** Completions — dans l'item seulement */

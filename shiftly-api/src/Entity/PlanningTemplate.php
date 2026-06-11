@@ -8,6 +8,7 @@ use App\Repository\PlanningTemplateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Modèle de planning hebdomadaire réutilisable.
@@ -33,6 +34,8 @@ class PlanningTemplate
     private ?Centre $centre = null;
 
     #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Le nom du modèle est requis.')]
+    #[Assert\Length(max: 100, maxMessage: 'Le nom ne peut pas dépasser {{ limit }} caractères.')]
     private string $nom;
 
     #[ORM\ManyToOne(targetEntity: User::class)]

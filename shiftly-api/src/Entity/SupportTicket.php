@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SupportTicketRepository::class)]
 #[ORM\Table(name: 'support_ticket')]
@@ -41,18 +42,24 @@ class SupportTicket
     private ?User $auteur = null;
 
     #[ORM\Column(length: 200)]
+    #[Assert\NotBlank(message: 'Le sujet est requis.')]
+    #[Assert\Length(max: 200, maxMessage: 'Le sujet ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $sujet = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Le message est requis.')]
+    #[Assert\Length(max: 5000, maxMessage: 'Le message ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $message = null;
 
     #[ORM\Column(length: 30)]
+    #[Assert\Choice(choices: [self::CATEGORIE_BUG, self::CATEGORIE_QUESTION, self::CATEGORIE_FEATURE_REQUEST, self::CATEGORIE_FACTURATION, self::CATEGORIE_AUTRE], message: 'Catégorie invalide.')]
     private string $categorie = self::CATEGORIE_QUESTION;
 
     #[ORM\Column(length: 20)]
     private string $statut = self::STATUT_OUVERT;
 
     #[ORM\Column(length: 20)]
+    #[Assert\Choice(choices: [self::PRIORITE_BASSE, self::PRIORITE_MOYENNE, self::PRIORITE_HAUTE, self::PRIORITE_URGENTE], message: 'Priorité invalide.')]
     private string $priorite = self::PRIORITE_MOYENNE;
 
     #[ORM\ManyToOne(targetEntity: User::class)]

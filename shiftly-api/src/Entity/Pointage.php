@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: PointageRepository::class)]
 #[ORM\Table(name: 'pointage')]
@@ -69,6 +70,7 @@ class Pointage
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['pointage:read'])]
+    #[Assert\Length(max: 1000, maxMessage: 'Le commentaire ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $commentaire = null;
 
     #[ORM\Column(type: 'datetime_immutable')]

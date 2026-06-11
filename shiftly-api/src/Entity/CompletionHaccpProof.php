@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Patch;
 use App\Repository\CompletionHaccpProofRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Preuve HACCP attachée à une Completion (T° relevée, DLC, photo).
@@ -63,6 +64,8 @@ class CompletionHaccpProof
     // Décimal sérialisé/dénormalisé comme string (xsd:decimal, cf. note HaccpEquipement::$seuilMin).
     #[ORM\Column(type: 'decimal', precision: 5, scale: 2, nullable: true)]
     #[Groups(['haccp_proof:read', 'completion:read', 'haccp_registre:read'])]
+    #[Assert\Type(type: 'numeric', message: 'La valeur relevée doit être un nombre.')]
+    #[Assert\Range(min: -999.99, max: 999.99, notInRangeMessage: 'Valeur hors bornes.')]
     private ?string $valeurNumerique = null;
 
     #[ORM\Column(type: 'date_immutable', nullable: true)]
@@ -79,6 +82,7 @@ class CompletionHaccpProof
 
     #[ORM\Column(type: 'text', nullable: true)]
     #[Groups(['haccp_proof:read', 'completion:read', 'haccp_registre:read'])]
+    #[Assert\Length(max: 2000, maxMessage: 'La note ne peut pas dépasser {{ limit }} caractères.')]
     private ?string $note = null;
 
     #[ORM\Column(nullable: true)]
