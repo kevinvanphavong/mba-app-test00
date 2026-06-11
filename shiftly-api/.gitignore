@@ -21,3 +21,8 @@
 # Tout le stockage objets passe par Cloudflare R2 (cf. R2StorageService).
 # Si un dossier public/uploads/ est recréé localement, il ne doit pas être commité.
 /public/uploads/
+
+###> friendsofphp/php-cs-fixer ###
+/.php-cs-fixer.php
+/.php-cs-fixer.cache
+###< friendsofphp/php-cs-fixer ###

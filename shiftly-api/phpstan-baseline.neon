@@ -1,0 +1,1225 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Method App\\Controller\\CentreHorairesController\:\:normalizeHoraires\(\) has parameter \$stored with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/CentreHorairesController.php
+
+		-
+			message: '#^Method App\\Controller\\CentreHorairesController\:\:normalizeHoraires\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/CentreHorairesController.php
+
+		-
+			message: '#^Offset ''1''\|''2''\|''3''\|''4''\|''5''\|''6''\|''7'' on array\{1\: ''lundi'', 2\: ''mardi'', 3\: ''mercredi'', 4\: ''jeudi'', 5\: ''vendredi'', 6\: ''samedi'', 7\: ''dimanche''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Controller/CreateServiceController.php
+
+		-
+			message: '#^Property App\\Controller\\CreateServiceController\:\:\$zoneRepo is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/CreateServiceController.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 2
+			path: src/Controller/CreateServiceController.php
+
+		-
+			message: '#^Method App\\Controller\\DashboardController\:\:buildIncidentsSection\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/DashboardController.php
+
+		-
+			message: '#^Method App\\Controller\\DashboardController\:\:buildServiceSection\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/DashboardController.php
+
+		-
+			message: '#^Method App\\Controller\\DashboardController\:\:buildServicesStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/DashboardController.php
+
+		-
+			message: '#^Method App\\Controller\\DashboardController\:\:buildStaffSection\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/DashboardController.php
+
+		-
+			message: '#^Method App\\Controller\\DashboardController\:\:buildTopStaff\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/DashboardController.php
+
+		-
+			message: '#^Method App\\Controller\\DashboardController\:\:buildTutorielsSection\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/DashboardController.php
+
+		-
+			message: '#^Property App\\Controller\\DashboardController\:\:\$completionRepo is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/DashboardController.php
+
+		-
+			message: '#^Property App\\Controller\\DashboardController\:\:\$tutoReadRepo is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/DashboardController.php
+
+		-
+			message: '#^Method App\\Controller\\EditeurController\:\:serializeCompetence\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EditeurController.php
+
+		-
+			message: '#^Method App\\Controller\\EditeurController\:\:serializeMission\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EditeurController.php
+
+		-
+			message: '#^Method App\\Controller\\EditeurController\:\:serializeTutoriel\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EditeurController.php
+
+		-
+			message: '#^Method App\\Controller\\EditeurController\:\:serializeUser\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EditeurController.php
+
+		-
+			message: '#^Method App\\Controller\\EditeurController\:\:serializeZone\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/EditeurController.php
+
+		-
+			message: '#^Property App\\Controller\\EditeurController\:\:\$centreRepo is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/EditeurController.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between null and mixed will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: src/Controller/EditeurController.php
+
+		-
+			message: '#^Method App\\Controller\\HaccpController\:\:serializeProof\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/HaccpController.php
+
+		-
+			message: '#^Method App\\Controller\\PlanningTemplateController\:\:serializeTemplate\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/PlanningTemplateController.php
+
+		-
+			message: '#^Method Doctrine\\Persistence\\ObjectManager\:\:clear\(\) invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: src/Controller/PlanningTemplateController.php
+
+		-
+			message: '#^Method App\\Controller\\PointageController\:\:serializePointage\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/PointageController.php
+
+		-
+			message: '#^Method App\\Controller\\PointageController\:\:serializeService\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/PointageController.php
+
+		-
+			message: '#^Method App\\Controller\\StaffController\:\:buildCompetencesCatalog\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/StaffController.php
+
+		-
+			message: '#^Method App\\Controller\\StaffController\:\:buildCompetencesParZone\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/StaffController.php
+
+		-
+			message: '#^Method App\\Controller\\StaffController\:\:buildEmptyMeta\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/StaffController.php
+
+		-
+			message: '#^Method App\\Controller\\StaffController\:\:getPresentUserIds\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/StaffController.php
+
+		-
+			message: '#^Property App\\Controller\\StaffController\:\:\$hasher is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/StaffController.php
+
+		-
+			message: '#^Property App\\Controller\\StaffController\:\:\$zoneRepo is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Controller/StaffController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getId\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/SuperAdminAuthController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getNom\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/SuperAdminAuthController.php
+
+		-
+			message: '#^Call to an undefined method Symfony\\Component\\Security\\Core\\User\\UserInterface\:\:getRole\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Controller/SuperAdminAuthController.php
+
+		-
+			message: '#^Method App\\Controller\\SuperAdminSupportController\:\:serializeReply\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/SuperAdminSupportController.php
+
+		-
+			message: '#^Method App\\Controller\\SuperAdminSupportController\:\:serializeTicket\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/SuperAdminSupportController.php
+
+		-
+			message: '#^Method App\\Controller\\SuperAdminSupportController\:\:serializeTicketDetail\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/SuperAdminSupportController.php
+
+		-
+			message: '#^Parameter \#1 \$superAdmin of method App\\Service\\AuditLogService\:\:log\(\) expects App\\Entity\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Controller/SuperAdminSupportController.php
+
+		-
+			message: '#^Parameter \#2 \$currentUser of method App\\Controller\\SuperAdminSupportController\:\:serializeTicket\(\) expects App\\Entity\\User\|null, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Controller/SuperAdminSupportController.php
+
+		-
+			message: '#^Method App\\Controller\\SuperAdminUsersController\:\:serializeUser\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Controller/SuperAdminUsersController.php
+
+		-
+			message: '#^Parameter \#1 \$superAdmin of method App\\Service\\AuditLogService\:\:log\(\) expects App\\Entity\\User, Symfony\\Component\\Security\\Core\\User\\UserInterface\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Controller/SuperAdminUsersController.php
+
+		-
+			message: '#^Class App\\Entity\\LegalConfig not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Doctrine/CentreQueryExtension.php
+
+		-
+			message: '#^Class App\\Entity\\PointageCorrection not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Doctrine/CentreQueryExtension.php
+
+		-
+			message: '#^Method App\\Entity\\AuditLog\:\:getMetadata\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/AuditLog.php
+
+		-
+			message: '#^Method App\\Entity\\AuditLog\:\:setMetadata\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/AuditLog.php
+
+		-
+			message: '#^Property App\\Entity\\AuditLog\:\:\$metadata type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/AuditLog.php
+
+		-
+			message: '#^Method App\\Entity\\Centre\:\:getOpeningHours\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/Centre.php
+
+		-
+			message: '#^Method App\\Entity\\Centre\:\:getUsers\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Centre.php
+
+		-
+			message: '#^Method App\\Entity\\Centre\:\:getZones\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Centre.php
+
+		-
+			message: '#^Method App\\Entity\\Centre\:\:setOpeningHours\(\) has parameter \$openingHours with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/Centre.php
+
+		-
+			message: '#^Property App\\Entity\\Centre\:\:\$openingHours type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/Centre.php
+
+		-
+			message: '#^Property App\\Entity\\Centre\:\:\$users with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Centre.php
+
+		-
+			message: '#^Property App\\Entity\\Centre\:\:\$zones with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Centre.php
+
+		-
+			message: '#^Method App\\Entity\\Competence\:\:getStaffCompetences\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Competence.php
+
+		-
+			message: '#^Property App\\Entity\\Competence\:\:\$staffCompetences with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Competence.php
+
+		-
+			message: '#^Method App\\Entity\\EventLog\:\:getPayload\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/EventLog.php
+
+		-
+			message: '#^Method App\\Entity\\EventLog\:\:setPayload\(\) has parameter \$payload with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/EventLog.php
+
+		-
+			message: '#^Property App\\Entity\\EventLog\:\:\$payload type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/EventLog.php
+
+		-
+			message: '#^Property App\\Entity\\HaccpEquipement\:\:\$haccpSpecs with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/HaccpEquipement.php
+
+		-
+			message: '#^Property App\\Entity\\Incident\:\:\$staffImpliques with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Incident.php
+
+		-
+			message: '#^Method App\\Entity\\PlanningSnapshot\:\:getData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/PlanningSnapshot.php
+
+		-
+			message: '#^Method App\\Entity\\PlanningSnapshot\:\:setData\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/PlanningSnapshot.php
+
+		-
+			message: '#^Property App\\Entity\\PlanningSnapshot\:\:\$data type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/PlanningSnapshot.php
+
+		-
+			message: '#^Property App\\Entity\\PlanningTemplate\:\:\$absences with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/PlanningTemplate.php
+
+		-
+			message: '#^Property App\\Entity\\PlanningTemplate\:\:\$shifts with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/PlanningTemplate.php
+
+		-
+			message: '#^Method App\\Entity\\Pointage\:\:getPauses\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Pointage.php
+
+		-
+			message: '#^Property App\\Entity\\Pointage\:\:\$pauses with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Pointage.php
+
+		-
+			message: '#^Method App\\Entity\\Poste\:\:getCompletions\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Poste.php
+
+		-
+			message: '#^Property App\\Entity\\Poste\:\:\$completions with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Poste.php
+
+		-
+			message: '#^Method App\\Entity\\Service\:\:getIncidents\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Service.php
+
+		-
+			message: '#^Method App\\Entity\\Service\:\:getManagers\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Service.php
+
+		-
+			message: '#^Method App\\Entity\\Service\:\:getMissionsSnapshot\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/Service.php
+
+		-
+			message: '#^Method App\\Entity\\Service\:\:getPostes\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Service.php
+
+		-
+			message: '#^Method App\\Entity\\Service\:\:setMissionsSnapshot\(\) has parameter \$v with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/Service.php
+
+		-
+			message: '#^Property App\\Entity\\Service\:\:\$incidents with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Service.php
+
+		-
+			message: '#^Property App\\Entity\\Service\:\:\$managers with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Service.php
+
+		-
+			message: '#^Property App\\Entity\\Service\:\:\$missionsSnapshot type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/Service.php
+
+		-
+			message: '#^Property App\\Entity\\Service\:\:\$postes with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Service.php
+
+		-
+			message: '#^Method App\\Entity\\SupportReply\:\:getAttachments\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/SupportReply.php
+
+		-
+			message: '#^Property App\\Entity\\SupportReply\:\:\$attachments with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/SupportReply.php
+
+		-
+			message: '#^Method App\\Entity\\SupportTicket\:\:getAttachments\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/SupportTicket.php
+
+		-
+			message: '#^Method App\\Entity\\SupportTicket\:\:getReplies\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/SupportTicket.php
+
+		-
+			message: '#^Property App\\Entity\\SupportTicket\:\:\$attachments with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/SupportTicket.php
+
+		-
+			message: '#^Property App\\Entity\\SupportTicket\:\:\$replies with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/SupportTicket.php
+
+		-
+			message: '#^Method App\\Entity\\Tutoriel\:\:getContenu\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/Tutoriel.php
+
+		-
+			message: '#^Method App\\Entity\\Tutoriel\:\:getLectures\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Tutoriel.php
+
+		-
+			message: '#^Method App\\Entity\\Tutoriel\:\:setContenu\(\) has parameter \$contenu with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/Tutoriel.php
+
+		-
+			message: '#^Property App\\Entity\\Tutoriel\:\:\$contenu type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/Tutoriel.php
+
+		-
+			message: '#^Property App\\Entity\\Tutoriel\:\:\$lectures with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Tutoriel.php
+
+		-
+			message: '#^Method App\\Entity\\User\:\:getStaffCompetences\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Method App\\Entity\\User\:\:getTutoReads\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Method App\\Entity\\User\:\:setRoles\(\) has parameter \$roles with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$roles type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$staffCompetences with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Property App\\Entity\\User\:\:\$tutoReads with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/User.php
+
+		-
+			message: '#^Method App\\Entity\\Zone\:\:getCompetences\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Zone.php
+
+		-
+			message: '#^Method App\\Entity\\Zone\:\:getMissions\(\) return type with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Zone.php
+
+		-
+			message: '#^Property App\\Entity\\Zone\:\:\$competences with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Zone.php
+
+		-
+			message: '#^Property App\\Entity\\Zone\:\:\$missions with generic interface Doctrine\\Common\\Collections\\Collection does not specify its types\: TKey, T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Entity/Zone.php
+
+		-
+			message: '#^Method App\\EventSubscriber\\CorsSubscriber\:\:corsHeaders\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/EventSubscriber/CorsSubscriber.php
+
+		-
+			message: '#^Class App\\Repository\\AbsenceRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/AbsenceRepository.php
+
+		-
+			message: '#^Method App\\Repository\\AbsenceRepository\:\:findByCentreAndDateRange\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/AbsenceRepository.php
+
+		-
+			message: '#^Class App\\Repository\\AuditLogRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/AuditLogRepository.php
+
+		-
+			message: '#^Method App\\Repository\\AuditLogRepository\:\:findRecent\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/AuditLogRepository.php
+
+		-
+			message: '#^Class App\\Repository\\CentreNoteRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/CentreNoteRepository.php
+
+		-
+			message: '#^Method App\\Repository\\CentreNoteRepository\:\:findByCentre\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/CentreNoteRepository.php
+
+		-
+			message: '#^Class App\\Repository\\CentreRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/CentreRepository.php
+
+		-
+			message: '#^Class App\\Repository\\CompetenceRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/CompetenceRepository.php
+
+		-
+			message: '#^Method App\\Repository\\CompetenceRepository\:\:findByZone\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/CompetenceRepository.php
+
+		-
+			message: '#^Class App\\Repository\\CompletionHaccpProofRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/CompletionHaccpProofRepository.php
+
+		-
+			message: '#^Class App\\Repository\\CompletionRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/CompletionRepository.php
+
+		-
+			message: '#^Class App\\Repository\\EventLogRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/EventLogRepository.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<array\{userId\: int, userNom\: mixed, checks\: int, services\: int\<0, max\>, tauxPersonnel\: float\}\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Repository/EventLogRepository.php
+
+		-
+			message: '#^Class App\\Repository\\HaccpEquipementRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/HaccpEquipementRepository.php
+
+		-
+			message: '#^Class App\\Repository\\IncidentRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/IncidentRepository.php
+
+		-
+			message: '#^Method App\\Repository\\IncidentRepository\:\:countBySeverite\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/IncidentRepository.php
+
+		-
+			message: '#^Method App\\Repository\\IncidentRepository\:\:findAllByCentre\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/IncidentRepository.php
+
+		-
+			message: '#^Method App\\Repository\\IncidentRepository\:\:findOpenByCentre\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/IncidentRepository.php
+
+		-
+			message: '#^Class App\\Repository\\LeadRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/LeadRepository.php
+
+		-
+			message: '#^Method App\\Repository\\LeadRepository\:\:findFilteredForSuperAdmin\(\) has parameter \$filters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/LeadRepository.php
+
+		-
+			message: '#^Class App\\Repository\\MissionHaccpSpecRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/MissionHaccpSpecRepository.php
+
+		-
+			message: '#^Class App\\Repository\\MissionRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/MissionRepository.php
+
+		-
+			message: '#^Method App\\Repository\\MissionRepository\:\:findByZone\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/MissionRepository.php
+
+		-
+			message: '#^Method App\\Repository\\MissionRepository\:\:findByZoneAndCategorie\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/MissionRepository.php
+
+		-
+			message: '#^Method App\\Repository\\MissionRepository\:\:findForService\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/MissionRepository.php
+
+		-
+			message: '#^Class App\\Repository\\PlanningSnapshotRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/PlanningSnapshotRepository.php
+
+		-
+			message: '#^Method App\\Repository\\PlanningSnapshotRepository\:\:findByWeek\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/PlanningSnapshotRepository.php
+
+		-
+			message: '#^Class App\\Repository\\PlanningTemplateRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/PlanningTemplateRepository.php
+
+		-
+			message: '#^Class App\\Repository\\PlanningWeekRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/PlanningWeekRepository.php
+
+		-
+			message: '#^Method App\\Repository\\PlanningWeekRepository\:\:findPublishedBetween\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/PlanningWeekRepository.php
+
+		-
+			message: '#^Class App\\Repository\\PointageRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/PointageRepository.php
+
+		-
+			message: '#^Method App\\Repository\\PointageRepository\:\:findByService\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/PointageRepository.php
+
+		-
+			message: '#^Class App\\Repository\\PosteRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/PosteRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ServiceRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/ServiceRepository.php
+
+		-
+			message: '#^Method App\\Repository\\ServiceRepository\:\:findBetween\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ServiceRepository.php
+
+		-
+			message: '#^Method App\\Repository\\ServiceRepository\:\:findByCentreDesc\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ServiceRepository.php
+
+		-
+			message: '#^Method App\\Repository\\ServiceRepository\:\:findRecent\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ServiceRepository.php
+
+		-
+			message: '#^Class App\\Repository\\StaffCompetenceRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/StaffCompetenceRepository.php
+
+		-
+			message: '#^Class App\\Repository\\SupportReplyRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/SupportReplyRepository.php
+
+		-
+			message: '#^Class App\\Repository\\SupportTicketRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/SupportTicketRepository.php
+
+		-
+			message: '#^Method App\\Repository\\SupportTicketRepository\:\:findByAuteur\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/SupportTicketRepository.php
+
+		-
+			message: '#^Method App\\Repository\\SupportTicketRepository\:\:findFilteredForSuperAdmin\(\) has parameter \$filters with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/SupportTicketRepository.php
+
+		-
+			message: '#^Method App\\Repository\\SupportTicketRepository\:\:findFilteredForSuperAdmin\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/SupportTicketRepository.php
+
+		-
+			message: '#^Class App\\Repository\\TutoReadRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/TutoReadRepository.php
+
+		-
+			message: '#^Class App\\Repository\\TutorielRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/TutorielRepository.php
+
+		-
+			message: '#^Method App\\Repository\\TutorielRepository\:\:findByCentre\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/TutorielRepository.php
+
+		-
+			message: '#^Class App\\Repository\\UserRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/UserRepository.php
+
+		-
+			message: '#^Method App\\Repository\\UserRepository\:\:findActifByCentre\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/UserRepository.php
+
+		-
+			message: '#^Method App\\Repository\\UserRepository\:\:findByCentre\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/UserRepository.php
+
+		-
+			message: '#^Method App\\Repository\\UserRepository\:\:findLeaderboard\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/UserRepository.php
+
+		-
+			message: '#^Class App\\Repository\\ZoneRepository extends generic class Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepository but does not specify its types\: T$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Repository/ZoneRepository.php
+
+		-
+			message: '#^Method App\\Repository\\ZoneRepository\:\:findByCentre\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Repository/ZoneRepository.php
+
+		-
+			message: '#^Class App\\Security\\Voter\\AbstractCentreVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Security/Voter/AbstractCentreVoter.php
+
+		-
+			message: '#^Class App\\Security\\Voter\\CompletionHaccpProofVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Security/Voter/CompletionHaccpProofVoter.php
+
+		-
+			message: '#^Class App\\Security\\Voter\\HaccpEquipementVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Security/Voter/HaccpEquipementVoter.php
+
+		-
+			message: '#^Class App\\Security\\Voter\\LeadVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Security/Voter/LeadVoter.php
+
+		-
+			message: '#^Class App\\Security\\Voter\\MediaVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Security/Voter/MediaVoter.php
+
+		-
+			message: '#^Class App\\Security\\Voter\\MissionHaccpSpecVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Security/Voter/MissionHaccpSpecVoter.php
+
+		-
+			message: '#^Class App\\Security\\Voter\\SupportAttachmentVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Security/Voter/SupportAttachmentVoter.php
+
+		-
+			message: '#^Class App\\Security\\Voter\\TutoReadVoter extends generic class Symfony\\Component\\Security\\Core\\Authorization\\Voter\\Voter but does not specify its types\: TAttribute, TSubject$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Security/Voter/TutoReadVoter.php
+
+		-
+			message: '#^Method App\\Service\\AuditLogService\:\:log\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/AuditLogService.php
+
+		-
+			message: '#^Constant App\\Service\\Haccp\\HaccpMissionGenerator\:\:HACCP_CATEGORY_SLUG is unused\.$#'
+			identifier: classConstant.unused
+			count: 1
+			path: src/Service/Haccp/HaccpMissionGenerator.php
+
+		-
+			message: '#^Property App\\Service\\Haccp\\HaccpMissionGenerator\:\:\$equipements is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/Haccp/HaccpMissionGenerator.php
+
+		-
+			message: '#^Method App\\Service\\Haccp\\HaccpSyncResult\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/Haccp/HaccpSyncResult.php
+
+		-
+			message: '#^Property App\\Service\\PlanningGuardService\:\:\$serviceRepository is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Service/PlanningGuardService.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PlanningService\:\:buildAlerts\(\) has parameter \$employees with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PlanningService\:\:buildAlerts\(\) has parameter \$services with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PlanningService\:\:buildAlerts\(\) has parameter \$zones with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PlanningService\:\:buildAlerts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PlanningService\:\:getAlerts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PlanningService\:\:getEmployeeWeeks\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PlanningService\:\:getLegalAlerts\(\) has parameter \$employees with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PlanningService\:\:getLegalAlerts\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PlanningService\:\:getWeekData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Offset ''1''\|''2''\|''3''\|''4''\|''5''\|''6''\|''7'' on array\{1\: ''lundi'', 2\: ''mardi'', 3\: ''mercredi'', 4\: ''jeudi'', 5\: ''vendredi'', 6\: ''samedi'', 7\: ''dimanche''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Parameter \#1 \$array \(list\<array\{id\: mixed, nom\: mixed, prenom\: mixed, role\: mixed, avatarColor\: mixed, heuresHebdo\: mixed, typeContrat\: mixed, shifts\: list\<array\{posteId\: mixed, serviceId\: mixed, userId\: mixed, date\: \(int\|string\), zoneId\: mixed, zoneNom\: mixed, zoneCouleur\: mixed, heureDebut\: mixed, \.\.\.\}\>, \.\.\.\}\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Right side of && is always true\.$#'
+			identifier: booleanAnd.rightAlwaysTrue
+			count: 1
+			path: src/Service/PlanningService.php
+
+		-
+			message: '#^Method App\\Service\\PointageService\:\:calculerStats\(\) has parameter \$pointages with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PointageService.php
+
+		-
+			message: '#^Method App\\Service\\PointageService\:\:calculerStats\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PointageService.php
+
+		-
+			message: '#^Method App\\Service\\PointageService\:\:cloturerService\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PointageService.php
+
+		-
+			message: '#^Method App\\Service\\PointageService\:\:genererPointagesDepuisPostes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/PointageService.php
+
+		-
+			message: '#^Parameter \#1 \$configuration of class AsyncAws\\S3\\S3Client constructor expects array\<''accessKeyId''\|''accessKeySecret''\|''containerCredential…''\|''debug''\|''endpoint''\|''endpointDiscoveryEn…''\|''pathStyleEndpoint''\|''podIdentityAuthoriz…''\|''podIdentityCredenti…''\|''profile''\|''region''\|''roleArn''\|''roleSessionName''\|''sendChunkedBody''\|''sessionToken''\|''sharedConfigFile''\|''sharedCredentialsFi…''\|''webIdentityTokenFile'', string\|null\>\|AsyncAws\\Core\\Configuration, array\{endpoint\: non\-empty\-string, accessKeyId\: string, accessKeySecret\: string, region\: ''auto'', pathStyleEndpoint\: true\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Service/R2StorageService.php
+
+		-
+			message: '#^Method App\\Service\\SentryApiService\:\:getIssuesByCentreId\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/SentryApiService.php
+
+		-
+			message: '#^Method App\\Service\\SentryApiService\:\:getStats7Days\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/SentryApiService.php
+
+		-
+			message: '#^Method App\\Service\\Upload\\HaccpPhotoUploader\:\:upload\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/Upload/HaccpPhotoUploader.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Match arm comparison between ''pauseFin'' and ''pauseFin'' is always true\.$#'
+			identifier: match.alwaysTrue
+			count: 2
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:buildAlerte\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:buildEmployeData\(\) has parameter \$absenceIndex with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:buildEmployeData\(\) has parameter \$jours with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:buildEmployeData\(\) has parameter \$tousPointages with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:buildEmployeData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:buildJourData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:calculerAlertes\(\) has parameter \$employes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:calculerAlertes\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:calculerKPIs\(\) has parameter \$employes with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:calculerKPIs\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:formatPauses\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:getCorrectionsFormatees\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:getSemaineData\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Method App\\Service\\ValidationHebdoService\:\:verifierReposQuotidien\(\) has parameter \$jours with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Right side of \|\| is always true\.$#'
+			identifier: booleanOr.rightAlwaysTrue
+			count: 1
+			path: src/Service/ValidationHebdoService.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type App\\Entity\\PointagePause\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 5
+			path: src/Service/ValidationHebdoService.php

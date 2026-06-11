@@ -1,0 +1,13 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    level: 6
+    paths:
+        - src
+    # Legacy figé via phpstan-baseline.neon (17 600 LOC). Tout nouveau code doit
+    # passer sans ajouter d'erreur. Régénérer le baseline : voir Makefile (cible stan-baseline).
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
