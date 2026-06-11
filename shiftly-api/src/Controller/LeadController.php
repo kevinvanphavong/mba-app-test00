@@ -4,11 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Lead;
 use App\Event\LeadCreatedEvent;
-use App\Repository\LeadRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -17,33 +18,34 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * Endpoint public de capture des leads depuis la landing shiftly.fr.
  * Aucune authentification requise — la route est whitelistée dans security.yaml.
- * Anti-flood : max 3 leads avec le même email en 24h → 429.
+ * Anti-flood : rate limiter framework (sliding window 5/h par IP).
  */
 class LeadController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly LeadRepository $leadRepo,
         private readonly ValidatorInterface $validator,
         private readonly EventDispatcherInterface $dispatcher,
+        private readonly RateLimiterFactory $leadCreationLimiter,
     ) {
     }
 
     #[Route('/api/leads', name: 'lead_create_public', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
+        // Anti-flood : rate limiter framework, clé = IP cliente.
+        if (!$this->leadCreationLimiter->create($request->getClientIp())->consume(1)->isAccepted()) {
+            return $this->json([
+                'message' => 'Trop de demandes envoyées. Réessaie dans un moment.',
+            ], Response::HTTP_TOO_MANY_REQUESTS);
+        }
+
         $data = json_decode($request->getContent(), true);
         if (!is_array($data)) {
             return $this->json(['message' => 'Payload JSON invalide.'], 400);
         }
 
-        // Anti-flood : 3 leads / email / 24h
         $email = strtolower(trim((string) ($data['email'] ?? '')));
-        if ('' !== $email && $this->leadRepo->countRecentByEmail($email, 24) >= 3) {
-            return $this->json([
-                'message' => 'Trop de demandes envoyées avec cet email dans les dernières 24h.',
-            ], 429);
-        }
 
         $intent = $this->normalize($data['intent'] ?? null, [Lead::INTENT_TRIAL, Lead::INTENT_DEMO, Lead::INTENT_CUSTOM], Lead::INTENT_TRIAL);
         $plan = $this->normalize($data['plan'] ?? null, [Lead::PLAN_STARTER, Lead::PLAN_PRO, Lead::PLAN_PREMIUM, Lead::PLAN_UNDECIDED], Lead::PLAN_UNDECIDED);

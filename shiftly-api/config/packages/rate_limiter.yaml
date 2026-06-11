@@ -1,6 +1,15 @@
 framework:
     rate_limiter:
-        superadmin_login:
+        # Capture de leads publique (landing) : remplace l'anti-flood maison de
+        # LeadController. Fenêtre glissante par IP.
+        lead_creation:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '1 hour'
+
+        # Anti brute-force login (app + superadmin) : 5 échecs / 15 min, clé IP+email.
+        # Appliqué via LoginRateLimitSubscriber (compte les LoginFailureEvent).
+        auth_login:
             policy: 'sliding_window'
             limit: 5
             interval: '15 minutes'

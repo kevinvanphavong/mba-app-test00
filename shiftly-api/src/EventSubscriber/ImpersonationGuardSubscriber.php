@@ -2,8 +2,8 @@
 
 namespace App\EventSubscriber;
 
+use App\Security\PathAwareCookieTokenExtractor;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -20,7 +20,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class ImpersonationGuardSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Security $security,
         private readonly JWTTokenManagerInterface $jwtManager,
     ) {
     }
@@ -48,22 +47,12 @@ class ImpersonationGuardSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $token = $this->security->getToken();
-        if (!$token) {
+        // Le JWT de centre vit dans le cookie httpOnly `token`. On le lit
+        // directement (ce listener tourne avant l'authentification du firewall,
+        // donc security->getToken() n'est pas encore peuplé ici).
+        $jwt = (string) $request->cookies->get(PathAwareCookieTokenExtractor::APP_COOKIE, '');
+        if ('' === $jwt) {
             return;
-        }
-
-        // Décode le payload JWT pour chercher le claim impersonatedBy
-        $credentials = $token->getAttribute('token') ?? null;
-        if (!$credentials) {
-            // Fallback : on lit le header Authorization
-            $authHeader = $request->headers->get('Authorization', '');
-            if (!str_starts_with($authHeader, 'Bearer ')) {
-                return;
-            }
-            $jwt = substr($authHeader, 7);
-        } else {
-            $jwt = (string) $credentials;
         }
 
         try {

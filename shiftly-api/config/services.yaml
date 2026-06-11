@@ -41,3 +41,25 @@ services:
         arguments:
             $notificationEmail: '%env(LEAD_NOTIFICATION_EMAIL)%'
             $appBaseUrl:        '%env(APP_BASE_URL)%'
+
+    # TTL du cookie JWT aligné sur le token_ttl lexik (8h).
+    App\Security\AuthCookieFactory:
+        arguments:
+            $tokenTtl: 28800
+
+    # Rate limiter anti-flood de la capture de leads (cf. rate_limiter.yaml).
+    App\Controller\LeadController:
+        arguments:
+            $leadCreationLimiter: '@limiter.lead_creation'
+
+    # Rate limiter anti brute-force login (cf. rate_limiter.yaml).
+    App\EventSubscriber\LoginRateLimitSubscriber:
+        arguments:
+            $authLoginLimiter: '@limiter.auth_login'
+
+    # Le JWT est lu dans un cookie httpOnly (path-aware) : on décore la chaîne
+    # d'extracteurs lexik. Anti-XSS : plus aucun token manipulé par le JS.
+    App\Security\PathAwareCookieTokenExtractor:
+        decorates: lexik_jwt_authentication.extractor.chain_extractor
+        arguments:
+            $inner: '@.inner'

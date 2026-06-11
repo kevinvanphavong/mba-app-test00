@@ -21,7 +21,7 @@ security:
                 check_path: /api/superadmin/auth/login
                 username_path: email
                 password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
+                success_handler: App\Security\CookieAuthenticationSuccessHandler
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
         superadmin_api:
@@ -36,7 +36,7 @@ security:
                 check_path: /api/auth/login
                 username_path: email
                 password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
+                success_handler: App\Security\CookieAuthenticationSuccessHandler
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
         api:
@@ -48,6 +48,7 @@ security:
         - { path: ^/api/superadmin/auth/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/superadmin, roles: ROLE_SUPERADMIN }
         - { path: ^/api/auth/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/auth/logout, roles: PUBLIC_ACCESS, methods: [POST] }
         # Endpoint public de capture des leads (landing shiftly.fr)
         - { path: ^/api/leads$, roles: PUBLIC_ACCESS, methods: [POST] }
         - { path: ^/api/docs, roles: PUBLIC_ACCESS }

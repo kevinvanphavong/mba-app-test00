@@ -8,6 +8,8 @@ use App\Repository\CentreNoteRepository;
 use App\Repository\CentreRepository;
 use App\Repository\ServiceRepository;
 use App\Repository\UserRepository;
+use App\Security\AuthCookieFactory;
+use App\Security\PathAwareCookieTokenExtractor;
 use App\Service\AuditLogService;
 use App\Service\SentryApiService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,6 +33,7 @@ class SuperAdminCentresController extends AbstractController
         private readonly AuditLogService $auditLog,
         private readonly JWTTokenManagerInterface $jwtManager,
         private readonly SentryApiService $sentryApi,
+        private readonly AuthCookieFactory $cookieFactory,
     ) {
     }
 
@@ -190,11 +193,18 @@ class SuperAdminCentresController extends AbstractController
             $request
         );
 
-        return $this->json([
-            'token' => $token,
+        // Le JWT de centre est posé dans le cookie httpOnly `token` (jamais renvoyé
+        // en JSON) : l'app/centre l'utilisera automatiquement. Le cookie superadmin
+        // `sa_token` reste intact → on peut revenir au panneau via "arrêter".
+        $response = $this->json([
             'manager' => ['id' => $manager->getId(), 'nom' => $manager->getNom(), 'prenom' => $manager->getPrenom()],
             'centre' => ['id' => $centre->getId(), 'nom' => $centre->getNom()],
         ]);
+        $response->headers->setCookie(
+            $this->cookieFactory->create(PathAwareCookieTokenExtractor::APP_COOKIE, $token, $request)
+        );
+
+        return $response;
     }
 
     #[Route('/api/superadmin/centres/{id}/notes', methods: ['POST'])]

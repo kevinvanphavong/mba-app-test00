@@ -3,6 +3,10 @@ nelmio_cors:
         '^/api':
             origin_regex: true
             allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
-            allow_headers: ['*']
+            # Le cookie httpOnly doit voyager en cross-origin (front:3000 → api:8000).
+            allow_credentials: true
+            # Liste explicite (fini le '*') : Content-Type pour le JSON, X-CSRF pour
+            # la protection anti-CSRF par en-tête custom.
+            allow_headers: ['Content-Type', 'X-CSRF']
             allow_methods: ['POST', 'PUT', 'GET', 'DELETE', 'PATCH', 'OPTIONS']
             max_age: 3600
