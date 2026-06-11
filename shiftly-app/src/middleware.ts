@@ -19,9 +19,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/service', request.url))
   }
 
-  // Pour la racine "/", on laisse passer même si JWT présent ; la redirection vers /service
-  // est gérée côté client (LandingPage) après lecture du token localStorage — évite la race
-  // condition cookie-only vs localStorage et permet à un visiteur de revisiter la marketing.
+  // Pour la racine "/", on laisse passer même si le cookie est présent ; la
+  // redirection vers /service est gérée côté client (LandingPage via /api/me) —
+  // permet à un visiteur connecté de revisiter la landing marketing.
   if (PUBLIC_PATHS.includes(pathname)) {
     return NextResponse.next()
   }

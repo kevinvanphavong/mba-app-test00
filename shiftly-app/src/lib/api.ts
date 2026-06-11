@@ -3,27 +3,30 @@ import axios from 'axios'
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api',
   headers: { 'Content-Type': 'application/ld+json' },
+  // Le JWT vit dans un cookie httpOnly posé par le backend : on l'envoie
+  // automatiquement (cross-origin), le JS n'y touche jamais (anti-XSS).
+  withCredentials: true,
 })
 
-// Attach JWT on every request
+// Protection CSRF par en-tête custom : un site tiers ne peut pas l'ajouter en
+// cross-origin (le CORS n'autorise que notre front). On le met sur les mutations.
+const MUTATIONS = ['post', 'put', 'patch', 'delete']
 api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+  if (config.method && MUTATIONS.includes(config.method.toLowerCase())) {
+    config.headers['X-CSRF'] = '1'
   }
   return config
 })
 
-// Auto-logout on 401
+// Auto-logout sur 401 (cookie expiré/invalide) — plus rien à nettoyer côté JS.
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401 && typeof window !== 'undefined') {
-      localStorage.removeItem('token')
-      document.cookie = 'token=; path=/; max-age=0'
-      window.location.href = '/login'
+      const onPublic = ['/login', '/'].includes(window.location.pathname)
+      if (!onPublic) {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(err)
   }
@@ -32,10 +35,7 @@ api.interceptors.response.use(
 export default api
 
 /**
- * Télécharge un binaire (PDF / CSV…) en s'authentifiant via l'intercepteur
- * JWT d'axios. Évite d'avoir à passer le token en query string ou de bypass
- * l'auth sur les routes binaires côté Symfony.
- *
+ * Télécharge un binaire (PDF / CSV…) authentifié par le cookie httpOnly.
  * Force le download via un <a download> temporaire.
  */
 export async function downloadBinary(path: string, filename: string): Promise<void> {

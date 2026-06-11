@@ -1,19 +1,13 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useLogout } from '@/hooks/useAuth'
 
 export default function LogoutButton() {
-  const router = useRouter()
-
-  function handleLogout() {
-    localStorage.removeItem('token')
-    document.cookie = 'token=; path=/; max-age=0'
-    router.push('/login')
-  }
+  const logout = useLogout()
 
   return (
     <button
-      onClick={handleLogout}
+      onClick={() => logout()}
       className="w-full text-left px-4 py-3 flex items-center justify-between"
     >
       <div>

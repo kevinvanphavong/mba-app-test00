@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuthStore } from '@/store/authStore'
 
 export default function LoginPage() {
-  const router = useRouter()
+  const router  = useRouter()
+  const setUser = useAuthStore(s => s.setUser)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -21,20 +23,24 @@ export default function LoginPage() {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          // Indispensable pour que le backend pose le cookie httpOnly.
+          credentials: 'include',
           body: JSON.stringify({ email, password }),
         }
       )
 
+      if (res.status === 429) {
+        setError('Trop de tentatives. Réessaie dans quelques minutes.')
+        return
+      }
       if (!res.ok) {
         setError('Email ou mot de passe incorrect.')
         return
       }
 
-      const data = await res.json()
-      const token = data.token
-
-      localStorage.setItem('token', token)
-      document.cookie = `token=${token}; path=/; SameSite=Lax`
+      // Le cookie httpOnly est déjà posé ; la réponse contient le profil user/centre.
+      const user = await res.json()
+      setUser(user)
 
       router.push('/service')
     } catch {

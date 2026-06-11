@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore, type AuthUser } from '@/store/authStore'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -12,26 +12,20 @@ interface LoginPayload {
   password: string
 }
 
-interface LoginResponse {
-  token: string
-}
-
 // ─── Hook login ───────────────────────────────────────────────────────────────
 
 export function useLogin() {
-  const setToken = useAuthStore(s => s.setToken)
-  const setUser  = useAuthStore(s => s.setUser)
-  const router   = useRouter()
+  const setUser = useAuthStore(s => s.setUser)
+  const router  = useRouter()
 
   return useMutation({
+    // Le backend pose le cookie httpOnly et renvoie directement le profil
+    // user/centre (plus aucun token dans la réponse).
     mutationFn: (payload: LoginPayload) =>
-      api.post<LoginResponse>('/auth/login', payload).then(r => r.data),
+      api.post<AuthUser>('/auth/login', payload).then(r => r.data),
 
-    onSuccess: async (data) => {
-      setToken(data.token)
-      // Récupère le profil immédiatement après login
-      const me = await api.get('/me').then(r => r.data)
-      setUser(me)
+    onSuccess: (user) => {
+      setUser(user)
       router.push('/service')
     },
   })
@@ -44,7 +38,13 @@ export function useLogout() {
   const queryClient = useQueryClient()
   const router      = useRouter()
 
-  return () => {
+  return async () => {
+    // Invalide le cookie httpOnly côté backend, puis vide l'état local.
+    try {
+      await api.post('/auth/logout')
+    } catch {
+      // Best-effort : même si l'appel échoue, on nettoie le front.
+    }
     logout()
     queryClient.clear()
     router.push('/login')
@@ -54,17 +54,16 @@ export function useLogout() {
 // ─── Hook utilisateur courant ─────────────────────────────────────────────────
 
 export function useCurrentUser() {
-  const token   = useAuthStore(s => s.token)
   const setUser = useAuthStore(s => s.setUser)
   const user    = useAuthStore(s => s.user)
 
+  // Réhydrate le store depuis le cookie httpOnly (le token n'est plus en JS).
   const query = useQuery({
     queryKey: ['me'],
-    queryFn:  () => api.get('/me').then(r => {
+    queryFn:  () => api.get<AuthUser>('/me').then(r => {
       setUser(r.data)
       return r.data
     }),
-    enabled:  !!token,
     staleTime: 5 * 60 * 1000, // 5 min — pas de re-fetch inutile
     retry: false,
   })

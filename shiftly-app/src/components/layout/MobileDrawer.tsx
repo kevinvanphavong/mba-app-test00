@@ -95,7 +95,7 @@ export default function MobileDrawer({ open, onClose }: Props) {
                   <span className="text-accent">Shiftly</span>
                   <span className="text-text">.</span>
                 </div>
-                <div className="text-[10px] text-muted mt-1 tracking-wide">{user.centre.nom}</div>
+                <div className="text-[10px] text-muted mt-1 tracking-wide">{user.centre?.nom}</div>
               </div>
               <button
                 onClick={onClose}
