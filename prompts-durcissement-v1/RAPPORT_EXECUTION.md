@@ -4,6 +4,60 @@
 
 ---
 
+## Palier 3 — Messenger async + listeners assainis — 2026-06-12
+
+### Commits
+- `e6003fa` feat(async): Messenger (transport Doctrine) — mails, cleanup R2, audit async
+- `62a7711` test(async): handler cleanup R2 + dispatch audit
+- `ff45cb4` + suite refactor(domain): listeners → services testés (sans bypass DBAL)
+- `584f8b3` test(domain): verdicts HACCP + clé planning-week
+
+### A — Messenger async (effets de bord)
+- Transport `async` Doctrine, **retry 3x** backoff, `failure_transport` ; `in-memory` en test.
+- **Mails** Symfony routés async ; **CleanupR2ObjectMessage** (les 5 listeners de cleanup
+  dispatchent au lieu d'appeler R2 en sync) ; **LogAuditEventMessage** (AuditLogService
+  dispatche). Makefile `worker` + `docs/ASYNC_MESSENGER.md`.
+- **Génération PDF** : reste synchrone (c'est un téléchargement, non différable — documenté).
+
+### B — Logique métier sortie des listeners (sans bypass DBAL)
+- `CompletionRateCalculator` (recalcul taux+snapshot) ← CompletionListener (devenu délégateur).
+- `HaccpConformityService` (verdict conformité) ← listener prePersist **supprimé**, appel
+  explicite dans HaccpController.
+- `PlanningWeekDirtyMarker` (résolution semaine + UPDATE) ← PlanningWeekDirtyListener
+  (devenu collecteur/délégateur).
+- **Plus AUCUN `executeStatement`/`getConnection` dans `src/EventListener/`** (bypass DBAL éliminé).
+
+### Vérifications (toutes vertes)
+| Case | Résultat |
+|---|---|
+| `messenger:stats` / transport async opérationnel | OK (table créée, async/failed) |
+| **Audit async** : impersonate → file async → consume → ligne AuditLog | OK (audit 2→3) |
+| **Mail async** : lead → file → consume worker → **Mailpit** | OK (Mailpit 0→1) |
+| Plus aucun DBAL direct dans un listener (`grep executeStatement src/EventListener`) | OK — AUCUN |
+| **Non-régression taux** : cocher (0→26.1) / décocher (→21.7) via le calculator | OK |
+| Conformité HACCP : 7 verdicts testés (température/DLC/photo/sans seuil) | OK |
+| Suite PHPUnit complète | OK — **36 tests, 106 assertions** |
+| PHPStan / cs-fixer / lint:container | OK |
+
+### Risques / à retester manuellement
+1. **Worker obligatoire en prod** : mails/cleanups/audits ne partent que si
+   `messenger:consume async` tourne (à superviser : systemd/supervisor). Sans worker, ils
+   s'accumulent en file (non perdus) mais ne sont pas traités. Documenté dans `docs/ASYNC_MESSENGER.md`.
+2. **PlanningWeekDirtyListener garde son trigger `onFlush`/UoW** : la logique est extraite
+   et testée (PlanningWeekDirtyMarker), mais la *collecte* des Poste/Absence modifiés passe
+   encore par la UnitOfWork, car les écritures Poste transitent par API Platform sans
+   call-site explicite. Le retrait total de ce trigger (grep `getScheduled` = 0 dans les
+   listeners) **est couplé aux State Processors du palier 5**. 3 autres listeners hors scope
+   (CentreCategoriesSeed, CompletionEventLogger, HaccpEquipementSync) utilisent aussi la UoW.
+3. **Recalcul taux resté synchrone** (volontaire) : l'UI doit voir le taux au cochage. La
+   suppression de completion via API Platform passe par le listener délégateur (pas de
+   State Processor) — à migrer au palier 5 avec le reste.
+4. **`est_conforme` HACCP** : désormais posé uniquement à la création via HaccpController
+   (seul créateur de preuves, vérifié — pas de fixtures de preuves). Toute future voie de
+   création de preuve devra appeler `HaccpConformityService`.
+
+---
+
 ## Palier 2 — Isolation multi-tenant + tests cross-tenant — 2026-06-11
 
 ### Commits
