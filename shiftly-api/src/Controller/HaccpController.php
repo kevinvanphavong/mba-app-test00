@@ -11,6 +11,7 @@ use App\Entity\Poste;
 use App\Entity\User;
 use App\Repository\CompletionHaccpProofRepository;
 use App\Service\Haccp\HaccpMissionGenerator;
+use App\Service\HaccpConformityService;
 use App\Service\R2StorageService;
 use App\Service\Upload\HaccpPhotoUploader;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -42,6 +43,7 @@ class HaccpController extends AbstractController
         private readonly R2StorageService $r2,
         private readonly HaccpMissionGenerator $generator,
         private readonly CompletionHaccpProofRepository $proofRepo,
+        private readonly HaccpConformityService $conformity,
         private readonly Environment $twig,
     ) {
     }
@@ -126,6 +128,9 @@ class HaccpController extends AbstractController
         }
 
         $completion->setHaccpProof($proof);
+
+        // Conformité calculée explicitement (ex-listener prePersist → service testé).
+        $proof->setEstConforme($this->conformity->compute($proof));
 
         try {
             $this->em->persist($completion);
