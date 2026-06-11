@@ -5,13 +5,21 @@ import { useSuperAdminStore } from '@/store/superAdminStore'
 
 /**
  * Client Axios centralisé pour les endpoints /api/superadmin/*.
- * Gère automatiquement l'expiration du JWT : 401 → logout + redirect vers
- * /superadmin/login. Évite la duplication de config entre les hooks.
+ * Auth par cookie httpOnly `sa_token` (jamais de token en JS) : withCredentials
+ * + en-tête anti-CSRF sur les mutations. Gère le 401 : logout + redirect login.
  */
-export function superAdminApi(token: string | null): AxiosInstance {
+export function superAdminApi(): AxiosInstance {
   const instance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    withCredentials: true,
+  })
+
+  const MUTATIONS = ['post', 'put', 'patch', 'delete']
+  instance.interceptors.request.use((config) => {
+    if (config.method && MUTATIONS.includes(config.method.toLowerCase())) {
+      config.headers['X-CSRF'] = '1'
+    }
+    return config
   })
 
   instance.interceptors.response.use(

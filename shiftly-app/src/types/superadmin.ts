@@ -89,7 +89,7 @@ export interface DashboardKPIs {
 }
 
 export interface ImpersonationData {
-  token:   string
+  // Plus de token : le backend pose le cookie httpOnly `token` (JWT du centre).
   manager: { id: number; nom: string; prenom: string | null }
   centre:  { id: number; nom: string }
 }

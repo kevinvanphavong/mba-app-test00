@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { superAdminApi } from '@/lib/superAdminApi'
 import { useSuperAdminStore } from '@/store/superAdminStore'
 
 export default function ImpersonationBanner() {
@@ -10,7 +11,14 @@ export default function ImpersonationBanner() {
   const stopImpersonation  = useSuperAdminStore(s => s.stopImpersonation)
   const router             = useRouter()
 
-  const handleQuit = () => {
+  const handleQuit = async () => {
+    // Efface le cookie httpOnly `token` (JWT du centre) côté backend ; le cookie
+    // superadmin `sa_token` reste intact → retour au panneau.
+    try {
+      await superAdminApi().post('/auth/logout')
+    } catch {
+      // Best-effort
+    }
     stopImpersonation()
     router.push('/superadmin/centres')
   }

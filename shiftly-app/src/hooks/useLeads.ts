@@ -1,7 +1,6 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useSuperAdminStore } from '@/store/superAdminStore'
 import { superAdminApi } from '@/lib/superAdminApi'
 import type {
   LeadDetail,
@@ -12,12 +11,11 @@ import type {
 } from '@/types/lead'
 
 export function useLeads(filters: LeadFilters = {}) {
-  const token = useSuperAdminStore((s) => s.token)
 
   return useQuery<LeadListResponse>({
     queryKey: ['superadmin', 'leads', filters],
     queryFn:  () =>
-      superAdminApi(token)
+      superAdminApi()
         .get<LeadListResponse>('/superadmin/leads', {
           params: {
             status: filters.status || undefined,
@@ -28,47 +26,44 @@ export function useLeads(filters: LeadFilters = {}) {
           },
         })
         .then((r) => r.data),
-    enabled: !!token,
+    enabled: true,
     retry:   false,
   })
 }
 
 export function useLead(id: number | null) {
-  const token = useSuperAdminStore((s) => s.token)
 
   return useQuery<LeadDetail>({
     queryKey: ['superadmin', 'lead', id],
     queryFn:  () =>
-      superAdminApi(token)
+      superAdminApi()
         .get<LeadDetail>(`/superadmin/leads/${id}`)
         .then((r) => r.data),
-    enabled: !!token && !!id,
+    enabled: !!id,
     retry:   false,
   })
 }
 
 export function useLeadsStats() {
-  const token = useSuperAdminStore((s) => s.token)
 
   return useQuery<LeadStats>({
     queryKey: ['superadmin', 'leads', 'stats'],
     queryFn:  () =>
-      superAdminApi(token)
+      superAdminApi()
         .get<LeadStats>('/superadmin/leads/stats')
         .then((r) => r.data),
-    enabled:         !!token,
+    enabled: true,
     refetchInterval: 60000,
     retry:           false,
   })
 }
 
 export function useUpdateLeadStatus() {
-  const token = useSuperAdminStore((s) => s.token)
   const qc    = useQueryClient()
 
   return useMutation({
     mutationFn: ({ id, status }: { id: number; status: LeadStatus }) =>
-      superAdminApi(token)
+      superAdminApi()
         .patch<LeadDetail>(`/superadmin/leads/${id}`, { status })
         .then((r) => r.data),
     onSuccess: (_d, { id }) => {
@@ -79,12 +74,11 @@ export function useUpdateLeadStatus() {
 }
 
 export function useUpdateLeadNotes() {
-  const token = useSuperAdminStore((s) => s.token)
   const qc    = useQueryClient()
 
   return useMutation({
     mutationFn: ({ id, notes }: { id: number; notes: string }) =>
-      superAdminApi(token)
+      superAdminApi()
         .patch<LeadDetail>(`/superadmin/leads/${id}`, { notes })
         .then((r) => r.data),
     onSuccess: (_d, { id }) => {

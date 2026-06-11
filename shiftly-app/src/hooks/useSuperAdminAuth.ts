@@ -2,38 +2,28 @@
 
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import { superAdminApi } from '@/lib/superAdminApi'
 import { useSuperAdminStore } from '@/store/superAdminStore'
 import type { SuperAdminUser } from '@/types/superadmin'
-import axios from 'axios'
 
 interface LoginPayload {
   email:    string
   password: string
 }
 
-interface LoginResponse {
-  token: string
-}
-
 export function useSuperAdminLogin() {
-  const setToken = useSuperAdminStore(s => s.setToken)
-  const setUser  = useSuperAdminStore(s => s.setUser)
-  const router   = useRouter()
+  const setUser = useSuperAdminStore(s => s.setUser)
+  const router  = useRouter()
 
   return useMutation({
+    // Le backend pose le cookie httpOnly `sa_token` et renvoie le profil superadmin.
     mutationFn: (payload: LoginPayload) =>
-      axios
-        .post<LoginResponse>(`${process.env.NEXT_PUBLIC_API_URL}/superadmin/auth/login`, payload)
+      superAdminApi()
+        .post<SuperAdminUser>('/superadmin/auth/login', payload)
         .then(r => r.data),
 
-    onSuccess: async (data) => {
-      setToken(data.token)
-      const me = await axios
-        .get<SuperAdminUser>(`${process.env.NEXT_PUBLIC_API_URL}/superadmin/auth/me`, {
-          headers: { Authorization: `Bearer ${data.token}` },
-        })
-        .then(r => r.data)
-      setUser(me)
+    onSuccess: (user) => {
+      setUser(user)
       router.push('/superadmin')
     },
   })
@@ -43,7 +33,12 @@ export function useSuperAdminLogout() {
   const logout = useSuperAdminStore(s => s.logout)
   const router = useRouter()
 
-  return () => {
+  return async () => {
+    try {
+      await superAdminApi().post('/superadmin/auth/logout')
+    } catch {
+      // Best-effort : on nettoie le front quoi qu'il arrive.
+    }
     logout()
     router.push('/superadmin/login')
   }

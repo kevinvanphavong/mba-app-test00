@@ -4,64 +4,35 @@ import { create } from 'zustand'
 import type { SuperAdminUser, ImpersonationData } from '@/types/superadmin'
 
 interface SuperAdminState {
-  token:              string | null
+  // Le token n'est JAMAIS en JS : cookie httpOnly `sa_token` (superadmin) et
+  // `token` (centre impersonné), posés/effacés par le backend.
   user:               SuperAdminUser | null
   isImpersonating:    boolean
   impersonatedCentre: ImpersonationData['centre'] | null
-  impersonatedToken:  string | null
 
-  setToken:           (token: string | null) => void
   setUser:            (user: SuperAdminUser | null) => void
   startImpersonation: (data: ImpersonationData) => void
   stopImpersonation:  () => void
   logout:             () => void
 }
 
-const SA_TOKEN_KEY = 'superadmin_token'
-
 export const useSuperAdminStore = create<SuperAdminState>((set) => ({
-  token:              typeof window !== 'undefined' ? localStorage.getItem(SA_TOKEN_KEY) : null,
   user:               null,
   isImpersonating:    false,
   impersonatedCentre: null,
-  impersonatedToken:  null,
-
-  setToken: (token) => {
-    if (typeof window !== 'undefined') {
-      token ? localStorage.setItem(SA_TOKEN_KEY, token) : localStorage.removeItem(SA_TOKEN_KEY)
-    }
-    set({ token })
-  },
 
   setUser: (user) => set({ user }),
 
-  startImpersonation: (data) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('token', data.token)
-    }
-    set({
-      isImpersonating:   true,
-      impersonatedCentre: data.centre,
-      impersonatedToken:  data.token,
-    })
-  },
+  startImpersonation: (data) => set({
+    isImpersonating:    true,
+    impersonatedCentre: data.centre,
+  }),
 
-  stopImpersonation: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token')
-    }
-    set({
-      isImpersonating:   false,
-      impersonatedCentre: null,
-      impersonatedToken:  null,
-    })
-  },
+  stopImpersonation: () => set({
+    isImpersonating:    false,
+    impersonatedCentre: null,
+  }),
 
-  logout: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(SA_TOKEN_KEY)
-      localStorage.removeItem('token')
-    }
-    set({ token: null, user: null, isImpersonating: false, impersonatedCentre: null, impersonatedToken: null })
-  },
+  // Vide l'état local ; l'invalidation du cookie se fait côté backend.
+  logout: () => set({ user: null, isImpersonating: false, impersonatedCentre: null }),
 }))
