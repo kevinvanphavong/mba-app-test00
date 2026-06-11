@@ -16,6 +16,7 @@ use App\Entity\HaccpEquipement;
 use App\Entity\Incident;
 use App\Entity\LegalConfig;
 use App\Entity\Mission;
+use App\Entity\MissionCategorie;
 use App\Entity\MissionHaccpSpec;
 use App\Entity\PlanningSnapshot;
 use App\Entity\PlanningWeek;
@@ -78,14 +79,19 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
             return;
         }
 
-        // Le centre lui-même n'est pas filtré (un user a accès à son propre Centre)
-        if (Centre::class === $resourceClass) {
-            return;
-        }
-
         $alias = $queryBuilder->getRootAliases()[0];
         $paramName = $queryNameGenerator->generateParameterName('centreId');
         $centreId = $centre->getId();
+
+        // Le Centre n'est accessible qu'à lui-même : on filtre la collection/item
+        // sur l'id du centre du user (sinon GET /centres listerait TOUS les tenants).
+        if (Centre::class === $resourceClass) {
+            $queryBuilder
+                ->andWhere("{$alias}.id = :{$paramName}")
+                ->setParameter($paramName, $centreId);
+
+            return;
+        }
 
         match (true) {
             // Entités avec une relation `centre` directe
@@ -96,6 +102,7 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
                 Service::class,
                 Incident::class,
                 LegalConfig::class,
+                MissionCategorie::class,
                 PlanningWeek::class,
                 PlanningSnapshot::class,
                 Pointage::class,
