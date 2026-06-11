@@ -4,6 +4,50 @@
 
 ---
 
+## Palier 2 — Isolation multi-tenant + tests cross-tenant — 2026-06-11
+
+### Commits
+- `43f9abc` fix(security): isolation Centre + MissionCategorie (fuites cross-tenant)
+- `2080c3d` feat(security): voters multi-tenant Mission/Competence/MissionCategorie/User
+- `c757c41` test(security): suite cross-tenant + fixtures CI
+- `9b67f12` docs(security): inventaire multi-tenant
+
+### Trous réellement trouvés et corrigés
+1. **FUITE `GET /api/centres`** : renvoyait **les 10 centres** (tous les tenants) à
+   n'importe quel user. Corrigé → filtré sur le centre du user (1 résultat).
+2. **FUITE `GET /api/mission_categories`** : renvoyait **les 50 catégories** de tous
+   les centres (MissionCategorie absente de `CentreQueryExtension`). Corrigé (5 résultats).
+3. **CompetenceVoter manquant** : l'entité Competence référençait déjà
+   `is_granted('EDIT'/'DELETE', object)` sans voter → ces opérations étaient **toujours
+   refusées** (bug latent). Voter créé → édition same-centre fonctionnelle.
+4. **Voters de défense manquants** : Mission, MissionCategorie, User n'avaient que des
+   gardes par rôle. Voters ajoutés + câblés sur Put/Patch/Delete.
+
+### Vérifications (toutes vertes)
+| Case | Résultat |
+|---|---|
+| Inventaire committé (`docs/SECURITE_MULTITENANT.md`) | OK — 18 ressources exposées documentées |
+| Suite cross-tenant verte (collection + item + écriture, 10 ressources + centres) | OK — 2 tests, **48 assertions** |
+| Item d'un autre centre → 404 (lecture) ; DELETE → 403/404/405 | OK |
+| Écriture **same-centre** toujours autorisée (PATCH mission_categorie → 200) | OK |
+| Suite PHPUnit complète | OK — **21 tests, 81 assertions** |
+| PHPStan / cs-fixer / lint:container | OK |
+
+### Risques / à retester manuellement
+1. **Controllers custom non couverts par la suite** : Pointage, Planning(Week/Template),
+   Support, Absence, Validation, Registre, Dashboard, Editeur, Staff exposent des données
+   via routes custom (hors API Platform). L'audit indique qu'ils filtrent par centre, mais
+   ils ne sont **pas encore couverts par des tests d'isolation**. À recouvrir au fil de
+   l'eau (tests d'intégration par module).
+2. **DELETE mission** renvoie 500 (contrainte FK : mission référencée par completions/postes)
+   — comportement **pré-existant**, sans rapport avec l'isolation (le voter autorise bien le
+   manager du centre, c'est la suppression en cascade qui manque). À traiter si la suppression
+   de mission devient un besoin réel.
+3. Le test cross-tenant lit les **fixtures Alice** en base de test (chargées en CI). S'il
+   manque 2 centres avec données, le test échoue explicitement (assertion de garde).
+
+---
+
 ## Palier 1 — Auth JWT en cookie httpOnly + rate limiting — 2026-06-11
 
 ### Commits
