@@ -6,6 +6,7 @@
  */
 
 import type { ValidationJour } from '@/types/validation'
+import { absenceTypeLabel } from '@/lib/absence'
 import { formatHeure } from '@/lib/formatHeure'
 
 interface Props {
@@ -23,7 +24,7 @@ export default function ValidationDayCell({ jour }: Props) {
   if (jour.statut === 'repos') {
     return (
       <td className="validation-day-cell">
-        <div className="validation-day-rest">—</div>
+        <div className="validation-day-rest">Repos</div>
       </td>
     )
   }
@@ -32,7 +33,7 @@ export default function ValidationDayCell({ jour }: Props) {
     return (
       <td className="validation-day-cell">
         <div className="validation-day-absent-justifie">
-          {jour.typeAbsence ?? 'ABS'}
+          {absenceTypeLabel(jour.typeAbsence)}
         </div>
       </td>
     )

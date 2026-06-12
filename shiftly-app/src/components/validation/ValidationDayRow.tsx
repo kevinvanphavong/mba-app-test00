@@ -12,6 +12,7 @@ import ValidationTimePill from './ValidationTimePill'
 import ValidationTimePopover from './ValidationTimePopover'
 import ValidationPauseGroup from './ValidationPauseGroup'
 import ValidationArriveeEmptyCta from './ValidationArriveeEmptyCta'
+import { absenceTypeLabel } from '@/lib/absence'
 import { formatHeure } from '@/lib/formatHeure'
 import { minToHHMM, deltaHeures, lastCorrectionFor, toIsoUtc } from '@/lib/validationDay'
 import type { ValidationJour, CorrectionPointage, CorrectionPayload, CorrectionChamp } from '@/types/validation'
@@ -79,7 +80,7 @@ export default function ValidationDayRow({ jour, corrections, isCorrecting, onCo
 
       <div className="validation-day-row__times">
         {isRepos ? (
-          <span className="validation-day-row__rest-label">{jour.statut === 'absent_justifie' ? `Absent (${jour.typeAbsence ?? '—'})` : jour.statut === 'absent_non_justifie' ? 'Absent non justifié' : 'Repos'}</span>
+          <span className="validation-day-row__rest-label">{jour.statut === 'absent_justifie' ? absenceTypeLabel(jour.typeAbsence) : jour.statut === 'absent_non_justifie' ? 'Absent non justifié' : 'Repos'}</span>
         ) : jour.heureArrivee ? (
           <ValidationTimePill variant={arriveeVariant} label="Arr."
             time={formatHeure(jour.heureArrivee)}
