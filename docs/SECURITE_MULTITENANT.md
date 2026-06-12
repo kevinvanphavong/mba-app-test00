@@ -67,6 +67,33 @@ Fuites trouvées et corrigées (2026-06-12) :
 Les autres routes custom (Pointage, Planning, Dashboard, Validation, Support, Staff, Incidents,
 Completion, Media, Create*) vérifiaient déjà l'appartenance — confirmé par l'audit.
 
+## Audit des params résolvant une entité (au-delà du centre_id)
+
+Tout param de route/query/body résolvant une entité (`userId`, `serviceId`, `posteId`,
+`zoneId`, `missionId`, `competenceId`, `tutorielId`, `equipementId`, `pointageId`…) a été
+vérifié **ligne par ligne** (y compris la couche service). Deux issues sûres, chacune
+prouvée par `tests/Security/CrossTenantTest.php` :
+- **garde explicite** → 403/404 (`CentreGuardTrait` ou check `getCentre()` inline) ;
+- **filtre JWT** → le param est ignoré au profit du centre courant (payload vide pour un
+  autre tenant ; ex. `/api/dashboard/completion-history/services/{serviceId}` → `WHERE centre = JWT`).
+
+| Route (param) | Entité | Sûreté |
+|---|---|---|
+| Validation `detail/valider/devalider/{userId}` | User | **CORRIGÉ** : `assertUserInCentre()` → 404. `validerEmploye()` créait sinon un `ValidationHebdo(centre=A, user=B)` bidon. |
+| Pointage `service/{serviceId}`, `cloturer-service/{serviceId}`, `{id}/*` | Service / Pointage | garde inline (centre) → 403 |
+| Haccp `proofs/{id}/photo`, `equipements/{id}/sync-missions` | Proof / Equipement | garde inline (centre) → 403 |
+| Dashboard `{centreId}`, `completion-history/services/{serviceId}` | Centre / EventLog | garde (centreId) / filtre JWT (events vides) |
+| Editeur `staff/{id}`, `staff/{userId}/competences`, zones/missions/competences/tutoriels `/{id}` | User / Zone / Mission / Competence / Tutoriel | garde (centre) → 403/404 |
+| PlanningTemplate `{id}/delete\|apply` | PlanningTemplate | `getOwnedTemplateOrFail()` (centre) → 403 |
+| Support `mes-tickets/{id}`, `attachments/{id}/url` | Ticket / Attachment | auteur == user / voter → 403 |
+| Completion `{id}/photo`, UpdateIncident `{id}`, UpdateServiceHours `{id}`, UpdateCentre `{id}` | Completion / Incident / Service / Centre | garde inline (centre) → 403 |
+| Create* (body : serviceId/zoneId/posteId/missionId/staffIds…) | divers | garde inline (centre) sur chaque relation |
+
+**1 fuite réelle trouvée et corrigée** (Validation `validerEmploye`), le reste était déjà sûr.
+Note : le bypass `ROLE_SUPERADMIN` de `CentreGuardTrait` est un filet de sécurité — en pratique
+un superadmin n'atteint pas ces routes app (il a son propre firewall ; en impersonation il EST
+un manager du centre, donc la garde s'applique normalement).
+
 ## Preuve
 
 `tests/Security/CrossTenantTest.php` : 2 centres réels (fixtures), pour chaque ressource
