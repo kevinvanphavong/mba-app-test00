@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Pointage;
 use App\Entity\User;
 use App\Repository\PointageRepository;
+use App\Repository\UserRepository;
 use App\Repository\ValidationHebdoRepository;
 use App\Service\ValidationHebdoService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,7 +26,20 @@ class ValidationController extends AbstractController
         private readonly ValidationHebdoService $validationService,
         private readonly ValidationHebdoRepository $validationRepo,
         private readonly PointageRepository $pointageRepo,
+        private readonly UserRepository $userRepo,
     ) {
+    }
+
+    /**
+     * 404 si le {userId} ciblé n'appartient pas au centre du manager : empêche
+     * de valider/consulter les heures d'un employé d'un autre tenant.
+     */
+    private function assertUserInCentre(int $userId, int $centreId): void
+    {
+        $target = $this->userRepo->find($userId);
+        if (!$target || $target->getCentre()?->getId() !== $centreId) {
+            throw $this->createNotFoundException("Employé {$userId} introuvable dans ce centre.");
+        }
     }
 
     /**
@@ -116,6 +130,8 @@ class ValidationController extends AbstractController
         $centreId = $manager->getCentre()->getId();
         $lundi = $this->parseLundi($date);
 
+        $this->assertUserInCentre($userId, $centreId);
+
         $data = $this->validationService->getSemaineData($centreId, $lundi);
 
         $employe = null;
@@ -162,6 +178,7 @@ class ValidationController extends AbstractController
         /** @var User $manager */
         $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
+        $this->assertUserInCentre($userId, $centreId);
         $lundi = $this->parseLundi($date);
 
         try {
@@ -238,6 +255,7 @@ class ValidationController extends AbstractController
         /** @var User $manager */
         $manager = $this->getUser();
         $centreId = $manager->getCentre()->getId();
+        $this->assertUserInCentre($userId, $centreId);
         $lundi = $this->parseLundi($date);
 
         $supprime = $this->validationService->devaliderEmploye($centreId, $userId, $lundi);
