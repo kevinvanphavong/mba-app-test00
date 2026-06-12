@@ -183,6 +183,54 @@ class CrossTenantTest extends WebTestCase
         }
     }
 
+    /**
+     * Routes custom avec un param qui n'est PAS un centre (userId, serviceId,
+     * equipementId…) : la cible d'un autre centre ne doit jamais être accessible.
+     * Deux issues acceptables et prouvées : 403/404 (garde), ou payload vide (filtre JWT).
+     */
+    public function testRoutesCustomAutresParamsSontIsolees(): void
+    {
+        $this->login($this->emailA, self::PASSWORD);
+
+        $userB = $this->db->fetchOne('SELECT id FROM "user" WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
+        $serviceB = $this->db->fetchOne('SELECT id FROM service WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
+        $equipB = $this->db->fetchOne('SELECT id FROM haccp_equipement WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
+
+        // ── Cas "garde explicite" → 403/404 ──────────────────────────────────────
+        $denied = [];
+        if ($userB) {
+            $denied[] = ['GET', "/api/pointages/validation/detail/{$userB}/2026-01-05"];
+            $denied[] = ['POST', "/api/pointages/validation/valider/{$userB}/2026-01-05"];
+            $denied[] = ['POST', "/api/pointages/validation/devalider/{$userB}/2026-01-05"];
+            $denied[] = ['GET', "/api/editeur/staff/{$userB}/competences"];
+            $denied[] = ['PUT', "/api/editeur/staff/{$userB}"];
+        }
+        if ($serviceB) {
+            $denied[] = ['GET', "/api/pointage/service/{$serviceB}"];
+            $denied[] = ['POST', "/api/pointage/cloturer-service/{$serviceB}"];
+        }
+        if ($equipB) {
+            $denied[] = ['POST', "/api/haccp/equipements/{$equipB}/sync-missions"];
+        }
+
+        foreach ($denied as [$method, $path]) {
+            $this->client->request($method, $path, server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X-CSRF' => '1'], content: '{}');
+            $this->assertContains(
+                $this->client->getResponse()->getStatusCode(),
+                [403, 404],
+                "$method $path : cible d'un autre centre doit être refusée."
+            );
+        }
+
+        // ── Cas "filtre JWT" → 200 mais AUCUNE donnée du centre B ────────────────
+        if ($serviceB) {
+            $this->client->request('GET', "/api/dashboard/completion-history/services/{$serviceB}", server: ['HTTP_ACCEPT' => 'application/json']);
+            $this->assertResponseIsSuccessful();
+            $body = json_decode($this->client->getResponse()->getContent(), true);
+            $this->assertSame([], $body['events'] ?? null, 'Le dashboard ne doit renvoyer aucun événement du service d\'un autre centre.');
+        }
+    }
+
     private function login(string $email, string $password): void
     {
         $this->client->request(
