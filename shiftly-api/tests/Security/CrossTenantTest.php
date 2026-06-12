@@ -137,6 +137,52 @@ class CrossTenantTest extends WebTestCase
         $this->assertResponseIsSuccessful();
     }
 
+    /**
+     * Routes CUSTOM (hors API Platform) prenant un {id}/{centreId} de centre ou
+     * d'entité : un user du centre A ne doit jamais agir sur une ressource du centre B.
+     */
+    public function testRoutesCustomAvecIdCentreSontIsolees(): void
+    {
+        $this->login($this->emailA, self::PASSWORD);
+
+        $zoneB = $this->db->fetchOne('SELECT id FROM zone WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
+        $missionB = $this->db->fetchOne('SELECT m.id FROM mission m JOIN zone z ON m.zone_id = z.id WHERE z.centre_id = :c ORDER BY m.id LIMIT 1', ['c' => $this->centreB]);
+        $compB = $this->db->fetchOne('SELECT cp.id FROM competence cp JOIN zone z ON cp.zone_id = z.id WHERE z.centre_id = :c ORDER BY cp.id LIMIT 1', ['c' => $this->centreB]);
+        $tutoB = $this->db->fetchOne('SELECT id FROM tutoriel WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
+
+        $cases = [
+            ['GET', "/api/centres/{$this->centreB}/horaires"],
+            ['PUT', "/api/centres/{$this->centreB}/horaires"],
+        ];
+        if ($zoneB) {
+            $cases[] = ['PUT', "/api/editeur/zones/{$zoneB}"];
+            $cases[] = ['DELETE', "/api/editeur/zones/{$zoneB}"];
+            $cases[] = ['GET', "/api/editeur/zones/{$zoneB}/missions"];
+            $cases[] = ['GET', "/api/editeur/zones/{$zoneB}/competences"];
+        }
+        if ($missionB) {
+            $cases[] = ['PUT', "/api/editeur/missions/{$missionB}"];
+            $cases[] = ['DELETE', "/api/editeur/missions/{$missionB}"];
+        }
+        if ($compB) {
+            $cases[] = ['PUT', "/api/editeur/competences/{$compB}"];
+            $cases[] = ['DELETE', "/api/editeur/competences/{$compB}"];
+        }
+        if ($tutoB) {
+            $cases[] = ['PUT', "/api/editeur/tutoriels/{$tutoB}"];
+            $cases[] = ['DELETE', "/api/editeur/tutoriels/{$tutoB}"];
+        }
+
+        foreach ($cases as [$method, $path]) {
+            $this->client->request($method, $path, server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X-CSRF' => '1'], content: '{}');
+            $this->assertContains(
+                $this->client->getResponse()->getStatusCode(),
+                [403, 404],
+                "$method $path : accès cross-tenant doit être refusé (403/404)."
+            );
+        }
+    }
+
     private function login(string $email, string $password): void
     {
         $this->client->request(
