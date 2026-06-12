@@ -49,8 +49,23 @@
 - Entités **non exposées via API Platform** (gérées par controllers custom : Pointage,
   PlanningWeek, PlanningTemplate*, SupportTicket/Reply/Attachment, Absence, ValidationHebdo,
   CentreNote, CorrectionPointage) : l'isolation est assurée **dans le controller** (filtre
-  explicite par le centre du user courant). Auditée au palier 2, à recouvrir par des tests
-  d'intégration au fil de l'eau.
+  explicite par le centre du user courant).
+
+## Controllers custom — garde d'appartenance
+
+Tous les controllers custom prenant un `{id}`/`{centreId}` de centre ou d'entité en
+paramètre ont été audités (cf. `tests/Security/CrossTenantTest.php::testRoutesCustomAvecIdCentreSontIsolees`).
+Pattern unifié : `App\Controller\Concern\CentreGuardTrait::denyUnlessOwnCentre()` → **403**
+si le centre ciblé n'est pas celui du user courant (sauf `ROLE_SUPERADMIN`).
+
+Fuites trouvées et corrigées (2026-06-12) :
+- `CentreHorairesController` GET/PUT `/api/centres/{id}/horaires` (lisait/modifiait un autre centre).
+- `EditeurController` : 12 endpoints zones/missions/compétences/tutoriels (PUT/DELETE `/{id}`,
+  GET `zones/{id}/missions|competences`, POST avec `zoneId`) résolvaient l'entité par ID sans
+  vérifier le centre.
+
+Les autres routes custom (Pointage, Planning, Dashboard, Validation, Support, Staff, Incidents,
+Completion, Media, Create*) vérifiaient déjà l'appartenance — confirmé par l'audit.
 
 ## Preuve
 
