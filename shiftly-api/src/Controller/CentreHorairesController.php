@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Controller\Concern\CentreGuardTrait;
 use App\Repository\CentreRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,6 +13,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class CentreHorairesController extends AbstractController
 {
+    use CentreGuardTrait;
+
     private const JOURS = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
 
     private const DEFAULT_HORAIRES = [
@@ -40,6 +43,8 @@ class CentreHorairesController extends AbstractController
             return $this->json(['error' => 'Centre introuvable.'], 404);
         }
 
+        $this->denyUnlessOwnCentre($centre->getId());
+
         return $this->json($this->normalizeHoraires($centre->getOpeningHours()));
     }
 
@@ -57,6 +62,8 @@ class CentreHorairesController extends AbstractController
         if (!$centre) {
             return $this->json(['error' => 'Centre introuvable.'], 404);
         }
+
+        $this->denyUnlessOwnCentre($centre->getId());
 
         $data = json_decode($request->getContent(), true) ?? [];
         $horaires = [];

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Controller\Concern\CentreGuardTrait;
 use App\Entity\Competence;
 use App\Entity\Mission;
 use App\Entity\StaffCompetence;
@@ -30,6 +31,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/api/editeur')]
 class EditeurController extends AbstractController
 {
+    use CentreGuardTrait;
+
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly ZoneRepository $zoneRepo,
@@ -91,6 +94,7 @@ class EditeurController extends AbstractController
         if (!$zone) {
             return $this->json(['error' => 'Zone introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($zone->getCentre()?->getId());
 
         $data = json_decode($request->getContent(), true) ?? [];
         if (isset($data['nom'])) {
@@ -116,6 +120,7 @@ class EditeurController extends AbstractController
         if (!$zone) {
             return $this->json(['error' => 'Zone introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($zone->getCentre()?->getId());
 
         $this->em->remove($zone);
         $this->em->flush();
@@ -133,6 +138,7 @@ class EditeurController extends AbstractController
         if (!$zone) {
             return $this->json(['error' => 'Zone introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($zone->getCentre()?->getId());
 
         $missions = $this->missionRepo->findBy(['zone' => $zone], ['ordre' => 'ASC']);
 
@@ -150,6 +156,7 @@ class EditeurController extends AbstractController
         if (!$zone) {
             return $this->json(['error' => 'Zone introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($zone->getCentre()?->getId());
 
         $mission = new Mission();
         $mission->setZone($zone);
@@ -174,6 +181,7 @@ class EditeurController extends AbstractController
         if (!$mission) {
             return $this->json(['error' => 'Mission introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($mission->getZone()?->getCentre()?->getId());
 
         $data = json_decode($request->getContent(), true) ?? [];
         if (isset($data['texte'])) {
@@ -195,10 +203,11 @@ class EditeurController extends AbstractController
             $mission->setRequiresPhoto((bool) $data['requiresPhoto']);
         }
 
-        // Déplacement vers une autre zone
+        // Déplacement vers une autre zone (du même centre uniquement)
         if (isset($data['zoneId'])) {
             $zone = $this->zoneRepo->find((int) $data['zoneId']);
             if ($zone) {
+                $this->denyUnlessOwnCentre($zone->getCentre()?->getId());
                 $mission->setZone($zone);
             }
         }
@@ -216,6 +225,7 @@ class EditeurController extends AbstractController
         if (!$mission) {
             return $this->json(['error' => 'Mission introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($mission->getZone()?->getCentre()?->getId());
 
         $this->em->remove($mission);
         $this->em->flush();
@@ -233,6 +243,7 @@ class EditeurController extends AbstractController
         if (!$zone) {
             return $this->json(['error' => 'Zone introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($zone->getCentre()?->getId());
 
         $competences = $this->competenceRepo->findBy(['zone' => $zone]);
 
@@ -250,6 +261,7 @@ class EditeurController extends AbstractController
         if (!$zone) {
             return $this->json(['error' => 'Zone introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($zone->getCentre()?->getId());
 
         $competence = new Competence();
         $competence->setZone($zone);
@@ -272,6 +284,7 @@ class EditeurController extends AbstractController
         if (!$competence) {
             return $this->json(['error' => 'Compétence introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($competence->getZone()?->getCentre()?->getId());
 
         $data = json_decode($request->getContent(), true) ?? [];
         if (isset($data['nom'])) {
@@ -290,6 +303,7 @@ class EditeurController extends AbstractController
         if (isset($data['zoneId'])) {
             $zone = $this->zoneRepo->find((int) $data['zoneId']);
             if ($zone) {
+                $this->denyUnlessOwnCentre($zone->getCentre()?->getId());
                 $competence->setZone($zone);
             }
         }
@@ -307,6 +321,7 @@ class EditeurController extends AbstractController
         if (!$competence) {
             return $this->json(['error' => 'Compétence introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($competence->getZone()?->getCentre()?->getId());
 
         $this->em->remove($competence);
         $this->em->flush();
@@ -370,6 +385,7 @@ class EditeurController extends AbstractController
         if (!$tutoriel) {
             return $this->json(['error' => 'Tutoriel introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($tutoriel->getCentre()?->getId());
 
         $data = json_decode($request->getContent(), true) ?? [];
 
@@ -393,6 +409,7 @@ class EditeurController extends AbstractController
             } else {
                 $zone = $this->zoneRepo->find((int) $data['zoneId']);
                 if ($zone) {
+                    $this->denyUnlessOwnCentre($zone->getCentre()?->getId());
                     $tutoriel->setZone($zone);
                 }
             }
@@ -411,6 +428,7 @@ class EditeurController extends AbstractController
         if (!$tutoriel) {
             return $this->json(['error' => 'Tutoriel introuvable.'], 404);
         }
+        $this->denyUnlessOwnCentre($tutoriel->getCentre()?->getId());
 
         $this->em->remove($tutoriel);
         $this->em->flush();
