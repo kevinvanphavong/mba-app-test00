@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Entity\Absence;
 use App\Entity\Centre;
 use App\Entity\Pointage;
 use App\Entity\PointagePause;
@@ -70,10 +71,21 @@ final class SeedDemoPointagesCommand extends Command
         $io->section(sprintf('Centre « %s » — semaine du %s au %s', $centre->getNom(), $monday->format('Y-m-d'), $sunday->format('Y-m-d')));
 
         $this->purgeWeekPointages($centre, $monday, $sunday);
+        $this->purgeWeekAbsences($centre, $monday, $sunday);
 
         $nbPointages = 0;
-        $nbAbsences = 0;
+        $nbNoShows = 0;
         $nbRetards = 0;
+        $absencesParType = [];
+
+        // Séquence d'absences planifiées (REPOS dominant, mais tous les types apparaissent).
+        $typeSeq = [
+            Absence::TYPES[3], Absence::TYPES[0], Absence::TYPES[3], Absence::TYPES[1], // REPOS, CP, REPOS, RTT
+            Absence::TYPES[3], Absence::TYPES[2], Absence::TYPES[3], Absence::TYPES[4], // REPOS, MALADIE, REPOS, EVENEMENT_FAMILLE
+            Absence::TYPES[3], Absence::TYPES[5], Absence::TYPES[3], Absence::TYPES[1], // REPOS, AUTRE, REPOS, RTT
+            Absence::TYPES[3], Absence::TYPES[2],                                       // REPOS, MALADIE
+        ];
+        $seqPos = 0;
 
         for ($d = 0; $d < 7; ++$d) {
             $date = $monday->modify("+{$d} days");
@@ -84,6 +96,14 @@ final class SeedDemoPointagesCommand extends Command
             $workIdx = [];
             for ($k = 0; $k < min(5, $count); ++$k) {
                 $workIdx[] = ($d + $k) % $count;
+            }
+
+            // Les employés non planifiés ce jour → vraie absence (repos/CP/RTT/maladie…).
+            foreach (array_diff(range(0, $count - 1), $workIdx) as $offIndex) {
+                $type = $typeSeq[$seqPos % \count($typeSeq)];
+                ++$seqPos;
+                $this->createAbsence($centre, $employes[$offIndex], $manager, $date, $type);
+                $absencesParType[$type] = ($absencesParType[$type] ?? 0) + 1;
             }
 
             foreach ($workIdx as $slot => $empIndex) {
@@ -97,10 +117,11 @@ final class SeedDemoPointagesCommand extends Command
                 $poste = $this->getOrCreatePoste($service, $zone, $emp, $date, $startH, $endH, $pauseMin);
 
                 // Scénarios variés pour tester les corrections.
-                $absent = (0 === $d && 0 === $slot) || (3 === $d && 1 === $slot); // 2 absences/semaine
-                if ($absent) {
-                    $this->createPointage($centre, $service, $poste, $emp, $manager, null, null, Pointage::STATUT_ABSENT, 'Absence non justifiée');
-                    ++$nbAbsences;
+                // No-show : planifié mais absent sans prévenir (≠ absence posée).
+                $noShow = (0 === $d && 0 === $slot) || (3 === $d && 1 === $slot);
+                if ($noShow) {
+                    $this->createPointage($centre, $service, $poste, $emp, $manager, null, null, Pointage::STATUT_ABSENT, 'Absence non justifiée (no-show)');
+                    ++$nbNoShows;
 
                     continue;
                 }
@@ -132,9 +153,14 @@ final class SeedDemoPointagesCommand extends Command
         $this->em->flush();
 
         $io->success(sprintf(
-            '%d pointages terminés (%d en retard) + %d absences générés pour %d employés sur 7 jours.',
-            $nbPointages, $nbRetards, $nbAbsences, \count($employes)
+            '%d pointages terminés (%d en retard), %d no-show, %d absences posées pour %d employés sur 7 jours.',
+            $nbPointages, $nbRetards, $nbNoShows, array_sum($absencesParType), \count($employes)
         ));
+        $repartition = [];
+        foreach ($absencesParType as $type => $n) {
+            $repartition[] = "{$type}: {$n}";
+        }
+        $io->writeln('Absences par type → '.implode(' · ', $repartition));
         $io->writeln('→ Teste la validation/correction sur la semaine du <info>'.$monday->format('Y-m-d').'</info> (module Pointage / Validation hebdo).');
 
         return Command::SUCCESS;
@@ -159,6 +185,36 @@ final class SeedDemoPointagesCommand extends Command
             $this->em->remove($p); // pauses supprimées en cascade
         }
         $this->em->flush();
+    }
+
+    private function purgeWeekAbsences(Centre $centre, \DateTimeImmutable $monday, \DateTimeImmutable $sunday): void
+    {
+        $absences = $this->em->createQuery(
+            'SELECT a FROM App\Entity\Absence a WHERE a.centre = :c AND a.date BETWEEN :from AND :to'
+        )->setParameters(['c' => $centre, 'from' => $monday, 'to' => $sunday])->getResult();
+
+        foreach ($absences as $a) {
+            $this->em->remove($a);
+        }
+        $this->em->flush();
+    }
+
+    private function createAbsence(Centre $centre, User $user, User $manager, \DateTimeImmutable $date, string $type): void
+    {
+        $motifs = [
+            'MALADIE' => 'Arrêt maladie',
+            'EVENEMENT_FAMILLE' => 'Événement familial',
+            'AUTRE' => 'Absence diverse',
+        ];
+
+        $absence = (new Absence())
+            ->setCentre($centre)
+            ->setUser($user)
+            ->setDate($date)
+            ->setType($type)
+            ->setMotif($motifs[$type] ?? null)
+            ->setCreatedBy($manager);
+        $this->em->persist($absence);
     }
 
     private function getOrCreateService(Centre $centre, \DateTimeImmutable $date): Service
