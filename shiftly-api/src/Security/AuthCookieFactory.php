@@ -8,9 +8,14 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Fabrique centralisée des cookies d'authentification (JWT).
  *
- * Flags : HttpOnly (le JS ne lit jamais le token), SameSite=Lax (anti-CSRF de
- * base), Secure aligné sur le protocole de la requête (false en http://localhost,
- * true derrière https). TTL aligné sur le token_ttl lexik.
+ * Flags : HttpOnly (le JS ne lit jamais le token). Secure aligné sur le protocole
+ * (false en http://localhost, true derrière https). SameSite :
+ *   - HTTPS (prod) → None : le front (Vercel) et l'API (Railway) sont sur des
+ *     domaines racine différents (cross-site) ; Lax bloquerait le cookie sur les
+ *     XHR. None+Secure l'autorise. La protection CSRF repose alors sur l'en-tête
+ *     custom X-CSRF (CsrfHeaderSubscriber) + le CORS restreint, pas sur SameSite.
+ *   - HTTP (dev localhost, same-site) → Lax : None exigerait Secure, impossible en http.
+ * TTL aligné sur le token_ttl lexik.
  */
 final class AuthCookieFactory
 {
@@ -26,7 +31,7 @@ final class AuthCookieFactory
             ->withPath('/')
             ->withSecure($request->isSecure())
             ->withHttpOnly(true)
-            ->withSameSite(Cookie::SAMESITE_LAX);
+            ->withSameSite($this->sameSite($request));
     }
 
     /**
@@ -40,6 +45,14 @@ final class AuthCookieFactory
             ->withPath('/')
             ->withSecure($request->isSecure())
             ->withHttpOnly(true)
-            ->withSameSite(Cookie::SAMESITE_LAX);
+            ->withSameSite($this->sameSite($request));
+    }
+
+    /**
+     * None en HTTPS (cross-site front↔API), Lax sinon (dev http localhost).
+     */
+    private function sameSite(Request $request): string
+    {
+        return $request->isSecure() ? Cookie::SAMESITE_NONE : Cookie::SAMESITE_LAX;
     }
 }

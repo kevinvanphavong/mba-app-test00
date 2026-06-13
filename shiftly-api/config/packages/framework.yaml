@@ -2,6 +2,12 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
+    # Derrière le proxy Railway (TLS terminé en amont) : faire confiance au proxy
+    # pour lire X-Forwarded-Proto → request->isSecure() = true en prod → cookie Secure
+    # + SameSite=None possible (auth cross-site front Vercel ↔ API Railway).
+    trusted_proxies: '127.0.0.1,REMOTE_ADDR'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port']
+
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
