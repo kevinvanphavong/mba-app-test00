@@ -7,14 +7,15 @@ RUN apk add --no-cache \
     icu-dev \
     oniguruma-dev \
     libzip-dev \
+    postgresql-dev \
     unzip \
     curl \
     bash \
     openssl
 
-# Extensions PHP requises en prod
+# Extensions PHP requises en prod (Postgres : pdo_pgsql)
 RUN docker-php-ext-install \
-    pdo_mysql \
+    pdo_pgsql \
     intl \
     zip \
     opcache
@@ -43,7 +44,7 @@ COPY . .
 # Les vraies valeurs (Railway) remplacent les placeholders à runtime.
 RUN composer dump-autoload --optimize --no-dev \
     && APP_SECRET=buildsecret1234567890abcdef \
-       DATABASE_URL="mysql://app:secret@localhost:3306/app?serverVersion=8.0&charset=utf8mb4" \
+       DATABASE_URL="postgresql://app:secret@localhost:5432/app?serverVersion=16&charset=utf8" \
        CORS_ALLOW_ORIGIN='^.*$' \
        SENTRY_DSN='' \
        php bin/console cache:warmup --env=prod
