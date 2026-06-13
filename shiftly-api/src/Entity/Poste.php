@@ -25,7 +25,10 @@ use Symfony\Component\Validator\Constraints as Assert;
  * POST /api/postes                              → affecter (MANAGER)
  */
 #[ORM\Entity(repositoryClass: PosteRepository::class)]
-#[ORM\UniqueConstraint(name: 'uniq_poste', columns: ['service_id', 'zone_id', 'user_id'])]
+// Créneaux multiples d'une même personne dans une même zone autorisés tant que
+// l'horaire diffère. heure_debut dans l'index + NULLS NOT DISTINCT (cf. migration)
+// pour bloquer aussi le doublon "sans horaire" (Service du jour). Cf. ServiceDuJour.
+#[ORM\UniqueConstraint(name: 'uniq_poste', columns: ['service_id', 'zone_id', 'user_id', 'heure_debut'])]
 #[ApiResource(
     normalizationContext: ['groups' => ['poste:read']],
     denormalizationContext: ['groups' => ['poste:write']],
