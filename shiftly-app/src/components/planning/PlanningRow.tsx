@@ -151,21 +151,24 @@ export default function PlanningRow({
               ? `${employee.prenom} ${employee.nom.charAt(0).toUpperCase()}.`
               : employee.nom}
           </p>
+          {/* Heures planifiées / contractuelles — sous le prénom (visible aussi en mobile). */}
+          {employee.heuresHebdo !== null && employee.heuresHebdo > 0 && (
+            <div className="mt-0.5">
+              <div className="flex items-baseline gap-1">
+                <span className="font-syne text-[12px] font-bold" style={{ color: ecartColor }}>
+                  {formatHours(employee.totalHeures)}
+                </span>
+                <span className="text-[10px] text-[var(--muted)]">/ {employee.heuresHebdo}h</span>
+              </div>
+              <div className="mt-0.5 h-1 w-full max-w-[80px] overflow-hidden rounded-full bg-[var(--surface2)]">
+                <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: ecartColor }} />
+              </div>
+            </div>
+          )}
           {employee.typeContrat && (
             <p className="hidden tablet:block truncate text-[11px] text-[var(--muted)]">{employee.typeContrat}</p>
           )}
         </div>
-        {employee.heuresHebdo !== null && employee.heuresHebdo > 0 && (
-          <div className="hidden tablet:flex shrink-0 flex-col items-end">
-            <span className="font-syne text-[14px] font-bold" style={{ color: ecartColor }}>
-              {formatHours(employee.totalHeures)}
-            </span>
-            <span className="text-[10px] text-[var(--muted)]">/ {employee.heuresHebdo}h</span>
-            <div className="mt-1 h-1 w-12 overflow-hidden rounded-full bg-[var(--surface2)]">
-              <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: ecartColor }} />
-            </div>
-          </div>
-        )}
       </div>
 
       {/* 7 cellules jours */}
