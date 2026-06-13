@@ -78,7 +78,7 @@ fi
 # (et donc écrasées) à chaque redémarrage du container.
 if [ "$LOAD_FIXTURES" = "1" ]; then
     echo "LOAD_FIXTURES=1 détecté — purge + rechargement des fixtures Alice..."
-    php /var/www/html/bin/console doctrine:fixtures:load --no-interaction --purge-with-truncate --env=prod
+    php /var/www/html/bin/console hautelook:fixtures:load --no-interaction --purge-with-truncate --env=prod
     echo "Fixtures rechargées. N'oublie pas de remettre LOAD_FIXTURES=0 sur Railway."
 fi
 

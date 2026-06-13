@@ -1,5 +1,4 @@
-when@dev: &dev
-    hautelook_alice:
-        fixtures_path: fixtures
-
-when@test: *dev
+# Chemin des fixtures Alice — appliqué partout où le bundle est activé
+# (dev, test, et prod-démo re-semée via LOAD_FIXTURES au déploiement).
+hautelook_alice:
+    fixtures_path: fixtures
