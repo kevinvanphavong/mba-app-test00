@@ -1,36 +1,19 @@
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
 
-// Routes accessibles sans authentification (landing publique + pages légales + auth)
-const PUBLIC_PATHS = ['/', '/login', '/cgu', '/confidentialite', '/mentions-legales']
-
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-
-  // Les routes SuperAdmin gèrent leur propre auth — le middleware n'y touche pas
-  if (pathname.startsWith('/superadmin')) {
-    return NextResponse.next()
-  }
-
-  const token = request.cookies.get('token')?.value
-
-  // Déjà connecté et accède à /login → rediriger vers /service
-  if (pathname === '/login' && token) {
-    return NextResponse.redirect(new URL('/service', request.url))
-  }
-
-  // Pour la racine "/", on laisse passer même si le cookie est présent ; la
-  // redirection vers /service est gérée côté client (LandingPage via /api/me) —
-  // permet à un visiteur connecté de revisiter la landing marketing.
-  if (PUBLIC_PATHS.includes(pathname)) {
-    return NextResponse.next()
-  }
-
-  // Non connecté et accède à une route protégée → rediriger vers /login
-  if (!token) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-
+/**
+ * Le cookie d'auth (httpOnly) est posé pour le domaine de l'API (Railway), pas
+ * pour celui du front (Vercel) — domaines racine différents. Le middleware, qui
+ * tourne sur le domaine du front, ne peut donc PAS le lire : tout garde-fou basé
+ * sur ce cookie ici boucle (l'utilisateur connecté est vu comme déconnecté).
+ *
+ * → Le gating d'auth est entièrement CÔTÉ CLIENT : `useCurrentUser`/`/api/me`
+ *   (cookie envoyé en cross-site) + l'intercepteur 401 de lib/api.ts qui redirige
+ *   vers /login. L'API reste la vraie barrière de sécurité (cookie + voters).
+ *
+ * Ce middleware se contente donc de laisser passer. Conservé (plutôt que supprimé)
+ * pour documenter ce choix et garder un point d'extension futur (ex : i18n, headers).
+ */
+export function middleware() {
   return NextResponse.next()
 }
 
