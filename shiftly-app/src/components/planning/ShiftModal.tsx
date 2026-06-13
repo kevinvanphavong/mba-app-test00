@@ -111,9 +111,10 @@ export default function ShiftModal({
         (typeof data?.['hydra:description'] === 'string' && data['hydra:description']) ||
         null
 
-      // Doublon de poste (contrainte unique service+zone+user)
+      // Doublon EXACT de créneau (même zone + même horaire) — les créneaux
+      // coupés (horaires différents) sont autorisés.
       if (status === 409 || status === 422) {
-        toast(msg ?? 'Cette assignation existe déjà sur cette date', 'error')
+        toast(msg ?? 'Ce membre a déjà ce créneau dans cette zone', 'error')
         return
       }
       if (status === 400 || status === 403) {

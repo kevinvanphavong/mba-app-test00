@@ -116,8 +116,10 @@ class CreatePosteController extends AbstractController
             $this->em->persist($poste);
             $this->em->flush();
         } catch (UniqueConstraintViolationException) {
+            // Ne se déclenche plus que sur un doublon EXACT (même créneau, ou deux
+            // fois sans horaire) grâce à uniq_poste(service,zone,user,heure_debut).
             return $this->json(
-                ['error' => 'Ce membre est déjà assigné à cette zone pour ce service.'],
+                ['error' => 'Déjà assigné à cette zone sur ce créneau.'],
                 Response::HTTP_CONFLICT
             );
         }
