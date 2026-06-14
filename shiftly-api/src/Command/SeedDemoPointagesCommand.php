@@ -38,7 +38,8 @@ final class SeedDemoPointagesCommand extends Command
     {
         $this
             ->addOption('centre', null, InputOption::VALUE_REQUIRED, 'Slug du centre', 'speed-park-bourges')
-            ->addOption('monday', null, InputOption::VALUE_REQUIRED, 'Lundi de la semaine (YYYY-MM-DD). Défaut : lundi de la semaine dernière.');
+            ->addOption('monday', null, InputOption::VALUE_REQUIRED, 'Lundi de la semaine (YYYY-MM-DD). Défaut : lundi de la semaine dernière.')
+            ->addOption('showcase', null, InputOption::VALUE_NONE, 'Injecte 2 cas de démo sur le mardi de la semaine : un staff avec plusieurs pauses + un staff en double assignation (2 créneaux/zones).');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -188,6 +189,10 @@ final class SeedDemoPointagesCommand extends Command
 
         $this->em->flush();
 
+        if ($input->getOption('showcase')) {
+            $this->seedShowcase($io, $centre, $monday, $zones, $manager, $today);
+        }
+
         $io->success(sprintf(
             '%d pointages terminés (%d en retard), %d en cours, %d no-show, %d absences posées pour %d employés sur 7 jours.',
             $nbPointages, $nbRetards, $nbEnCours, $nbNoShows, array_sum($absencesParType), \count($employes)
@@ -200,6 +205,128 @@ final class SeedDemoPointagesCommand extends Command
         $io->writeln('→ Teste la validation/correction sur la semaine du <info>'.$monday->format('Y-m-d').'</info> (module Pointage / Validation hebdo).');
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Injecte deux cas de démo sur le mardi de la semaine (jour passé requis) :
+     *   1) un staff avec PLUSIEURS pauses dans la journée (COURTE + REPAS + COURTE) ;
+     *   2) un staff en DOUBLE ASSIGNATION le même jour (2 postes, zones + horaires
+     *      différents, non chevauchants → vrai créneau coupé).
+     *
+     * @param Zone[] $zones
+     */
+    private function seedShowcase(SymfonyStyle $io, Centre $centre, \DateTimeImmutable $monday, array $zones, User $manager, \DateTimeImmutable $today): void
+    {
+        $day = $monday->modify('+1 days'); // mardi
+        if ($day >= $today) {
+            $io->warning('Showcase ignoré : le mardi de cette semaine n\'est pas un jour passé (besoin de pointages terminés).');
+
+            return;
+        }
+
+        $service = $this->em->getRepository(Service::class)->findOneBy(['centre' => $centre, 'date' => $day]);
+        if (!$service instanceof Service) {
+            $io->warning('Showcase ignoré : aucun service trouvé pour le '.$day->format('Y-m-d').'.');
+
+            return;
+        }
+
+        /** @var Pointage[] $pointages */
+        $pointages = $this->em->createQuery(
+            'SELECT p FROM App\Entity\Pointage p JOIN p.poste po
+             WHERE p.service = :s AND p.statut = :st
+             ORDER BY po.heureDebut ASC, p.id ASC'
+        )->setParameters(['s' => $service, 'st' => Pointage::STATUT_TERMINE])->getResult();
+
+        if (\count($pointages) < 2) {
+            $io->warning('Showcase ignoré : pas assez de pointages terminés le '.$day->format('Y-m-d').'.');
+
+            return;
+        }
+
+        // ── Cas 1 : plusieurs pauses ─────────────────────────────────────────
+        $p1 = $pointages[0];
+        $arrivee = $p1->getHeureArrivee();
+        $depart = $p1->getHeureDepart();
+        if (null !== $arrivee && null !== $depart) {
+            // On repart d'une feuille blanche (suppression effective avant réinsertion).
+            $existantes = $this->em->getRepository(PointagePause::class)->findBy(['pointage' => $p1]);
+            foreach ($existantes as $oldPause) {
+                $this->em->remove($oldPause);
+            }
+            $this->em->flush();
+
+            // 3 pauses échelonnées, bornées dans la fenêtre arrivée→départ.
+            $segments = [
+                [PointagePause::TYPE_COURTE, 60, 15],   // pause clope à +1h
+                [PointagePause::TYPE_REPAS, 180, 45],   // repas à +3h
+                [PointagePause::TYPE_COURTE, 330, 10],  // micro-pause à +5h30
+            ];
+            foreach ($segments as [$type, $offsetMin, $dureeMin]) {
+                $debut = $arrivee->modify("+{$offsetMin} minutes");
+                $fin = $debut->modify("+{$dureeMin} minutes");
+                if ($fin >= $depart) {
+                    continue; // ne déborde pas du shift
+                }
+                $pause = (new PointagePause())
+                    ->setPointage($p1)
+                    ->setType($type)
+                    ->setHeureDebut($debut)
+                    ->setHeureFin($fin);
+                $this->em->persist($pause);
+            }
+        }
+        $nomA = trim(($p1->getUser()->getPrenom() ?? '').' '.$p1->getUser()->getNom());
+
+        // ── Cas 2 : double assignation (2 postes / zones / horaires) ─────────
+        $p2 = $pointages[1];
+        $userB = $p2->getUser();
+        $premierPoste = $p2->getPoste();
+        $premiereZone = $premierPoste?->getZone();
+
+        // Zone différente de celle du 1er poste.
+        $autreZone = null;
+        foreach ($zones as $z) {
+            if ($z->getId() !== $premiereZone?->getId()) {
+                $autreZone = $z;
+                break;
+            }
+        }
+        $autreZone ??= $premiereZone;
+
+        // Second créneau non chevauchant : si le 1er est le matin → soirée, sinon matin.
+        $premierDebutH = (int) ($premierPoste?->getHeureDebut()?->format('H') ?? 10);
+        [$startH, $startM, $endH, $endM] = $premierDebutH < 14
+            ? [19, 0, 22, 30]   // 1er shift le matin → 2e en soirée 19h00-22h30
+            : [8, 30, 11, 30];  // 1er shift le soir → 2e le matin 08h30-11h30
+
+        if (null !== $autreZone) {
+            $secondPoste = (new Poste())
+                ->setService($service)
+                ->setZone($autreZone)
+                ->setUser($userB)
+                ->setHeureDebut($day->setTime($startH, $startM))
+                ->setHeureFin($day->setTime($endH, $endM))
+                ->setPauseMinutes(0);
+            $this->em->persist($secondPoste);
+
+            $this->createPointage(
+                $centre, $service, $secondPoste, $userB, $manager,
+                $day->setTime($startH, $startM)->modify('+3 minutes'),
+                $day->setTime($endH, $endM)->modify('-5 minutes'),
+                Pointage::STATUT_TERMINE, 'Renfort 2e créneau (démo double assignation)'
+            );
+        }
+        $nomB = trim(($userB->getPrenom() ?? '').' '.$userB->getNom());
+
+        $this->em->flush();
+
+        $io->section('Showcase injecté le '.$day->format('Y-m-d').' (mardi)');
+        $io->listing([
+            sprintf('Plusieurs pauses : %s (COURTE + REPAS + COURTE)', $nomA),
+            sprintf('Double assignation : %s (%s + %s, horaires %02dh%02d→%02dh%02d)', $nomB, $premiereZone?->getNom() ?? '?', $autreZone?->getNom() ?? '?', $startH, $startM, $endH, $endM),
+        ]);
+        $io->writeln('<comment>Note : la validation hebdo agrège 1 pointage/jour/employé (le 1er). Le 2e créneau de '.$nomB.' apparaît dans le Planning mais n\'est pas additionné dans le total hebdo.</comment>');
     }
 
     private function lastWeekMonday(): \DateTimeImmutable
