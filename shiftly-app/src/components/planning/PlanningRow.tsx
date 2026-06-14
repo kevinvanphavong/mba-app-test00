@@ -70,6 +70,16 @@ function DayCell({
           {shifts.map(s => (
             <ShiftBlock key={s.posteId} shift={s} onClick={onEdit} />
           ))}
+          {/* Cellule déjà occupée → entrée pour ajouter un créneau supplémentaire
+              (créneau coupé : même staff, même jour, horaires différents). */}
+          {shifts.length > 0 && !isPast && !isDraggingRow && (
+            <button
+              onClick={e => { e.stopPropagation(); onAdd() }}
+              className="mt-1 w-full rounded border border-dashed border-[var(--border)] py-0.5 text-[9px] text-[var(--muted)] opacity-0 transition-opacity hover:text-[var(--text)] group-hover:opacity-100"
+            >
+              + Créneau
+            </button>
+          )}
           {!shifts.length && !isDraggingRow && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
               {/* '+' caché sur jour passé pour ne pas suggérer une création possible */}
