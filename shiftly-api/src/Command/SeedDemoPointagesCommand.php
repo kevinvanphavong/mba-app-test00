@@ -70,12 +70,19 @@ final class SeedDemoPointagesCommand extends Command
         $sunday = $monday->modify('+6 days');
         $io->section(sprintf('Centre « %s » — semaine du %s au %s', $centre->getNom(), $monday->format('Y-m-d'), $sunday->format('Y-m-d')));
 
+        // Ordre important : pointages (FK → poste) puis postes, puis absences.
         $this->purgeWeekPointages($centre, $monday, $sunday);
+        $this->purgeWeekPostes($centre, $monday, $sunday);
         $this->purgeWeekAbsences($centre, $monday, $sunday);
+
+        // Réalisme temporel : on ne pointe pas dans le futur.
+        $today = new \DateTimeImmutable('today');
+        $now = new \DateTimeImmutable('now');
 
         $nbPointages = 0;
         $nbNoShows = 0;
         $nbRetards = 0;
+        $nbEnCours = 0;
         $absencesParType = [];
 
         // Séquence d'absences planifiées (REPOS dominant, mais tous les types apparaissent).
@@ -89,7 +96,12 @@ final class SeedDemoPointagesCommand extends Command
 
         for ($d = 0; $d < 7; ++$d) {
             $date = $monday->modify("+{$d} days");
-            $service = $this->getOrCreateService($centre, $date);
+            $isFuture = $date > $today;
+            $isToday = $date == $today;
+            $statut = $isFuture
+                ? Service::STATUT_PLANIFIE
+                : ($isToday ? Service::STATUT_EN_COURS : Service::STATUT_TERMINE);
+            $service = $this->getOrCreateService($centre, $date, $statut);
 
             // 5 employés travaillent chaque jour (rotation : 2 en repos, tournant).
             $count = \count($employes);
@@ -116,6 +128,18 @@ final class SeedDemoPointagesCommand extends Command
 
                 $poste = $this->getOrCreatePoste($service, $zone, $emp, $date, $startH, $endH, $pauseMin);
 
+                // Futur : on s'arrête au planning (poste). On ne pointe jamais dans le futur.
+                if ($isFuture) {
+                    continue;
+                }
+
+                // Aujourd'hui : un shift qui n'a pas encore commencé reste « prévu » (pas de
+                // pointage), un shift en cours est EN_COURS (arrivé, pas encore parti).
+                $arriveePrevue = $date->setTime($startH, 0);
+                if ($isToday && $arriveePrevue > $now) {
+                    continue;
+                }
+
                 // Scénarios variés pour tester les corrections.
                 // No-show : planifié mais absent sans prévenir (≠ absence posée).
                 $noShow = (0 === $d && 0 === $slot) || (3 === $d && 1 === $slot);
@@ -130,8 +154,20 @@ final class SeedDemoPointagesCommand extends Command
                 $retardMin = ((($d * 3) + $slot) % 4 === 0) ? 12 : ((0 === $slot % 3) ? 6 : 0);
                 $departDelta = (0 === $slot % 2) ? 4 : -8; // certains partent en avance/retard
 
-                $arrivee = $date->setTime($startH, 0)->modify("+{$retardMin} minutes");
+                $arrivee = $arriveePrevue->modify("+{$retardMin} minutes");
                 $depart = $date->setTime($endH, 0)->modify(($departDelta >= 0 ? '+' : '').$departDelta.' minutes');
+
+                // Aujourd'hui, si le shift n'est pas terminé → pointage EN_COURS (départ ouvert).
+                $enCours = $isToday && $depart > $now;
+                if ($enCours) {
+                    $this->createPointage($centre, $service, $poste, $emp, $manager, $arrivee, null, Pointage::STATUT_EN_COURS, null);
+                    ++$nbEnCours;
+                    if ($retardMin > 0) {
+                        ++$nbRetards;
+                    }
+
+                    continue;
+                }
 
                 $pointage = $this->createPointage($centre, $service, $poste, $emp, $manager, $arrivee, $depart, Pointage::STATUT_TERMINE, null);
                 ++$nbPointages;
@@ -153,8 +189,8 @@ final class SeedDemoPointagesCommand extends Command
         $this->em->flush();
 
         $io->success(sprintf(
-            '%d pointages terminés (%d en retard), %d no-show, %d absences posées pour %d employés sur 7 jours.',
-            $nbPointages, $nbRetards, $nbNoShows, array_sum($absencesParType), \count($employes)
+            '%d pointages terminés (%d en retard), %d en cours, %d no-show, %d absences posées pour %d employés sur 7 jours.',
+            $nbPointages, $nbRetards, $nbEnCours, $nbNoShows, array_sum($absencesParType), \count($employes)
         ));
         $repartition = [];
         foreach ($absencesParType as $type => $n) {
@@ -183,6 +219,23 @@ final class SeedDemoPointagesCommand extends Command
 
         foreach ($pointages as $p) {
             $this->em->remove($p); // pauses supprimées en cascade
+        }
+        $this->em->flush();
+    }
+
+    /**
+     * Purge les postes de la semaine pour que le seed soit autoritaire (centre démo).
+     * Les pointages doivent être supprimés avant (FK pointage.poste_id).
+     */
+    private function purgeWeekPostes(Centre $centre, \DateTimeImmutable $monday, \DateTimeImmutable $sunday): void
+    {
+        $postes = $this->em->createQuery(
+            'SELECT p FROM App\Entity\Poste p JOIN p.service s
+             WHERE s.centre = :c AND s.date BETWEEN :from AND :to'
+        )->setParameters(['c' => $centre, 'from' => $monday, 'to' => $sunday])->getResult();
+
+        foreach ($postes as $p) {
+            $this->em->remove($p); // completions supprimées en cascade
         }
         $this->em->flush();
     }
@@ -217,17 +270,19 @@ final class SeedDemoPointagesCommand extends Command
         $this->em->persist($absence);
     }
 
-    private function getOrCreateService(Centre $centre, \DateTimeImmutable $date): Service
+    private function getOrCreateService(Centre $centre, \DateTimeImmutable $date, string $statut): Service
     {
         $service = $this->em->getRepository(Service::class)->findOneBy(['centre' => $centre, 'date' => $date]);
         if ($service instanceof Service) {
+            $service->setStatut($statut); // resynchronise le statut (passé/présent/futur) à chaque run
+
             return $service;
         }
 
         $service = (new Service())
             ->setCentre($centre)
             ->setDate($date)
-            ->setStatut(Service::STATUT_TERMINE)
+            ->setStatut($statut)
             ->setHeureDebut($date->setTime(10, 0))
             ->setHeureFin($date->setTime(23, 0));
         $this->em->persist($service);
