@@ -6,6 +6,11 @@ jour même, `PLANIFIE` sinon) et prochaine (`PLANIFIE`) — toujours recalculée
 date d'exécution. À lancer avant une présentation pour que Planning/Services
 montrent du passé, du présent et du futur. Rejouable et déterministe.
 
+Les **jours passés sont aussi pointés** (heures réalistes : retards, départs
+décalés, pause repas, no-show occasionnel) et des **absences** crédibles sont
+posées (REPOS/CP/RTT/MALADIE…) → la page **Validation hebdo** est utilisable en
+démo sur la semaine dernière. Le jour même, les pointages en cours sont `EN_COURS`.
+
 ```bash
 # Local / dev
 docker compose exec php php bin/console app:demo:seed

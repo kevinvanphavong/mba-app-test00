@@ -2,8 +2,11 @@
 
 namespace App\Command;
 
+use App\Entity\Absence;
 use App\Entity\Centre;
 use App\Entity\PlanningWeek;
+use App\Entity\Pointage;
+use App\Entity\PointagePause;
 use App\Entity\Poste;
 use App\Entity\Service;
 use App\Entity\User;
@@ -36,6 +39,9 @@ final class DemoSeedCommand extends Command
 {
     /** Ordre lundi→dimanche aligné sur le format ISO `N` (1=lundi). */
     private const DAY_KEYS = [1 => 'lundi', 2 => 'mardi', 3 => 'mercredi', 4 => 'jeudi', 5 => 'vendredi', 6 => 'samedi', 7 => 'dimanche'];
+
+    /** Séquence d'absences déterministe : REPOS dominant, tous les types présents. */
+    private const ABSENCE_SEQ = ['REPOS', 'CP', 'REPOS', 'RTT', 'REPOS', 'MALADIE', 'REPOS', 'EVENEMENT_FAMILLE', 'REPOS', 'AUTRE', 'REPOS', 'RTT'];
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -95,7 +101,8 @@ final class DemoSeedCommand extends Command
             end($semaines)->modify('+6 days')->format('Y-m-d')
         ));
 
-        $stats = ['centres' => 0, 'services' => 0, 'postes' => 0, 'plannings' => 0];
+        $stats = ['centres' => 0, 'services' => 0, 'postes' => 0, 'plannings' => 0, 'pointages' => 0, 'absences' => 0];
+        $now = new \DateTimeImmutable('now');
 
         /** @var Centre[] $centres */
         $centres = $this->em->getRepository(Centre::class)->findAll();
@@ -107,6 +114,7 @@ final class DemoSeedCommand extends Command
             if (\count($zones) < 1 || \count($employes) < 1) {
                 continue;
             }
+            $manager = $this->em->getRepository(User::class)->findOneBy(['centre' => $centre, 'role' => 'MANAGER', 'actif' => true]);
 
             ++$stats['centres'];
             $dayIndex = 0; // compteur global pour la rotation déterministe du staff
@@ -123,14 +131,21 @@ final class DemoSeedCommand extends Command
 
                     $service = $this->getOrCreateService($centre, $date, $today, $stats);
 
-                    // On ne touche pas aux services déjà garnis par les fixtures
-                    // (planning soigné à la main) — on ne remplit que les jours vides.
-                    if ($service->getPostes()->count() > 0) {
-                        ++$dayIndex;
-                        continue;
+                    // Services déjà garnis par les fixtures (planning soigné à la main) :
+                    // on les conserve et on ne remplit que les jours vides.
+                    $preexistant = $service->getPostes()->count() > 0;
+                    $postes = $preexistant
+                        ? $service->getPostes()->toArray()
+                        : $this->genererPostes($service, $zones, $employes, $dayIndex, $stats);
+
+                    // Absence crédible : un employé non planifié ce jour (type tournant).
+                    $this->genererAbsence($centre, $employes, $postes, $manager, $date, $dayIndex, $stats);
+
+                    // Heures pointées : jours passés (TERMINE) + en cours aujourd'hui.
+                    if ($date <= $today) {
+                        $this->genererPointages($service, $postes, $manager, $today, $now, $preexistant, $dayIndex, $stats);
                     }
 
-                    $this->genererPostes($service, $zones, $employes, $dayIndex, $stats);
                     ++$dayIndex;
                 }
             }
@@ -139,11 +154,11 @@ final class DemoSeedCommand extends Command
         }
 
         $io->success(sprintf(
-            '%d centres · %d plannings (semaines) · %d services · %d postes générés sur la plage %s → %s.',
-            $stats['centres'], $stats['plannings'], $stats['services'], $stats['postes'],
+            '%d centres · %d plannings · %d services · %d postes · %d pointages · %d absences sur la plage %s → %s.',
+            $stats['centres'], $stats['plannings'], $stats['services'], $stats['postes'], $stats['pointages'], $stats['absences'],
             $semaines[0]->format('Y-m-d'), end($semaines)->modify('+6 days')->format('Y-m-d')
         ));
-        $io->writeln('→ Planning : navigue ‹ › pour voir S-1 / S / S+1. Services : passé (TERMINE) et futur (PLANIFIE).');
+        $io->writeln('→ Planning : navigue ‹ › pour S-1 / S / S+1. Services : passé (TERMINE) / futur (PLANIFIE). Validation hebdo : utilisable sur S-1 (heures pointées + retards + no-show + absences).');
 
         return Command::SUCCESS;
     }
@@ -186,7 +201,7 @@ final class DemoSeedCommand extends Command
     }
 
     /**
-     * @param array{centres:int,services:int,postes:int,plannings:int} $stats
+     * @param array{centres:int,services:int,postes:int,plannings:int,pointages:int,absences:int} $stats
      */
     private function getOrCreateService(Centre $centre, \DateTimeImmutable $date, \DateTimeImmutable $today, array &$stats): Service
     {
@@ -218,18 +233,21 @@ final class DemoSeedCommand extends Command
      * zones, aux horaires d'ouverture du service. Respecte uniq_poste (zones
      * distinctes, employés distincts sur un même service).
      *
-     * @param Zone[]                                                   $zones
-     * @param User[]                                                   $employes
-     * @param array{centres:int,services:int,postes:int,plannings:int} $stats
+     * @param Zone[]                                                                              $zones
+     * @param User[]                                                                              $employes
+     * @param array{centres:int,services:int,postes:int,plannings:int,pointages:int,absences:int} $stats
+     *
+     * @return Poste[] les postes créés
      */
-    private function genererPostes(Service $service, array $zones, array $employes, int $dayIndex, array &$stats): void
+    private function genererPostes(Service $service, array $zones, array $employes, int $dayIndex, array &$stats): array
     {
         $debut = $service->getHeureDebut() ?? \DateTimeImmutable::createFromFormat('H:i', '10:00');
         $fin = $service->getHeureFin() ?? \DateTimeImmutable::createFromFormat('H:i', '18:00');
         if (false === $debut || false === $fin) {
-            return;
+            return [];
         }
 
+        $created = [];
         $nbPostes = min(\count($zones), \count($employes));
         for ($i = 0; $i < $nbPostes; ++$i) {
             $zone = $zones[$i];
@@ -244,7 +262,145 @@ final class DemoSeedCommand extends Command
                 ->setPauseMinutes(30);
             $this->em->persist($poste);
             ++$stats['postes'];
+            $created[] = $poste;
         }
+
+        return $created;
+    }
+
+    /**
+     * Génère les heures pointées d'un service : retards déterministes, no-show
+     * occasionnel, pause repas, départ légèrement décalé. Aujourd'hui → EN_COURS
+     * si le shift n'est pas fini. Rend la Validation hebdo utilisable en démo.
+     *
+     * @param Poste[]                                                                             $postes
+     * @param array{centres:int,services:int,postes:int,plannings:int,pointages:int,absences:int} $stats
+     */
+    private function genererPointages(Service $service, array $postes, ?User $manager, \DateTimeImmutable $today, \DateTimeImmutable $now, bool $verifierExistant, int $dayIndex, array &$stats): void
+    {
+        $date = $service->getDate();
+        if (null === $date) {
+            return;
+        }
+        $estAujourdhui = $date == $today;
+
+        foreach ($postes as $i => $poste) {
+            // Sur les services déjà garnis par les fixtures, ne pas dupliquer un pointage.
+            if ($verifierExistant && null !== $this->em->getRepository(Pointage::class)->findOneBy(['poste' => $poste])) {
+                continue;
+            }
+            $hd = $poste->getHeureDebut();
+            $hf = $poste->getHeureFin();
+            if (null === $hd || null === $hf) {
+                continue;
+            }
+
+            $shiftStart = $date->setTime((int) $hd->format('H'), (int) $hd->format('i'));
+            $shiftEnd = $date->setTime((int) $hf->format('H'), (int) $hf->format('i'));
+            if ($shiftEnd <= $shiftStart) {
+                $shiftEnd = $shiftEnd->modify('+1 day'); // service de nuit
+            }
+
+            // Aujourd'hui : shift pas encore commencé → reste « prévu » (pas de pointage).
+            if ($estAujourdhui && $shiftStart > $now) {
+                continue;
+            }
+
+            $seed = $dayIndex * 7 + (int) $i;
+            $estTermine = $shiftEnd < $now;
+
+            // No-show occasionnel sur un shift terminé (≈ 1 sur 17).
+            if ($estTermine && 0 === $seed % 17) {
+                $this->persistPointage($service, $poste, $manager, null, null, Pointage::STATUT_ABSENT, 'Absence non justifiée (no-show)');
+                ++$stats['pointages'];
+                continue;
+            }
+
+            $retard = (0 === $seed % 4) ? 12 : (0 === $seed % 3 ? 6 : 0);
+            $arrivee = $shiftStart->modify("+{$retard} minutes");
+
+            // En cours aujourd'hui : arrivé, pas encore parti.
+            if ($estAujourdhui && $shiftEnd > $now) {
+                $this->persistPointage($service, $poste, $manager, $arrivee, null, Pointage::STATUT_EN_COURS, null);
+                ++$stats['pointages'];
+                continue;
+            }
+
+            $departDelta = (0 === $seed % 2) ? 4 : -8;
+            $depart = $shiftEnd->modify(($departDelta >= 0 ? '+' : '').$departDelta.' minutes');
+            $pointage = $this->persistPointage($service, $poste, $manager, $arrivee, $depart, Pointage::STATUT_TERMINE, null);
+            ++$stats['pointages'];
+
+            // Pause repas au milieu du shift (alignée sur pauseMinutes du poste).
+            $pauseMin = $poste->getPauseMinutes();
+            if ($pauseMin > 0) {
+                $milieuSec = intdiv($shiftEnd->getTimestamp() - $shiftStart->getTimestamp(), 2);
+                $pauseStart = $shiftStart->modify("+{$milieuSec} seconds");
+                $pause = (new PointagePause())
+                    ->setPointage($pointage)
+                    ->setType(PointagePause::TYPE_REPAS)
+                    ->setHeureDebut($pauseStart)
+                    ->setHeureFin($pauseStart->modify("+{$pauseMin} minutes"));
+                $this->em->persist($pause);
+            }
+        }
+    }
+
+    private function persistPointage(Service $service, Poste $poste, ?User $manager, ?\DateTimeImmutable $arrivee, ?\DateTimeImmutable $depart, string $statut, ?string $commentaire): Pointage
+    {
+        $pointage = (new Pointage())
+            ->setCentre($service->getCentre())
+            ->setService($service)
+            ->setPoste($poste)
+            ->setUser($poste->getUser())
+            ->setHeureArrivee($arrivee)
+            ->setHeureDepart($depart)
+            ->setStatut($statut)
+            ->setCommentaire($commentaire)
+            ->setPointePar($manager)
+            ->setUpdatedAt(new \DateTimeImmutable());
+        $this->em->persist($pointage);
+
+        return $pointage;
+    }
+
+    /**
+     * Pose une absence crédible sur un employé non planifié ce jour (type tournant).
+     *
+     * @param User[]                                                                              $employes
+     * @param Poste[]                                                                             $postes
+     * @param array{centres:int,services:int,postes:int,plannings:int,pointages:int,absences:int} $stats
+     */
+    private function genererAbsence(Centre $centre, array $employes, array $postes, ?User $manager, \DateTimeImmutable $date, int $dayIndex, array &$stats): void
+    {
+        $assignedIds = [];
+        foreach ($postes as $p) {
+            if (null !== $p->getUser()) {
+                $assignedIds[$p->getUser()->getId()] = true;
+            }
+        }
+        $off = array_values(array_filter($employes, fn (User $u) => !isset($assignedIds[$u->getId()])));
+        if (empty($off)) {
+            return;
+        }
+
+        $emp = $off[$dayIndex % \count($off)];
+        // Évite les doublons (fixtures / rejeu).
+        if (null !== $this->em->getRepository(Absence::class)->findOneBy(['centre' => $centre, 'user' => $emp, 'date' => $date])) {
+            return;
+        }
+
+        $type = self::ABSENCE_SEQ[$dayIndex % \count(self::ABSENCE_SEQ)];
+        $motifs = ['MALADIE' => 'Arrêt maladie', 'EVENEMENT_FAMILLE' => 'Événement familial', 'AUTRE' => 'Absence diverse'];
+        $absence = (new Absence())
+            ->setCentre($centre)
+            ->setUser($emp)
+            ->setDate($date)
+            ->setType($type)
+            ->setMotif($motifs[$type] ?? null)
+            ->setCreatedBy($manager);
+        $this->em->persist($absence);
+        ++$stats['absences'];
     }
 
     private function centreEstOuvert(Centre $centre, \DateTimeImmutable $date): bool
