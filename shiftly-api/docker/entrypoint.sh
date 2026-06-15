@@ -82,6 +82,17 @@ if [ "$LOAD_FIXTURES" = "1" ]; then
     echo "Fixtures rechargées. N'oublie pas de remettre LOAD_FIXTURES=0 sur Railway."
 fi
 
+# Démo « clé en main » — opt-in via DEMO_SEED=1 pour UNE exécution, puis remettre à 0
+# (sinon la base est réécrasée à chaque redémarrage du container). Superset de
+# LOAD_FIXTURES : recharge les fixtures PUIS génère services + plannings + heures
+# pointées + absences sur 3 semaines glissantes (S-1 / S / S+1), pour que Planning,
+# Services et Validation hebdo soient utilisables immédiatement.
+if [ "$DEMO_SEED" = "1" ]; then
+    echo "DEMO_SEED=1 détecté — rechargement démo + 3 semaines glissantes (planning + pointages)..."
+    php /var/www/html/bin/console app:demo:seed --force --no-interaction --env=prod
+    echo "Démo rechargée. N'oublie pas de remettre DEMO_SEED=0 sur Railway."
+fi
+
 chown -R www-data:www-data /var/www/html/var/ 2>/dev/null || true
 
 echo "Démarrage sur le port $ACTUAL_PORT..."
