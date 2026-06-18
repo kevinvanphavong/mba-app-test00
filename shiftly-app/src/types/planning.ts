@@ -85,6 +85,15 @@ export interface PlanningAlerte {
   userId?:     number
 }
 
+// ─── Note / événement du planning (P2) ───────────────────────────────────────
+
+export interface PlanningNote {
+  id:      number
+  date:    string         // 'YYYY-MM-DD'
+  contenu: string
+  auteur:  string | null
+}
+
 // ─── Zone résumée ─────────────────────────────────────────────────────────────
 
 export interface PlanningZone {
@@ -119,6 +128,7 @@ export interface PlanningWeekData {
   note:       string | null
   zones:      PlanningZone[]
   employees:  PlanningEmployee[]
+  notes:      PlanningNote[]
   alertes:    PlanningAlerte[]
   stats:      PlanningStats
 }

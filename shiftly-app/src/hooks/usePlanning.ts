@@ -307,3 +307,47 @@ export function useDeleteAbsence() {
     },
   })
 }
+
+// ─── Notes & événements (P2) ──────────────────────────────────────────────────
+
+export function useCreateNote() {
+  const centreId    = useAuthStore(s => s.centreId)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (payload: { date: string; contenu: string }) =>
+      api.post('/planning/note', payload).then(r => r.data),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['planning', 'week', centreId] })
+    },
+  })
+}
+
+export function useUpdateNote() {
+  const centreId    = useAuthStore(s => s.centreId)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (payload: { id: number; contenu: string }) =>
+      api.patch(`/planning/note/${payload.id}`, { contenu: payload.contenu }).then(r => r.data),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['planning', 'week', centreId] })
+    },
+  })
+}
+
+export function useDeleteNote() {
+  const centreId    = useAuthStore(s => s.centreId)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (noteId: number) =>
+      api.delete(`/planning/note/${noteId}`).then(r => r.data),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['planning', 'week', centreId] })
+    },
+  })
+}

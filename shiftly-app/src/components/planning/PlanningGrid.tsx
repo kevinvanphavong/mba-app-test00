@@ -14,6 +14,7 @@ import { isAxiosError } from 'axios'
 import { hexAlpha } from '@/lib/colors'
 import DayHeader from './DayHeader'
 import PlanningRow from './PlanningRow'
+import DailyNotesRow from './DailyNotesRow'
 import AbsenceModal from './AbsenceModal'
 
 /** Fusionne l'ordre sauvegardé avec les employés actuels (garde l'ordre, ajoute les nouveaux) */
@@ -194,6 +195,11 @@ export default function PlanningGrid({ data, onAddShift, onEditShift }: Planning
               <DayHeader date={date} isToday={date === today} />
             </div>
           ))}
+        </div>
+
+        {/* Ligne Notes & événements (P2) */}
+        <div style={{ minWidth: 1040 }}>
+          <DailyNotesRow weekDates={weekDates} notes={data.notes ?? []} />
         </div>
 
         {/* Lignes employés */}

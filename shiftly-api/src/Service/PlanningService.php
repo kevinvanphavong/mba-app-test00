@@ -12,6 +12,7 @@ use App\Entity\Service;
 use App\Entity\User;
 use App\Exception\DelaiPrevenanceException;
 use App\Repository\AbsenceRepository;
+use App\Repository\PlanningNoteRepository;
 use App\Repository\PlanningSnapshotRepository;
 use App\Repository\PlanningWeekRepository;
 use App\Repository\ServiceRepository;
@@ -32,6 +33,7 @@ class PlanningService
         private readonly PlanningWeekRepository $planningWeekRepository,
         private readonly PlanningSnapshotRepository $planningSnapshotRepository,
         private readonly AbsenceRepository $absenceRepository,
+        private readonly PlanningNoteRepository $planningNoteRepository,
         private readonly ZoneRepository $zoneRepository,
         private readonly UserRepository $userRepository,
         private readonly EntityManagerInterface $em,
@@ -232,6 +234,14 @@ class PlanningService
         $hasUnpublished = $planningWeek?->hasUnpublishedChanges() ?? false;
         $lastModifiedAt = $planningWeek?->getLastModifiedAt()?->format(\DateTimeInterface::ATOM);
 
+        // ── Notes & événements de la semaine (P2) ──
+        $notes = array_map(fn ($n) => [
+            'id' => $n->getId(),
+            'date' => $n->getDate()->format('Y-m-d'),
+            'contenu' => $n->getContenu(),
+            'auteur' => $n->getCreatedBy()?->getPrenom() ?? $n->getCreatedBy()?->getNom(),
+        ], $this->planningNoteRepository->findByCentreAndDateRange($centreId, $weekStart, $weekEnd));
+
         // ── Alertes ──
         $alertes = $this->buildAlerts($employees, $services, $zonesData, $centre, $weekStart);
 
@@ -270,6 +280,7 @@ class PlanningService
             'note' => $note,
             'zones' => $zonesData,
             'employees' => array_values($employees),
+            'notes' => $notes,
             'alertes' => $alertes,
             'stats' => [
                 'employesPlanifies' => $employesPlanifies,
