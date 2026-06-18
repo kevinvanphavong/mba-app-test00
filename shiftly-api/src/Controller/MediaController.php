@@ -116,6 +116,14 @@ class MediaController extends AbstractController
         return $this->listForEntity(MediaEntityType::Tutoriel, (int) $tutoriel->getId(), $centreId);
     }
 
+    #[Route('/api/users/{id}/documents', name: 'api_user_documents', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function listForUser(User $employe): JsonResponse
+    {
+        $centreId = $employe->getCentre()?->getId();
+
+        return $this->listForEntity(MediaEntityType::EmployeDocument, (int) $employe->getId(), $centreId);
+    }
+
     private function listForEntity(MediaEntityType $type, int $entityId, ?int $parentCentreId): JsonResponse
     {
         /** @var User $user */
@@ -142,6 +150,10 @@ class MediaController extends AbstractController
                 ?->getCentre(),
             MediaEntityType::Tutoriel => $this->em
                 ->getRepository(Tutoriel::class)
+                ->find($entityId)
+                ?->getCentre(),
+            MediaEntityType::EmployeDocument => $this->em
+                ->getRepository(User::class)
                 ->find($entityId)
                 ?->getCentre(),
             MediaEntityType::Document => null,

@@ -13,8 +13,9 @@ import type {
 
 const endpointFor = (type: MediaEntityType, id: number): string => {
   // Pluriel français : mission → missions, tutoriel → tutoriels
-  if (type === 'mission')  return `/missions/${id}/medias`
-  if (type === 'tutoriel') return `/tutoriels/${id}/medias`
+  if (type === 'mission')          return `/missions/${id}/medias`
+  if (type === 'tutoriel')         return `/tutoriels/${id}/medias`
+  if (type === 'employe_document') return `/users/${id}/documents`
   throw new Error(`Type d'entité non supporté côté front : ${type}`)
 }
 

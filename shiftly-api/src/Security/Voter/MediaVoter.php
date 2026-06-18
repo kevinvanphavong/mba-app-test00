@@ -105,7 +105,12 @@ class MediaVoter extends Voter
                 ->find($entityId)
                 ?->getCentre()
                 ?->getId(),
-            // Document : pas encore d'entité, refus par défaut
+            MediaEntityType::EmployeDocument => $this->em
+                ->getRepository(User::class)
+                ->find($entityId)
+                ?->getCentre()
+                ?->getId(),
+            // Document générique : pas encore d'entité, refus par défaut
             MediaEntityType::Document => null,
         };
     }

@@ -3,7 +3,7 @@
  * (mission, tutoriel, document plus tard).
  */
 
-export type MediaEntityType = 'mission' | 'tutoriel' | 'document'
+export type MediaEntityType = 'mission' | 'tutoriel' | 'document' | 'employe_document'
 
 export interface Media {
   id:         number
