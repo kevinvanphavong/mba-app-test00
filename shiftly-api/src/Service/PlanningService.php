@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Constant\LegalThresholds;
 use App\Entity\Absence;
 use App\Entity\Centre;
 use App\Entity\PlanningSnapshot;
@@ -233,6 +234,23 @@ class PlanningService
 
         // ── Alertes ──
         $alertes = $this->buildAlerts($employees, $services, $zonesData, $centre, $weekStart);
+
+        // ── P3 : rattache les alertes légales à chaque employé (affichage sur le compteur d'heures) ──
+        $legalByUser = [];
+        foreach ($alertes as $a) {
+            if ('legal' === ($a['categorie'] ?? null) && isset($a['userId'])) {
+                $legalByUser[$a['userId']][] = [
+                    'type' => $a['type'],
+                    'severite' => $a['severite'],
+                    'baseLegale' => $a['baseLegale'] ?? null,
+                    'message' => $a['message'],
+                ];
+            }
+        }
+        foreach ($employees as &$emp) {
+            $emp['alertesLegales'] = $legalByUser[$emp['id']] ?? [];
+        }
+        unset($emp);
 
         // ── Stats ──
         $employesPlanifies = count($employees);
@@ -845,7 +863,7 @@ class PlanningService
                         if ($minutes < 0) {
                             $minutes += 1440;
                         }
-                        if ($minutes > 360 && 0 === $shift['pauseMinutes']) {
+                        if ($minutes > LegalThresholds::PAUSE_SEUIL_MINUTES && 0 === $shift['pauseMinutes']) {
                             $alertes[] = [
                                 'type' => 'SANS_PAUSE',
                                 'severite' => 'moyenne',
@@ -940,12 +958,12 @@ class PlanningService
                     }
                     $totalMin += max(0, $min - $s['pauseMinutes']);
                 }
-                if ($totalMin > 600) {
+                if ($totalMin > LegalThresholds::MAX_JOURNALIER_MINUTES) {
                     $alertes[] = [
                         'type' => 'MAX_JOURNALIER',
                         'severite' => 'haute',
                         'categorie' => 'legal',
-                        'baseLegale' => 'Art. L3121-18 C. travail',
+                        'baseLegale' => LegalThresholds::BASE_LEGALE['MAX_JOURNALIER'],
                         'message' => sprintf('%s dépasse 10h le %s (%.1fh planifiées)', $emp['nom'], $date, $totalMin / 60),
                         'date' => $date,
                         'userId' => $emp['id'],
@@ -954,12 +972,12 @@ class PlanningService
             }
 
             // ── MAX_HEBDO_ABSOLU : > 48h sur la semaine ──────────────────────
-            if ($emp['totalHeures'] > 48) {
+            if ($emp['totalHeures'] > LegalThresholds::MAX_HEBDO_ABSOLU_HEURES) {
                 $alertes[] = [
                     'type' => 'MAX_HEBDO_ABSOLU',
                     'severite' => 'haute',
                     'categorie' => 'legal',
-                    'baseLegale' => 'Art. L3121-20 C. travail',
+                    'baseLegale' => LegalThresholds::BASE_LEGALE['MAX_HEBDO_ABSOLU'],
                     'message' => sprintf('%s dépasse 48h cette semaine (%.1fh)', $emp['nom'], $emp['totalHeures']),
                     'userId' => $emp['id'],
                 ];
@@ -982,12 +1000,12 @@ class PlanningService
                 if ($min < 0) {
                     $min += 1440;
                 }
-                if ($min > 360 && $s['pauseMinutes'] < 20) {
+                if ($min > LegalThresholds::PAUSE_SEUIL_MINUTES && $s['pauseMinutes'] < LegalThresholds::PAUSE_MIN_MINUTES) {
                     $alertes[] = [
                         'type' => 'PAUSE_6H',
                         'severite' => 'moyenne',
                         'categorie' => 'legal',
-                        'baseLegale' => 'Art. L3121-16 C. travail',
+                        'baseLegale' => LegalThresholds::BASE_LEGALE['PAUSE_6H'],
                         'message' => sprintf('%s : shift de %.0fh, pause insuffisante (%dmin) le %s', $emp['nom'], $min / 60, $s['pauseMinutes'], $s['date']),
                         'date' => $s['date'],
                         'userId' => $emp['id'],
@@ -1037,12 +1055,12 @@ class PlanningService
 
                 if ($lastFin && $firstDeb) {
                     $repos = ($firstDeb->getTimestamp() - $lastFin->getTimestamp()) / 3600;
-                    if ($repos < 11) {
+                    if ($repos < LegalThresholds::REPOS_QUOTIDIEN_HEURES) {
                         $alertes[] = [
                             'type' => 'REPOS_QUOTIDIEN',
                             'severite' => 'haute',
                             'categorie' => 'legal',
-                            'baseLegale' => 'Art. L3131-1 C. travail',
+                            'baseLegale' => LegalThresholds::BASE_LEGALE['REPOS_QUOTIDIEN'],
                             'message' => sprintf('%s : repos de %.0fh entre %s et %s (11h requises)', $emp['nom'], max(0, $repos), $date, $nextDate),
                             'date' => $date,
                             'userId' => $emp['id'],
@@ -1089,12 +1107,12 @@ class PlanningService
                         $prev = $slot[1];
                     }
 
-                    if ($maxRepos < 35) {
+                    if ($maxRepos < LegalThresholds::REPOS_HEBDO_HEURES) {
                         $alertes[] = [
                             'type' => 'REPOS_HEBDO',
                             'severite' => 'haute',
                             'categorie' => 'legal',
-                            'baseLegale' => 'Art. L3132-2 C. travail',
+                            'baseLegale' => LegalThresholds::BASE_LEGALE['REPOS_HEBDO'],
                             'message' => sprintf('%s : repos hebdo insuffisant (%.0fh consécutives, 35h requises)', $emp['nom'], $maxRepos),
                             'userId' => $emp['id'],
                         ];
@@ -1150,12 +1168,12 @@ class PlanningService
 
                 $moyenne = array_sum($semaines) / count($semaines);
 
-                if ($moyenne > 44) {
+                if ($moyenne > LegalThresholds::MAX_HEBDO_MOYENNE_HEURES) {
                     $alertes[] = [
                         'type' => 'MAX_HEBDO_MOYENNE',
                         'severite' => 'haute',
                         'categorie' => 'legal',
-                        'baseLegale' => 'Art. L3121-22 C. travail',
+                        'baseLegale' => LegalThresholds::BASE_LEGALE['MAX_HEBDO_MOYENNE'],
                         'message' => sprintf(
                             '%s : moyenne de %.1fh/semaine sur %d semaines (44h max)',
                             $emp['nom'], $moyenne, count($semaines)

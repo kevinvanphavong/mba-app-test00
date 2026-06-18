@@ -32,6 +32,14 @@ export interface PlanningAbsence {
 
 // ─── Employé dans le planning ─────────────────────────────────────────────────
 
+/** Alerte légale concernant un employé, rattachée à sa ligne (P3). */
+export interface EmployeeLegalAlert {
+  type:        AlerteType
+  severite:    AlerteSeverite
+  baseLegale:  string | null
+  message:     string
+}
+
 export interface PlanningEmployee {
   id:           number
   nom:          string
@@ -43,7 +51,8 @@ export interface PlanningEmployee {
   shifts:       PlanningShift[]
   absences:     PlanningAbsence[]
   totalHeures:  number
-  ecartContrat: number         // positif = surplus, négatif = sous-planifié
+  ecartContrat: number               // positif = surplus, négatif = sous-planifié
+  alertesLegales: EmployeeLegalAlert[] // dépassements durée légale / repos (P3)
 }
 
 // ─── Alerte planning ──────────────────────────────────────────────────────────

@@ -8,6 +8,7 @@ import { formatHours } from '@/lib/formatHours'
 import { useToastStore } from '@/store/toastStore'
 import ShiftBlock from './ShiftBlock'
 import AbsenceBlock from './AbsenceBlock'
+import EmployeeAlertBadge from './EmployeeAlertBadge'
 
 interface PlanningRowProps {
   employee:       PlanningEmployee
@@ -156,11 +157,14 @@ export default function PlanningRow({
           {employee.nom.charAt(0).toUpperCase()}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold text-[var(--text)]">
-            {employee.prenom
-              ? `${employee.prenom} ${employee.nom.charAt(0).toUpperCase()}.`
-              : employee.nom}
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="truncate text-[13px] font-semibold text-[var(--text)]">
+              {employee.prenom
+                ? `${employee.prenom} ${employee.nom.charAt(0).toUpperCase()}.`
+                : employee.nom}
+            </p>
+            <EmployeeAlertBadge alertes={employee.alertesLegales ?? []} />
+          </div>
           {/* Heures planifiées / contractuelles — sous le prénom (visible aussi en mobile). */}
           {employee.heuresHebdo !== null && employee.heuresHebdo > 0 && (
             <div className="mt-0.5">

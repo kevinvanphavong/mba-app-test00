@@ -7,7 +7,7 @@ const ABSENCE_CONFIG: Record<AbsenceType, { bg: string; border: string; label: s
   CP:                { bg: 'rgba(99,102,241,0.10)',  border: '#6366f1', label: 'CP',      icon: '🏖️' },
   RTT:               { bg: 'rgba(14,165,233,0.10)',  border: '#0ea5e9', label: 'RTT',     icon: '📅' },
   MALADIE:           { bg: 'rgba(239,68,68,0.10)',   border: '#ef4444', label: 'Maladie', icon: '🤒' },
-  REPOS:             { bg: 'rgba(107,114,128,0.10)', border: '#6b7280', label: 'Repos',   icon: '😴' },
+  REPOS:             { bg: 'rgba(20,184,166,0.12)',  border: '#14b8a6', label: 'Repos',   icon: '🛌' },
   EVENEMENT_FAMILLE: { bg: 'rgba(168,85,247,0.10)',  border: '#a855f7', label: 'Famille', icon: '👨‍👩‍👧' },
   AUTRE:             { bg: 'rgba(107,114,128,0.10)', border: '#6b7280', label: 'Absent',  icon: '📌' },
 }
@@ -20,6 +20,8 @@ interface AbsenceBlockProps {
 
 export default function AbsenceBlock({ absence, onEdit, readonly = false }: AbsenceBlockProps) {
   const config = ABSENCE_CONFIG[absence.type]
+  // Le repos hebdomadaire est un droit légal, pas une absence subie → bordure pointillée distincte.
+  const isRepos = absence.type === 'REPOS'
 
   return (
     <motion.div
@@ -32,7 +34,7 @@ export default function AbsenceBlock({ absence, onEdit, readonly = false }: Abse
       onClick={readonly ? undefined : onEdit}
       style={{
         background:   config.bg,
-        borderLeft:   `3px solid ${config.border}`,
+        borderLeft:   `3px ${isRepos ? 'dashed' : 'solid'} ${config.border}`,
         cursor:       readonly ? 'default' : 'pointer',
       }}
       className="rounded-r-md px-2 py-1 flex items-center gap-1.5 text-xs select-none w-full min-h-[28px]"
