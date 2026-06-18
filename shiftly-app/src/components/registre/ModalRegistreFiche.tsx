@@ -18,6 +18,7 @@ import StaffFormIdentite             from '@/components/staff/StaffFormIdentite'
 import StaffFormContrat              from '@/components/staff/StaffFormContrat'
 import StaffFormAcces                from '@/components/staff/StaffFormAcces'
 import StaffFormEtatCivil            from './StaffFormEtatCivil'
+import StaffFormHistoriqueContrat    from './StaffFormHistoriqueContrat'
 import CompletudeNudge               from './CompletudeNudge'
 import { emptyFicheState, ficheStateFromMember, type FicheState } from './ficheState'
 
@@ -132,6 +133,7 @@ export default function ModalRegistreFiche({ open, member, onClose, onSave }: Pr
                   onTypeContrat={bind('typeContrat')} onHeuresHebdo={bind('heuresHebdo')} onDateEmbauche={bind('dateEmbauche')} />
                 <StaffFormAcces codePointage={s.codePointage} actif={s.actif} showActifRow={isEdit}
                   onCodePointage={bind('codePointage')} onActif={bind('actif')} />
+                {isEdit && member && <StaffFormHistoriqueContrat employeId={member.id} />}
               </div>
             </div>
 

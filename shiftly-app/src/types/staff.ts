@@ -73,6 +73,17 @@ export interface StaffMember {
   isPresent:        boolean
 }
 
+/** Contrat d'un employé (E3) — historique chargé à la demande. */
+export interface Contrat {
+  id:            number
+  typeContrat:   string
+  dateDebut:     string | null    // YYYY-MM-DD
+  dateFin:       string | null    // null = contrat en cours
+  qualification: string | null
+  heuresHebdo:   number | null
+  actif:         boolean
+}
+
 export interface CompetenceCatalogItem {
   id:          number
   nom:         string

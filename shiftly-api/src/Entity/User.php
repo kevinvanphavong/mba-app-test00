@@ -254,11 +254,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: TutoRead::class, cascade: ['remove'])]
     private Collection $tutoReads;
 
+    /**
+     * Historique des contrats (E3) — du plus récent au plus ancien côté lecture.
+     *
+     * @var Collection<int, Contrat>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Contrat::class, cascade: ['remove'])]
+    private Collection $contrats;
+
     public function __construct()
     {
         $this->staffCompetences = new ArrayCollection();
         $this->tutoReads = new ArrayCollection();
+        $this->contrats = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
+    }
+
+    /** @return Collection<int, Contrat> */
+    public function getContrats(): Collection
+    {
+        return $this->contrats;
     }
 
     public function getId(): ?int
