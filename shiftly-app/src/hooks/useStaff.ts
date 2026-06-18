@@ -72,6 +72,8 @@ interface UpdateStaffPayload {
   lieuNaissanceDepartement?: string | null
   sexe?:        Sexe | null
   nationalite?: string | null
+  nomNaissance?:          string | null
+  numeroSecuriteSociale?: string | null
   emploi?:      string | null
   adresse?:     string | null
   codePostal?:  string | null

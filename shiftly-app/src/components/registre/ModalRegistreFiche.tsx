@@ -18,6 +18,7 @@ import StaffFormIdentite             from '@/components/staff/StaffFormIdentite'
 import StaffFormContrat              from '@/components/staff/StaffFormContrat'
 import StaffFormAcces                from '@/components/staff/StaffFormAcces'
 import StaffFormEtatCivil            from './StaffFormEtatCivil'
+import CompletudeNudge               from './CompletudeNudge'
 import { emptyFicheState, ficheStateFromMember, type FicheState } from './ficheState'
 
 // Pas d'avatar ni d'équipement : c'est géré dans la modale /staff côté manager.
@@ -33,6 +34,7 @@ export interface RegistreSaveData {
   dateNaissance: string | null
   lieuNaissanceCommune: string | null; lieuNaissanceDepartement: string | null
   sexe: Sexe | null; nationalite: string | null
+  nomNaissance: string | null; numeroSecuriteSociale: string | null
   adresse: string | null; codePostal: string | null; ville: string | null
   telephone: string | null
 }
@@ -73,6 +75,8 @@ export default function ModalRegistreFiche({ open, member, onClose, onSave }: Pr
       lieuNaissanceDepartement: s.lieuNaissanceDepartement.trim() || null,
       sexe:        s.sexe || null,
       nationalite: s.nationalite.trim() || null,
+      nomNaissance:          s.nomNaissance.trim() || null,
+      numeroSecuriteSociale: s.numeroSecuriteSociale.trim() || null,
       adresse:     s.adresse.trim() || null,
       codePostal:  s.codePostal.trim() || null,
       ville:       s.ville.trim() || null,
@@ -103,6 +107,8 @@ export default function ModalRegistreFiche({ open, member, onClose, onSave }: Pr
                 className="w-[30px] h-[30px] rounded-[8px] border border-border bg-surface2 text-muted text-[17px] flex items-center justify-center">×</button>
             </header>
 
+            {isEdit && <CompletudeNudge completude={member?.completude ?? null} />}
+
             <div className="grid grid-cols-1 tablet:grid-cols-2 gap-[14px] p-5">
               <div className="flex flex-col gap-[14px]">
                 <StaffFormIdentite prenom={s.prenom} nom={s.nom} email={s.email} password={s.password} role={s.role} isEdit={isEdit}
@@ -111,11 +117,13 @@ export default function ModalRegistreFiche({ open, member, onClose, onSave }: Pr
                 <StaffFormEtatCivil
                   dateNaissance={s.dateNaissance} sexe={s.sexe}
                   lieuNaissanceCommune={s.lieuNaissanceCommune} lieuNaissanceDepartement={s.lieuNaissanceDepartement}
-                  nationalite={s.nationalite} adresse={s.adresse} codePostal={s.codePostal} ville={s.ville} telephone={s.telephone}
+                  nationalite={s.nationalite} nomNaissance={s.nomNaissance} numeroSecuriteSociale={s.numeroSecuriteSociale}
+                  adresse={s.adresse} codePostal={s.codePostal} ville={s.ville} telephone={s.telephone}
                   onDateNaissance={bind('dateNaissance')} onSexe={bind('sexe')}
                   onLieuNaissanceCommune={bind('lieuNaissanceCommune')}
                   onLieuNaissanceDepartement={bind('lieuNaissanceDepartement')}
-                  onNationalite={bind('nationalite')} onAdresse={bind('adresse')}
+                  onNationalite={bind('nationalite')} onNomNaissance={bind('nomNaissance')}
+                  onNumeroSecuriteSociale={bind('numeroSecuriteSociale')} onAdresse={bind('adresse')}
                   onCodePostal={bind('codePostal')} onVille={bind('ville')} onTelephone={bind('telephone')} />
               </div>
               <div className="flex flex-col gap-[14px]">

@@ -205,6 +205,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['user:read', 'user:write'])]
     private ?string $nationalite = null;
 
+    /** Nom de naissance (≠ nom d'usage) — requis au Registre Unique du Personnel. */
+    #[ORM\Column(length: 100, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $nomNaissance = null;
+
+    /** Numéro de sécurité sociale (NIR) — donnée sensible, requise au RUP. */
+    #[ORM\Column(length: 15, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $numeroSecuriteSociale = null;
+
     /** Intitulé contractuel (≠ role applicatif) — ex. "Responsable bar", "Hôte d'accueil". */
     #[ORM\Column(length: 120, nullable: true)]
     #[Groups(['user:read', 'user:write'])]
@@ -517,6 +527,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNationalite(?string $v): static
     {
         $this->nationalite = $v;
+
+        return $this;
+    }
+
+    public function getNomNaissance(): ?string
+    {
+        return $this->nomNaissance;
+    }
+
+    public function setNomNaissance(?string $v): static
+    {
+        $this->nomNaissance = $v;
+
+        return $this;
+    }
+
+    public function getNumeroSecuriteSociale(): ?string
+    {
+        return $this->numeroSecuriteSociale;
+    }
+
+    public function setNumeroSecuriteSociale(?string $v): static
+    {
+        $this->numeroSecuriteSociale = $v;
 
         return $this;
     }

@@ -623,6 +623,12 @@ class EditeurController extends AbstractController
         if (array_key_exists('nationalite', $data)) {
             $user->setNationalite($data['nationalite'] ?: null);
         }
+        if (array_key_exists('nomNaissance', $data)) {
+            $user->setNomNaissance($data['nomNaissance'] ?: null);
+        }
+        if (array_key_exists('numeroSecuriteSociale', $data)) {
+            $user->setNumeroSecuriteSociale($data['numeroSecuriteSociale'] ?: null);
+        }
         if (array_key_exists('emploi', $data)) {
             $user->setEmploi($data['emploi'] ?: null);
         }
@@ -795,6 +801,8 @@ class EditeurController extends AbstractController
             'lieuNaissanceDepartement' => $u->getLieuNaissanceDepartement(),
             'sexe' => $u->getSexe(),
             'nationalite' => $u->getNationalite(),
+            'nomNaissance' => $u->getNomNaissance(),
+            'numeroSecuriteSociale' => $u->getNumeroSecuriteSociale(),
             'emploi' => $u->getEmploi(),
             'adresse' => $u->getAdresse(),
             'codePostal' => $u->getCodePostal(),

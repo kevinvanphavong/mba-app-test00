@@ -11,6 +11,7 @@ use App\Repository\TutorielRepository;
 use App\Repository\UserRepository;
 use App\Repository\ZoneRepository;
 use App\Service\ActiveDayResolver;
+use App\Service\RegistreCompletudeService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,6 +36,7 @@ class StaffController extends AbstractController
         private readonly ZoneRepository $zoneRepo,
         private readonly UserPasswordHasherInterface $hasher,
         private readonly ActiveDayResolver $activeDayResolver,
+        private readonly RegistreCompletudeService $completudeService,
     ) {
     }
 
@@ -47,7 +49,10 @@ class StaffController extends AbstractController
         /** @var User $me */
         $me = $this->getUser();
         $centre = $me->getCentre();
-        $isManager = in_array(User::ROLE_MANAGER, $me->getRoles(), true);
+        // getRoles() renvoie les rôles préfixés ('ROLE_MANAGER') ; on compare donc
+        // au rôle métier brut (User::ROLE_MANAGER === 'MANAGER'), sinon $isManager
+        // est toujours faux et le manager ne voit que sa propre fiche RH.
+        $isManager = in_array($me->getRole(), [User::ROLE_MANAGER, User::ROLE_SUPERADMIN], true);
 
         if (!$centre) {
             return $this->json([
@@ -118,6 +123,8 @@ class StaffController extends AbstractController
                 'lieuNaissanceDepartement' => $exposeContract ? $user->getLieuNaissanceDepartement() : null,
                 'sexe' => $exposeContract ? $user->getSexe() : null,
                 'nationalite' => $exposeContract ? $user->getNationalite() : null,
+                'nomNaissance' => $exposeContract ? $user->getNomNaissance() : null,
+                'numeroSecuriteSociale' => $exposeContract ? $user->getNumeroSecuriteSociale() : null,
                 'emploi' => $exposeContract ? $user->getEmploi() : null,
                 'adresse' => $exposeContract ? $user->getAdresse() : null,
                 'codePostal' => $exposeContract ? $user->getCodePostal() : null,
@@ -127,6 +134,8 @@ class StaffController extends AbstractController
                 // un employé voit qui est parti, mais ne peut pas les écrire).
                 'dateSortie' => $user->getDateSortie()?->format('Y-m-d'),
                 'motifSortie' => $user->getMotifSortie(),
+                // Complétude RUP (E1) — manager OU soi-même uniquement.
+                'completude' => $exposeContract ? $this->completudeService->evaluer($user) : null,
                 'staffCompetences' => $staffComps,
                 'tutorielsLus' => $tutorielsLus,
                 'isPresent' => in_array($user->getId(), $presentUserIds, true),

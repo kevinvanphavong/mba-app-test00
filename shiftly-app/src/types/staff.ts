@@ -16,6 +16,14 @@ export interface StaffCompetenceItem {
 
 export type Sexe = 'M' | 'F'
 
+/** Complétude RUP d'une fiche (E1) — null si non exposé (employé regardant un autre). */
+export interface CompletudeRegistre {
+  score:     number
+  total:     number
+  complet:   boolean
+  manquants: { champ: string; label: string }[]
+}
+
 /** Enum applicatif aligné sur App\Entity\User::MOTIFS_SORTIE côté Symfony. */
 export type MotifSortie =
   | 'demission'
@@ -49,6 +57,8 @@ export interface StaffMember {
   lieuNaissanceDepartement: string | null
   sexe:        Sexe | null
   nationalite: string | null
+  nomNaissance:          string | null
+  numeroSecuriteSociale: string | null
   emploi:      string | null
   adresse:     string | null
   codePostal:  string | null
@@ -57,6 +67,7 @@ export interface StaffMember {
   /** dateSortie / motifSortie : visibles par tous, écriture MANAGER only. */
   dateSortie:  string | null
   motifSortie: MotifSortie | null
+  completude:  CompletudeRegistre | null
   staffCompetences: StaffCompetenceItem[]
   tutorielsLus:     number
   isPresent:        boolean

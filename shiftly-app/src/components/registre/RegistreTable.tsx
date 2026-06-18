@@ -3,6 +3,7 @@
 import type { StaffMember } from '@/types/staff'
 import { ty } from '@/lib/typography'
 import { CONTRAT_PILL_CLASS, MOTIF_LABELS, fmtFRDate, fullName, initials } from './registreMeta'
+import CompletudeBadge from './CompletudeBadge'
 
 interface Props {
   members: StaffMember[]
@@ -53,7 +54,10 @@ export default function RegistreTable({ members, onEdit }: Props) {
                 {initials(m.prenom, m.nom)}
               </span>
               <div className="min-w-0">
-                <div className="font-semibold text-[13.5px] text-text truncate">{fullName(m.prenom, m.nom)}</div>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-[13.5px] text-text truncate">{fullName(m.prenom, m.nom)}</span>
+                  <CompletudeBadge completude={m.completude} />
+                </div>
                 <div className="text-[11px] text-muted truncate">
                   {m.email} · {m.sexe ?? '?'} · {m.nationalite ?? '—'}
                 </div>

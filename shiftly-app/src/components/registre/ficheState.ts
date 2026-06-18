@@ -16,7 +16,8 @@ export interface FicheState {
   emploi: string
   dateNaissance: string; sexe: Sexe | ''
   lieuNaissanceCommune: string; lieuNaissanceDepartement: string
-  nationalite: string; adresse: string; codePostal: string; ville: string; telephone: string
+  nationalite: string; nomNaissance: string; numeroSecuriteSociale: string
+  adresse: string; codePostal: string; ville: string; telephone: string
 }
 
 export function emptyFicheState(): FicheState {
@@ -28,7 +29,8 @@ export function emptyFicheState(): FicheState {
     emploi: '',
     dateNaissance: '', sexe: '',
     lieuNaissanceCommune: '', lieuNaissanceDepartement: '',
-    nationalite: '', adresse: '', codePostal: '', ville: '', telephone: '',
+    nationalite: '', nomNaissance: '', numeroSecuriteSociale: '',
+    adresse: '', codePostal: '', ville: '', telephone: '',
   }
 }
 
@@ -47,6 +49,8 @@ export function ficheStateFromMember(m: StaffMember): FicheState {
     lieuNaissanceCommune:     m.lieuNaissanceCommune ?? '',
     lieuNaissanceDepartement: m.lieuNaissanceDepartement ?? '',
     nationalite: m.nationalite ?? '',
+    nomNaissance:          m.nomNaissance ?? '',
+    numeroSecuriteSociale: m.numeroSecuriteSociale ?? '',
     adresse:     m.adresse ?? '',
     codePostal:  m.codePostal ?? '',
     ville:       m.ville ?? '',

@@ -17,6 +17,8 @@ interface Props {
   lieuNaissanceCommune:     string
   lieuNaissanceDepartement: string
   nationalite:              string
+  nomNaissance:             string
+  numeroSecuriteSociale:    string
   adresse:                  string
   codePostal:               string
   ville:                    string
@@ -26,6 +28,8 @@ interface Props {
   onLieuNaissanceCommune:     (v: string) => void
   onLieuNaissanceDepartement: (v: string) => void
   onNationalite:              (v: string) => void
+  onNomNaissance:             (v: string) => void
+  onNumeroSecuriteSociale:    (v: string) => void
   onAdresse:                  (v: string) => void
   onCodePostal:               (v: string) => void
   onVille:                    (v: string) => void
@@ -84,12 +88,32 @@ export default function StaffFormEtatCivil(p: Props) {
         </StaffFormField>
       </div>
 
-      <StaffFormField label="Nationalité">
+      <div className="grid grid-cols-2 gap-2.5">
+        <StaffFormField label="Nationalité">
+          <input
+            value={p.nationalite}
+            onChange={(e) => p.onNationalite(e.target.value)}
+            placeholder="Française"
+            className={STAFF_FORM_INPUT}
+          />
+        </StaffFormField>
+        <StaffFormField label="Nom de naissance">
+          <input
+            value={p.nomNaissance}
+            onChange={(e) => p.onNomNaissance(e.target.value)}
+            placeholder="si différent"
+            className={STAFF_FORM_INPUT}
+          />
+        </StaffFormField>
+      </div>
+
+      <StaffFormField label="N° de sécurité sociale">
         <input
-          value={p.nationalite}
-          onChange={(e) => p.onNationalite(e.target.value)}
-          placeholder="Française"
+          value={p.numeroSecuriteSociale}
+          onChange={(e) => p.onNumeroSecuriteSociale(e.target.value)}
+          placeholder="1 85 12 41 018 042 21"
           className={STAFF_FORM_INPUT}
+          maxLength={15}
         />
       </StaffFormField>
 
