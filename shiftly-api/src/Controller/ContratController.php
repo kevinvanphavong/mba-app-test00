@@ -96,7 +96,7 @@ class ContratController extends AbstractController
         }
 
         if (!$this->extraction->isAvailable()) {
-            return $this->json(['error' => 'IA non configurée (ANTHROPIC_API_KEY absente).'], Response::HTTP_SERVICE_UNAVAILABLE);
+            return $this->json(['error' => 'IA non configurée (MISTRAL_API_KEY absente).'], Response::HTTP_SERVICE_UNAVAILABLE);
         }
 
         try {

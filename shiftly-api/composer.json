@@ -7,7 +7,6 @@
         "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "anthropic-ai/sdk": "^0.29.2",
         "api-platform/core": ">=4.3.3",
         "async-aws/s3": "^3.3",
         "doctrine/doctrine-bundle": "*",

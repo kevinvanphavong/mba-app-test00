@@ -39,16 +39,18 @@ class ContratExtractionService
         $medias = $this->mediaRepository->findAllByEntity(MediaEntityType::EmployeDocument, (int) $employe->getId());
         $medias = \array_slice($medias, 0, self::MAX_DOCS);
 
+        // Parts au format Mistral (chat compatible OpenAI) : images en data URI
+        // via image_url, PDF via document_url.
         $content = [];
         foreach ($medias as $media) {
             $object = $this->r2->getObject($media->getStoragePath());
             $mime = $media->getMimeType();
-            $data = base64_encode($object['body']);
+            $dataUri = 'data:'.$mime.';base64,'.base64_encode($object['body']);
 
             if (str_starts_with($mime, 'image/')) {
-                $content[] = ['type' => 'image', 'source' => ['type' => 'base64', 'media_type' => $mime, 'data' => $data]];
+                $content[] = ['type' => 'image_url', 'image_url' => $dataUri];
             } elseif ('application/pdf' === $mime) {
-                $content[] = ['type' => 'document', 'source' => ['type' => 'base64', 'media_type' => $mime, 'data' => $data]];
+                $content[] = ['type' => 'document_url', 'document_url' => $dataUri];
             }
         }
 
