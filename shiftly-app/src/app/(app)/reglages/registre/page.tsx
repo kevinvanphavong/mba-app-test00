@@ -16,6 +16,7 @@ import PageContainer                  from '@/components/layout/PageContainer'
 import RegistreHero                   from '@/components/registre/RegistreHero'
 import RegistreTable                  from '@/components/registre/RegistreTable'
 import ModalRegistreFiche, { type RegistreSaveData } from '@/components/registre/ModalRegistreFiche'
+import ModalRegistreDocs               from '@/components/registre/ModalRegistreDocs'
 import { useStaff, useUpdateStaff }   from '@/hooks/useStaff'
 import { useCurrentUser }             from '@/hooks/useCurrentUser'
 import { useToastStore }              from '@/store/toastStore'
@@ -36,6 +37,7 @@ export default function RegistrePage() {
   const [tab,        setTab]        = useState<RegistreTab>('actifs')
   const [search,     setSearch]     = useState('')
   const [editTarget, setEditTarget] = useState<StaffMember | null>(null)
+  const [docsTarget, setDocsTarget] = useState<StaffMember | null>(null)
   const [exporting,  setExporting]  = useState(false)
 
   const members  = data?.members ?? []
@@ -131,7 +133,7 @@ export default function RegistrePage() {
 
         {isLoading && <div className="py-12 text-center text-muted text-[13px]">Chargement…</div>}
         {isError   && <div className="py-12 text-center text-red text-[13px]">Impossible de charger le registre.</div>}
-        {!isLoading && !isError && <RegistreTable members={ordered} onEdit={(m) => setEditTarget(m)} />}
+        {!isLoading && !isError && <RegistreTable members={ordered} onEdit={(m) => setEditTarget(m)} onDocs={(m) => setDocsTarget(m)} />}
 
         <div className="flex items-start gap-3 px-4 py-3 rounded-[12px] border border-blue/25 bg-blue/8 text-[12px] text-text leading-relaxed">
           <span className="text-[16px] text-blue flex-shrink-0">⚖</span>
@@ -144,6 +146,9 @@ export default function RegistrePage() {
 
       <ModalRegistreFiche open={editTarget !== null} member={editTarget}
         onClose={() => setEditTarget(null)} onSave={handleSave} />
+
+      <ModalRegistreDocs open={docsTarget !== null} member={docsTarget}
+        onClose={() => setDocsTarget(null)} />
     </motion.div>
   )
 }

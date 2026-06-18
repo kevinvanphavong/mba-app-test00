@@ -8,9 +8,10 @@ import CompletudeBadge from './CompletudeBadge'
 interface Props {
   members: StaffMember[]
   onEdit:  (m: StaffMember) => void
+  onDocs:  (m: StaffMember) => void
 }
 
-export default function RegistreTable({ members, onEdit }: Props) {
+export default function RegistreTable({ members, onEdit, onDocs }: Props) {
   if (members.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-14 text-center">
@@ -88,8 +89,16 @@ export default function RegistreTable({ members, onEdit }: Props) {
             <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
+                onClick={() => onDocs(m)}
+                aria-label="Documents & contrats"
+                title="Documents & contrats"
+                className="w-8 h-8 rounded-[8px] border border-border bg-surface2 text-muted hover:text-accent hover:border-accent/40 transition-colors flex items-center justify-center text-[14px]"
+              >📎</button>
+              <button
+                type="button"
                 onClick={() => onEdit(m)}
                 aria-label="Modifier la fiche RH"
+                title="Modifier la fiche RH"
                 className="w-8 h-8 rounded-[8px] border border-border bg-surface2 text-muted hover:text-accent hover:border-accent/40 transition-colors flex items-center justify-center text-[14px]"
               >✎</button>
             </div>

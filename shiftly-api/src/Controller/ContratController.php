@@ -6,6 +6,7 @@ use App\Entity\Contrat;
 use App\Entity\User;
 use App\Repository\ContratRepository;
 use App\Repository\UserRepository;
+use App\Service\ContratExtractionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,6 +29,7 @@ class ContratController extends AbstractController
         private readonly ContratRepository $contratRepository,
         private readonly UserRepository $userRepository,
         private readonly ValidatorInterface $validator,
+        private readonly ContratExtractionService $extraction,
     ) {
     }
 
@@ -79,6 +81,29 @@ class ContratController extends AbstractController
         }
 
         return $this->json(array_map(fn (Contrat $c) => $this->serialize($c), $this->contratRepository->findByUserOrdered($id)));
+    }
+
+    /**
+     * Propose (via IA) un historique de contrats à partir des documents uploadés.
+     * Ne persiste rien : le manager valide ensuite les propositions.
+     */
+    #[Route('/users/{id}/contrats/suggest-from-documents', name: 'suggest', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function suggestFromDocuments(int $id): JsonResponse
+    {
+        $user = $this->findUserInCentre($id);
+        if (!$user) {
+            return $this->json(['error' => 'Employé introuvable'], Response::HTTP_NOT_FOUND);
+        }
+
+        if (!$this->extraction->isAvailable()) {
+            return $this->json(['error' => 'IA non configurée (ANTHROPIC_API_KEY absente).'], Response::HTTP_SERVICE_UNAVAILABLE);
+        }
+
+        try {
+            return $this->json($this->extraction->suggest($user));
+        } catch (\Throwable $e) {
+            return $this->json(['error' => 'Échec de la génération IA : '.$e->getMessage()], Response::HTTP_BAD_GATEWAY);
+        }
     }
 
     #[Route('/users/{id}/contrats', name: 'create', methods: ['POST'], requirements: ['id' => '\d+'])]

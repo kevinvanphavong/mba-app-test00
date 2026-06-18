@@ -47,3 +47,20 @@ export function useDeleteContrat(userId: number) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: qk(userId) }),
   })
 }
+
+/** Proposition IA d'un contrat extrait des documents (non persisté). */
+export interface ContratSuggestion {
+  typeContrat:   string
+  dateDebut:     string | null
+  dateFin:       string | null
+  qualification: string | null
+  heuresHebdo:   number | null
+}
+
+/** Génère via IA des propositions de contrats depuis les documents uploadés. */
+export function useSuggestContratsFromDocs(userId: number) {
+  return useMutation<{ contrats: ContratSuggestion[] }, Error>({
+    mutationFn: () =>
+      api.post(`/users/${userId}/contrats/suggest-from-documents`).then(r => r.data),
+  })
+}

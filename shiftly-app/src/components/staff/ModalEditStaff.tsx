@@ -20,7 +20,6 @@ import StaffFormAvatar             from './StaffFormAvatar'
 import StaffFormContrat            from './StaffFormContrat'
 import StaffFormEquipement         from './StaffFormEquipement'
 import StaffFormAcces              from './StaffFormAcces'
-import StaffFormDocuments          from './StaffFormDocuments'
 
 const DEFAULT_COLOR = '#f97316'
 
@@ -128,7 +127,6 @@ export default function ModalEditStaff({ open, member, onClose, onSave }: Props)
                   onTailleHaut={setTailleHaut} onTailleBas={setTailleBas} onPointure={setPointure} />
                 <StaffFormAcces codePointage={codePointage} actif={actif} showActifRow={isEdit}
                   onCodePointage={setCodePointage} onActif={setActif} />
-                {isEdit && member && <StaffFormDocuments employeId={member.id} />}
               </div>
             </div>
 
