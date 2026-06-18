@@ -14,7 +14,6 @@ import { sheetVariants, backdropVariants } from '@/lib/animations'
 import { useCurrentUser }            from '@/hooks/useCurrentUser'
 import type { StaffMember }          from '@/types/staff'
 import StaffFormDocuments            from '@/components/staff/StaffFormDocuments'
-import StaffFormHistoriqueContrat    from './StaffFormHistoriqueContrat'
 import ContratAiSuggest              from './ContratAiSuggest'
 
 interface Props {
@@ -49,7 +48,6 @@ export default function ModalRegistreDocs({ open, member, onClose }: Props) {
             <div className="flex flex-col gap-[14px] p-5">
               <StaffFormDocuments employeId={member.id} />
               <ContratAiSuggest employeId={member.id} />
-              <StaffFormHistoriqueContrat employeId={member.id} />
             </div>
 
             <footer className="flex items-center justify-end px-6 py-4 border-t border-border bg-surface">
