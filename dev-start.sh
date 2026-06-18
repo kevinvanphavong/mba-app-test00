@@ -13,21 +13,20 @@ symfony server:stop --dir="$ROOT/shiftly-api" 2>/dev/null || true
 echo "==> Nettoyage du cache Next.js (.next)"
 rm -rf "$ROOT/shiftly-app/.next"
 
-# BDD dev = MySQL 8.0 (aligné sur la prod Railway).
-# Mise en place initiale : voir ./setup-mysql-local.sh
-echo "==> Vérification du service MySQL 8.0"
-if command -v brew >/dev/null 2>&1 && brew list mysql@8.0 >/dev/null 2>&1; then
-  export PATH="$(brew --prefix mysql@8.0)/bin:$PATH"
-  brew services start mysql@8.0 >/dev/null 2>&1 || true
+# BDD dev = PostgreSQL 16 via Docker Compose (runtime Colima), cf. docker-compose.yml.
+# DATABASE_URL pointe sur 127.0.0.1:5432 = port du conteneur `db` forwardé par Colima.
+echo "==> Vérification de la base Postgres (Docker Compose / Colima)"
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+  ( cd "$ROOT" && docker compose up -d db >/dev/null 2>&1 ) || true
   for i in $(seq 1 20); do
-    mysqladmin ping --silent 2>/dev/null && break
+    docker compose -f "$ROOT/docker-compose.yml" exec -T db pg_isready -U shiftly >/dev/null 2>&1 && break
     sleep 1
   done
-  mysqladmin ping --silent 2>/dev/null \
-    && echo "   MySQL OK" \
-    || echo "   ⚠️  MySQL ne répond pas — lance ./setup-mysql-local.sh"
+  docker compose -f "$ROOT/docker-compose.yml" exec -T db pg_isready -U shiftly >/dev/null 2>&1 \
+    && echo "   Postgres OK (conteneur db sur 127.0.0.1:5432)" \
+    || echo "   ⚠️  Postgres ne répond pas — vérifie 'docker compose ps' (Colima démarré ?)"
 else
-  echo "   ⚠️  MySQL 8.0 absent — lance ./setup-mysql-local.sh d'abord"
+  echo "   ⚠️  Docker/Colima arrêté — lance 'colima start' puis 'make up'"
 fi
 
 echo "==> Démarrage de l'API Symfony sur http://127.0.0.1:8000"
