@@ -27,6 +27,9 @@ class Reservation
     /** Réservation créée, en attente du règlement de l'acompte (aucun paiement traité). */
     public const STATUT_EN_ATTENTE_ACOMPTE = 'EN_ATTENTE_ACOMPTE';
 
+    /** Acompte encaissé (webhook Stripe signé) : réservation confirmée. */
+    public const STATUT_CONFIRMEE = 'CONFIRMEE';
+
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     private ?int $id = null;
 
@@ -66,6 +69,14 @@ class Reservation
 
     #[ORM\Column(length: 30)]
     private string $statut = self::STATUT_EN_ATTENTE_ACOMPTE;
+
+    /** Id de la session Stripe Checkout de l'acompte (traçabilité, lien paiement↔résa). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripeSessionId = null;
+
+    /** Horodatage de l'encaissement de l'acompte (confirmation via webhook). */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $paidAt = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -196,6 +207,35 @@ class Reservation
     public function setStatut(string $statut): static
     {
         $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function isConfirmee(): bool
+    {
+        return self::STATUT_CONFIRMEE === $this->statut;
+    }
+
+    public function getStripeSessionId(): ?string
+    {
+        return $this->stripeSessionId;
+    }
+
+    public function setStripeSessionId(?string $stripeSessionId): static
+    {
+        $this->stripeSessionId = $stripeSessionId;
+
+        return $this;
+    }
+
+    public function getPaidAt(): ?\DateTimeImmutable
+    {
+        return $this->paidAt;
+    }
+
+    public function setPaidAt(?\DateTimeImmutable $paidAt): static
+    {
+        $this->paidAt = $paidAt;
 
         return $this;
     }
