@@ -30,17 +30,25 @@ use App\Entity\TutoRead;
 use App\Entity\Tutoriel;
 use App\Entity\User;
 use App\Entity\Zone;
+use App\Service\CurrentCentreResolver;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 
 /**
- * Filtre automatiquement toutes les collections API Platform par le centre
- * de l'utilisateur connecté. Garantit l'isolation multi-tenant au niveau BDD.
+ * Filtre automatiquement toutes les collections/items API Platform par le centre
+ * courant. Garantit l'isolation multi-tenant au niveau BDD (CLAUDE.md règle 9).
+ *
+ * **Fail-closed** : le centre courant est résolu par {@see CurrentCentreResolver}
+ * (JWT puis domaine). Si aucun centre n'est résolu, la requête est ramenée à un
+ * jeu de résultats VIDE (et non « pas de filtre ») : jamais de fuite cross-tenant
+ * par absence de centre. Seul le ROLE_SUPERADMIN, global par nature, n'est pas filtré.
  */
 final class CentreQueryExtension implements QueryCollectionExtensionInterface, QueryItemExtensionInterface
 {
-    public function __construct(private readonly Security $security)
-    {
+    public function __construct(
+        private readonly Security $security,
+        private readonly CurrentCentreResolver $centreResolver,
+    ) {
     }
 
     public function applyToCollection(
@@ -69,17 +77,23 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
         string $resourceClass,
         QueryNameGeneratorInterface $queryNameGenerator,
     ): void {
-        $user = $this->security->getUser();
-        if (!$user instanceof User) {
-            return;
-        }
-
-        $centre = $user->getCentre();
-        if (!$centre) {
+        // Le SUPERADMIN opère légitimement sur tous les centres (accès global) :
+        // jamais filtré. C'est la seule dérogation à l'isolation par centre.
+        if ($this->security->isGranted('ROLE_SUPERADMIN')) {
             return;
         }
 
         $alias = $queryBuilder->getRootAliases()[0];
+        $centre = $this->centreResolver->resolve();
+
+        // Fail-closed : aucun centre résolu (ni JWT ni domaine) → résultat vide.
+        // On ne « laisse pas passer » : une requête sans tenant ne voit RIEN.
+        if (null === $centre) {
+            $queryBuilder->andWhere('1 = 0');
+
+            return;
+        }
+
         $paramName = $queryNameGenerator->generateParameterName('centreId');
         $centreId = $centre->getId();
 
