@@ -17,4 +17,13 @@ class CentreRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['slug' => $slug]);
     }
+
+    /**
+     * Résolution publique du tenant : un host (domaine) → son centre.
+     * Retourne null si aucun centre ne revendique ce domaine.
+     */
+    public function findOneByDomaine(string $domaine): ?Centre
+    {
+        return $this->findOneBy(['domaine' => $domaine]);
+    }
 }

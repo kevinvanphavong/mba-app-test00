@@ -57,6 +57,17 @@ class Centre
     #[Groups(['centre:read', 'centre:write'])]
     private ?string $slug = null;
 
+    /**
+     * Domaine/host public de ce centre (ex. « reservation.monbowling.fr »).
+     * Sert au résolveur de tenant *public* : host → centre. Unique pour qu'un
+     * domaine ne pointe jamais vers deux centres. Lecture seule via l'API : il
+     * est administré hors-bande (superadmin/migration), jamais posé par le client
+     * — sinon un centre pourrait détourner la résolution publique d'un autre.
+     */
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    #[Groups(['centre:read'])]
+    private ?string $domaine = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['centre:read', 'centre:write'])]
     private ?string $adresse = null;
@@ -247,6 +258,18 @@ class Centre
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getDomaine(): ?string
+    {
+        return $this->domaine;
+    }
+
+    public function setDomaine(?string $domaine): static
+    {
+        $this->domaine = $domaine;
 
         return $this;
     }
