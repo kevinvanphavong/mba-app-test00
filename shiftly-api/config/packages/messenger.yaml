@@ -19,6 +19,7 @@ framework:
             Symfony\Component\Mailer\Messenger\SendEmailMessage: async
             App\Message\CleanupR2ObjectMessage: async
             App\Message\LogAuditEventMessage: async
+            App\Message\ReservationConfirmeeMessage: async
 
 when@test:
     framework:

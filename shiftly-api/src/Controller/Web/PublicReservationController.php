@@ -3,9 +3,12 @@
 namespace App\Controller\Web;
 
 use App\Dto\CreateReservationInput;
+use App\Entity\Reservation;
 use App\Exception\PrestationNonReservableException;
+use App\Repository\ReservationRepository;
 use App\Service\CurrentCentreResolver;
 use App\Service\ReservationCreator;
+use App\Service\ReservationPaymentService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
@@ -24,6 +27,8 @@ class PublicReservationController extends AbstractController
     public function __construct(
         private readonly CurrentCentreResolver $centreResolver,
         private readonly ReservationCreator $reservationCreator,
+        private readonly ReservationRepository $reservations,
+        private readonly ReservationPaymentService $paymentService,
     ) {
     }
 
@@ -53,5 +58,55 @@ class PublicReservationController extends AbstractController
             'montantTotalCents' => $reservation->getMontantTotalCents(),
             'acompteCents' => $reservation->getAcompteCents(),
         ], 201);
+    }
+
+    /**
+     * Démarre le paiement de l'acompte : renvoie l'URL Stripe Checkout hébergée.
+     * Isolation : la résa doit appartenir au centre résolu par host (sinon 404).
+     */
+    #[Route('/api/public/reservations/{id}/checkout', name: 'public_reservation_checkout', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function checkout(int $id): JsonResponse
+    {
+        $reservation = $this->ownReservationOr404($id);
+
+        // Déjà payée : pas de nouvelle session (idempotence côté UX).
+        if ($reservation->isConfirmee()) {
+            return $this->json(['message' => 'Réservation déjà confirmée.'], 409);
+        }
+
+        return $this->json(['url' => $this->paymentService->createCheckoutUrl($reservation)]);
+    }
+
+    /**
+     * Lecture publique du statut d'une réservation (page de retour succès/annulé).
+     * Bornée au centre résolu par host ; ne renvoie aucune donnée d'un autre tenant.
+     */
+    #[Route('/api/public/reservations/{id}', name: 'public_reservation_show', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function show(int $id): JsonResponse
+    {
+        $reservation = $this->ownReservationOr404($id);
+
+        return $this->json([
+            'id' => $reservation->getId(),
+            'statut' => $reservation->getStatut(),
+            'prestation' => $reservation->getPrestation()?->getNom(),
+            'acompteCents' => $reservation->getAcompteCents(),
+        ]);
+    }
+
+    /** Résout la réservation du centre courant (host), 404 sinon (anti cross-tenant). */
+    private function ownReservationOr404(int $id): Reservation
+    {
+        $centre = $this->centreResolver->resolveByHost();
+        if (null === $centre || !$centre->isActif()) {
+            throw $this->createNotFoundException();
+        }
+
+        $reservation = $this->reservations->findOneForCentre($id, $centre);
+        if (null === $reservation) {
+            throw $this->createNotFoundException('Réservation introuvable pour ce site.');
+        }
+
+        return $reservation;
     }
 }

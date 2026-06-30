@@ -60,6 +60,27 @@ services:
         arguments:
             $acompteRate: '%app.reservation.acompte_rate%'
 
+    # ─── Stripe — paiement de l'acompte ──────────────────────────────────────
+    # Seam testable : le gateway Stripe réel implémente l'interface ; les tests
+    # l'aliasent vers un faux (aucun appel réseau).
+    App\Service\Stripe\CheckoutGatewayInterface: '@App\Service\Stripe\StripeCheckoutGateway'
+
+    App\Service\Stripe\StripeCheckoutGateway:
+        arguments:
+            $stripeSecretKey: '%env(STRIPE_SECRET_KEY)%'
+
+    App\Service\ReservationPaymentService:
+        arguments:
+            $publicSiteBaseUrl: '%env(PUBLIC_SITE_BASE_URL)%'
+
+    App\Controller\Web\StripeWebhookController:
+        arguments:
+            $stripeWebhookSecret: '%env(STRIPE_WEBHOOK_SECRET)%'
+
+    App\MessageHandler\ReservationConfirmeeHandler:
+        arguments:
+            $fromEmail: '%env(LEAD_NOTIFICATION_EMAIL)%'
+
     # Rate limiter anti brute-force login (cf. rate_limiter.yaml).
     App\EventSubscriber\LoginRateLimitSubscriber:
         arguments:
@@ -71,3 +92,10 @@ services:
         decorates: lexik_jwt_authentication.extractor.chain_extractor
         arguments:
             $inner: '@.inner'
+
+when@test:
+    services:
+        # En test : on remplace le gateway Stripe réel par un faux (aucun réseau).
+        App\Tests\Fake\FakeCheckoutGateway:
+            public: true
+        App\Service\Stripe\CheckoutGatewayInterface: '@App\Tests\Fake\FakeCheckoutGateway'
