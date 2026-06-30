@@ -135,7 +135,7 @@ class Service
             $this->managers->add($user);
         }
 
-return $this;
+        return $this;
     }
 
     public function removeManager(User $user): static
