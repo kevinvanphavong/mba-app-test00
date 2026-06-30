@@ -14,6 +14,14 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        # Zone publique de la Branche 1 (site client résolu par domaine, lecture
+        # seule). Strictement bornée à ^/api/public : aucun authenticator n'y tourne
+        # et aucune autre route n'est ouverte. Le reste de l'API garde son firewall.
+        public_web:
+            pattern: ^/api/public
+            stateless: true
+            security: false
+
         superadmin_login:
             pattern: ^/api/superadmin/auth/login
             stateless: true

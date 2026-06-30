@@ -45,6 +45,8 @@ final class CurrentCentreResolver
 
     /**
      * Résolution publique : host de la requête → centre revendiquant ce domaine.
+     * Le host est normalisé avant lookup pour qu'une casse ou un préfixe « www. »
+     * ne masque pas le centre.
      */
     public function resolveByHost(): ?Centre
     {
@@ -53,6 +55,33 @@ final class CurrentCentreResolver
             return null;
         }
 
+        $host = self::normalizeHost($host);
+        if ('' === $host) {
+            return null;
+        }
+
         return $this->centreRepository->findOneByDomaine($host);
+    }
+
+    /**
+     * Normalise un host avant résolution : minuscules, sans port ni préfixe « www. ».
+     * Garantit qu'un même domaine résout toujours le même centre quelle que soit la
+     * forme reçue (« WWW.Bowling-Tours.fr:443 » → « bowling-tours.fr »).
+     */
+    public static function normalizeHost(string $host): string
+    {
+        $host = strtolower(trim($host));
+
+        // Retire un port éventuel (« exemple.fr:8080 » → « exemple.fr »).
+        if (false !== ($pos = strpos($host, ':'))) {
+            $host = substr($host, 0, $pos);
+        }
+
+        // Retire le préfixe « www. ».
+        if (str_starts_with($host, 'www.')) {
+            $host = substr($host, 4);
+        }
+
+        return $host;
     }
 }
