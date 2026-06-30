@@ -2,12 +2,18 @@
 
 namespace App\Tests\Security;
 
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
+use App\Doctrine\CentreQueryExtension;
+use App\Entity\Centre;
 use App\Entity\User;
+use App\Entity\Zone;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 /**
  * Palier 2 — prouve l'isolation multi-tenant sur TOUTES les ressources exposées :
@@ -229,6 +235,97 @@ class CrossTenantTest extends WebTestCase
             $body = json_decode($this->client->getResponse()->getContent(), true);
             $this->assertSame([], $body['events'] ?? null, 'Le dashboard ne doit renvoyer aucun événement du service d\'un autre centre.');
         }
+    }
+
+    /**
+     * Fail-closed : sans aucun centre résolvable (ni JWT ni domaine connu), le
+     * filtre BDD doit ramener un jeu de résultats VIDE — jamais les données d'un
+     * autre tenant par absence de centre. On exerce directement l'extension sur
+     * une collection à centre (Zone), alors que la base contient des zones.
+     */
+    public function testFailClosedSansCentreCollectionVide(): void
+    {
+        // Aucun user authentifié, host inconnu → aucun centre résolu.
+        $this->pushHost('domaine-inconnu.invalid');
+
+        $ids = $this->zoneIdsAfterExtension();
+
+        $this->assertSame([], $ids, 'Sans centre résolu, une collection à centre doit être VIDE (fail-closed).');
+        // Sanity : la base contient pourtant bien des zones (sinon le test ne prouve rien).
+        $this->assertGreaterThan(0, (int) $this->db->fetchOne('SELECT count(*) FROM zone'), 'La base de test doit contenir des zones.');
+    }
+
+    /**
+     * Résolution publique par domaine : si le host de la requête correspond au
+     * `domaine` d'un centre connu (et qu'aucun user n'est authentifié), la
+     * collection ne renvoie QUE les données de ce centre.
+     */
+    public function testResolutionParDomaineLimiteAuCentre(): void
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $centre = $em->getRepository(Centre::class)->find($this->centreA);
+        $centre->setDomaine('resolveur-tenant-test.example');
+        $em->flush();
+
+        $this->pushHost('resolveur-tenant-test.example');
+
+        $ids = $this->zoneIdsAfterExtension();
+        $expected = array_map('intval', $this->db->fetchFirstColumn('SELECT id FROM zone WHERE centre_id = :c', ['c' => $this->centreA]));
+
+        sort($ids);
+        sort($expected);
+        $this->assertSame($expected, $ids, 'Le domaine connu ne doit exposer que les zones de SON centre.');
+        $this->assertNotEmpty($ids, 'Le centre A doit avoir des zones (préalable du test).');
+    }
+
+    /**
+     * Non-régression SUPERADMIN : un super-admin opère légitimement sans centre
+     * unique. Le filtre fail-closed ne doit JAMAIS s'appliquer à lui — il voit les
+     * zones de tous les centres.
+     */
+    public function testSuperAdminNEstPasFiltreParCentre(): void
+    {
+        $superadmin = (new User())
+            ->setEmail('superadmin-resolveur-test@shiftly.test')
+            ->setRole(User::ROLE_SUPERADMIN);
+        static::getContainer()->get('security.token_storage')
+            ->setToken(new UsernamePasswordToken($superadmin, 'api', $superadmin->getRoles()));
+
+        $ids = $this->zoneIdsAfterExtension();
+
+        $total = (int) $this->db->fetchOne('SELECT count(*) FROM zone');
+        $this->assertCount($total, $ids, 'Le SUPERADMIN ne doit jamais être filtré ni fail-closed par centre.');
+        $this->assertGreaterThan(
+            count($this->db->fetchFirstColumn('SELECT id FROM zone WHERE centre_id = :c', ['c' => $this->centreA])),
+            count($ids),
+            'Le SUPERADMIN voit les zones de plusieurs centres, pas d\'un seul.'
+        );
+    }
+
+    /**
+     * Pousse une requête avec le host donné sur la pile, sans utilisateur
+     * authentifié (contexte public). Le kernel est rebooté à chaque test
+     * (createClient en setUp), donc la pile est repartie de zéro entre les cas.
+     */
+    private function pushHost(string $host): void
+    {
+        static::getContainer()->get('request_stack')->push(Request::create('http://'.$host.'/'));
+    }
+
+    /**
+     * Applique CentreQueryExtension à une collection Zone et renvoie les ids vus.
+     *
+     * @return list<int>
+     */
+    private function zoneIdsAfterExtension(): array
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $qb = $em->createQueryBuilder()->select('z')->from(Zone::class, 'z');
+
+        static::getContainer()->get(CentreQueryExtension::class)
+            ->applyToCollection($qb, new QueryNameGenerator(), Zone::class);
+
+        return array_map(static fn (Zone $z): int => (int) $z->getId(), $qb->getQuery()->getResult());
     }
 
     private function login(string $email, string $password): void

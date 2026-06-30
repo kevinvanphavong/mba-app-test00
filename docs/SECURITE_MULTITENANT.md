@@ -9,6 +9,15 @@
 
 - Tout user porte un `centre` (FK `user.centre_id` NOT NULL). Toute donnée exposée
   rattachable à un centre est filtrée par ce centre.
+- **Centre courant unifié** : `App\Service\CurrentCentreResolver` est la source unique
+  du tenant. Ordre : (1) centre du JWT si user authentifié, sinon (2) centre résolu par
+  le **domaine** (host) de la requête — `Centre.domaine` unique, contexte public —, sinon
+  (3) **aucun**. Le domaine est lu du host réel, jamais d'un paramètre client.
+- **Fail-closed** : si `CurrentCentreResolver` ne résout aucun centre, `CentreQueryExtension`
+  ramène la requête à un **jeu vide** (`WHERE 1 = 0`), jamais « pas de filtre ». Une requête
+  sans tenant ne voit RIEN — pas de fuite par absence de centre.
+- **SUPERADMIN** : seule dérogation. `ROLE_SUPERADMIN` opère globalement (sans centre unique)
+  et n'est jamais filtré par l'extension.
 - **Lecture** (GetCollection + Get item) : `CentreQueryExtension` ajoute le filtre au
   QueryBuilder → un item d'un autre centre est *introuvable* (404), jamais 200.
 - **Écriture** (Put/Patch/Delete) : l'item est d'abord lu par le provider (donc filtré
@@ -99,3 +108,11 @@ un manager du centre, donc la garde s'applique normalement).
 `tests/Security/CrossTenantTest.php` : 2 centres réels (fixtures), pour chaque ressource
 exposée → collection (le user A ne voit que A), item B lu par A → 404, écriture (DELETE)
 sur item B → 403/404/405. Jamais de fuite ni d'écriture cross-tenant. Vert en CI.
+
+Cas fail-closed / résolution publique (ajoutés avec `CurrentCentreResolver`) :
+- `testFailClosedSansCentreCollectionVide` : sans centre résolu (host inconnu, pas de JWT),
+  une collection à centre = **0 résultat** alors que la base contient des zones.
+- `testResolutionParDomaineLimiteAuCentre` : host = `domaine` d'un centre connu → seules les
+  données de ce centre remontent.
+- `testSuperAdminNEstPasFiltreParCentre` : le `ROLE_SUPERADMIN` voit les zones de tous les
+  centres (jamais filtré ni fail-closed).
