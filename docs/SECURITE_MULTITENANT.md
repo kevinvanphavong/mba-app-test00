@@ -59,6 +59,14 @@
   PlanningWeek, PlanningTemplate*, SupportTicket/Reply/Attachment, Absence, ValidationHebdo,
   CentreNote, CorrectionPointage) : l'isolation est assurée **dans le controller** (filtre
   explicite par le centre du user courant).
+- **Zone publique `^/api/public` (Branche 1, sans JWT)** — `Prestation` (lecture) et
+  `Reservation` (écriture B2C invité) : non exposées via API Platform. Le centre est résolu
+  par le **host** (`CurrentCentreResolver::resolveByHost`, jamais un paramètre client) et
+  l'isolation est **explicite** : `PrestationRepository::findOneActiveForCentre()` filtre
+  par le centre résolu, donc une réservation ne peut référencer qu'une prestation **du même
+  centre** (sinon 404). Host inconnu → 404. Prouvé par `tests/Web/ReservationTest.php` et
+  `tests/Web/PublicSiteTest.php`. Exemptée du header anti-CSRF (firewall `security: false`,
+  pas d'autorité ambiante à détourner).
 
 ## Controllers custom — garde d'appartenance
 
