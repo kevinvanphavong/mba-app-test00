@@ -1,0 +1,40 @@
+// Contrats d'API publique de la Branche 1 (site client résolu par domaine).
+// Alignés EXACTEMENT sur les controllers back :
+//   - GET  /api/public/site          → PublicSiteController::show
+//   - POST /api/public/reservations  → PublicReservationController::create
+// Aucun `any` : tout ce qui vient de l'API est typé ici.
+
+/** Une prestation telle qu'exposée publiquement (cf. PublicSiteController). */
+export interface PublicPrestation {
+  id:        number
+  nom:       string
+  description: string | null
+  prixCents: number
+}
+
+/** Réponse de GET /api/public/site. */
+export interface PublicSite {
+  centre:      string
+  prestations: PublicPrestation[]
+}
+
+/** Corps attendu par POST /api/public/reservations (cf. CreateReservationInput). */
+export interface CreateReservationBody {
+  prestationId: number
+  dateCreneau:  string // ISO 8601, créneau futur
+  nbPersonnes:  number
+  nom:          string
+  email:        string
+  telephone:    string
+}
+
+/** Réponse 201 de POST /api/public/reservations. */
+export interface ReservationResult {
+  id:                number
+  statut:            string
+  prestation:        string | null
+  dateCreneau:       string | null
+  nbPersonnes:       number
+  montantTotalCents: number
+  acompteCents:      number
+}
