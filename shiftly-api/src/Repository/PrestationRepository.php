@@ -18,6 +18,26 @@ class PrestationRepository extends ServiceEntityRepository
     }
 
     /**
+     * Prestation active d'un centre donné par son id — ou null.
+     *
+     * Verrou cross-tenant de la réservation publique : le filtre `centre = :centre`
+     * est explicite, donc une prestation appartenant à un AUTRE centre (ou inactive,
+     * ou inexistante) renvoie null. Une réservation ne peut jamais cibler la
+     * prestation d'un autre tenant via un id deviné.
+     */
+    public function findOneActiveForCentre(int $id, Centre $centre): ?Prestation
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.id = :id')
+            ->andWhere('p.centre = :centre')
+            ->andWhere('p.actif = true')
+            ->setParameter('id', $id)
+            ->setParameter('centre', $centre)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
      * Prestations publiquement affichables d'un centre donné, dans l'ordre voulu.
      *
      * Le filtre par centre est explicite (`centre = :centre`) : la lecture publique

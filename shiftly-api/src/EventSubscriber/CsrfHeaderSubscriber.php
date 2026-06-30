@@ -15,8 +15,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * passer le preflight CORS — or le CORS n'autorise que l'origine du front. Donc
  * une requête forgée depuis un autre site est rejetée (403) avant le controller.
  *
- * Endpoints publics exemptés : login (app + superadmin) et capture de leads —
- * appelés sans session établie, et déjà protégés par le rate limiter.
+ * Endpoints publics exemptés : login (app + superadmin), capture de leads, et toute
+ * la zone publique `^/api/public` (site client + réservation B2C) — appelés sans
+ * session ni JWT établis (firewall `security: false`), donc sans autorité ambiante
+ * qu'une requête forgée pourrait détourner : le CSRF n'a pas de prise.
  */
 class CsrfHeaderSubscriber implements EventSubscriberInterface
 {
@@ -55,6 +57,10 @@ class CsrfHeaderSubscriber implements EventSubscriberInterface
             return;
         }
         if (\in_array($path, self::EXEMPT_PATHS, true)) {
+            return;
+        }
+        // Zone publique sans session/JWT (firewall security:false) : pas de risque CSRF.
+        if (str_starts_with($path, '/api/public/')) {
             return;
         }
 

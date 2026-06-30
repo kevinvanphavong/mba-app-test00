@@ -10,6 +10,9 @@ parameters:
     # Hash bcrypt de "bowling123" (cost 12) — utilisé dans les fixtures
     fixture_password_hash: '$2y$12$6Cg1WMC8d0t5GWoKq4fBZOzb1f.5GXXjMd3WQq7Sk5Y7I7UfEg7da'
 
+    # Part d'acompte exigée à la réservation B2C (0.20 = 20%). Paramétrable.
+    app.reservation.acompte_rate: 0.20
+
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -51,6 +54,11 @@ services:
     App\Controller\LeadController:
         arguments:
             $leadCreationLimiter: '@limiter.lead_creation'
+
+    # Taux d'acompte des réservations B2C (paramétrable, défaut 20%).
+    App\Service\ReservationCreator:
+        arguments:
+            $acompteRate: '%app.reservation.acompte_rate%'
 
     # Rate limiter anti brute-force login (cf. rate_limiter.yaml).
     App\EventSubscriber\LoginRateLimitSubscriber:
