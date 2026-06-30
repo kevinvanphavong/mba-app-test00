@@ -72,7 +72,7 @@ export default function StepAcompte({
           disabled={!ready || isPending}
           className="flex-1 rounded-pill bg-accent px-6 py-3 font-sans font-semibold text-accent-on transition-opacity disabled:opacity-40"
         >
-          {isPending ? 'Enregistrement…' : `Réserver · acompte ${formatCents(acompte)}`}
+          {isPending ? 'Redirection vers le paiement…' : `Payer l’acompte · ${formatCents(acompte)}`}
         </button>
       </div>
     </div>
