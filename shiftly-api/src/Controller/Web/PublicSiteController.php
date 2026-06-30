@@ -46,8 +46,10 @@ class PublicSiteController extends AbstractController
             'centre' => $centre->getNom(),
             'prestations' => array_map(
                 static fn (Prestation $p): array => [
+                    'id' => $p->getId(),
                     'nom' => $p->getNom(),
                     'description' => $p->getDescription(),
+                    'prixCents' => $p->getPrixCents(),
                 ],
                 $prestations,
             ),

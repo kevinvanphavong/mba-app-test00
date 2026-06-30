@@ -42,6 +42,15 @@ class Prestation
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
+    /**
+     * Prix unitaire public en **centimes** (entier, jamais de flottant pour de la
+     * monnaie). Base de calcul du montant d'une réservation (prix × personnes).
+     * 0 = gratuit / non tarifé.
+     */
+    #[ORM\Column(options: ['default' => 0])]
+    #[Assert\PositiveOrZero]
+    private int $prixCents = 0;
+
     /** Ordre d'affichage sur le site public (croissant). */
     #[ORM\Column(options: ['default' => 0])]
     private int $ordre = 0;
@@ -95,6 +104,18 @@ class Prestation
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getPrixCents(): int
+    {
+        return $this->prixCents;
+    }
+
+    public function setPrixCents(int $prixCents): static
+    {
+        $this->prixCents = $prixCents;
 
         return $this;
     }
