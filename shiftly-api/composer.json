@@ -17,6 +17,7 @@
         "lexik/jwt-authentication-bundle": ">=3.2",
         "nelmio/cors-bundle": ">=2.6.1",
         "sentry/sentry-symfony": "^5.10",
+        "stripe/stripe-php": "^20.3",
         "symfony/console": "8.0.*",
         "symfony/doctrine-messenger": "8.0.*",
         "symfony/dotenv": "8.0.*",
