@@ -58,6 +58,12 @@
   filtrée sur `id = centreId` (avant le palier 2 elle listait **tous** les tenants — fuite corrigée).
 - **Lead**, **AuditLog** : entités globales **SUPERADMIN uniquement** (pas de centre).
   `LeadVoter` = `ROLE_SUPERADMIN`. Hors périmètre multi-tenant tenant.
+- **Console agence** (`^/api/superadmin/console`, `AgenceKpiService`) : **agrégation cross-tenant
+  VOLONTAIRE**, réservée `ROLE_SUPERADMIN` (firewall + access_control + `#[IsGranted]`). Requêtes
+  SQL directes (hors API Platform, donc hors `CentreQueryExtension`) — c'est l'usage légitime du
+  bypass super-admin, jamais accessible à un manager. **Lecture seule** sur les données clients
+  (seule écriture : `Centre.abonnementMensuelCents`, réglé par le super-admin). Le résumé IA tourne
+  sur un budget PLATEFORME distinct (`PlateformeIaQuota`), jamais le quota d'un client.
 - **MissionCategorie** : avant le palier 2, absente de l'extension → `/api/mission_categories`
   listait toutes les catégories de tous les centres (fuite corrigée).
 - Entités **non exposées via API Platform** (gérées par controllers custom : Pointage,
