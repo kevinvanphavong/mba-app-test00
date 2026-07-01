@@ -46,6 +46,8 @@
 | TutoRead | via `user` | ✅ | TutoReadVoter | VIEW/CREATE/DELETE |
 | Completion | via `poste→service` | ✅ | CompletionVoter | VIEW/EDIT/CREATE/DELETE |
 | Media | direct (dénormalisé) | — (voter only) | MediaVoter | MEDIA_VIEW/DELETE/UPLOAD (centre du parent) |
+| **DemandeB2B** | direct | ✅ | **DemandeB2BVoter** | GetCollection/Get/Patch (gérant) — écrite par le controller public `POST /api/public/demandes` (host) |
+| **Devis** | direct | ✅ | **DevisVoter** | GetCollection/Get/Patch (gérant) — brouillon IA rattaché à une demande, jamais envoyé auto |
 
 ## Cas particuliers (décisions explicites)
 

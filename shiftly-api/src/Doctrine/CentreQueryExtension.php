@@ -11,6 +11,8 @@ use App\Entity\Centre;
 use App\Entity\Competence;
 use App\Entity\Completion;
 use App\Entity\CompletionHaccpProof;
+use App\Entity\DemandeB2B;
+use App\Entity\Devis;
 use App\Entity\EventLog;
 use App\Entity\HaccpEquipement;
 use App\Entity\Incident;
@@ -126,6 +128,8 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
                 HaccpEquipement::class,
                 MissionHaccpSpec::class,
                 CompletionHaccpProof::class,
+                DemandeB2B::class,
+                Devis::class,
             ], true) => $queryBuilder
                 ->andWhere("{$alias}.centre = :{$paramName}")
                 ->setParameter($paramName, $centreId),
