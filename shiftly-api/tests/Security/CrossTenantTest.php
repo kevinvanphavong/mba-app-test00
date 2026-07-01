@@ -5,6 +5,8 @@ namespace App\Tests\Security;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use App\Doctrine\CentreQueryExtension;
 use App\Entity\Centre;
+use App\Entity\DemandeB2B;
+use App\Entity\Devis;
 use App\Entity\User;
 use App\Entity\Zone;
 use Doctrine\DBAL\Connection;
@@ -47,6 +49,8 @@ class CrossTenantTest extends WebTestCase
             'missions' => ['path' => '/api/missions',            'idsSql' => 'SELECT m.id FROM mission m JOIN zone z ON m.zone_id = z.id WHERE z.centre_id = :c'],
             'competences' => ['path' => '/api/competences',         'idsSql' => 'SELECT cp.id FROM competence cp JOIN zone z ON cp.zone_id = z.id WHERE z.centre_id = :c'],
             'postes' => ['path' => '/api/postes',              'idsSql' => 'SELECT p.id FROM poste p JOIN service s ON p.service_id = s.id WHERE s.centre_id = :c'],
+            'demandes' => ['path' => '/api/demande_b2_bs',       'idsSql' => 'SELECT id FROM demande_b2b WHERE centre_id = :c'],
+            'devis' => ['path' => '/api/devis',               'idsSql' => 'SELECT id FROM devis WHERE centre_id = :c'],
         ];
     }
 
@@ -75,6 +79,22 @@ class CrossTenantTest extends WebTestCase
         [$this->centreA, $this->centreB] = [(int) $centres[0], (int) $centres[1]];
 
         $this->emailA = $this->setKnownPassword($em, $hasher, $this->centreA);
+
+        // Une demande B2B + un devis par centre : de quoi prouver l'isolation B2B.
+        $this->seedB2b($em, $this->centreA);
+        $this->seedB2b($em, $this->centreB);
+    }
+
+    private function seedB2b(EntityManagerInterface $em, int $centreId): void
+    {
+        $centre = $em->getRepository(Centre::class)->find($centreId);
+        $demande = (new DemandeB2B())
+            ->setCentre($centre)->setNomContact('X')->setEmail('x@y.fr')->setTelephone('0600000000')
+            ->setTypeEvenement('Séminaire')->setMessage('Demande de test.');
+        $devis = (new Devis())->setCentre($centre)->setDemande($demande)->setLignes([])->setTotalCents(0);
+        $em->persist($demande);
+        $em->persist($devis);
+        $em->flush();
     }
 
     private function setKnownPassword(EntityManagerInterface $em, UserPasswordHasherInterface $hasher, int $centreId): string
@@ -155,10 +175,13 @@ class CrossTenantTest extends WebTestCase
         $missionB = $this->db->fetchOne('SELECT m.id FROM mission m JOIN zone z ON m.zone_id = z.id WHERE z.centre_id = :c ORDER BY m.id LIMIT 1', ['c' => $this->centreB]);
         $compB = $this->db->fetchOne('SELECT cp.id FROM competence cp JOIN zone z ON cp.zone_id = z.id WHERE z.centre_id = :c ORDER BY cp.id LIMIT 1', ['c' => $this->centreB]);
         $tutoB = $this->db->fetchOne('SELECT id FROM tutoriel WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
+        $demandeB = $this->db->fetchOne('SELECT id FROM demande_b2b WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
 
         $cases = [
             ['GET', "/api/centres/{$this->centreB}/horaires"],
             ['PUT', "/api/centres/{$this->centreB}/horaires"],
+            // Relance de génération de devis sur une demande d'un autre centre → refusé.
+            ['POST', "/api/demandes/{$demandeB}/generer-devis"],
         ];
         if ($zoneB) {
             $cases[] = ['PUT', "/api/editeur/zones/{$zoneB}"];

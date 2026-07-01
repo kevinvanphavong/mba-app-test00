@@ -108,3 +108,7 @@ when@test:
         App\Tests\Fake\FakeCheckoutGateway:
             public: true
         App\Service\Stripe\CheckoutGatewayInterface: '@App\Tests\Fake\FakeCheckoutGateway'
+        # IA déterministe en test (aucun appel Mistral) pour la génération de devis.
+        App\Tests\Fake\FakeIaGenerator:
+            public: true
+        App\Core\Ia\IaGeneratorInterface: '@App\Tests\Fake\FakeIaGenerator'
