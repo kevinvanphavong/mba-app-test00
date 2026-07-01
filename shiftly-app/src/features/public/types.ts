@@ -14,8 +14,11 @@ export interface PublicPrestation {
 
 /** Réponse de GET /api/public/site. */
 export interface PublicSite {
-  centre:      string
-  prestations: PublicPrestation[]
+  centre:        string
+  heroTitre:     string | null
+  heroSousTitre: string | null
+  description:   string | null
+  prestations:  PublicPrestation[]
 }
 
 /** Corps attendu par POST /api/public/reservations (cf. CreateReservationInput). */

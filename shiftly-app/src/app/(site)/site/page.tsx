@@ -17,7 +17,7 @@ export default function SitePage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <SiteHero centre={data.centre} />
+      <SiteHero centre={data.centre} heroTitre={data.heroTitre} heroSousTitre={data.heroSousTitre} description={data.description} />
 
       <section className="flex flex-col gap-4">
         <h2 className="font-syne text-2xl font-bold text-text">Nos prestations</h2>

@@ -3,8 +3,25 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 
-/** Hero de la vitrine publique : nom du centre + accroche + CTA réservation. */
-export default function SiteHero({ centre }: { centre: string }) {
+/**
+ * Hero de la vitrine publique. Titre/sous-titre/description éditables par le gérant
+ * (avec repli sur des valeurs par défaut). Contenu rendu via JSX → échappé (#5).
+ */
+export default function SiteHero({
+  centre,
+  heroTitre,
+  heroSousTitre,
+  description,
+}: {
+  centre: string
+  heroTitre?: string | null
+  heroSousTitre?: string | null
+  description?: string | null
+}) {
+  const accroche =
+    description ??
+    'Choisis ta prestation, ton créneau, et réserve en quelques secondes. Un acompte confirme — le solde se règle sur place.'
+
   return (
     <section className="overflow-hidden rounded-card border border-border bg-surface">
       <div className="bg-gradient-to-br from-accent/20 to-transparent px-6 py-12 tablet:px-10 tablet:py-16">
@@ -13,7 +30,7 @@ export default function SiteHero({ centre }: { centre: string }) {
           animate={{ opacity: 1, y: 0 }}
           className="font-sans text-sm font-medium uppercase tracking-wide text-accent"
         >
-          Réservation en ligne
+          {heroSousTitre || 'Réservation en ligne'}
         </motion.p>
 
         <motion.h1
@@ -22,13 +39,10 @@ export default function SiteHero({ centre }: { centre: string }) {
           transition={{ delay: 0.05 }}
           className="mt-3 font-syne text-3xl font-extrabold leading-tight text-text tablet:text-5xl"
         >
-          {centre}
+          {heroTitre || centre}
         </motion.h1>
 
-        <p className="mt-4 max-w-xl font-sans text-base text-text-soft">
-          Choisis ta prestation, ton créneau, et réserve en quelques secondes.
-          Un acompte confirme — le solde se règle sur place.
-        </p>
+        <p className="mt-4 max-w-xl font-sans text-base text-text-soft">{accroche}</p>
 
         <Link
           href="/site/reserver"
