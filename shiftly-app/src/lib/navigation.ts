@@ -23,6 +23,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
 
   // Opérations
   { href: '/service',             label: 'Service du jour',   icon: '📋', managerOnly: false, section: 'operations' },
+  { href: '/reservations',        label: 'Réservations',      icon: '🎟️', managerOnly: true,  section: 'operations' },
   { href: '/pointage',            label: 'Pointage',          icon: '⏱️', managerOnly: true,  section: 'operations' },
   { href: '/pointage/validation', label: 'Validation hebdo',  icon: '✓',  managerOnly: true,  section: 'operations' },
 
