@@ -40,7 +40,7 @@ class DemandeB2BCreatorTest extends KernelTestCase
     {
         return new DemandeB2BCreator(
             $this->em,
-            new DevisGenerator($ia, $this->em),
+            new DevisGenerator($ia, $this->em, new \App\Service\DevisLignesNormalizer()),
             static::getContainer()->get(\App\Service\CrmScheduler::class),
             new NullLogger(),
         );

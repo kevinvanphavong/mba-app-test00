@@ -7,17 +7,19 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use App\Repository\DevisRepository;
+use App\State\DevisWriteProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Devis rattaché à une {@see DemandeB2B}, pré-rempli par l'IA (statut BROUILLON).
  * Isolé par `centre`. Éditable par le gérant, **jamais envoyé automatiquement**.
  *
- * Montants en CENTIMES, figés à la génération et calculés côté serveur (jamais
- * fournis/recalculés par le client) : chaque ligne porte son `montantCents`
- * (= quantité × prix unitaire) et le `totalCents` est leur somme.
+ * Montants en CENTIMES : chaque ligne porte son `montantCents` (= quantité × prix
+ * unitaire) et le `totalCents` est leur somme, TOUJOURS recalculés côté serveur
+ * ({@see DevisWriteProcessor}) — jamais un montant/total fourni par le client.
  */
 #[ORM\Entity(repositoryClass: DevisRepository::class)]
 #[ORM\Table(name: 'devis')]
@@ -28,13 +30,17 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [
         new GetCollection(security: "is_granted('ROLE_MANAGER')"),
         new Get(security: "is_granted('ROLE_MANAGER') and is_granted('VIEW', object)"),
-        // Le gérant édite le brouillon (statut, notes) ; total/lignes restent figés.
-        new Patch(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
+        // Édition gérant (lignes/statut/notes) ; total recalculé serveur par le processor.
+        new Patch(
+            security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)",
+            processor: DevisWriteProcessor::class,
+        ),
     ],
 )]
 class Devis
 {
     public const STATUT_BROUILLON = 'BROUILLON';
+    public const STATUT_VALIDE = 'VALIDE';
     public const STATUT_ENVOYE = 'ENVOYE';
     public const STATUT_ACCEPTE = 'ACCEPTE';
     public const STATUT_REFUSE = 'REFUSE';
@@ -57,14 +63,19 @@ class Devis
      * @var list<array{designation: string, quantite: int, prixUnitaireCents: int, montantCents: int}>
      */
     #[ORM\Column(type: Types::JSON)]
-    #[Groups(['devis:read'])]
+    #[Groups(['devis:read', 'devis:write'])]
     private array $lignes = [];
 
+    /** Total en centimes — LECTURE seule côté API : recalculé serveur, jamais écrit par le client. */
     #[ORM\Column]
     #[Groups(['devis:read'])]
     private int $totalCents = 0;
 
     #[ORM\Column(length: 30)]
+    #[Assert\Choice(choices: [
+        self::STATUT_BROUILLON, self::STATUT_VALIDE, self::STATUT_ENVOYE,
+        self::STATUT_ACCEPTE, self::STATUT_REFUSE,
+    ], message: 'Statut de devis invalide.')]
     #[Groups(['devis:read', 'devis:write'])]
     private string $statut = self::STATUT_BROUILLON;
 

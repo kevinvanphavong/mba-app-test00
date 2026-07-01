@@ -44,6 +44,7 @@ final class DevisGenerator
     public function __construct(
         private readonly IaGeneratorInterface $ia,
         private readonly EntityManagerInterface $em,
+        private readonly DevisLignesNormalizer $normalizer,
     ) {
     }
 
@@ -67,16 +68,11 @@ final class DevisGenerator
 
         $lignes = $this->parseLignes($json);
 
-        $total = 0;
-        foreach ($lignes as $l) {
-            $total += $l['montantCents'];
-        }
-
         $devis = (new Devis())
             ->setCentre($centre)
             ->setDemande($demande)
             ->setLignes($lignes)
-            ->setTotalCents($total)
+            ->setTotalCents($this->normalizer->total($lignes))
             ->setStatut(Devis::STATUT_BROUILLON);
 
         $this->em->persist($devis);
@@ -111,26 +107,8 @@ final class DevisGenerator
             throw new IaIndisponibleException('Réponse IA inexploitable pour le devis.');
         }
 
-        $out = [];
-        foreach ($data['lignes'] as $ligne) {
-            if (!\is_array($ligne)) {
-                continue;
-            }
-            $designation = trim((string) ($ligne['designation'] ?? ''));
-            if ('' === $designation) {
-                continue;
-            }
-            $quantite = max(1, (int) ($ligne['quantite'] ?? 1));
-            $prixUnitaireCents = max(0, (int) ($ligne['prixUnitaireCents'] ?? 0));
-
-            $out[] = [
-                'designation' => mb_substr($designation, 0, 255),
-                'quantite' => $quantite,
-                'prixUnitaireCents' => $prixUnitaireCents,
-                'montantCents' => $quantite * $prixUnitaireCents,
-            ];
-        }
-
+        // Montants recalculés côté serveur (même règle que l'édition gérant).
+        $out = $this->normalizer->normaliser($data['lignes']);
         if ([] === $out) {
             throw new IaIndisponibleException('Aucune ligne de devis exploitable.');
         }
