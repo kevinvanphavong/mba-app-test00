@@ -95,6 +95,13 @@ class Avis
         return $this->contact;
     }
 
+    /** Nom du contact auteur, si connu (déchiffré, gérant autorisé) — pour l'affichage. */
+    #[Groups(['avis:read'])]
+    public function getContactNom(): ?string
+    {
+        return $this->contact?->getNom();
+    }
+
     public function setContact(?Contact $contact): static
     {
         $this->contact = $contact;

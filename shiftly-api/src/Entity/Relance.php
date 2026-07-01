@@ -99,6 +99,13 @@ class Relance
         return $this->contact;
     }
 
+    /** Nom du contact ciblé (déchiffré, gérant autorisé du centre) — pour l'affichage. */
+    #[Groups(['relance:read'])]
+    public function getContactNom(): ?string
+    {
+        return $this->contact?->getNom();
+    }
+
     public function setContact(?Contact $contact): static
     {
         $this->contact = $contact;
