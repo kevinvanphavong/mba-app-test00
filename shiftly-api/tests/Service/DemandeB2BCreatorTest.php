@@ -38,7 +38,12 @@ class DemandeB2BCreatorTest extends KernelTestCase
 
     private function makeCreator(IaGeneratorInterface $ia): DemandeB2BCreator
     {
-        return new DemandeB2BCreator($this->em, new DevisGenerator($ia, $this->em), new NullLogger());
+        return new DemandeB2BCreator(
+            $this->em,
+            new DevisGenerator($ia, $this->em),
+            static::getContainer()->get(\App\Service\CrmScheduler::class),
+            new NullLogger(),
+        );
     }
 
     private function input(): CreateDemandeB2BInput

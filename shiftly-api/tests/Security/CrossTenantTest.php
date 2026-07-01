@@ -4,9 +4,12 @@ namespace App\Tests\Security;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use App\Doctrine\CentreQueryExtension;
+use App\Entity\Avis;
 use App\Entity\Centre;
+use App\Entity\Contact;
 use App\Entity\DemandeB2B;
 use App\Entity\Devis;
+use App\Entity\Relance;
 use App\Entity\User;
 use App\Entity\Zone;
 use Doctrine\DBAL\Connection;
@@ -51,6 +54,9 @@ class CrossTenantTest extends WebTestCase
             'postes' => ['path' => '/api/postes',              'idsSql' => 'SELECT p.id FROM poste p JOIN service s ON p.service_id = s.id WHERE s.centre_id = :c'],
             'demandes' => ['path' => '/api/demande_b2_bs',       'idsSql' => 'SELECT id FROM demande_b2b WHERE centre_id = :c'],
             'devis' => ['path' => '/api/devis',               'idsSql' => 'SELECT id FROM devis WHERE centre_id = :c'],
+            'contacts' => ['path' => '/api/contacts',            'idsSql' => 'SELECT id FROM contact WHERE centre_id = :c'],
+            'avis' => ['path' => '/api/avis',               'idsSql' => 'SELECT id FROM avis WHERE centre_id = :c'],
+            'relances' => ['path' => '/api/relances',            'idsSql' => 'SELECT id FROM relance WHERE centre_id = :c'],
         ];
     }
 
@@ -80,9 +86,11 @@ class CrossTenantTest extends WebTestCase
 
         $this->emailA = $this->setKnownPassword($em, $hasher, $this->centreA);
 
-        // Une demande B2B + un devis par centre : de quoi prouver l'isolation B2B.
+        // Demande/devis + contact/avis/relance par centre : de quoi prouver l'isolation.
         $this->seedB2b($em, $this->centreA);
         $this->seedB2b($em, $this->centreB);
+        $this->seedCrm($em, $this->centreA);
+        $this->seedCrm($em, $this->centreB);
     }
 
     private function seedB2b(EntityManagerInterface $em, int $centreId): void
@@ -94,6 +102,19 @@ class CrossTenantTest extends WebTestCase
         $devis = (new Devis())->setCentre($centre)->setDemande($demande)->setLignes([])->setTotalCents(0);
         $em->persist($demande);
         $em->persist($devis);
+        $em->flush();
+    }
+
+    private function seedCrm(EntityManagerInterface $em, int $centreId): void
+    {
+        $centre = $em->getRepository(Centre::class)->find($centreId);
+        $contact = (new Contact())->setCentre($centre)->setNom('C')->setEmail('c@y.fr')
+            ->setEmailHash('hash-'.$centreId)->setSegments([Contact::SEGMENT_B2C]);
+        $avis = (new Avis())->setCentre($centre)->setNote(5)->setCommentaire('Top');
+        $relance = (new Relance())->setCentre($centre)->setContact($contact);
+        $em->persist($contact);
+        $em->persist($avis);
+        $em->persist($relance);
         $em->flush();
     }
 
@@ -176,12 +197,16 @@ class CrossTenantTest extends WebTestCase
         $compB = $this->db->fetchOne('SELECT cp.id FROM competence cp JOIN zone z ON cp.zone_id = z.id WHERE z.centre_id = :c ORDER BY cp.id LIMIT 1', ['c' => $this->centreB]);
         $tutoB = $this->db->fetchOne('SELECT id FROM tutoriel WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
         $demandeB = $this->db->fetchOne('SELECT id FROM demande_b2b WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
+        $avisB = $this->db->fetchOne('SELECT id FROM avis WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
+        $relanceB = $this->db->fetchOne('SELECT id FROM relance WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
 
         $cases = [
             ['GET', "/api/centres/{$this->centreB}/horaires"],
             ['PUT', "/api/centres/{$this->centreB}/horaires"],
-            // Relance de génération de devis sur une demande d'un autre centre → refusé.
+            // Actions gérant sur des ressources d'un autre centre → refusées (404).
             ['POST', "/api/demandes/{$demandeB}/generer-devis"],
+            ['POST', "/api/avis/{$avisB}/rediger-reponse"],
+            ['POST', "/api/relances/{$relanceB}/envoyer"],
         ];
         if ($zoneB) {
             $cases[] = ['PUT', "/api/editeur/zones/{$zoneB}"];
