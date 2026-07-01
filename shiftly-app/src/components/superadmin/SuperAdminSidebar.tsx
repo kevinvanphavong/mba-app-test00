@@ -24,8 +24,9 @@ const sections: NavSection[] = [
   {
     label: 'Phase 1 — Monitoring',
     items: [
-      { label: 'Dashboard', href: '/superadmin',         icon: '📊' },
-      { label: 'Centres',   href: '/superadmin/centres', icon: '🏢', badgeMuted: true },
+      { label: 'Dashboard',      href: '/superadmin',         icon: '📊' },
+      { label: 'Console agence', href: '/superadmin/console', icon: '📈' },
+      { label: 'Centres',        href: '/superadmin/centres', icon: '🏢', badgeMuted: true },
     ],
   },
   {
