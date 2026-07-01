@@ -13,3 +13,21 @@ framework:
             policy: 'sliding_window'
             limit: 5
             interval: '15 minutes'
+
+        # Anti-abus des écritures publiques (^/api/public/*) : réservations, demandes B2B
+        # (qui déclenchent l'IA payante), avis. Clé = IP + centre (résolu par host), donc
+        # l'abus d'un centre ne pénalise pas les autres. Via PublicRateLimitSubscriber.
+        public_write:
+            policy: 'sliding_window'
+            limit: 20
+            interval: '1 minute'
+
+when@test:
+    framework:
+        rate_limiter:
+            # En test : limite très haute pour ne pas gêner les tests fonctionnels publics
+            # (qui partagent la même clé centre). Le 429 est prouvé en unité (subscriber).
+            public_write:
+                policy: 'sliding_window'
+                limit: 100000
+                interval: '1 minute'

@@ -107,6 +107,11 @@ services:
         arguments:
             $authLoginLimiter: '@limiter.auth_login'
 
+    # Rate limiter anti-abus des écritures publiques (cf. rate_limiter.yaml).
+    App\EventSubscriber\PublicRateLimitSubscriber:
+        arguments:
+            $publicWriteLimiter: '@limiter.public_write'
+
     # Le JWT est lu dans un cookie httpOnly (path-aware) : on décore la chaîne
     # d'extracteurs lexik. Anti-XSS : plus aucun token manipulé par le JS.
     App\Security\PathAwareCookieTokenExtractor:
