@@ -58,6 +58,18 @@ class UpdateCentreController extends AbstractController
             $centre->setSiteWeb(is_string($data['siteWeb']) && '' !== trim($data['siteWeb']) ? trim($data['siteWeb']) : null);
         }
 
+        // Contenu de site : TEXTE SIMPLE. strip_tags en défense (#5) — aucun HTML stocké,
+        // aucun script possible ; l'affichage échappe aussi côté site public et cockpit.
+        if (array_key_exists('siteHeroTitre', $data)) {
+            $centre->setSiteHeroTitre($this->texteSimple($data['siteHeroTitre'], 150));
+        }
+        if (array_key_exists('siteHeroSousTitre', $data)) {
+            $centre->setSiteHeroSousTitre($this->texteSimple($data['siteHeroSousTitre'], 200));
+        }
+        if (array_key_exists('siteDescription', $data)) {
+            $centre->setSiteDescription($this->texteSimple($data['siteDescription'], 2000));
+        }
+
         $this->em->flush();
 
         return $this->json([
@@ -66,6 +78,20 @@ class UpdateCentreController extends AbstractController
             'adresse' => $centre->getAdresse(),
             'telephone' => $centre->getTelephone(),
             'siteWeb' => $centre->getSiteWeb(),
+            'siteHeroTitre' => $centre->getSiteHeroTitre(),
+            'siteHeroSousTitre' => $centre->getSiteHeroSousTitre(),
+            'siteDescription' => $centre->getSiteDescription(),
         ]);
+    }
+
+    /** Normalise un champ de contenu en texte simple : sans balises, borné, ou null si vide. */
+    private function texteSimple(mixed $value, int $maxLen): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        $clean = trim(strip_tags($value));
+
+        return '' === $clean ? null : mb_substr($clean, 0, $maxLen);
     }
 }

@@ -60,6 +60,7 @@ class CrossTenantTest extends WebTestCase
             'avis' => ['path' => '/api/avis',               'idsSql' => 'SELECT id FROM avis WHERE centre_id = :c'],
             'relances' => ['path' => '/api/relances',            'idsSql' => 'SELECT id FROM relance WHERE centre_id = :c'],
             'reservations' => ['path' => '/api/reservations',        'idsSql' => 'SELECT id FROM reservation WHERE centre_id = :c'],
+            'prestations' => ['path' => '/api/prestations',        'idsSql' => 'SELECT id FROM prestation WHERE centre_id = :c'],
         ];
     }
 

@@ -2,31 +2,50 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\PrestationRepository;
+use App\State\PrestationCreateProcessor;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Prestation — offre commerciale publique d'un centre (ex. « Partie de bowling »,
- * « Session laser game »). Première brique de la Branche 1 (module Web/Site) : ce
- * qu'un visiteur voit sur le site public du client, rattaché par domaine au tenant.
+ * Prestation — offre commerciale publique d'un centre (ex. « Partie de bowling »).
+ * Ce qu'un visiteur voit sur le site public du client, rattaché par domaine au tenant.
  *
- * Distincte des entités internes (Service = créneau d'exploitation, Mission = tâche
- * staff, Poste = poste de travail) : celles-ci ne sont pas destinées au public.
- *
- * **Pas exposée via API Platform** : la seule lecture publique passe par le
- * contrôleur dédié {@see \App\Controller\Web\PublicSiteController}, qui résout le
- * centre par le host et filtre explicitement par ce centre. Aucune surface
- * authentifiée n'est ouverte ici (édition = chantier ultérieur).
+ * **Lecture PUBLIQUE** : via le contrôleur {@see \App\Controller\Web\PublicSiteController}
+ * (host → centre). **Écriture/CRUD GÉRANT** : via API Platform (ROLE_MANAGER), isolée
+ * par CentreQueryExtension + {@see \App\Security\Voter\PrestationVoter}. À la création,
+ * le centre est imposé côté serveur ({@see PrestationCreateProcessor}).
  */
 #[ORM\Entity(repositoryClass: PrestationRepository::class)]
 #[ORM\Table(name: 'prestation')]
 #[ORM\Index(name: 'idx_prestation_centre', columns: ['centre_id'])]
 #[ORM\HasLifecycleCallbacks]
+#[ApiResource(
+    normalizationContext: ['groups' => ['prestation:read']],
+    denormalizationContext: ['groups' => ['prestation:write']],
+    operations: [
+        new GetCollection(security: "is_granted('ROLE_MANAGER')"),
+        new Get(security: "is_granted('ROLE_MANAGER') and is_granted('VIEW', object)"),
+        new Post(security: "is_granted('ROLE_MANAGER')", processor: PrestationCreateProcessor::class),
+        new Patch(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
+        new Delete(security: "is_granted('ROLE_MANAGER') and is_granted('DELETE', object)"),
+    ],
+)]
+#[ApiFilter(OrderFilter::class, properties: ['ordre', 'nom'])]
 class Prestation
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
+    #[Groups(['prestation:read'])]
     private ?int $id = null;
 
     /** Tenant propriétaire : toute prestation appartient à un centre (isolation). */
@@ -37,9 +56,12 @@ class Prestation
     #[ORM\Column(length: 120)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 120)]
+    #[Groups(['prestation:read', 'prestation:write'])]
     private ?string $nom = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(max: 2000)]
+    #[Groups(['prestation:read', 'prestation:write'])]
     private ?string $description = null;
 
     /**
@@ -48,18 +70,22 @@ class Prestation
      * 0 = gratuit / non tarifé.
      */
     #[ORM\Column(options: ['default' => 0])]
-    #[Assert\PositiveOrZero]
+    #[Assert\PositiveOrZero(message: 'Le prix ne peut pas être négatif.')]
+    #[Groups(['prestation:read', 'prestation:write'])]
     private int $prixCents = 0;
 
     /** Ordre d'affichage sur le site public (croissant). */
     #[ORM\Column(options: ['default' => 0])]
+    #[Groups(['prestation:read', 'prestation:write'])]
     private int $ordre = 0;
 
     /** Masquage public sans suppression (une prestation inactive n'est jamais servie). */
     #[ORM\Column(options: ['default' => true])]
+    #[Groups(['prestation:read', 'prestation:write'])]
     private bool $actif = true;
 
     #[ORM\Column]
+    #[Groups(['prestation:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()

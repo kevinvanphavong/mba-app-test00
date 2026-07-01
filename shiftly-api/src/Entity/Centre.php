@@ -84,6 +84,22 @@ class Centre
     #[Groups(['centre:read', 'centre:write'])]
     private ?array $openingHours = null;
 
+    /**
+     * Contenu éditable du site public (texte simple, échappé à l'affichage — #5).
+     * Édité par le gérant (UpdateCentreController), reflété sur GET /api/public/site.
+     */
+    #[ORM\Column(length: 150, nullable: true)]
+    #[Groups(['centre:read'])]
+    private ?string $siteHeroTitre = null;
+
+    #[ORM\Column(length: 200, nullable: true)]
+    #[Groups(['centre:read'])]
+    private ?string $siteHeroSousTitre = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    #[Groups(['centre:read'])]
+    private ?string $siteDescription = null;
+
     /** Tenue de service — affichée dans la fiche staff. Champs descriptifs libres. */
     #[ORM\Column(length: 120, nullable: true)]
     #[Groups(['centre:read', 'centre:write'])]
@@ -202,6 +218,42 @@ class Centre
     public function setOpeningHours(?array $openingHours): static
     {
         $this->openingHours = $openingHours;
+
+        return $this;
+    }
+
+    public function getSiteHeroTitre(): ?string
+    {
+        return $this->siteHeroTitre;
+    }
+
+    public function setSiteHeroTitre(?string $v): static
+    {
+        $this->siteHeroTitre = $v;
+
+        return $this;
+    }
+
+    public function getSiteHeroSousTitre(): ?string
+    {
+        return $this->siteHeroSousTitre;
+    }
+
+    public function setSiteHeroSousTitre(?string $v): static
+    {
+        $this->siteHeroSousTitre = $v;
+
+        return $this;
+    }
+
+    public function getSiteDescription(): ?string
+    {
+        return $this->siteDescription;
+    }
+
+    public function setSiteDescription(?string $v): static
+    {
+        $this->siteDescription = $v;
 
         return $this;
     }

@@ -44,6 +44,10 @@ class PublicSiteController extends AbstractController
 
         return $this->json([
             'centre' => $centre->getNom(),
+            'heroTitre' => $centre->getSiteHeroTitre(),
+            'heroSousTitre' => $centre->getSiteHeroSousTitre(),
+            'description' => $centre->getSiteDescription(),
+            'horaires' => $centre->getOpeningHours(),
             'prestations' => array_map(
                 static fn (Prestation $p): array => [
                     'id' => $p->getId(),

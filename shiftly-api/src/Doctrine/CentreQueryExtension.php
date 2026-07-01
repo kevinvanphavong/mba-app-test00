@@ -28,6 +28,7 @@ use App\Entity\Pointage;
 use App\Entity\PointageCorrection;
 use App\Entity\PointagePause;
 use App\Entity\Poste;
+use App\Entity\Prestation;
 use App\Entity\Relance;
 use App\Entity\Reservation;
 use App\Entity\Service;
@@ -138,6 +139,7 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
                 Avis::class,
                 Relance::class,
                 Reservation::class,
+                Prestation::class,
             ], true) => $queryBuilder
                 ->andWhere("{$alias}.centre = :{$paramName}")
                 ->setParameter($paramName, $centreId),
