@@ -7,10 +7,12 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Absence;
+use App\Entity\Avis;
 use App\Entity\Centre;
 use App\Entity\Competence;
 use App\Entity\Completion;
 use App\Entity\CompletionHaccpProof;
+use App\Entity\Contact;
 use App\Entity\DemandeB2B;
 use App\Entity\Devis;
 use App\Entity\EventLog;
@@ -26,6 +28,7 @@ use App\Entity\Pointage;
 use App\Entity\PointageCorrection;
 use App\Entity\PointagePause;
 use App\Entity\Poste;
+use App\Entity\Relance;
 use App\Entity\Service;
 use App\Entity\StaffCompetence;
 use App\Entity\TutoRead;
@@ -130,6 +133,9 @@ final class CentreQueryExtension implements QueryCollectionExtensionInterface, Q
                 CompletionHaccpProof::class,
                 DemandeB2B::class,
                 Devis::class,
+                Contact::class,
+                Avis::class,
+                Relance::class,
             ], true) => $queryBuilder
                 ->andWhere("{$alias}.centre = :{$paramName}")
                 ->setParameter($paramName, $centreId),

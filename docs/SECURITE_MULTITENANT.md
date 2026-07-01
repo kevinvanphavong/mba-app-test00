@@ -48,6 +48,9 @@
 | Media | direct (dénormalisé) | — (voter only) | MediaVoter | MEDIA_VIEW/DELETE/UPLOAD (centre du parent) |
 | **DemandeB2B** | direct | ✅ | **DemandeB2BVoter** | GetCollection/Get/Patch (gérant) — écrite par le controller public `POST /api/public/demandes` (host) |
 | **Devis** | direct | ✅ | **DevisVoter** | GetCollection/Get/Patch (gérant) — brouillon IA rattaché à une demande, jamais envoyé auto |
+| **Contact** | direct | ✅ | **ContactVoter** | GetCollection/Get/Patch (gérant) — **PII chiffrées** (nom/email/tél), dédup par `centre + email_hash` |
+| **Avis** | direct | ✅ | **AvisVoter** | GetCollection/Get/Patch (gérant) — déposé public (`POST /api/public/avis`), réponse IA en brouillon |
+| **Relance** | direct | ✅ | **RelanceVoter** | GetCollection/Get/Patch (gérant) — brouillon no-show créé en async (Messenger), envoyé par un humain |
 
 ## Cas particuliers (décisions explicites)
 
@@ -67,6 +70,12 @@
   fail-closed (pas de centre → aucun appel IA). Le plafond par centre est un coupe-circuit
   atomique (`UPDATE … WHERE appels < plafond`), donc non dépassable en concurrence, et la
   conso d'un centre n'entame jamais le quota d'un autre. Prouvé par `tests/Core/Ia/IaGeneratorTest.php`.
+- **CRM (`Contact`, `Avis`, `Relance`)** — isolés par centre + voters. Les **PII des contacts**
+  (nom, email, téléphone) sont **chiffrées au repos** (type Doctrine `encrypted_string` / sodium,
+  clé `PII_ENCRYPTION_KEY` en env) ; la dédup se fait sur `email_hash` (HMAC déterministe), jamais
+  sur l'email en clair, et est bornée au centre (unique `centre + email_hash`). Les effets de bord
+  (dérivation contact, relance no-show différée, demande d'avis, envois email) passent **uniquement
+  par Messenger**, jamais `onFlush`. L'IA rédige des **brouillons** ; un humain envoie/publie.
 - **Zone publique `^/api/public` (Branche 1, sans JWT)** — `Prestation` (lecture) et
   `Reservation` (écriture B2C invité) : non exposées via API Platform. Le centre est résolu
   par le **host** (`CurrentCentreResolver::resolveByHost`, jamais un paramètre client) et
