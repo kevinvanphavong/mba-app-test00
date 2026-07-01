@@ -20,4 +20,9 @@ final class FakeIaGenerator implements IaGeneratorInterface
             ],
         ], JSON_THROW_ON_ERROR);
     }
+
+    public function generatePourPlateforme(string $prompt, array $contexte = []): string
+    {
+        return 'Résumé mensuel (test) : activité stable.';
+    }
 }

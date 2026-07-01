@@ -61,9 +61,18 @@ class IaGeneratorTest extends KernelTestCase
         static::getContainer()->get('request_stack')->push(Request::create('http://'.$host.'/'));
     }
 
-    private function makeGenerator(AiService $ai, int $plafond = self::PLAFOND): IaGenerator
+    private function makeGenerator(AiService $ai, int $plafond = self::PLAFOND, int $plafondPlateforme = self::PLAFOND): IaGenerator
     {
-        return new IaGenerator($ai, $this->resolver, $this->quotas, $this->em, new NullLogger(), $plafond);
+        return new IaGenerator(
+            $ai,
+            $this->resolver,
+            $this->quotas,
+            static::getContainer()->get(\App\Repository\PlateformeIaQuotaRepository::class),
+            $this->em,
+            new NullLogger(),
+            $plafond,
+            $plafondPlateforme,
+        );
     }
 
     private function aiOk(?int $expectedCalls = null): AiService
@@ -168,5 +177,29 @@ class IaGeneratorTest extends KernelTestCase
 
         $this->expectException(IaIndisponibleException::class);
         $this->makeGenerator($ai)->generate('Bonjour');
+    }
+
+    public function testGeneratePourPlateformeConsommeLeBudgetPlateformePasLeQuotaClient(): void
+    {
+        // Aucun centre visité : la génération plateforme ne dépend d'aucun centre.
+        $out = $this->makeGenerator($this->aiOk())->generatePourPlateforme('Résume le mois.');
+
+        $this->assertSame('RÉPONSE IA', $out);
+        // Budget plateforme consommé…
+        $plateforme = (int) $this->db->fetchOne('SELECT COALESCE(appels,0) FROM plateforme_ia_quota WHERE periode = :p', ['p' => $this->periode]);
+        $this->assertSame(1, $plateforme);
+        // …et AUCUN quota client entamé.
+        $this->assertSame(0, $this->appels($this->centreA));
+        $this->assertSame(0, $this->appels($this->centreB));
+    }
+
+    public function testGeneratePourPlateformePlafonnee(): void
+    {
+        $gen = $this->makeGenerator($this->aiOk(2), self::PLAFOND, 2); // plafond plateforme = 2
+        $gen->generatePourPlateforme('1');
+        $gen->generatePourPlateforme('2');
+
+        $this->expectException(IaQuotaDepasseException::class);
+        $gen->generatePourPlateforme('3');
     }
 }
