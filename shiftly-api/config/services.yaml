@@ -60,6 +60,15 @@ services:
         arguments:
             $acompteRate: '%app.reservation.acompte_rate%'
 
+    # ─── Core IA — porte d'entrée unique + quota par centre ───────────────────
+    # Tout usage IA passe par l'interface (jamais AiService en direct).
+    App\Core\Ia\IaGeneratorInterface: '@App\Core\Ia\IaGenerator'
+
+    App\Core\Ia\IaGenerator:
+        arguments:
+            # Plafond DUR d'appels IA par centre et par mois (coupe-circuit coût).
+            $plafondMensuel: '%env(int:IA_PLAFOND_MENSUEL_CENTRE)%'
+
     # ─── Stripe — paiement de l'acompte ──────────────────────────────────────
     # Seam testable : le gateway Stripe réel implémente l'interface ; les tests
     # l'aliasent vers un faux (aucun appel réseau).

@@ -59,6 +59,12 @@
   PlanningWeek, PlanningTemplate*, SupportTicket/Reply/Attachment, Absence, ValidationHebdo,
   CentreNote, CorrectionPointage) : l'isolation est assurée **dans le controller** (filtre
   explicite par le centre du user courant).
+- **Core IA (`IaQuota`, `IaUsage`)** — non exposées via API Platform. Consommées par
+  `App\Core\Ia\IaGenerator` (wrapper d'`AiService`) : le compteur mensuel et le journal
+  sont toujours écrits pour le **centre courant résolu** (`CurrentCentreResolver`) ;
+  fail-closed (pas de centre → aucun appel IA). Le plafond par centre est un coupe-circuit
+  atomique (`UPDATE … WHERE appels < plafond`), donc non dépassable en concurrence, et la
+  conso d'un centre n'entame jamais le quota d'un autre. Prouvé par `tests/Core/Ia/IaGeneratorTest.php`.
 - **Zone publique `^/api/public` (Branche 1, sans JWT)** — `Prestation` (lecture) et
   `Reservation` (écriture B2C invité) : non exposées via API Platform. Le centre est résolu
   par le **host** (`CurrentCentreResolver::resolveByHost`, jamais un paramètre client) et
