@@ -24,4 +24,16 @@ interface IaGeneratorInterface
      * @throws IaIndisponibleException pas de centre, IA non configurée, ou erreur/timeout Mistral
      */
     public function generate(string $prompt, array $contexte = []): string;
+
+    /**
+     * Génère une réponse IA sur le budget PLATEFORME (super-admin), SANS toucher au
+     * quota d'un centre client. Réservé aux outils internes de l'agence (ex. résumé
+     * mensuel de la console). Plafonné par un budget dédié.
+     *
+     * @param array<string, mixed> $contexte options : 'systeme', 'maxTokens'…
+     *
+     * @throws IaQuotaDepasseException plafond IA plateforme atteint
+     * @throws IaIndisponibleException IA non configurée, ou erreur/timeout Mistral
+     */
+    public function generatePourPlateforme(string $prompt, array $contexte = []): string;
 }

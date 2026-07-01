@@ -68,6 +68,8 @@ services:
         arguments:
             # Plafond DUR d'appels IA par centre et par mois (coupe-circuit coût).
             $plafondMensuel: '%env(int:IA_PLAFOND_MENSUEL_CENTRE)%'
+            # Budget IA distinct de la plateforme (super-admin / console agence).
+            $plafondPlateforme: '%env(int:IA_PLAFOND_MENSUEL_PLATEFORME)%'
 
     # ─── Stripe — paiement de l'acompte ──────────────────────────────────────
     # Seam testable : le gateway Stripe réel implémente l'interface ; les tests

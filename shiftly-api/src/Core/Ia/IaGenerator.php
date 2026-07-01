@@ -25,9 +25,11 @@ final class IaGenerator implements IaGeneratorInterface
         private readonly AiService $aiService,
         private readonly CurrentCentreResolver $centreResolver,
         private readonly IaQuotaRepository $quotas,
+        private readonly \App\Repository\PlateformeIaQuotaRepository $plateformeQuotas,
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger,
         private readonly int $plafondMensuel,
+        private readonly int $plafondPlateforme,
     ) {
     }
 
@@ -67,6 +69,30 @@ final class IaGenerator implements IaGeneratorInterface
         $this->em->flush();
 
         return $text;
+    }
+
+    public function generatePourPlateforme(string $prompt, array $contexte = []): string
+    {
+        if (!$this->aiService->isConfigured()) {
+            throw new IaIndisponibleException('IA non configurée.');
+        }
+
+        $periode = (new \DateTimeImmutable())->format('Y-m');
+
+        // Budget PLATEFORME distinct (super-admin) : n'entame jamais le quota d'un
+        // client. Coupe-circuit atomique, race-safe, plafonné.
+        if (!$this->plateformeQuotas->reserve($periode, $this->plafondPlateforme)) {
+            throw new IaQuotaDepasseException(\sprintf('Plafond IA plateforme mensuel atteint (%d appels).', $this->plafondPlateforme));
+        }
+
+        try {
+            return $this->appelMistral($prompt, $contexte);
+        } catch (\Throwable $e) {
+            $this->plateformeQuotas->release($periode);
+            $this->logger->error('Appel IA plateforme échoué', ['error' => $e->getMessage()]);
+
+            throw new IaIndisponibleException('Le service IA est momentanément indisponible.', $e);
+        }
     }
 
     /**

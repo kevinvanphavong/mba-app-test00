@@ -101,6 +101,15 @@ class Centre
     #[Groups(['centre:read'])]
     private bool $actif = true;
 
+    /**
+     * Abonnement mensuel du client À L'AGENCE, en centimes (ce que ce centre paie à
+     * Shiftly/l'agence). Réglé uniquement par le super-admin (console agence). Base du
+     * MRR. Distinct des paiements des clients finaux du centre.
+     */
+    #[ORM\Column(options: ['default' => 0])]
+    #[Groups(['centre:read'])]
+    private int $abonnementMensuelCents = 0;
+
     #[ORM\Column]
     #[Groups(['centre:read'])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -282,6 +291,18 @@ class Centre
     public function setActif(bool $actif): static
     {
         $this->actif = $actif;
+
+        return $this;
+    }
+
+    public function getAbonnementMensuelCents(): int
+    {
+        return $this->abonnementMensuelCents;
+    }
+
+    public function setAbonnementMensuelCents(int $abonnementMensuelCents): static
+    {
+        $this->abonnementMensuelCents = max(0, $abonnementMensuelCents);
 
         return $this;
     }
