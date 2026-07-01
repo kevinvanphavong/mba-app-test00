@@ -90,6 +90,16 @@ services:
         arguments:
             $fromEmail: '%env(LEAD_NOTIFICATION_EMAIL)%'
 
+    # ─── CRM — relances no-show + collecte d'avis (emails via Messenger) ──────
+    App\MessageHandler\DemandeAvisHandler:
+        arguments:
+            $fromEmail: '%env(LEAD_NOTIFICATION_EMAIL)%'
+            $publicSiteBaseUrl: '%env(PUBLIC_SITE_BASE_URL)%'
+
+    App\Controller\RelanceController:
+        arguments:
+            $fromEmail: '%env(LEAD_NOTIFICATION_EMAIL)%'
+
     # Rate limiter anti brute-force login (cf. rate_limiter.yaml).
     App\EventSubscriber\LoginRateLimitSubscriber:
         arguments:

@@ -21,6 +21,7 @@ final class ReservationCreator
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly PrestationRepository $prestationRepository,
+        private readonly CrmScheduler $crmScheduler,
         private readonly float $acompteRate = 0.20,
     ) {
     }
@@ -56,6 +57,9 @@ final class ReservationCreator
 
         $this->em->persist($reservation);
         $this->em->flush();
+
+        // Effets de bord CRM (contact, relance no-show, demande d'avis) via Messenger.
+        $this->crmScheduler->planifierDepuisReservation($reservation);
 
         return $reservation;
     }

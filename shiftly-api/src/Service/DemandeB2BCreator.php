@@ -23,6 +23,7 @@ final class DemandeB2BCreator
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly DevisGenerator $devisGenerator,
+        private readonly CrmScheduler $crmScheduler,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -44,6 +45,9 @@ final class DemandeB2BCreator
         // 1) La demande est enregistrée d'abord — elle ne dépend jamais de l'IA.
         $this->em->persist($demande);
         $this->em->flush();
+
+        // Dérivation du contact CRM (dédup par centre) via Messenger, async.
+        $this->crmScheduler->planifierDepuisDemande($demande);
 
         // 2) Pré-remplissage du devis : best-effort, ne fait jamais échouer la demande.
         try {
