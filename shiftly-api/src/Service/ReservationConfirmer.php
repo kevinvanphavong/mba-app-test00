@@ -41,7 +41,7 @@ final class ReservationConfirmer
             return false;
         }
 
-        // Idempotence : déjà confirmée → aucun effet (event rejoué, double webhook…).
+        // Idempotence rapide : déjà confirmée → aucun effet (event rejoué, séquentiel).
         if ($reservation->isConfirmee()) {
             return false;
         }
@@ -57,13 +57,30 @@ final class ReservationConfirmer
             return false;
         }
 
-        $reservation
-            ->setStatut(Reservation::STATUT_CONFIRMEE)
-            ->setPaidAt(new \DateTimeImmutable());
-        $this->em->flush();
+        // Transition ATOMIQUE EN_ATTENTE_ACOMPTE → CONFIRMEE : le `WHERE statut=...`
+        // est verrouillé ligne par Postgres, donc deux livraisons concurrentes du même
+        // event ne peuvent affecter qu'UNE ligne. On ne dispatche l'email que si on a
+        // gagné la course (1 ligne affectée) → jamais de double confirmation/email.
+        $affected = $this->em->getConnection()->executeStatement(
+            'UPDATE reservation SET statut = :confirmee, paid_at = NOW()
+             WHERE id = :id AND statut = :attente',
+            [
+                'confirmee' => Reservation::STATUT_CONFIRMEE,
+                'attente' => Reservation::STATUT_EN_ATTENTE_ACOMPTE,
+                'id' => $reservationId,
+            ],
+        );
 
-        // Effet de bord async (email) APRÈS le changement de statut, via Messenger.
-        $this->bus->dispatch(new ReservationConfirmeeMessage((int) $reservation->getId()));
+        if (1 !== $affected) {
+            // Une autre livraison a déjà confirmé entre-temps : aucun second effet.
+            return false;
+        }
+
+        // Réaligne l'entité gérée (l'UPDATE brut a court-circuité l'EM).
+        $this->em->refresh($reservation);
+
+        // Effet de bord async (email) APRÈS la transition, via Messenger.
+        $this->bus->dispatch(new ReservationConfirmeeMessage($reservationId));
 
         return true;
     }
