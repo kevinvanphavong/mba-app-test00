@@ -64,6 +64,12 @@ class ContactDeriverTest extends KernelTestCase
         $this->assertNotSame($a->getId(), $b->getId(), 'La dédup ne franchit jamais la frontière du centre.');
         $this->assertSame(1, $this->countContacts($this->centreA));
         $this->assertSame(1, $this->countContacts($this->centreB));
+
+        // Hash SALÉ par centre : le même email a un email_hash DIFFÉRENT selon le centre
+        // → aucune corrélation cross-centre possible via GROUP BY email_hash.
+        $hashA = $this->db->fetchOne('SELECT email_hash FROM contact WHERE centre_id = :c', ['c' => $this->centreA->getId()]);
+        $hashB = $this->db->fetchOne('SELECT email_hash FROM contact WHERE centre_id = :c', ['c' => $this->centreB->getId()]);
+        $this->assertNotSame($hashA, $hashB, 'Le hash du même email doit différer entre centres.');
     }
 
     public function testPiiChiffreesEnBaseEtDechiffrablesEnLecture(): void
@@ -77,8 +83,8 @@ class ContactDeriverTest extends KernelTestCase
         $this->assertNotSame('alice.secret@example.com', $row['email']);
         $this->assertStringNotContainsString('alice.secret@example.com', (string) $row['email']);
         $this->assertStringNotContainsString('0611223344', (string) $row['telephone']);
-        // Le hash de dédup est déterministe (jamais l'email en clair).
-        $this->assertSame($this->cipher->hashEmail('alice.secret@example.com'), $row['email_hash']);
+        // Le hash de dédup est déterministe (jamais l'email en clair) et salé par centre.
+        $this->assertSame($this->cipher->hashEmail('alice.secret@example.com', (int) $this->centreA->getId()), $row['email_hash']);
 
         // Après vidage de l'identity map, la relecture déchiffre correctement.
         $this->em->clear();

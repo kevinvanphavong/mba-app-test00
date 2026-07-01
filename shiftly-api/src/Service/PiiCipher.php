@@ -56,12 +56,16 @@ final class PiiCipher
     /**
      * Hash déterministe d'un email normalisé (minuscules, trim) pour la dédup et
      * l'unicité par centre — jamais réversible, jamais l'email en clair.
+     *
+     * **Salé par centre** : le hash intègre l'id du centre, donc un même email produit
+     * un hash DIFFÉRENT dans chaque centre. Un accès en lecture BDD ne peut plus
+     * corréler une même personne entre centres via `GROUP BY email_hash`.
      */
-    public function hashEmail(string $email): string
+    public function hashEmail(string $email, int $centreId): string
     {
         $this->assertConfigured();
 
-        return hash_hmac('sha256', mb_strtolower(trim($email)), $this->key);
+        return hash_hmac('sha256', $centreId.'|'.mb_strtolower(trim($email)), $this->key);
     }
 
     private function assertConfigured(): void

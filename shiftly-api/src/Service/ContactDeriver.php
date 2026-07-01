@@ -56,7 +56,7 @@ final class ContactDeriver
             return null;
         }
 
-        $hash = $this->cipher->hashEmail($email);
+        $hash = $this->cipher->hashEmail($email, (int) $centre->getId());
 
         $contact = $this->contacts->findOneByCentreAndEmailHash($centre, $hash);
         if (null === $contact) {

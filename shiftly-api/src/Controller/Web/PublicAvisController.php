@@ -45,7 +45,7 @@ class PublicAvisController extends AbstractController
 
         // Rattachement au contact du centre si l'email est connu (via le hash, jamais en clair).
         if (null !== $input->email && '' !== trim($input->email)) {
-            $contact = $this->contacts->findOneByCentreAndEmailHash($centre, $this->cipher->hashEmail($input->email));
+            $contact = $this->contacts->findOneByCentreAndEmailHash($centre, $this->cipher->hashEmail($input->email, (int) $centre->getId()));
             if (null !== $contact) {
                 $avis->setContact($contact);
             }
