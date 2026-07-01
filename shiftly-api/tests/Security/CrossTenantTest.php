@@ -9,7 +9,9 @@ use App\Entity\Centre;
 use App\Entity\Contact;
 use App\Entity\DemandeB2B;
 use App\Entity\Devis;
+use App\Entity\Prestation;
 use App\Entity\Relance;
+use App\Entity\Reservation;
 use App\Entity\User;
 use App\Entity\Zone;
 use Doctrine\DBAL\Connection;
@@ -57,6 +59,7 @@ class CrossTenantTest extends WebTestCase
             'contacts' => ['path' => '/api/contacts',            'idsSql' => 'SELECT id FROM contact WHERE centre_id = :c'],
             'avis' => ['path' => '/api/avis',               'idsSql' => 'SELECT id FROM avis WHERE centre_id = :c'],
             'relances' => ['path' => '/api/relances',            'idsSql' => 'SELECT id FROM relance WHERE centre_id = :c'],
+            'reservations' => ['path' => '/api/reservations',        'idsSql' => 'SELECT id FROM reservation WHERE centre_id = :c'],
         ];
     }
 
@@ -112,9 +115,19 @@ class CrossTenantTest extends WebTestCase
             ->setEmailHash('hash-'.$centreId)->setSegments([Contact::SEGMENT_B2C]);
         $avis = (new Avis())->setCentre($centre)->setNote(5)->setCommentaire('Top');
         $relance = (new Relance())->setCentre($centre)->setContact($contact);
+
+        // Une réservation par centre (pour l'isolation de l'écran gérant Réservations).
+        $presta = (new Prestation())->setCentre($centre)->setNom('Bowling')->setPrixCents(2000)->setActif(true);
+        $resa = (new Reservation())->setCentre($centre)->setPrestation($presta)
+            ->setDateCreneau(new \DateTimeImmutable('2030-06-15 18:00'))->setNbPersonnes(2)
+            ->setNomInvite('Invité')->setEmailInvite('invite@y.fr')->setTelephoneInvite('0600000000')
+            ->setMontantTotalCents(4000)->setAcompteCents(800);
+
         $em->persist($contact);
         $em->persist($avis);
         $em->persist($relance);
+        $em->persist($presta);
+        $em->persist($resa);
         $em->flush();
     }
 

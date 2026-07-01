@@ -2,26 +2,45 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\ReservationRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
  * Réservation B2C (invité) prise depuis le site public d'un centre (Branche 1).
  *
  * Un visiteur **sans compte** réserve une prestation pour un créneau : on fige le
  * montant total (prix prestation × personnes) et l'acompte dû. Le paiement réel
- * (Stripe) et le compte client sont des chantiers ultérieurs — ici la réservation
- * naît au statut {@see self::STATUT_EN_ATTENTE_ACOMPTE}, rien n'est encaissé.
+ * (Stripe) confirme la réservation via webhook signé.
  *
  * Isolation tenant : toute réservation appartient à un `centre` (FK non nulle) et
- * ne peut référencer qu'une prestation **du même centre** (vérifié explicitement
- * côté service, pattern des contrôleurs publics). **Pas exposée via API Platform** :
- * la seule écriture passe par {@see \App\Controller\Web\PublicReservationController}.
+ * ne peut référencer qu'une prestation **du même centre**. **Écriture** publique
+ * uniquement via {@see \App\Controller\Web\PublicReservationController}. **Lecture
+ * gérant** via API Platform (GetCollection/Get, ROLE_MANAGER), isolée par
+ * CentreQueryExtension + {@see \App\Security\Voter\ReservationVoter}. Aucune donnée
+ * carte n'existe ni n'est exposée (Checkout hébergé Stripe).
  */
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: 'reservation')]
 #[ORM\Index(name: 'idx_reservation_centre', columns: ['centre_id'])]
+#[ApiResource(
+    normalizationContext: ['groups' => ['reservation:read']],
+    operations: [
+        new GetCollection(security: "is_granted('ROLE_MANAGER')"),
+        new Get(security: "is_granted('ROLE_MANAGER') and is_granted('VIEW', object)"),
+    ],
+)]
+#[ApiFilter(SearchFilter::class, properties: ['statut' => 'exact'])]
+#[ApiFilter(DateFilter::class, properties: ['dateCreneau'])]
+#[ApiFilter(OrderFilter::class, properties: ['dateCreneau', 'createdAt'])]
 class Reservation
 {
     /** Réservation créée, en attente du règlement de l'acompte (aucun paiement traité). */
@@ -31,6 +50,7 @@ class Reservation
     public const STATUT_CONFIRMEE = 'CONFIRMEE';
 
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
+    #[Groups(['reservation:read'])]
     private ?int $id = null;
 
     /** Tenant propriétaire : isolation par centre. */
@@ -45,29 +65,37 @@ class Reservation
 
     /** Créneau réservé (date + heure). */
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    #[Groups(['reservation:read'])]
     private ?\DateTimeImmutable $dateCreneau = null;
 
     #[ORM\Column]
+    #[Groups(['reservation:read'])]
     private int $nbPersonnes = 1;
 
     #[ORM\Column(length: 120)]
+    #[Groups(['reservation:read'])]
     private ?string $nomInvite = null;
 
     #[ORM\Column(length: 180)]
+    #[Groups(['reservation:read'])]
     private ?string $emailInvite = null;
 
     #[ORM\Column(length: 30)]
+    #[Groups(['reservation:read'])]
     private ?string $telephoneInvite = null;
 
     /** Montant total figé en **centimes** (prix prestation × personnes au moment de la résa). */
     #[ORM\Column]
+    #[Groups(['reservation:read'])]
     private int $montantTotalCents = 0;
 
     /** Acompte dû en **centimes** (part du total, cf. taux paramétrable côté service). */
     #[ORM\Column]
+    #[Groups(['reservation:read'])]
     private int $acompteCents = 0;
 
     #[ORM\Column(length: 30)]
+    #[Groups(['reservation:read'])]
     private string $statut = self::STATUT_EN_ATTENTE_ACOMPTE;
 
     /** Id de la session Stripe Checkout de l'acompte (traçabilité, lien paiement↔résa). */
@@ -76,9 +104,11 @@ class Reservation
 
     /** Horodatage de l'encaissement de l'acompte (confirmation via webhook). */
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['reservation:read'])]
     private ?\DateTimeImmutable $paidAt = null;
 
     #[ORM\Column]
+    #[Groups(['reservation:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
@@ -106,6 +136,13 @@ class Reservation
     public function getPrestation(): ?Prestation
     {
         return $this->prestation;
+    }
+
+    /** Nom de la prestation, exposé au gérant (sans divulguer l'entité entière). */
+    #[Groups(['reservation:read'])]
+    public function getPrestationNom(): ?string
+    {
+        return $this->prestation?->getNom();
     }
 
     public function setPrestation(?Prestation $prestation): static
