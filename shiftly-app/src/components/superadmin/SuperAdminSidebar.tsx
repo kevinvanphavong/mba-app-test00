@@ -34,7 +34,7 @@ const sections: NavSection[] = [
     items: [
       { label: 'Abonnements',      href: '/superadmin/subscriptions', icon: '💳', disabled: true },
       { label: 'Facturation',      href: '/superadmin/billing',       icon: '📄', disabled: true },
-      { label: 'Plans tarifaires', href: '/superadmin/pricing',       icon: '🏷️', disabled: true },
+      { label: 'Plans tarifaires', href: '/superadmin/pricing',       icon: '🏷️' },
     ],
   },
   {
