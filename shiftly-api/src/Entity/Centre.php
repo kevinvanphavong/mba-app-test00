@@ -126,6 +126,16 @@ class Centre
     #[Groups(['centre:read'])]
     private int $abonnementMensuelCents = 0;
 
+    /**
+     * Plan de l'agence assigné (catalogue global). Nullable : un centre peut ne pas
+     * avoir de plan. L'`abonnementMensuelCents` est dérivé du plan à l'assignation
+     * ({@see \App\Service\PlanAssignmentService}).
+     */
+    #[ORM\ManyToOne(targetEntity: Plan::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups(['centre:read'])]
+    private ?Plan $plan = null;
+
     #[ORM\Column]
     #[Groups(['centre:read'])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -350,6 +360,18 @@ class Centre
     public function getAbonnementMensuelCents(): int
     {
         return $this->abonnementMensuelCents;
+    }
+
+    public function getPlan(): ?Plan
+    {
+        return $this->plan;
+    }
+
+    public function setPlan(?Plan $plan): static
+    {
+        $this->plan = $plan;
+
+        return $this;
     }
 
     public function setAbonnementMensuelCents(int $abonnementMensuelCents): static

@@ -57,7 +57,7 @@ final class AgenceKpiService
      * KPI par centre (tous les centres). Rapprochés par des agrégats groupés.
      *
      * @return list<array{
-     *   id:int, nom:string, actif:bool, abonnementMensuelCents:int,
+     *   id:int, nom:string, actif:bool, abonnementMensuelCents:int, planId:?int, planNom:?string,
      *   reservations:int, caEstimeCents:int, noShowRelances:int, avis:int, noteMoyenne:?float
      * }>
      */
@@ -72,7 +72,10 @@ final class AgenceKpiService
         $relances = $this->indexer("SELECT centre_id, COUNT(*) AS n FROM relance WHERE motif = 'NO_SHOW' GROUP BY centre_id");
         $avis = $this->indexer('SELECT centre_id, COUNT(*) AS n, AVG(note) AS moy FROM avis GROUP BY centre_id');
 
-        $centres = $this->db->fetchAllAssociative('SELECT id, nom, actif, abonnement_mensuel_cents FROM centre ORDER BY id');
+        $centres = $this->db->fetchAllAssociative(
+            'SELECT c.id, c.nom, c.actif, c.abonnement_mensuel_cents, c.plan_id, p.nom AS plan_nom
+             FROM centre c LEFT JOIN plan p ON p.id = c.plan_id ORDER BY c.id'
+        );
 
         return array_map(function (array $c) use ($resa, $relances, $avis): array {
             $id = (int) $c['id'];
@@ -82,6 +85,8 @@ final class AgenceKpiService
                 'nom' => (string) $c['nom'],
                 'actif' => (bool) $c['actif'],
                 'abonnementMensuelCents' => (int) $c['abonnement_mensuel_cents'],
+                'planId' => null !== $c['plan_id'] ? (int) $c['plan_id'] : null,
+                'planNom' => null !== $c['plan_nom'] ? (string) $c['plan_nom'] : null,
                 'reservations' => (int) ($resa[$id]['n'] ?? 0),
                 'caEstimeCents' => (int) ($resa[$id]['ca'] ?? 0),
                 'noShowRelances' => (int) ($relances[$id]['n'] ?? 0),

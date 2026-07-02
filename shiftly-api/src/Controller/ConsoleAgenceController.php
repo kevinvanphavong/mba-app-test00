@@ -6,8 +6,10 @@ use App\Core\Ia\IaGeneratorInterface;
 use App\Dto\CreateClientInput;
 use App\Exception\ClientConflitException;
 use App\Repository\CentreRepository;
+use App\Repository\PlanRepository;
 use App\Service\AgenceKpiService;
 use App\Service\ClientOnboardingService;
+use App\Service\PlanAssignmentService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -34,7 +36,41 @@ class ConsoleAgenceController extends AbstractController
         private readonly IaGeneratorInterface $ia,
         private readonly EntityManagerInterface $em,
         private readonly ClientOnboardingService $onboarding,
+        private readonly PlanRepository $plans,
+        private readonly PlanAssignmentService $planAssignment,
     ) {
+    }
+
+    /**
+     * Assigne un plan à un centre (ou le détache si `planId` null). L'abonnement du
+     * centre est dérivé du prix du plan par {@see PlanAssignmentService} → reflété au MRR.
+     */
+    #[Route('/api/superadmin/console/centres/{id}/plan', name: 'superadmin_console_assigner_plan', methods: ['PUT'], requirements: ['id' => '\d+'])]
+    public function assignerPlan(int $id, Request $request): JsonResponse
+    {
+        $centre = $this->centres->find($id);
+        if (null === $centre) {
+            throw $this->createNotFoundException();
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $planId = $data['planId'] ?? null;
+
+        $plan = null;
+        if (null !== $planId) {
+            $plan = $this->plans->find((int) $planId);
+            if (null === $plan) {
+                return $this->json(['message' => 'Plan introuvable.'], 422);
+            }
+        }
+
+        $this->planAssignment->assigner($centre, $plan);
+
+        return $this->json([
+            'id' => $centre->getId(),
+            'planId' => $centre->getPlan()?->getId(),
+            'abonnementMensuelCents' => $centre->getAbonnementMensuelCents(),
+        ]);
     }
 
     #[Route('/api/superadmin/console/kpis', name: 'superadmin_console_kpis', methods: ['GET'])]
