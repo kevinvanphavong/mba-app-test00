@@ -26,6 +26,31 @@ final class ClientManagementService
     }
 
     /**
+     * Seam UNIQUE de suspension : coupe l'accès (site public + cockpit via
+     * {@see \App\Security\CentreActifUserChecker}). Idempotent (déjà suspendu = no-op).
+     * Utilisé par le super-admin (manuel) ET par l'impayé Stripe (webhook).
+     */
+    public function suspendre(Centre $centre): void
+    {
+        $this->basculerActif($centre, false);
+    }
+
+    /** Seam UNIQUE de réactivation : rétablit l'accès. Idempotent. */
+    public function reactiver(Centre $centre): void
+    {
+        $this->basculerActif($centre, true);
+    }
+
+    private function basculerActif(Centre $centre, bool $actif): void
+    {
+        if ($centre->isActif() === $actif) {
+            return;
+        }
+        $centre->setActif($actif);
+        $this->em->flush();
+    }
+
+    /**
      * Change le domaine d'un centre. Normalisé (minuscules, sans www/port) puis vérifié
      * unique : un domaine n'appartient qu'à UN centre — refus s'il est pris par un autre.
      */

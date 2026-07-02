@@ -347,8 +347,8 @@ class SuperAdminCentresController extends AbstractController
         /** @var \App\Entity\User $superAdmin */
         $superAdmin = $this->getUser();
 
-        $centre->setActif($actif);
-        $this->em->flush();
+        // Seam UNIQUE de (dé)suspension — partagé avec l'impayé Stripe (webhook).
+        $actif ? $this->clientManagement->reactiver($centre) : $this->clientManagement->suspendre($centre);
 
         $action = $actif ? 'CENTRE_REACTIVATE' : 'CENTRE_SUSPEND';
         $this->auditLog->log($superAdmin, $action, 'centre', $centre->getId(), ['nom' => $centre->getNom()], $request);

@@ -88,6 +88,17 @@ services:
         arguments:
             $stripeWebhookSecret: '%env(STRIPE_WEBHOOK_SECRET)%'
 
+    # ─── Stripe — abonnements récurrents (compte AGENCE), distinct de l'acompte ───
+    App\Service\Stripe\SubscriptionGatewayInterface: '@App\Service\Stripe\StripeSubscriptionGateway'
+
+    App\Service\Stripe\StripeSubscriptionGateway:
+        arguments:
+            $stripeSecretKey: '%env(STRIPE_SECRET_KEY)%'
+
+    App\Controller\Web\StripeSubscriptionWebhookController:
+        arguments:
+            $stripeWebhookSecret: '%env(STRIPE_SUBSCRIPTION_WEBHOOK_SECRET)%'
+
     App\MessageHandler\ReservationConfirmeeHandler:
         arguments:
             $fromEmail: '%env(LEAD_NOTIFICATION_EMAIL)%'
@@ -125,6 +136,10 @@ when@test:
         App\Tests\Fake\FakeCheckoutGateway:
             public: true
         App\Service\Stripe\CheckoutGatewayInterface: '@App\Tests\Fake\FakeCheckoutGateway'
+        # Faux gateway d'abonnement (aucun appel Stripe Billing en test).
+        App\Tests\Fake\FakeSubscriptionGateway:
+            public: true
+        App\Service\Stripe\SubscriptionGatewayInterface: '@App\Tests\Fake\FakeSubscriptionGateway'
         # IA déterministe en test (aucun appel Mistral) pour la génération de devis.
         App\Tests\Fake\FakeIaGenerator:
             public: true
