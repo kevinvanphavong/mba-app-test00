@@ -1,7 +1,22 @@
 import axios from 'axios'
 
+/**
+ * Base de l'API. Le site public est résolu par le HOST côté back : on doit donc
+ * appeler l'API sur le MÊME host que le navigateur (multi-tenant par domaine, y
+ * compris `*.localhost` en dev). Si `NEXT_PUBLIC_API_URL` est défini (prod), il prime.
+ */
+function resolveApiBase(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL
+  }
+  if (typeof window !== 'undefined') {
+    return `${window.location.protocol}//${window.location.hostname}:8000/api`
+  }
+  return 'http://localhost:8000/api'
+}
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api',
+  baseURL: resolveApiBase(),
   headers: { 'Content-Type': 'application/ld+json' },
   // Le JWT vit dans un cookie httpOnly posé par le backend : on l'envoie
   // automatiquement (cross-origin), le JS n'y touche jamais (anti-XSS).
