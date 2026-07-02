@@ -21,6 +21,8 @@ export interface KpiCentre {
   nom:                    string
   actif:                  boolean
   abonnementMensuelCents: number
+  planId:                 number | null
+  planNom:                string | null
   reservations:           number
   caEstimeCents:          number
   noShowRelances:         number
@@ -112,6 +114,16 @@ export function useResetPasswordGerant() {
   return useMutation<{ managerEmail: string }, Error, { id: number; motDePasse: string }>({
     mutationFn: ({ id, motDePasse }) =>
       superAdminApi().post(`/superadmin/centres/${id}/reset-password`, { motDePasse }).then((r) => r.data),
+  })
+}
+
+/** Assigne un plan (ou le détache si null) à un centre — l'abonnement en est dérivé. */
+export function useAssignerPlan() {
+  const invalidate = useConsoleInvalidate()
+  return useMutation<{ id: number; planId: number | null; abonnementMensuelCents: number }, Error, { id: number; planId: number | null }>({
+    mutationFn: ({ id, planId }) =>
+      superAdminApi().put(`/superadmin/console/centres/${id}/plan`, { planId }).then((r) => r.data),
+    onSuccess: () => invalidate(),
   })
 }
 

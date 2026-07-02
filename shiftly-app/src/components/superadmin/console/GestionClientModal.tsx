@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { KpiCentre } from '@/hooks/useConsoleAgence'
 import { useChangerDomaine, useResetPasswordGerant, useToggleActifCentre } from '@/hooks/useConsoleAgence'
 import { useImpersonate } from '@/hooks/useSuperAdminCentres'
+import PlanSelector from '@/components/superadmin/console/PlanSelector'
 
 const conflit = (e: unknown): string =>
   (e as { response?: { status?: number } })?.response?.status === 409
@@ -41,6 +42,9 @@ export default function GestionClientModal({ centre, onClose }: { centre: KpiCen
             {changer.isError && <p className="text-red">{conflit(changer.error)}</p>}
             {changer.isSuccess && <p className="text-green">Domaine mis à jour.</p>}
           </section>
+
+          {/* Plan (abonnement dérivé) */}
+          <PlanSelector centre={centre} />
 
           {/* Suspension (confirmée) */}
           <section className="flex flex-col gap-2">
