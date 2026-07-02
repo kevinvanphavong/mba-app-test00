@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Dto\ResetGerantPasswordInput;
+use App\Dto\UpdateDomaineInput;
 use App\Entity\Centre;
 use App\Entity\CentreNote;
+use App\Exception\ClientConflitException;
 use App\Repository\CentreNoteRepository;
 use App\Repository\CentreRepository;
 use App\Repository\ServiceRepository;
@@ -11,6 +14,7 @@ use App\Repository\UserRepository;
 use App\Security\AuthCookieFactory;
 use App\Security\PathAwareCookieTokenExtractor;
 use App\Service\AuditLogService;
+use App\Service\ClientManagementService;
 use App\Service\SentryApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -18,6 +22,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -34,6 +39,7 @@ class SuperAdminCentresController extends AbstractController
         private readonly JWTTokenManagerInterface $jwtManager,
         private readonly SentryApiService $sentryApi,
         private readonly AuthCookieFactory $cookieFactory,
+        private readonly ClientManagementService $clientManagement,
     ) {
     }
 
@@ -249,6 +255,54 @@ class SuperAdminCentresController extends AbstractController
     public function reactivate(int $id, Request $request): JsonResponse
     {
         return $this->toggleActif($id, true, $request);
+    }
+
+    /** Change le domaine d'un centre (normalisé + unique globalement). Conflit → 409. */
+    #[Route('/api/superadmin/centres/{id}/domaine', methods: ['PATCH'], requirements: ['id' => '\d+'])]
+    public function changerDomaine(int $id, #[MapRequestPayload] UpdateDomaineInput $input, Request $request): JsonResponse
+    {
+        $centre = $this->centreRepo->find($id);
+        if (!$centre) {
+            return $this->json(['message' => 'Centre introuvable'], Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $this->clientManagement->changerDomaine($centre, (string) $input->domaine);
+        } catch (ClientConflitException $e) {
+            return $this->json(['message' => $e->getMessage()], Response::HTTP_CONFLICT);
+        }
+
+        /** @var \App\Entity\User $superAdmin */
+        $superAdmin = $this->getUser();
+        $this->auditLog->log($superAdmin, 'CENTRE_DOMAINE_CHANGE', 'centre', $centre->getId(), ['domaine' => $centre->getDomaine()], $request);
+
+        return $this->json(['id' => $centre->getId(), 'domaine' => $centre->getDomaine()]);
+    }
+
+    /**
+     * Reset du mot de passe du gérant du centre. Le mot de passe est hashé côté service :
+     * jamais loggé (l'audit ne journalise que l'email), jamais renvoyé en clair.
+     */
+    #[Route('/api/superadmin/centres/{id}/reset-password', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function resetPasswordGerant(int $id, #[MapRequestPayload] ResetGerantPasswordInput $input, Request $request): JsonResponse
+    {
+        $centre = $this->centreRepo->find($id);
+        if (!$centre) {
+            return $this->json(['message' => 'Centre introuvable'], Response::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $manager = $this->clientManagement->resetMotDePasseGerant($centre, (string) $input->motDePasse);
+        } catch (ClientConflitException $e) {
+            return $this->json(['message' => $e->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        /** @var \App\Entity\User $superAdmin */
+        $superAdmin = $this->getUser();
+        $this->auditLog->log($superAdmin, 'CENTRE_RESET_PASSWORD', 'centre', $centre->getId(), ['managerId' => $manager->getId()], $request);
+
+        // Jamais le mot de passe : seul l'email du gérant concerné est renvoyé (confirmation).
+        return $this->json(['managerEmail' => $manager->getEmail()]);
     }
 
     private function toggleActif(int $id, bool $actif, Request $request): JsonResponse

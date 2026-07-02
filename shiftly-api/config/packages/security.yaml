@@ -40,6 +40,8 @@ security:
         login:
             pattern: ^/api/auth/login
             stateless: true
+            # Fail-closed : refuse le login d'un gérant dont le centre est suspendu.
+            user_checker: App\Security\CentreActifUserChecker
             json_login:
                 check_path: /api/auth/login
                 username_path: email
@@ -50,6 +52,8 @@ security:
         api:
             pattern: ^/api
             stateless: true
+            # Fail-closed : chaque requête JWT d'un gérant est refusée si le centre est suspendu.
+            user_checker: App\Security\CentreActifUserChecker
             jwt: ~
 
     access_control:
