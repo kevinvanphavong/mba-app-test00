@@ -48,7 +48,7 @@ const sections: NavSection[] = [
   {
     label: 'Phase 4 — Système',
     items: [
-      { label: 'Activity', href: '/superadmin/activity', icon: '⚡', disabled: true },
+      { label: 'Activity', href: '/superadmin/activity', icon: '⚡' },
       { label: 'Réglages', href: '/superadmin/settings', icon: '⚙️', disabled: true },
     ],
   },
