@@ -66,3 +66,23 @@ export function useAddCentreNote() {
       qc.invalidateQueries({ queryKey: ['superadmin', 'centre', centreId] }),
   })
 }
+
+/**
+ * Export RGPD complet d'un centre : télécharge l'archive ZIP (authentifiée par le
+ * cookie super-admin). L'action est tracée dans l'AuditLog côté serveur.
+ */
+export function useExportCentre() {
+  return useMutation<void, Error, number>({
+    mutationFn: async (centreId) => {
+      const res  = await superAdminApi().get(`/superadmin/centres/${centreId}/export`, { responseType: 'blob' })
+      const url  = URL.createObjectURL(res.data as Blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `export-centre-${centreId}.zip`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
+    },
+  })
+}

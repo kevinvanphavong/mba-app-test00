@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { format, formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { useSuperAdminCentreDetail } from '@/hooks/useSuperAdminCentreDetail'
+import ExportCentreButton from '@/components/superadmin/ExportCentreButton'
 import {
   useImpersonate,
   useSuspendCentre,
@@ -128,6 +129,7 @@ function CentreHeader({ centre }: { centre: CentreDetail }) {
         >
           🎭 {impersonate.isPending ? 'Connexion…' : 'Se connecter en tant que manager'}
         </button>
+        <ExportCentreButton centreId={centre.id} />
       </div>
 
       {noteOpen && (
