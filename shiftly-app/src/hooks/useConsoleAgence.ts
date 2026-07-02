@@ -90,3 +90,37 @@ export function useCreerClient() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['superadmin', 'console', 'kpis'] }),
   })
 }
+
+/** Invalide les KPI console (rafraîchit la liste des clients). */
+function useConsoleInvalidate() {
+  const qc = useQueryClient()
+  return () => qc.invalidateQueries({ queryKey: ['superadmin', 'console', 'kpis'] })
+}
+
+/** Change le domaine d'un centre (unique globalement — 409 si déjà pris). */
+export function useChangerDomaine() {
+  const invalidate = useConsoleInvalidate()
+  return useMutation<{ id: number; domaine: string }, Error, { id: number; domaine: string }>({
+    mutationFn: ({ id, domaine }) =>
+      superAdminApi().patch(`/superadmin/centres/${id}/domaine`, { domaine }).then((r) => r.data),
+    onSuccess: () => invalidate(),
+  })
+}
+
+/** Reset du mot de passe du gérant. Renvoie l'email concerné, jamais le mot de passe. */
+export function useResetPasswordGerant() {
+  return useMutation<{ managerEmail: string }, Error, { id: number; motDePasse: string }>({
+    mutationFn: ({ id, motDePasse }) =>
+      superAdminApi().post(`/superadmin/centres/${id}/reset-password`, { motDePasse }).then((r) => r.data),
+  })
+}
+
+/** Suspend (coupe l'accès) ou réactive un centre depuis la console. */
+export function useToggleActifCentre() {
+  const invalidate = useConsoleInvalidate()
+  return useMutation<{ id: number; actif: boolean }, Error, { id: number; actif: boolean }>({
+    mutationFn: ({ id, actif }) =>
+      superAdminApi().post(`/superadmin/centres/${id}/${actif ? 'reactivate' : 'suspend'}`).then((r) => r.data),
+    onSuccess: () => invalidate(),
+  })
+}

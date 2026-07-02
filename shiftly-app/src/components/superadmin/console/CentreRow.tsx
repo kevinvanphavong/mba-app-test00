@@ -2,15 +2,17 @@
 
 import { useState } from 'react'
 import { useResumeIa, useSetAbonnement, type KpiCentre } from '@/hooks/useConsoleAgence'
+import GestionClientModal from '@/components/superadmin/console/GestionClientModal'
 
 const euros = (cents: number) => (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
 
 /**
- * Une ligne de KPI par centre. Lecture seule SAUF l'abonnement mensuel (réglé par
- * le super-admin). Le bouton « Résumé IA » consomme le budget plateforme.
+ * Une ligne de KPI par centre. Lecture seule SAUF l'abonnement mensuel et les actions
+ * de gestion (bouton « Gérer » : domaine, suspension, reset mdp, impersonation).
  */
 export default function CentreRow({ centre }: { centre: KpiCentre }) {
   const [euroInput, setEuroInput] = useState((centre.abonnementMensuelCents / 100).toString())
+  const [gestion, setGestion] = useState(false)
   const setAbo = useSetAbonnement()
   const resume = useResumeIa()
 
@@ -21,8 +23,16 @@ export default function CentreRow({ centre }: { centre: KpiCentre }) {
 
   return (
     <div className="flex flex-col gap-3 rounded-card border border-border bg-surface p-4">
+      {gestion && <GestionClientModal centre={centre} onClose={() => setGestion(false)} />}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="font-syne font-bold text-text">{centre.nom}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-syne font-bold text-text">{centre.nom}</span>
+          {!centre.actif && <span className="rounded-pill bg-red/15 px-2 py-0.5 text-[11px] font-medium text-red">Suspendu</span>}
+          <button onClick={() => setGestion(true)} className="rounded-pill border border-border px-3 py-0.5 text-xs text-text-soft hover:border-accent hover:text-accent">
+            Gérer
+          </button>
+        </div>
         <div className="flex items-center gap-2">
           <input
             value={euroInput}
