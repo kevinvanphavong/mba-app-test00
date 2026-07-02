@@ -3,12 +3,16 @@
 namespace App\Controller;
 
 use App\Core\Ia\IaGeneratorInterface;
+use App\Dto\CreateClientInput;
+use App\Exception\ClientConflitException;
 use App\Repository\CentreRepository;
 use App\Service\AgenceKpiService;
+use App\Service\ClientOnboardingService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -29,6 +33,7 @@ class ConsoleAgenceController extends AbstractController
         private readonly CentreRepository $centres,
         private readonly IaGeneratorInterface $ia,
         private readonly EntityManagerInterface $em,
+        private readonly ClientOnboardingService $onboarding,
     ) {
     }
 
@@ -39,6 +44,31 @@ class ConsoleAgenceController extends AbstractController
             'global' => $this->kpis->kpisGlobaux(),
             'centres' => $this->kpis->kpisParCentre(),
         ]);
+    }
+
+    /**
+     * Onboarding d'un nouveau client : centre + domaine unique + gérant MANAGER +
+     * abonnement. Logique en service ({@see ClientOnboardingService}). Le DTO est
+     * validé automatiquement (422) ; un conflit (domaine/email pris) → 409, sans
+     * création partielle. Réservé ROLE_SUPERADMIN (firewall + IsGranted de classe).
+     */
+    #[Route('/api/superadmin/console/centres', name: 'superadmin_console_creer_client', methods: ['POST'])]
+    public function creerClient(#[MapRequestPayload] CreateClientInput $input): JsonResponse
+    {
+        try {
+            $centre = $this->onboarding->creerClient($input);
+        } catch (ClientConflitException $e) {
+            return $this->json(['message' => $e->getMessage()], 409);
+        }
+
+        return $this->json([
+            'id' => $centre->getId(),
+            'nom' => $centre->getNom(),
+            'slug' => $centre->getSlug(),
+            'domaine' => $centre->getDomaine(),
+            'abonnementMensuelCents' => $centre->getAbonnementMensuelCents(),
+            'actif' => $centre->isActif(),
+        ], 201);
     }
 
     /** Seule écriture de la console : le super-admin règle l'abonnement d'un centre. */
