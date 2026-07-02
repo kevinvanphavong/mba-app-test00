@@ -1,16 +1,20 @@
 'use client'
 
+import { useState } from 'react'
 import { useConsoleKpis } from '@/hooks/useConsoleAgence'
 import KpiGlobalCards from '@/components/superadmin/console/KpiGlobalCards'
 import CentreRow from '@/components/superadmin/console/CentreRow'
+import NouveauClientModal from '@/components/superadmin/console/NouveauClientModal'
 
 /**
  * Console agence (super-admin) : KPI globaux + par centre, en LECTURE SEULE (seule
- * exception : l'abonnement mensuel, réglé par le super-admin). Données via React
- * Query, 3 états. L'accès est déjà borné à ROLE_SUPERADMIN côté API.
+ * exception : l'abonnement mensuel, réglé par le super-admin). Onboarding d'un nouveau
+ * client via « Nouveau client ». Données via React Query, 3 états. Accès borné
+ * à ROLE_SUPERADMIN côté API.
  */
 export default function ConsoleAgencePage() {
   const { data, isLoading, isError, refetch } = useConsoleKpis()
+  const [creation, setCreation] = useState(false)
 
   if (isLoading) return <p className="text-sm text-muted">Chargement de la console…</p>
   if (isError || !data) {
@@ -26,10 +30,17 @@ export default function ConsoleAgencePage() {
 
   return (
     <>
-      <div className="mb-5">
-        <h1 className="font-syne text-2xl font-extrabold text-text">Console agence</h1>
-        <p className="mt-0.5 text-[13px] text-muted">Vue multi-clients · KPI, MRR et résumés IA · lecture seule</p>
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-syne text-2xl font-extrabold text-text">Console agence</h1>
+          <p className="mt-0.5 text-[13px] text-muted">Vue multi-clients · KPI, MRR et résumés IA · lecture seule</p>
+        </div>
+        <button onClick={() => setCreation(true)} className="shrink-0 rounded-pill bg-accent px-4 py-2 text-sm font-semibold text-accent-on">
+          + Nouveau client
+        </button>
       </div>
+
+      {creation && <NouveauClientModal onClose={() => setCreation(false)} />}
 
       <KpiGlobalCards g={data.global} />
 

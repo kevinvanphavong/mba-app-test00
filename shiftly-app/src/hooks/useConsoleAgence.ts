@@ -62,3 +62,31 @@ export function useResumeIa() {
       superAdminApi().post(`/superadmin/console/centres/${id}/resume-ia`).then((r) => r.data),
   })
 }
+
+/** Données d'onboarding d'un nouveau client (super-admin). Montant en centimes. */
+export interface CreerClientInput {
+  nom:                    string
+  domaine:                string
+  managerNom:             string
+  managerEmail:           string
+  managerMotDePasse:      string
+  abonnementMensuelCents: number
+}
+
+export interface ClientCree {
+  id:                     number
+  nom:                    string
+  domaine:                string
+  abonnementMensuelCents: number
+}
+
+/** Crée un client complet (centre + domaine + gérant + abonnement). */
+export function useCreerClient() {
+  const qc = useQueryClient()
+
+  return useMutation<ClientCree, Error, CreerClientInput>({
+    mutationFn: (input) =>
+      superAdminApi().post<ClientCree>('/superadmin/console/centres', input).then((r) => r.data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['superadmin', 'console', 'kpis'] }),
+  })
+}
