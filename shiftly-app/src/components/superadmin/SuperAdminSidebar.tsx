@@ -32,8 +32,8 @@ const sections: NavSection[] = [
   {
     label: 'Phase 2 — Billing',
     items: [
-      { label: 'Abonnements',      href: '/superadmin/subscriptions', icon: '💳', disabled: true },
-      { label: 'Facturation',      href: '/superadmin/billing',       icon: '📄', disabled: true },
+      { label: 'Abonnements',      href: '/superadmin/subscriptions', icon: '💳' },
+      { label: 'Facturation',      href: '/superadmin/billing',       icon: '📄' },
       { label: 'Plans tarifaires', href: '/superadmin/pricing',       icon: '🏷️' },
     ],
   },
