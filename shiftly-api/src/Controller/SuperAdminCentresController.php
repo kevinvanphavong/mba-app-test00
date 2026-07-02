@@ -14,14 +14,17 @@ use App\Repository\UserRepository;
 use App\Security\AuthCookieFactory;
 use App\Security\PathAwareCookieTokenExtractor;
 use App\Service\AuditLogService;
+use App\Service\CentreExportService;
 use App\Service\ClientManagementService;
 use App\Service\SentryApiService;
 use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -40,7 +43,36 @@ class SuperAdminCentresController extends AbstractController
         private readonly SentryApiService $sentryApi,
         private readonly AuthCookieFactory $cookieFactory,
         private readonly ClientManagementService $clientManagement,
+        private readonly CentreExportService $exportService,
     ) {
+    }
+
+    /**
+     * Export RGPD de TOUTES les données d'un centre (archive ZIP : JSON + CSV par entité,
+     * PII déchiffrées). Action sensible → TRACÉE dans l'AuditLog AVANT l'envoi du fichier.
+     * ROLE_SUPERADMIN uniquement (firewall superadmin + IsGranted de classe) ; jamais public.
+     */
+    #[Route('/api/superadmin/centres/{id}/export', methods: ['GET'], requirements: ['id' => '\d+'])]
+    public function export(int $id, Request $request): Response
+    {
+        $centre = $this->centreRepo->find($id);
+        if (!$centre) {
+            return $this->json(['message' => 'Centre introuvable'], Response::HTTP_NOT_FOUND);
+        }
+
+        /** @var \App\Entity\User $superAdmin */
+        $superAdmin = $this->getUser();
+        // Traçage AVANT de produire/renvoyer l'archive (audit garanti même sur gros volume).
+        $this->auditLog->log($superAdmin, 'CENTRE_EXPORT', 'centre', $centre->getId(), ['nom' => $centre->getNom()], $request);
+
+        $path = $this->exportService->archive($centre);
+
+        $response = new BinaryFileResponse($path);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, sprintf('export-centre-%d.zip', $centre->getId()));
+        $response->headers->set('Content-Type', 'application/zip');
+        $response->deleteFileAfterSend(true);
+
+        return $response;
     }
 
     #[Route('/api/superadmin/centres', methods: ['GET'])]
