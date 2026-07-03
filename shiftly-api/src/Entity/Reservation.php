@@ -31,6 +31,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: ReservationRepository::class)]
 #[ORM\Table(name: 'reservation')]
 #[ORM\Index(name: 'idx_reservation_centre', columns: ['centre_id'])]
+// Idempotence de l'ingestion externe : une même référence source ne crée qu'UNE résa
+// par centre. Les résas du site public (source/sourceRef NULL) restent distinctes (NULLs).
+#[ORM\UniqueConstraint(name: 'uniq_reservation_source', columns: ['centre_id', 'source', 'source_ref'])]
 #[ApiResource(
     normalizationContext: ['groups' => ['reservation:read']],
     operations: [
@@ -58,10 +61,29 @@ class Reservation
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Centre $centre = null;
 
-    /** Prestation réservée — garantie du même centre que la réservation (service). */
+    /**
+     * Prestation réservée (site public). NULLABLE : une réservation ingérée depuis un
+     * système externe peut n'avoir aucune prestation Shiftly correspondante — sa formule
+     * est alors conservée en libellé libre ({@see $formule}).
+     */
     #[ORM\ManyToOne(targetEntity: Prestation::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Prestation $prestation = null;
+
+    /** Origine de la réservation (ex. `fgc-web`). NULL = réservation native du site public. */
+    #[ORM\Column(length: 40, nullable: true)]
+    #[Groups(['reservation:read'])]
+    private ?string $source = null;
+
+    /** Référence externe (idempotence). Unique par `(centre, source)`. */
+    #[ORM\Column(length: 120, nullable: true)]
+    #[Groups(['reservation:read'])]
+    private ?string $sourceRef = null;
+
+    /** Libellé de la formule externe quand aucune prestation Shiftly ne correspond. */
+    #[ORM\Column(length: 120, nullable: true)]
+    #[Groups(['reservation:read'])]
+    private ?string $formule = null;
 
     /** Créneau réservé (date + heure). */
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
@@ -138,11 +160,47 @@ class Reservation
         return $this->prestation;
     }
 
-    /** Nom de la prestation, exposé au gérant (sans divulguer l'entité entière). */
+    /** Nom de la prestation (ou libellé de la formule externe), exposé au gérant. */
     #[Groups(['reservation:read'])]
     public function getPrestationNom(): ?string
     {
-        return $this->prestation?->getNom();
+        return $this->prestation?->getNom() ?? $this->formule;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): static
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    public function getSourceRef(): ?string
+    {
+        return $this->sourceRef;
+    }
+
+    public function setSourceRef(?string $sourceRef): static
+    {
+        $this->sourceRef = $sourceRef;
+
+        return $this;
+    }
+
+    public function getFormule(): ?string
+    {
+        return $this->formule;
+    }
+
+    public function setFormule(?string $formule): static
+    {
+        $this->formule = $formule;
+
+        return $this;
     }
 
     public function setPrestation(?Prestation $prestation): static
