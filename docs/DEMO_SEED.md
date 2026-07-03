@@ -62,3 +62,25 @@ par sous-domaine, servir l'API sur le même host (`NEXT_PUBLIC_API_URL=http://<d
 
 > Identifiants de **démo uniquement** (données jetables). Ne jamais réutiliser ces
 > mots de passe hors démo locale.
+
+---
+
+## `app:demo:seed:superadmin` — peupler les vues super-admin
+
+Commande **additive et idempotente** (n'efface rien). S'appuie sur les **centres existants**
+pour peupler les écrans super-admin : catalogue de **plans**, **abonnements** + **factures**
+(Stripe SIMULÉ, ids `*_demo_*`, aucun appel réseau), **contacts**, **avis**, **relances**,
+**demandes B2B + devis**, **réservations** (là où le centre a une prestation active).
+
+```bash
+php bin/console app:demo:seed:superadmin        # rejouable : 2 exécutions = même état
+```
+
+- **N'appelle pas** `PlanAssignmentService` (qui déclencherait le vrai gateway Stripe en dev) :
+  les `Subscription`/`Invoice` sont créées directement.
+- **Garde prod** : refuse en `APP_ENV=prod` sans `--force`.
+- **Prérequis** : `PII_ENCRYPTION_KEY` en `.env.local` (chiffrement des contacts CRM) —
+  générer une clé dev : `php -r "echo base64_encode(random_bytes(32));"`.
+
+Alimente : `/superadmin/console` (KPI + MRR), `/superadmin/subscriptions`, `/superadmin/billing`
+et les écrans CRM du cockpit (contacts, avis, relances, demandes).
