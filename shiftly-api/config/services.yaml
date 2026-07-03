@@ -123,6 +123,11 @@ services:
         arguments:
             $publicWriteLimiter: '@limiter.public_write'
 
+    # Rate limiter anti-abus de l'ingestion machine-to-machine (cf. rate_limiter.yaml).
+    App\EventSubscriber\IngestRateLimitSubscriber:
+        arguments:
+            $ingestLimiter: '@limiter.ingest'
+
     # Le JWT est lu dans un cookie httpOnly (path-aware) : on décore la chaîne
     # d'extracteurs lexik. Anti-XSS : plus aucun token manipulé par le JS.
     App\Security\PathAwareCookieTokenExtractor:

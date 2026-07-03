@@ -22,6 +22,13 @@ framework:
             limit: 20
             interval: '1 minute'
 
+        # Anti-abus de l'ingestion machine-to-machine (^/api/ingest). Clé = clé d'ingestion.
+        # Généreux (flux légitime automatisé) mais borné contre un emballement.
+        ingest:
+            policy: 'sliding_window'
+            limit: 300
+            interval: '1 minute'
+
 when@test:
     framework:
         rate_limiter:

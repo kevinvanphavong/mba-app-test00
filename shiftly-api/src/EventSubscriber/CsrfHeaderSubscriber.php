@@ -63,6 +63,11 @@ class CsrfHeaderSubscriber implements EventSubscriberInterface
         if (str_starts_with($path, '/api/public/')) {
             return;
         }
+        // Ingestion machine-to-machine : authentifiée par clé secrète (header), pas par
+        // cookie/JWT ambiant → le CSRF n'a aucune prise. La clé EST l'autorisation.
+        if (str_starts_with($path, '/api/ingest')) {
+            return;
+        }
 
         if (!$request->headers->has(self::HEADER)) {
             $event->setResponse(new JsonResponse([

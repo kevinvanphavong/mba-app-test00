@@ -400,4 +400,30 @@ class CrossTenantTest extends WebTestCase
         );
         $this->assertResponseIsSuccessful('Login '.$email);
     }
+
+    /**
+     * Ingestion : la réservation est TOUJOURS rattachée au centre de la clé, jamais à un
+     * id du payload — la clé du centre A ne peut pas créer une résa pour le centre B.
+     */
+    public function testIngestKeyRattacheStrictementAuCentreDeLaCle(): void
+    {
+        $this->db->executeStatement('UPDATE centre SET ingest_key = :k WHERE id = :c', ['k' => 'itk-A', 'c' => $this->centreA]);
+        $this->db->executeStatement('UPDATE centre SET ingest_key = :k WHERE id = :c', ['k' => 'itk-B', 'c' => $this->centreB]);
+
+        $payload = static fn (string $ref): string => (string) json_encode([
+            'sourceRef' => $ref, 'source' => 'fgc-web', 'dateCreneau' => '2030-09-01T14:00:00+02:00',
+            'nbPersonnes' => 4, 'client' => ['nom' => 'X', 'email' => 'x@y.fr'], 'formule' => 'f', 'montantTotalCents' => 1000, 'statut' => 'confirme',
+        ]);
+
+        // Clé A → résa du centre A ; clé B → résa du centre B.
+        $this->client->request('POST', '/api/ingest/reservations', server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X-Shiftly-Ingest-Key' => 'itk-A'], content: $payload('ISO-A'));
+        $this->assertSame(201, $this->client->getResponse()->getStatusCode());
+        $this->client->request('POST', '/api/ingest/reservations', server: ['CONTENT_TYPE' => 'application/json', 'HTTP_X-Shiftly-Ingest-Key' => 'itk-B'], content: $payload('ISO-B'));
+        $this->assertSame(201, $this->client->getResponse()->getStatusCode());
+
+        $this->assertSame($this->centreA, (int) $this->db->fetchOne("SELECT centre_id FROM reservation WHERE source_ref = 'ISO-A'"));
+        $this->assertSame($this->centreB, (int) $this->db->fetchOne("SELECT centre_id FROM reservation WHERE source_ref = 'ISO-B'"));
+        // La clé A n'a créé AUCUNE résa pour le centre B.
+        $this->assertSame(0, (int) $this->db->fetchOne("SELECT COUNT(*) FROM reservation WHERE source_ref = 'ISO-A' AND centre_id = :b", ['b' => $this->centreB]));
+    }
 }
