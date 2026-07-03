@@ -41,6 +41,20 @@ final class ClientManagementService
         $this->basculerActif($centre, true);
     }
 
+    /**
+     * (Re)génère la clé API d'ingestion du centre (token aléatoire fort). Retourne la
+     * clé en clair (à communiquer une fois au système émetteur, ex. FGC). Régénérer
+     * invalide immédiatement l'ancienne clé.
+     */
+    public function regenererIngestKey(Centre $centre): string
+    {
+        $key = bin2hex(random_bytes(24)); // 48 hex chars
+        $centre->setIngestKey($key);
+        $this->em->flush();
+
+        return $key;
+    }
+
     private function basculerActif(Centre $centre, bool $actif): void
     {
         if ($centre->isActif() === $actif) {

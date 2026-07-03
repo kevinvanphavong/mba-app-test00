@@ -337,6 +337,27 @@ class SuperAdminCentresController extends AbstractController
         return $this->json(['managerEmail' => $manager->getEmail()]);
     }
 
+    /**
+     * (Re)génère la clé API d'ingestion du centre (site externe → Shiftly). La clé n'est
+     * renvoyée QU'ICI (au super-admin), à communiquer une fois au système émetteur.
+     */
+    #[Route('/api/superadmin/centres/{id}/ingest-key', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function regenererIngestKey(int $id, Request $request): JsonResponse
+    {
+        $centre = $this->centreRepo->find($id);
+        if (!$centre) {
+            return $this->json(['message' => 'Centre introuvable'], Response::HTTP_NOT_FOUND);
+        }
+
+        $key = $this->clientManagement->regenererIngestKey($centre);
+
+        /** @var \App\Entity\User $superAdmin */
+        $superAdmin = $this->getUser();
+        $this->auditLog->log($superAdmin, 'CENTRE_INGEST_KEY_REGEN', 'centre', $centre->getId(), ['nom' => $centre->getNom()], $request);
+
+        return $this->json(['id' => $centre->getId(), 'ingestKey' => $key]);
+    }
+
     private function toggleActif(int $id, bool $actif, Request $request): JsonResponse
     {
         $centre = $this->centreRepo->find($id);

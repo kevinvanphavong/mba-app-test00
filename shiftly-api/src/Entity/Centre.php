@@ -68,6 +68,14 @@ class Centre
     #[Groups(['centre:read'])]
     private ?string $domaine = null;
 
+    /**
+     * Clé API d'ingestion machine-to-machine (site FGC → Shiftly). Identifie CE centre
+     * sur `^/api/ingest`. Secrète : jamais exposée en lecture publique. Régénérable
+     * par le super-admin. Nullable tant qu'aucune source externe ne pousse de données.
+     */
+    #[ORM\Column(length: 64, unique: true, nullable: true)]
+    private ?string $ingestKey = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     #[Groups(['centre:read', 'centre:write'])]
     private ?string $adresse = null;
@@ -360,6 +368,18 @@ class Centre
     public function getAbonnementMensuelCents(): int
     {
         return $this->abonnementMensuelCents;
+    }
+
+    public function getIngestKey(): ?string
+    {
+        return $this->ingestKey;
+    }
+
+    public function setIngestKey(?string $ingestKey): static
+    {
+        $this->ingestKey = $ingestKey;
+
+        return $this;
     }
 
     public function getPlan(): ?Plan
