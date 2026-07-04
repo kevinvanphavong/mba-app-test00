@@ -62,9 +62,25 @@ Body :
 ```
 
 Mapping : `client.*` → champs invité ; `formule` → libellé libre (pas de table de
-correspondance prestation en v1) ; `statut` (`confirme`/`paid`…) → `CONFIRMEE`, sinon
-`EN_ATTENTE_ACOMPTE`. La clé d'ingestion se (re)génère côté super-admin :
+correspondance prestation en v1). La clé d'ingestion se (re)génère côté super-admin :
 `POST /api/superadmin/centres/{id}/ingest-key`.
+
+**Mapping des statuts (v1.1) — FGC envoie son statut BRUT, Shiftly mappe (hub maître du vocabulaire) :**
+
+| Statut FGC (champ `statut` envoyé) | Statut Shiftly |
+|---|---|
+| `nouveau` | `EN_ATTENTE_ACOMPTE` |
+| `contacte` | `EN_ATTENTE_ACOMPTE` |
+| `confirme` | `CONFIRMEE` |
+| `refuse` | `ANNULEE` |
+| `passe` | `TERMINEE` |
+
+Statut inconnu ou absent → `EN_ATTENTE_ACOMPTE` par défaut (jamais d'erreur). Les 4 valeurs
+Shiftly existent (`reservation.statut`, varchar libre, sans contrainte CHECK).
+
+**Push déclenché à la création ET à chaque transition de statut** (admin FGC) → même `sourceRef`
+→ l'endpoint d'ingestion **met à jour** le statut (et nb personnes / montant) de la `Reservation`
+existante (**upsert → 200**), pas de doublon. Le centre n'est jamais modifié. ✅ **livré v1.1**.
 
 > **Clé de démo FGC** (centre 4, Family Games Center) posée pour tester le pont de bout
 > en bout — à récupérer via le super-admin ou la base (`centre.ingest_key`).

@@ -36,9 +36,18 @@ final class ReservationIngestor
         $source = ($input->source ?? '') !== '' ? (string) $input->source : 'fgc-web';
         $sourceRef = (string) $input->sourceRef;
 
-        // Idempotence : même (centre, source, sourceRef) → on renvoie l'existante.
+        $statut = $this->mapStatut($input->statut);
+
+        // Upsert : même (centre, source, sourceRef) → on met à jour le statut (et les champs
+        // modifiables), on renvoie 200. Le centre n'est JAMAIS touché. Aucun doublon (index unique).
         $existing = $this->reservations->findOneBy(['centre' => $centre, 'source' => $source, 'sourceRef' => $sourceRef]);
         if (null !== $existing) {
+            $existing
+                ->setStatut($statut)
+                ->setNbPersonnes((int) $input->nbPersonnes)
+                ->setMontantTotalCents((int) $input->montantTotalCents);
+            $this->em->flush();
+
             return ['reservation' => $existing, 'created' => false];
         }
 
@@ -57,7 +66,7 @@ final class ReservationIngestor
             ->setTelephoneInvite($client->telephone ?? '')
             ->setMontantTotalCents((int) $input->montantTotalCents)
             ->setAcompteCents(0) // acompte géré côté source ; Shiftly stocke la copie de gestion
-            ->setStatut($this->mapStatut($input->statut));
+            ->setStatut($statut);
 
         $this->em->persist($reservation);
         $this->em->flush();
@@ -65,12 +74,18 @@ final class ReservationIngestor
         return ['reservation' => $reservation, 'created' => true];
     }
 
+    /**
+     * Mappe le statut BRUT envoyé par la source (FGC) vers le vocabulaire Shiftly.
+     * Shiftly est maître du vocabulaire (cf. docs/PONT_FGC_SHIFTLY.md). Statut inconnu
+     * ou absent → EN_ATTENTE_ACOMPTE par défaut (jamais d'erreur).
+     */
     private function mapStatut(?string $statut): string
     {
-        $normalise = strtolower(trim((string) $statut));
-
-        return \in_array($normalise, ['confirme', 'confirmé', 'confirmed', 'paid', 'payé'], true)
-            ? Reservation::STATUT_CONFIRMEE
-            : Reservation::STATUT_EN_ATTENTE_ACOMPTE;
+        return match (strtolower(trim((string) $statut))) {
+            'confirme', 'confirmé', 'confirmed', 'paid', 'payé' => Reservation::STATUT_CONFIRMEE,
+            'refuse', 'refusé', 'refused', 'annule', 'annulé', 'cancelled' => Reservation::STATUT_ANNULEE,
+            'passe', 'passé', 'termine', 'terminé', 'done' => Reservation::STATUT_TERMINEE,
+            default => Reservation::STATUT_EN_ATTENTE_ACOMPTE, // nouveau, contacte, inconnu, absent
+        };
     }
 }

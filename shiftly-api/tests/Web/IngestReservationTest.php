@@ -81,6 +81,43 @@ class IngestReservationTest extends WebTestCase
         $this->assertSame('Dupont', $row['nom_invite']);
     }
 
+    private function statut(string $sourceRef): string
+    {
+        return (string) $this->db->fetchOne('SELECT statut FROM reservation WHERE centre_id = :c AND source_ref = :r', ['c' => $this->centreId, 'r' => $sourceRef]);
+    }
+
+    public function testUpsertMetAJourLeStatutSansDoublon(): void
+    {
+        $p = $this->payload('LIFECYCLE-1');
+
+        $p['statut'] = 'nouveau';
+        $this->assertSame(201, $this->post(self::KEY, $p));
+        $this->assertSame('EN_ATTENTE_ACOMPTE', $this->statut('LIFECYCLE-1'));
+
+        // Rejeu même sourceRef, statut transitionné → 200 + statut mis à jour.
+        foreach (['confirme' => 'CONFIRMEE', 'refuse' => 'ANNULEE', 'passe' => 'TERMINEE'] as $brut => $attendu) {
+            $p['statut'] = $brut;
+            $this->assertSame(200, $this->post(self::KEY, $p), "Rejeu $brut → 200.");
+            $this->assertSame($attendu, $this->statut('LIFECYCLE-1'), "$brut → $attendu.");
+        }
+
+        // Une seule réservation malgré 4 pushs (index unique).
+        $this->assertSame(1, (int) $this->db->fetchOne('SELECT COUNT(*) FROM reservation WHERE centre_id = :c AND source_ref = :r', ['c' => $this->centreId, 'r' => 'LIFECYCLE-1']));
+    }
+
+    public function testStatutInconnuOuAbsentParDefaut(): void
+    {
+        $p = $this->payload('UNK-1');
+        $p['statut'] = 'zblarg';
+        $this->assertSame(201, $this->post(self::KEY, $p));
+        $this->assertSame('EN_ATTENTE_ACOMPTE', $this->statut('UNK-1'), 'Statut inconnu → défaut.');
+
+        $p2 = $this->payload('UNK-2');
+        unset($p2['statut']);
+        $this->assertSame(201, $this->post(self::KEY, $p2));
+        $this->assertSame('EN_ATTENTE_ACOMPTE', $this->statut('UNK-2'), 'Statut absent → défaut.');
+    }
+
     public function testRejeuMemeSourceRefEstIdempotent(): void
     {
         $this->assertSame(201, $this->post(self::KEY, $this->payload('ANNIV-DUP-1')));
