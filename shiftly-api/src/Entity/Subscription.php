@@ -30,6 +30,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 class Subscription
 {
+    /** En attente du 1er paiement : Checkout créé, pas encore complété (aucun encaissement). */
+    public const STATUT_INCOMPLETE = 'incomplete';
+    /** Période d'essai en cours (Stripe `trialing`). */
+    public const STATUT_TRIALING = 'trialing';
     public const STATUT_ACTIVE = 'active';
     public const STATUT_PAST_DUE = 'past_due';
     public const STATUT_CANCELED = 'canceled';
@@ -50,7 +54,9 @@ class Subscription
     #[ORM\Column(length: 255)]
     private ?string $stripeCustomerId = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    // Null tant que le Checkout n'est pas complété (état d'attente) ; lié au webhook
+    // checkout.session.completed. Unique quand présent.
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
     #[Groups(['subscription:read'])]
     private ?string $stripeSubscriptionId = null;
 
@@ -133,7 +139,7 @@ class Subscription
         return $this->stripeSubscriptionId;
     }
 
-    public function setStripeSubscriptionId(string $stripeSubscriptionId): static
+    public function setStripeSubscriptionId(?string $stripeSubscriptionId): static
     {
         $this->stripeSubscriptionId = $stripeSubscriptionId;
 

@@ -69,6 +69,20 @@ class Plan
     #[Groups(['plan:read', 'plan:write'])]
     private bool $actif = true;
 
+    /** Durée de l'essai gratuit en jours (Stripe `trial_period_days`). */
+    #[ORM\Column(options: ['default' => 14])]
+    #[Assert\PositiveOrZero]
+    #[Groups(['plan:read', 'plan:write'])]
+    private int $joursEssai = 14;
+
+    /** Référence Stripe du Product (réutilisé entre assignations). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripeProductId = null;
+
+    /** Référence Stripe du Price (réutilisé ; recréé si le prix du plan change). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $stripePriceId = null;
+
     #[ORM\Column]
     #[Groups(['plan:read'])]
     private ?\DateTimeImmutable $createdAt = null;
@@ -128,6 +142,42 @@ class Plan
     public function setActif(bool $actif): static
     {
         $this->actif = $actif;
+
+        return $this;
+    }
+
+    public function getJoursEssai(): int
+    {
+        return $this->joursEssai;
+    }
+
+    public function setJoursEssai(int $joursEssai): static
+    {
+        $this->joursEssai = max(0, $joursEssai);
+
+        return $this;
+    }
+
+    public function getStripeProductId(): ?string
+    {
+        return $this->stripeProductId;
+    }
+
+    public function setStripeProductId(?string $stripeProductId): static
+    {
+        $this->stripeProductId = $stripeProductId;
+
+        return $this;
+    }
+
+    public function getStripePriceId(): ?string
+    {
+        return $this->stripePriceId;
+    }
+
+    public function setStripePriceId(?string $stripePriceId): static
+    {
+        $this->stripePriceId = $stripePriceId;
 
         return $this;
     }
