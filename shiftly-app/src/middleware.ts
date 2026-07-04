@@ -15,9 +15,21 @@ import { NextResponse, type NextRequest } from 'next/server'
  * Le middleware ne résout JAMAIS le centre : il ne fait que mapper l'URL. La
  * résolution du centre reste côté API, par host (404 si domaine inconnu).
  *
- * Auth : inchangée. Le gating reste CÔTÉ CLIENT (`useCurrentUser`/`/api/me` +
- * l'intercepteur 401 de lib/api.ts) ; l'API est la vraie barrière (cookie + voters).
+ * Auth (défense en profondeur) : sur les hosts plateforme, si le cookie d'auth est
+ * ABSENT sur une route privée → redirect login. Simple test de présence (pas de
+ * vérification de signature en edge) ; l'API reste la vraie barrière (cookie + voters).
  */
+
+/** Préfixes des routes privées de l'app gérant (groupe `(app)`). */
+const APP_ROUTES = [
+  '/dashboard', '/planning', '/pointage', '/postes', '/reglages', '/service', '/services',
+  '/staff', '/tutoriels', '/haccp', '/reservations', '/demandes', '/contacts', '/avis',
+  '/relances', '/mon-site',
+]
+
+function isAppRoute(pathname: string): boolean {
+  return APP_ROUTES.some((p) => pathname === p || pathname.startsWith(p + '/'))
+}
 
 /** Hosts plateforme déclarés en env (jamais en dur), ex. "shiftly.app,app.shiftly.app". */
 const PLATFORM_HOSTS = (process.env.NEXT_PUBLIC_PLATFORM_HOSTS ?? '')
@@ -42,14 +54,22 @@ function isPlatformHost(host: string): boolean {
 
 export function middleware(request: NextRequest) {
   const host = normalizeHost(request.headers.get('host'))
+  const { pathname } = request.nextUrl
 
-  // Host plateforme (ou dev localhost) → routage normal.
+  // Host plateforme (ou dev localhost) → routage normal + gating auth des routes privées.
   if (isPlatformHost(host)) {
+    // Super-admin (hors login) : cookie sa_token requis.
+    if (pathname.startsWith('/superadmin') && pathname !== '/superadmin/login' && !request.cookies.has('sa_token')) {
+      return NextResponse.redirect(new URL('/superadmin/login', request.url))
+    }
+    // App gérant : cookie token requis.
+    if (isAppRoute(pathname) && !request.cookies.has('token')) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
     return NextResponse.next()
   }
 
   // Domaine client : déjà dans l'espace public → laisser passer.
-  const { pathname } = request.nextUrl
   if (pathname === '/site' || pathname.startsWith('/site/')) {
     return NextResponse.next()
   }
