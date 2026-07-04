@@ -26,7 +26,7 @@ final class PlanAssignmentService
         private readonly EntityManagerInterface $em,
         private readonly SubscriptionGatewayInterface $gateway,
         private readonly SubscriptionRepository $subscriptions,
-        private readonly string $publicSiteBaseUrl,
+        private readonly string $cockpitBaseUrl,
     ) {
     }
 
@@ -56,7 +56,7 @@ final class PlanAssignmentService
         // Assignation : Product/Price réutilisés (recréés si le prix a changé) + lien Checkout.
         $this->gateway->ensurePrice($plan);
 
-        [$successUrl, $cancelUrl] = $this->urlsRetour($centre);
+        [$successUrl, $cancelUrl] = $this->urlsRetour();
         $checkout = $this->gateway->createSubscriptionCheckout(
             $centre,
             $plan,
@@ -86,16 +86,16 @@ final class PlanAssignmentService
     }
 
     /**
-     * Pages de retour Checkout : domaine du centre s'il existe, sinon base plateforme
-     * (jamais de crash si le centre n'a pas encore de domaine).
+     * Pages de retour du Checkout d'ABONNEMENT : le cockpit Shiftly (l'app gérant), JAMAIS
+     * le domaine du centre — c'est le gérant qui paie SON abonnement, il revient dans l'app.
+     * (Le domaine du centre = son site vitrine public, sans rapport avec l'abonnement.).
      *
      * @return array{0: string, 1: string} [success_url, cancel_url]
      */
-    private function urlsRetour(Centre $centre): array
+    private function urlsRetour(): array
     {
-        $domaine = $centre->getDomaine();
-        $base = null !== $domaine && '' !== $domaine ? 'https://'.$domaine : rtrim($this->publicSiteBaseUrl, '/');
+        $base = rtrim($this->cockpitBaseUrl, '/');
 
-        return [$base.'/?abonnement=ok', $base.'/?abonnement=annule'];
+        return [$base.'/reglages?abonnement=ok', $base.'/reglages?abonnement=annule'];
     }
 }

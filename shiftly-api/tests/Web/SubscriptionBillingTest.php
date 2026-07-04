@@ -121,6 +121,22 @@ class SubscriptionBillingTest extends WebTestCase
         $this->assertSame(4900, (int) $row['montant_cents'], 'Montant = prix du plan (source serveur).');
     }
 
+    public function testUrlsRetourPointentVersLeCockpitPasLeDomaineDuCentre(): void
+    {
+        $success = (string) $this->gateway()->lastSuccessUrl;
+        $cancel = (string) $this->gateway()->lastCancelUrl;
+
+        // Retour = cockpit gérant (APP_BASE_URL) sur /reglages, jamais le domaine du centre.
+        $this->assertStringEndsWith('/reglages?abonnement=ok', $success);
+        $this->assertStringEndsWith('/reglages?abonnement=annule', $cancel);
+        $this->assertStringContainsString('localhost:3000', $success, 'Base = cockpit (APP_BASE_URL).');
+
+        $domaine = (string) $this->db->fetchOne('SELECT domaine FROM centre WHERE id = :c', ['c' => $this->centreId]);
+        if ('' !== $domaine) {
+            $this->assertStringNotContainsString($domaine, $success, 'Le domaine du centre ne doit plus apparaître dans l\'URL de retour.');
+        }
+    }
+
     public function testReassignerMemePlanNeRecreePasDePrice(): void
     {
         // setUp a déjà créé le Price une fois.

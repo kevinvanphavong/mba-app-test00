@@ -91,7 +91,8 @@ services:
     # ─── Stripe — abonnements récurrents (compte AGENCE), distinct de l'acompte ───
     App\Service\PlanAssignmentService:
         arguments:
-            $publicSiteBaseUrl: '%env(PUBLIC_SITE_BASE_URL)%'
+            # Retour du Checkout d'abonnement = cockpit gérant (jamais le domaine du centre).
+            $cockpitBaseUrl: '%env(APP_BASE_URL)%'
 
     App\Service\Stripe\SubscriptionGatewayInterface: '@App\Service\Stripe\StripeSubscriptionGateway'
 

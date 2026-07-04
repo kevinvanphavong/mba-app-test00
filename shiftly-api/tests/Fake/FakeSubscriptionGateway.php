@@ -18,6 +18,9 @@ final class FakeSubscriptionGateway implements SubscriptionGatewayInterface
     public array $cancelled = [];
     /** Nombre de Prices Stripe créés (0 si tout réutilisé). */
     public int $pricesCreated = 0;
+    /** URLs de retour reçues au dernier Checkout (pour vérifier la cible cockpit). */
+    public ?string $lastSuccessUrl = null;
+    public ?string $lastCancelUrl = null;
 
     public function ensurePrice(Plan $plan): bool
     {
@@ -36,6 +39,9 @@ final class FakeSubscriptionGateway implements SubscriptionGatewayInterface
 
     public function createSubscriptionCheckout(Centre $centre, Plan $plan, ?string $customerId, string $successUrl, string $cancelUrl): SubscriptionCheckout
     {
+        $this->lastSuccessUrl = $successUrl;
+        $this->lastCancelUrl = $cancelUrl;
+
         return new SubscriptionCheckout(
             checkoutUrl: 'https://checkout.stripe.test/cs_fake_'.$centre->getId(),
             customerId: $customerId ?? 'cus_fake_'.$centre->getId(),

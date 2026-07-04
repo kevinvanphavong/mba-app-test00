@@ -1,9 +1,11 @@
+import { Suspense }         from 'react'
 import type { Metadata } from 'next'
 import Link                 from 'next/link'
 import dynamic              from 'next/dynamic'
 import { ty }               from '@/lib/typography'
 import LogoutButton         from '@/components/auth/LogoutButton'
 import PageContainer        from '@/components/layout/PageContainer'
+import AbonnementBanner     from '@/components/settings/AbonnementBanner'
 
 // Ces composants lisent Zustand (localStorage) — désactivation SSR pour éviter le mismatch d'hydration
 const ProfileCard          = dynamic(() => import('@/components/settings/ProfileCard'),          { ssr: false })
@@ -18,6 +20,11 @@ export default function ReglagesPage() {
       <div className="mb-5">
         <h1 className={`${ty.kpi} text-[20px]`}>Réglages</h1>
       </div>
+
+      {/* Retour du paiement d'abonnement (?abonnement=ok|annule) */}
+      <Suspense fallback={null}>
+        <AbonnementBanner />
+      </Suspense>
 
       {/* Profile card */}
       <ProfileCard />
