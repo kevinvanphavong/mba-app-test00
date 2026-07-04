@@ -52,6 +52,12 @@ class Reservation
     /** Acompte encaissé (webhook Stripe signé) : réservation confirmée. */
     public const STATUT_CONFIRMEE = 'CONFIRMEE';
 
+    /** Réservation refusée/annulée (source externe : statut FGC `refuse`). */
+    public const STATUT_ANNULEE = 'ANNULEE';
+
+    /** Réservation passée / honorée (source externe : statut FGC `passe`). */
+    public const STATUT_TERMINEE = 'TERMINEE';
+
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['reservation:read'])]
     private ?int $id = null;
