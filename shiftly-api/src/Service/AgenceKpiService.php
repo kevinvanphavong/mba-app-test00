@@ -73,8 +73,12 @@ final class AgenceKpiService
         $avis = $this->indexer('SELECT centre_id, COUNT(*) AS n, AVG(note) AS moy FROM avis GROUP BY centre_id');
 
         $centres = $this->db->fetchAllAssociative(
-            'SELECT c.id, c.nom, c.actif, c.abonnement_mensuel_cents, c.plan_id, p.nom AS plan_nom
-             FROM centre c LEFT JOIN plan p ON p.id = c.plan_id ORDER BY c.id'
+            'SELECT c.id, c.nom, c.actif, c.abonnement_mensuel_cents, c.plan_id, p.nom AS plan_nom,
+                    s.statut AS abonnement_statut
+             FROM centre c
+             LEFT JOIN plan p ON p.id = c.plan_id
+             LEFT JOIN subscription s ON s.centre_id = c.id
+             ORDER BY c.id'
         );
 
         return array_map(function (array $c) use ($resa, $relances, $avis): array {
@@ -87,6 +91,7 @@ final class AgenceKpiService
                 'abonnementMensuelCents' => (int) $c['abonnement_mensuel_cents'],
                 'planId' => null !== $c['plan_id'] ? (int) $c['plan_id'] : null,
                 'planNom' => null !== $c['plan_nom'] ? (string) $c['plan_nom'] : null,
+                'abonnementStatut' => null !== $c['abonnement_statut'] ? (string) $c['abonnement_statut'] : null,
                 'reservations' => (int) ($resa[$id]['n'] ?? 0),
                 'caEstimeCents' => (int) ($resa[$id]['ca'] ?? 0),
                 'noShowRelances' => (int) ($relances[$id]['n'] ?? 0),
