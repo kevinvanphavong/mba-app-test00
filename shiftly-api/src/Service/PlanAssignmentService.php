@@ -10,12 +10,15 @@ use App\Service\Stripe\SubscriptionGatewayInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Assigne un {@see Plan} à un {@see Centre} : DÉRIVE son `abonnementMensuelCents` du
- * prix du plan (source unique de vérité du tarif → alimente le MRR) ET crée/met à jour
- * son abonnement Stripe (compte AGENCE) via le {@see SubscriptionGatewayInterface}.
+ * Assigne un {@see Plan} à un {@see Centre} : DÉRIVE son `abonnementMensuelCents` du prix
+ * du plan (source unique du tarif → alimente le MRR) ET génère un lien Stripe Checkout
+ * (mode subscription) à transmettre au client (vente pilotée super-admin).
  *
- * Logique métier centralisée ici (jamais dans le contrôleur/processor). Détacher un
- * plan (null) remet l'abonnement à 0 et marque l'abonnement Stripe local comme annulé.
+ * La Subscription locale est mise en attente (`INCOMPLETE`, sans `stripeSubscriptionId`) ;
+ * l'abonnement réel est lié à la complétion du Checkout (webhook). Détacher un plan
+ * (null) résilie l'abonnement Stripe en fin de période (`cancel_at_period_end`).
+ *
+ * Logique métier centralisée ici (jamais dans le contrôleur/processor).
  */
 final class PlanAssignmentService
 {
@@ -23,33 +26,76 @@ final class PlanAssignmentService
         private readonly EntityManagerInterface $em,
         private readonly SubscriptionGatewayInterface $gateway,
         private readonly SubscriptionRepository $subscriptions,
+        private readonly string $publicSiteBaseUrl,
     ) {
     }
 
-    public function assigner(Centre $centre, ?Plan $plan): void
+    /**
+     * @return string|null l'URL de paiement Checkout (assignation), ou null (détachement)
+     */
+    public function assigner(Centre $centre, ?Plan $plan): ?string
     {
         $centre->setPlan($plan);
         $centre->setAbonnementMensuelCents($plan?->getPrixMensuelCents() ?? 0);
 
         $subscription = $this->subscriptions->findOneBy(['centre' => $centre]);
 
-        if (null !== $plan) {
-            // Crée/réutilise le Customer + Subscription Stripe (montant = prix du plan).
-            $result = $this->gateway->ensureSubscription($centre, $plan, $subscription?->getStripeCustomerId());
+        // Détachement : résiliation Stripe en fin de période + statut local annulé.
+        if (null === $plan) {
+            if (null !== $subscription) {
+                if (null !== $subscription->getStripeSubscriptionId()) {
+                    $this->gateway->cancelAtPeriodEnd($subscription->getStripeSubscriptionId());
+                }
+                $subscription->setStatut(Subscription::STATUT_CANCELED);
+            }
+            $this->em->flush();
 
-            $subscription ??= (new Subscription())->setCentre($centre);
-            $subscription
-                ->setPlan($plan)
-                ->setStripeCustomerId($result->customerId)
-                ->setStripeSubscriptionId($result->subscriptionId)
-                ->setStatut($result->statut)
-                ->setMontantCents($result->montantCents);
-            $this->em->persist($subscription);
-        } elseif (null !== $subscription) {
-            // Plan détaché : on marque l'abonnement local comme annulé (résiliation Stripe = P2c).
-            $subscription->setStatut(Subscription::STATUT_CANCELED);
+            return null;
         }
 
+        // Assignation : Product/Price réutilisés (recréés si le prix a changé) + lien Checkout.
+        $this->gateway->ensurePrice($plan);
+
+        [$successUrl, $cancelUrl] = $this->urlsRetour($centre);
+        $checkout = $this->gateway->createSubscriptionCheckout(
+            $centre,
+            $plan,
+            $subscription?->getStripeCustomerId(),
+            $successUrl,
+            $cancelUrl,
+        );
+
+        $subscription ??= (new Subscription())->setCentre($centre);
+        // Ne pas écraser un abonnement DÉJÀ vivant (trialing/active) : on ré-émet un lien sans
+        // remettre l'état en attente. Sinon (nouveau, incomplet, annulé) → attente du 1er paiement.
+        $dejaVivant = null !== $subscription->getStripeSubscriptionId()
+            && \in_array($subscription->getStatut(), [Subscription::STATUT_TRIALING, Subscription::STATUT_ACTIVE], true);
+
+        $subscription
+            ->setPlan($plan)
+            ->setStripeCustomerId($checkout->customerId)
+            ->setMontantCents($plan->getPrixMensuelCents());
+        if (!$dejaVivant) {
+            $subscription->setStripeSubscriptionId(null)->setStatut(Subscription::STATUT_INCOMPLETE);
+        }
+
+        $this->em->persist($subscription);
         $this->em->flush();
+
+        return $checkout->checkoutUrl;
+    }
+
+    /**
+     * Pages de retour Checkout : domaine du centre s'il existe, sinon base plateforme
+     * (jamais de crash si le centre n'a pas encore de domaine).
+     *
+     * @return array{0: string, 1: string} [success_url, cancel_url]
+     */
+    private function urlsRetour(Centre $centre): array
+    {
+        $domaine = $centre->getDomaine();
+        $base = null !== $domaine && '' !== $domaine ? 'https://'.$domaine : rtrim($this->publicSiteBaseUrl, '/');
+
+        return [$base.'/?abonnement=ok', $base.'/?abonnement=annule'];
     }
 }

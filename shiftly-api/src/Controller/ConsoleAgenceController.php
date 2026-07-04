@@ -64,12 +64,13 @@ class ConsoleAgenceController extends AbstractController
             }
         }
 
-        $this->planAssignment->assigner($centre, $plan);
+        $checkoutUrl = $this->planAssignment->assigner($centre, $plan);
 
         return $this->json([
             'id' => $centre->getId(),
             'planId' => $centre->getPlan()?->getId(),
             'abonnementMensuelCents' => $centre->getAbonnementMensuelCents(),
+            'checkoutUrl' => $checkoutUrl, // lien de paiement à transmettre au client (null si détaché)
         ]);
     }
 

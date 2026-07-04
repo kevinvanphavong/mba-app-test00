@@ -4,24 +4,46 @@ namespace App\Tests\Fake;
 
 use App\Entity\Centre;
 use App\Entity\Plan;
+use App\Service\Stripe\SubscriptionCheckout;
 use App\Service\Stripe\SubscriptionGatewayInterface;
-use App\Service\Stripe\SubscriptionResult;
 
 /**
- * Faux gateway d'abonnement pour les tests : aucun appel réseau. Retourne des ids
- * déterministes dérivés du centre et le montant = prix du plan.
+ * Faux gateway d'abonnement pour les tests : aucun appel réseau. Ids déterministes,
+ * Price réutilisé tant que le prix ne change pas, et traçage des annulations / créations
+ * de Price pour les assertions.
  */
 final class FakeSubscriptionGateway implements SubscriptionGatewayInterface
 {
-    public function ensureSubscription(Centre $centre, Plan $plan, ?string $stripeCustomerId): SubscriptionResult
-    {
-        $id = $centre->getId();
+    /** @var list<string> subscriptionIds résiliés (cancel_at_period_end) */
+    public array $cancelled = [];
+    /** Nombre de Prices Stripe créés (0 si tout réutilisé). */
+    public int $pricesCreated = 0;
 
-        return new SubscriptionResult(
-            customerId: $stripeCustomerId ?? 'cus_fake_'.$id,
-            subscriptionId: 'sub_fake_'.$id,
-            statut: 'active',
-            montantCents: $plan->getPrixMensuelCents(),
+    public function ensurePrice(Plan $plan): bool
+    {
+        // Le priceId encode le montant → un prix inchangé est réutilisé, un prix modifié recrée.
+        $wanted = 'price_fake_'.$plan->getId().'_'.$plan->getPrixMensuelCents();
+        if ($plan->getStripePriceId() === $wanted) {
+            return false; // réutilisé
+        }
+
+        $plan->setStripeProductId($plan->getStripeProductId() ?? 'prod_fake_'.$plan->getId());
+        $plan->setStripePriceId($wanted);
+        ++$this->pricesCreated;
+
+        return true; // nouveau Price
+    }
+
+    public function createSubscriptionCheckout(Centre $centre, Plan $plan, ?string $customerId, string $successUrl, string $cancelUrl): SubscriptionCheckout
+    {
+        return new SubscriptionCheckout(
+            checkoutUrl: 'https://checkout.stripe.test/cs_fake_'.$centre->getId(),
+            customerId: $customerId ?? 'cus_fake_'.$centre->getId(),
         );
+    }
+
+    public function cancelAtPeriodEnd(string $stripeSubscriptionId): void
+    {
+        $this->cancelled[] = $stripeSubscriptionId;
     }
 }

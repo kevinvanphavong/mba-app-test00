@@ -4,8 +4,10 @@ namespace App\Tests\Web;
 
 use App\Entity\Centre;
 use App\Entity\Plan;
+use App\Entity\Subscription;
 use App\Entity\User;
 use App\Service\PlanAssignmentService;
+use App\Tests\Fake\FakeSubscriptionGateway;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -13,9 +15,10 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
- * Facturation récurrente Stripe : assignation → abonnement (faux gateway) ; webhook signé
- * invoice.paid → réactivation + facture ; invoice.payment_failed → suspension (accès coupé,
- * fail-closed) ; signature invalide → 400 sans effet ; rejeu idempotent.
+ * Facturation récurrente Stripe : assignation → lien Checkout + abonnement en attente
+ * (faux gateway) ; Price réutilisé entre assignations ; détachement → résiliation
+ * cancel_at_period_end ; webhook signé invoice.paid/failed → réactivation/suspension ;
+ * signature invalide → 400 ; rejeu idempotent.
  */
 class SubscriptionBillingTest extends WebTestCase
 {
@@ -27,7 +30,9 @@ class SubscriptionBillingTest extends WebTestCase
     private EntityManagerInterface $em;
     private UserPasswordHasherInterface $hasher;
     private int $centreId;
+    private int $planId;
     private string $customerId;
+    private ?string $checkoutUrl;
 
     protected function setUp(): void
     {
@@ -44,13 +49,24 @@ class SubscriptionBillingTest extends WebTestCase
         $this->centreId = (int) $this->db->fetchOne('SELECT centre_id FROM "user" WHERE role = \'MANAGER\' AND actif = true ORDER BY id LIMIT 1');
         $centre = $this->em->getRepository(Centre::class)->find($this->centreId);
 
-        // Assigne un plan → crée l'abonnement Stripe (faux gateway → cus_fake_<id>).
+        // Assigne un plan → génère un lien Checkout + abonnement en attente (faux gateway).
         $plan = (new Plan())->setNom('Pack Billing')->setCle('pack_billing_test')->setPrixMensuelCents(4900)->setActif(true);
         $this->em->persist($plan);
         $this->em->flush();
-        static::getContainer()->get(PlanAssignmentService::class)->assigner($centre, $plan);
+        $this->planId = $plan->getId();
+        $this->checkoutUrl = $this->assignment()->assigner($centre, $plan);
 
         $this->customerId = (string) $this->db->fetchOne('SELECT stripe_customer_id FROM subscription WHERE centre_id = :c', ['c' => $this->centreId]);
+    }
+
+    private function assignment(): PlanAssignmentService
+    {
+        return static::getContainer()->get(PlanAssignmentService::class);
+    }
+
+    private function gateway(): FakeSubscriptionGateway
+    {
+        return static::getContainer()->get(FakeSubscriptionGateway::class);
     }
 
     private function sign(string $payload): string
@@ -60,15 +76,17 @@ class SubscriptionBillingTest extends WebTestCase
         return 't='.$t.',v1='.hash_hmac('sha256', "{$t}.{$payload}", self::SECRET);
     }
 
+    /** @param array<string, mixed> $object */
+    private function eventPayload(string $type, string $id, array $object): string
+    {
+        return (string) json_encode(['id' => 'evt_'.$id, 'type' => $type, 'data' => ['object' => ['id' => $id] + $object]]);
+    }
+
     private function payload(string $type, string $invoiceId, int $amount): string
     {
-        return (string) json_encode([
-            'id' => 'evt_'.$invoiceId,
-            'type' => $type,
-            'data' => ['object' => [
-                'id' => $invoiceId, 'customer' => $this->customerId,
-                'amount_paid' => $amount, 'amount_due' => $amount, 'subscription' => 'sub_fake_'.$this->centreId,
-            ]],
+        return $this->eventPayload($type, $invoiceId, [
+            'customer' => $this->customerId,
+            'amount_paid' => $amount, 'amount_due' => $amount, 'subscription' => 'sub_live_'.$this->centreId,
         ]);
     }
 
@@ -93,16 +111,44 @@ class SubscriptionBillingTest extends WebTestCase
         return (int) $this->db->fetchOne('SELECT COUNT(*) FROM invoice WHERE stripe_invoice_id = :i', ['i' => $invoiceId]);
     }
 
-    public function testAssignationCreeUnAbonnement(): void
+    public function testAssignationMetEnAttenteEtRenvoieLien(): void
     {
+        $this->assertSame('https://checkout.stripe.test/cs_fake_'.$this->centreId, $this->checkoutUrl, 'Assignation → URL de checkout.');
+
         $row = $this->db->fetchAssociative('SELECT stripe_subscription_id, montant_cents, statut FROM subscription WHERE centre_id = :c', ['c' => $this->centreId]);
-        $this->assertSame('sub_fake_'.$this->centreId, $row['stripe_subscription_id']);
-        $this->assertSame(4900, (int) $row['montant_cents']);
+        $this->assertNull($row['stripe_subscription_id'], 'Pas encore d\'abonnement Stripe (attente du 1er paiement).');
+        $this->assertSame('incomplete', $row['statut']);
+        $this->assertSame(4900, (int) $row['montant_cents'], 'Montant = prix du plan (source serveur).');
+    }
+
+    public function testReassignerMemePlanNeRecreePasDePrice(): void
+    {
+        // setUp a déjà créé le Price une fois.
+        $this->assertSame(1, $this->gateway()->pricesCreated);
+
+        $centre = $this->em->getRepository(Centre::class)->find($this->centreId);
+        $plan = $this->em->getRepository(Plan::class)->find($this->planId);
+        $this->assignment()->assigner($centre, $plan);
+
+        $this->assertSame(1, $this->gateway()->pricesCreated, 'Ré-assigner le même plan ne recrée aucun Price.');
+    }
+
+    public function testDetacherResilieStripe(): void
+    {
+        // Simule un abonnement déjà vivant (checkout complété).
+        $sub = $this->em->getRepository(Subscription::class)->findOneBy(['centre' => $this->em->getRepository(Centre::class)->find($this->centreId)]);
+        $sub->setStripeSubscriptionId('sub_live_1')->setStatut(Subscription::STATUT_ACTIVE);
+        $this->em->flush();
+
+        $centre = $this->em->getRepository(Centre::class)->find($this->centreId);
+        $this->assertNull($this->assignment()->assigner($centre, null), 'Détachement → pas de lien.');
+
+        $this->assertContains('sub_live_1', $this->gateway()->cancelled, 'cancel_at_period_end appelé.');
+        $this->assertSame('canceled', $this->db->fetchOne('SELECT statut FROM subscription WHERE centre_id = :c', ['c' => $this->centreId]));
     }
 
     public function testInvoicePaidReactiveEtEnregistreFacture(): void
     {
-        // Centre suspendu au préalable → invoice.paid doit le réactiver.
         $centre = $this->em->getRepository(Centre::class)->find($this->centreId);
         $centre->setActif(false);
         $this->em->flush();
@@ -128,7 +174,6 @@ class SubscriptionBillingTest extends WebTestCase
         $this->assertFalse($this->actif(), 'invoice.payment_failed suspend le centre.');
         $this->assertSame('payment_failed', $this->db->fetchOne('SELECT statut FROM invoice WHERE stripe_invoice_id = :i', ['i' => 'in_fail_1']));
 
-        // Accès coupé (fail-closed) : le gérant ne peut plus se connecter.
         $this->client->request('POST', '/api/auth/login', server: ['CONTENT_TYPE' => 'application/json'], content: json_encode(['email' => $mgrEmail, 'password' => self::MGR_PW]));
         $this->assertSame(401, $this->client->getResponse()->getStatusCode(), 'Centre suspendu pour impayé : login gérant refusé.');
     }
