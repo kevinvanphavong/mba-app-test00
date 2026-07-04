@@ -23,7 +23,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(security: "is_granted('ROLE_USER')"),
         new Get(security: "is_granted('ROLE_USER')"),
-        new Post(security: "is_granted('ROLE_MANAGER')"),
+        // Création via le contrôleur custom /api/missions/create (zone validée par centre).
+        // Ici la zone n'est plus dans le groupe :write ; le voter CREATE (défense) refuse
+        // une zone d'un autre centre — et une zone absente (null).
+        new Post(security: "is_granted('ROLE_MANAGER')", securityPostDenormalize: "is_granted('CREATE', object)"),
         new Put(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
         new Delete(security: "is_granted('ROLE_MANAGER') and is_granted('DELETE', object)"),
     ]
@@ -56,9 +59,11 @@ class Mission
     #[Groups(['mission:read', 'completion:read'])]
     private ?int $id = null;
 
+    // Parent tenant (via son centre) : retiré du groupe :write — la zone n'est jamais
+    // désignée par le client sur l'API Platform (création via /api/missions/create, isolée).
     #[ORM\ManyToOne(targetEntity: Zone::class, inversedBy: 'missions')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['mission:read', 'mission:write', 'completion:read'])]
+    #[Groups(['mission:read', 'completion:read'])]
     private ?Zone $zone = null;
 
     #[ORM\Column(length: 255)]

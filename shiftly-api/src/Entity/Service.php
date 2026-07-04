@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\ServiceRepository;
+use App\State\TenantScopeProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -42,7 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             security: "is_granted('ROLE_MANAGER')",
-            securityPostDenormalize: "is_granted('CREATE', object)"
+            processor: TenantScopeProcessor::class // centre FORCÉ = centre du JWT
         ),
         new Put(
             security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"
@@ -59,7 +60,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(SearchFilter::class, properties: ['statut' => 'exact', 'centre' => 'exact'])]
 #[ApiFilter(DateFilter::class, properties: ['date'])]
 #[ApiFilter(OrderFilter::class, properties: ['date', 'statut'])]
-class Service
+class Service implements CentreOwnedInterface
 {
     public const STATUT_PLANIFIE = 'PLANIFIE';
     public const STATUT_EN_COURS = 'EN_COURS';
@@ -69,9 +70,10 @@ class Service
     #[Groups(['service:read', 'poste:read', 'incident:read'])]
     private ?int $id = null;
 
+    // Tenant : FORCÉ côté serveur (TenantScopeProcessor), jamais désignable par le client.
     #[ORM\ManyToOne(targetEntity: Centre::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['service:read', 'service:write'])]
+    #[Groups(['service:read'])]
     private ?Centre $centre = null;
 
     #[ORM\Column(type: 'date_immutable')]

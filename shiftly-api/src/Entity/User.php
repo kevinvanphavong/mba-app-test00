@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\UserRepository;
+use App\State\TenantScopeProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -39,10 +40,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: "is_granted('ROLE_MANAGER')",
             description: 'Créer un membre (MANAGER only)',
             validationContext: ['groups' => ['Default', 'user:create']],
-            denormalizationContext: ['groups' => ['user:write', 'user:create']]
+            denormalizationContext: ['groups' => ['user:write', 'user:create']],
+            processor: TenantScopeProcessor::class // centre FORCÉ = centre du JWT
         ),
         new Put(
             security: "(is_granted('ROLE_MANAGER') and is_granted('EDIT', object)) or object == user",
+            // Défense en profondeur : un non-manager (employé s'éditant lui-même) ne peut
+            // PAS changer son rôle (escalade). Le centre, lui, n'est plus dans le groupe :write.
+            securityPostDenormalize: "is_granted('ROLE_MANAGER') or object.getRole() == previous_object.getRole()",
             description: 'Modifier un membre : MANAGER du même centre ou soi-même'
         ),
         new Delete(
@@ -57,7 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     'centre' => 'exact',           // ?centre=/api/centres/1
 ])]
 #[ApiFilter(OrderFilter::class, properties: ['nom', 'points', 'createdAt'])]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, CentreOwnedInterface
 {
     public const ROLE_MANAGER = 'MANAGER';
     public const ROLE_EMPLOYE = 'EMPLOYE';
@@ -89,9 +94,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'staffcompetence:read', 'tutoread:read'])]
     private ?int $id = null;
 
+    // Tenant : FORCÉ côté serveur (TenantScopeProcessor), jamais désignable par le client
+    // (ni à la création, ni au self-edit).
     #[ORM\ManyToOne(targetEntity: Centre::class, inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     private ?Centre $centre = null;
 
     #[ORM\Column(length: 100)]

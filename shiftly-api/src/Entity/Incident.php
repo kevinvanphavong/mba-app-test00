@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\IncidentRepository;
+use App\State\TenantScopeProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -36,7 +37,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             description: 'Signaler un incident (tout membre du centre)',
-            security: "is_granted('ROLE_USER')"
+            security: "is_granted('ROLE_USER')",
+            processor: TenantScopeProcessor::class // centre FORCÉ = centre du JWT
         ),
         new Put(
             description: 'Mettre à jour un incident (MANAGER ou auteur)',
@@ -53,7 +55,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 ])]
 #[ApiFilter(DateFilter::class, properties: ['createdAt'])]
 #[ApiFilter(OrderFilter::class, properties: ['createdAt', 'severite', 'statut'])]
-class Incident
+class Incident implements CentreOwnedInterface
 {
     public const SEV_HAUTE = 'haute';
     public const SEV_MOYENNE = 'moyenne';
@@ -67,9 +69,10 @@ class Incident
     #[Groups(['incident:read'])]
     private ?int $id = null;
 
+    // Tenant : FORCÉ côté serveur (TenantScopeProcessor), jamais désignable par le client.
     #[ORM\ManyToOne(targetEntity: Centre::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['incident:read', 'incident:write'])]
+    #[Groups(['incident:read'])]
     private ?Centre $centre = null;
 
     #[ORM\ManyToOne(targetEntity: Service::class, inversedBy: 'incidents')]

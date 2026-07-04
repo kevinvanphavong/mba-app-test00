@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\ZoneRepository;
+use App\State\TenantScopeProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,23 +28,24 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(security: "is_granted('ROLE_USER')"),
         new Get(security: "is_granted('ROLE_USER')"),
-        new Post(security: "is_granted('ROLE_MANAGER')"),
-        new Put(security: "is_granted('ROLE_MANAGER')"),
-        new Patch(security: "is_granted('ROLE_MANAGER')"),
-        new Delete(security: "is_granted('ROLE_MANAGER')"),
+        new Post(security: "is_granted('ROLE_MANAGER')", processor: TenantScopeProcessor::class),
+        new Put(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
+        new Patch(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
+        new Delete(security: "is_granted('ROLE_MANAGER') and is_granted('DELETE', object)"),
     ]
 )]
 #[ApiFilter(SearchFilter::class, properties: ['nom' => 'partial', 'centre' => 'exact'])]
 #[ApiFilter(OrderFilter::class, properties: ['ordre', 'nom'])]
-class Zone
+class Zone implements CentreOwnedInterface
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['zone:read', 'mission:read', 'poste:read', 'competence:read', 'service:read', 'tutoriel:read'])]
     private ?int $id = null;
 
+    // Tenant : FORCÉ côté serveur (TenantScopeProcessor), jamais désignable par le client.
     #[ORM\ManyToOne(targetEntity: Centre::class, inversedBy: 'zones')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['zone:read', 'zone:write'])]
+    #[Groups(['zone:read'])]
     private ?Centre $centre = null;
 
     #[ORM\Column(length: 50)]

@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Repository\MissionCategorieRepository;
+use App\State\TenantScopeProcessor;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -35,7 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(security: "is_granted('ROLE_USER')"),
         new Get(security: "is_granted('ROLE_USER')"),
-        new Post(security: "is_granted('ROLE_MANAGER')"),
+        new Post(security: "is_granted('ROLE_MANAGER')", processor: TenantScopeProcessor::class),
         new Put(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
         new Patch(security: "is_granted('ROLE_MANAGER') and is_granted('EDIT', object)"),
         new Delete(security: "is_granted('ROLE_MANAGER') and is_granted('DELETE', object)"),
@@ -43,15 +44,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ApiFilter(SearchFilter::class, properties: ['centre' => 'exact', 'nom' => 'partial'])]
 #[ApiFilter(OrderFilter::class, properties: ['ordre', 'nom'])]
-class MissionCategorie
+class MissionCategorie implements CentreOwnedInterface
 {
     #[ORM\Id, ORM\GeneratedValue, ORM\Column]
     #[Groups(['mission_categorie:read'])]
     private ?int $id = null;
 
+    // Tenant : FORCÉ côté serveur (TenantScopeProcessor), jamais désignable par le client.
     #[ORM\ManyToOne(targetEntity: Centre::class)]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['mission_categorie:read', 'mission_categorie:write'])]
+    #[Groups(['mission_categorie:read'])]
     private ?Centre $centre = null;
 
     #[ORM\Column(length: 50)]
