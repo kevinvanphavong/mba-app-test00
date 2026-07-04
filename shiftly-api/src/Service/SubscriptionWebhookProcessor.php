@@ -11,13 +11,15 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Traite un event Stripe Billing DÉJÀ vérifié (signature contrôlée en amont par le
- * contrôleur). Logique métier hors contrôleur.
+ * contrôleur). Logique métier hors contrôleur. Reflète l'état Stripe dans la Subscription
+ * locale et (dé)suspend le centre via le seam {@see ClientManagementService}.
  *
- * **Idempotent** : la facture est enregistrée sous la clé unique `stripeInvoiceId`
- * (un event rejoué ne crée aucun doublon) et la (dé)suspension passe par le seam
- * {@see ClientManagementService} (bascule no-op si l'état est déjà celui voulu).
- *  - `invoice.paid` → facture PAYÉE + centre réactivé.
- *  - `invoice.payment_failed` → facture ÉCHOUÉE + centre SUSPENDU (accès coupé, fail-closed).
+ * **Idempotent** : facture enregistrée sous clé unique `stripeInvoiceId` ; un statut plus
+ * récent n'est jamais écrasé par un event rejoué (un abonnement `canceled` reste terminal).
+ *  - `checkout.session.completed` (mode subscription) → lie l'abonnement + statut `trialing`.
+ *  - `customer.subscription.updated` → reflète le statut Stripe (trialing/active/past_due/canceled).
+ *  - `customer.subscription.deleted` → `canceled` + centre SUSPENDU (fail-closed).
+ *  - `invoice.paid` → facture PAYÉE + centre réactivé · `invoice.payment_failed` → ÉCHOUÉE + SUSPENDU.
  */
 final class SubscriptionWebhookProcessor
 {
@@ -30,34 +32,109 @@ final class SubscriptionWebhookProcessor
     ) {
     }
 
-    public function handle(string $type, object $invoiceObject): void
+    public function handle(string $type, object $object): void
     {
-        $stripeInvoiceId = (string) ($invoiceObject->id ?? '');
-        $customerId = (string) ($invoiceObject->customer ?? '');
-        if ('' === $stripeInvoiceId || '' === $customerId) {
-            return;
-        }
+        match ($type) {
+            'invoice.paid', 'invoice.payment_failed' => $this->handleInvoice($type, $object),
+            'checkout.session.completed' => $this->handleCheckoutCompleted($object),
+            'customer.subscription.updated' => $this->handleSubscriptionUpdated($object),
+            'customer.subscription.deleted' => $this->handleSubscriptionDeleted($object),
+            default => null,
+        };
+    }
 
-        $subscription = $this->subscriptions->findOneBy(['stripeCustomerId' => $customerId]);
-        if (null === $subscription || null === $subscription->getCentre()) {
-            $this->logger->warning('Webhook abonnement : abonnement introuvable', ['customer' => $customerId]);
-
+    private function handleInvoice(string $type, object $invoice): void
+    {
+        $stripeInvoiceId = (string) ($invoice->id ?? '');
+        $subscription = $this->find(null, (string) ($invoice->customer ?? ''));
+        if ('' === $stripeInvoiceId || null === $subscription || null === $subscription->getCentre()) {
             return;
         }
         $centre = $subscription->getCentre();
 
         if ('invoice.paid' === $type) {
-            $this->enregistrerFacture($subscription, $stripeInvoiceId, (int) ($invoiceObject->amount_paid ?? 0), Invoice::STATUT_PAID);
+            $this->enregistrerFacture($subscription, $stripeInvoiceId, (int) ($invoice->amount_paid ?? 0), Invoice::STATUT_PAID);
             $subscription->setStatut(Subscription::STATUT_ACTIVE);
             $this->clientManagement->reactiver($centre);
-        } elseif ('invoice.payment_failed' === $type) {
-            $this->enregistrerFacture($subscription, $stripeInvoiceId, (int) ($invoiceObject->amount_due ?? 0), Invoice::STATUT_FAILED);
+        } else {
+            $this->enregistrerFacture($subscription, $stripeInvoiceId, (int) ($invoice->amount_due ?? 0), Invoice::STATUT_FAILED);
             $subscription->setStatut(Subscription::STATUT_PAST_DUE);
-            // Impayé → suspension via le SEAM existant (coupe site public + cockpit).
-            $this->clientManagement->suspendre($centre);
+            $this->clientManagement->suspendre($centre); // impayé → accès coupé (fail-closed)
         }
 
         $this->em->flush();
+    }
+
+    private function handleCheckoutCompleted(object $session): void
+    {
+        if ('subscription' !== (string) ($session->mode ?? '')) {
+            return;
+        }
+        $subscription = $this->find(null, (string) ($session->customer ?? ''));
+        $subscriptionId = (string) ($session->subscription ?? '');
+        if (null === $subscription || '' === $subscriptionId) {
+            $this->logger->warning('Webhook checkout.session.completed : abonnement introuvable', ['customer' => $session->customer ?? null]);
+
+            return;
+        }
+
+        // Lie l'abonnement réel. Ne repasse à `trialing` que depuis l'attente (idempotence :
+        // un rejeu tardif ne rétrograde pas un abonnement déjà actif).
+        $subscription->setStripeSubscriptionId($subscriptionId);
+        if (Subscription::STATUT_INCOMPLETE === $subscription->getStatut()) {
+            $subscription->setStatut(Subscription::STATUT_TRIALING);
+        }
+        $this->em->flush();
+    }
+
+    private function handleSubscriptionUpdated(object $sub): void
+    {
+        $subscription = $this->find((string) ($sub->id ?? ''), (string) ($sub->customer ?? ''));
+        if (null === $subscription || Subscription::STATUT_CANCELED === $subscription->getStatut()) {
+            return; // introuvable, ou état terminal jamais réanimé
+        }
+
+        $statut = $this->mapStatut((string) ($sub->status ?? ''));
+        if (null !== $statut) {
+            $subscription->setStatut($statut);
+            $this->em->flush();
+        }
+    }
+
+    private function handleSubscriptionDeleted(object $sub): void
+    {
+        $subscription = $this->find((string) ($sub->id ?? ''), (string) ($sub->customer ?? ''));
+        if (null === $subscription || null === $subscription->getCentre()) {
+            return;
+        }
+
+        $subscription->setStatut(Subscription::STATUT_CANCELED);
+        $this->clientManagement->suspendre($subscription->getCentre()); // fin d'abonnement → accès coupé
+        $this->em->flush();
+    }
+
+    /** Résout la Subscription locale par son id Stripe, sinon par le Customer. */
+    private function find(?string $subscriptionId, string $customerId): ?Subscription
+    {
+        if (null !== $subscriptionId && '' !== $subscriptionId) {
+            $found = $this->subscriptions->findOneBy(['stripeSubscriptionId' => $subscriptionId]);
+            if (null !== $found) {
+                return $found;
+            }
+        }
+
+        return '' !== $customerId ? $this->subscriptions->findOneBy(['stripeCustomerId' => $customerId]) : null;
+    }
+
+    private function mapStatut(string $stripeStatus): ?string
+    {
+        return match ($stripeStatus) {
+            'trialing' => Subscription::STATUT_TRIALING,
+            'active' => Subscription::STATUT_ACTIVE,
+            'past_due' => Subscription::STATUT_PAST_DUE,
+            'canceled' => Subscription::STATUT_CANCELED,
+            default => null, // incomplete/unpaid/inconnu : on ne touche pas au statut local
+        };
     }
 
     private function enregistrerFacture(Subscription $subscription, string $stripeInvoiceId, int $montantCents, string $statut): void

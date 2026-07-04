@@ -147,6 +147,29 @@ class SubscriptionBillingTest extends WebTestCase
         $this->assertSame('canceled', $this->db->fetchOne('SELECT statut FROM subscription WHERE centre_id = :c', ['c' => $this->centreId]));
     }
 
+    public function testCheckoutCompletedLieLAbonnementEnTrialing(): void
+    {
+        $payload = $this->eventPayload('checkout.session.completed', 'cs_1', [
+            'mode' => 'subscription', 'customer' => $this->customerId, 'subscription' => 'sub_live_'.$this->centreId,
+        ]);
+        $this->assertSame(200, $this->postWebhook($payload, $this->sign($payload)));
+
+        $row = $this->db->fetchAssociative('SELECT stripe_subscription_id, statut FROM subscription WHERE centre_id = :c', ['c' => $this->centreId]);
+        $this->assertSame('sub_live_'.$this->centreId, $row['stripe_subscription_id'], 'Abonnement réel lié.');
+        $this->assertSame('trialing', $row['statut'], 'Passe de l\'attente à l\'essai.');
+    }
+
+    public function testSubscriptionDeletedAnnuleEtSuspend(): void
+    {
+        $payload = $this->eventPayload('customer.subscription.deleted', 'sub_del_1', [
+            'customer' => $this->customerId, 'status' => 'canceled',
+        ]);
+        $this->assertSame(200, $this->postWebhook($payload, $this->sign($payload)));
+
+        $this->assertSame('canceled', $this->db->fetchOne('SELECT statut FROM subscription WHERE centre_id = :c', ['c' => $this->centreId]));
+        $this->assertFalse($this->actif(), 'Fin d\'abonnement → centre suspendu (fail-closed).');
+    }
+
     public function testInvoicePaidReactiveEtEnregistreFacture(): void
     {
         $centre = $this->em->getRepository(Centre::class)->find($this->centreId);

@@ -45,8 +45,15 @@ class StripeSubscriptionWebhookController extends AbstractController
             return $this->json(['message' => 'Signature invalide.'], 400);
         }
 
-        // 2) Effet de bord uniquement pour les events de facturation, après signature OK.
-        if (\in_array($event->type, ['invoice.paid', 'invoice.payment_failed'], true)) {
+        // 2) Effet de bord uniquement pour les events suivis, après signature OK.
+        $suivis = [
+            'checkout.session.completed',
+            'customer.subscription.updated',
+            'customer.subscription.deleted',
+            'invoice.paid',
+            'invoice.payment_failed',
+        ];
+        if (\in_array($event->type, $suivis, true)) {
             $this->processor->handle($event->type, $event->data->object);
         }
 
