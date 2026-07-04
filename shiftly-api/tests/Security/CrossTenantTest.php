@@ -426,4 +426,67 @@ class CrossTenantTest extends WebTestCase
         // La clé A n'a créé AUCUNE résa pour le centre B.
         $this->assertSame(0, (int) $this->db->fetchOne("SELECT COUNT(*) FROM reservation WHERE source_ref = 'ISO-A' AND centre_id = :b", ['b' => $this->centreB]));
     }
+
+    /** @param array<string, mixed> $body */
+    private function postJson(string $path, array $body): int
+    {
+        $this->client->request('POST', $path, server: ['CONTENT_TYPE' => 'application/ld+json', 'HTTP_ACCEPT' => 'application/ld+json', 'HTTP_X-CSRF' => '1'], content: json_encode($body));
+
+        return $this->client->getResponse()->getStatusCode();
+    }
+
+    /**
+     * Anti mass-assignment : un `centre` (ou une `zone`) fourni dans le payload ne peut
+     * jamais rattacher une entité à un AUTRE tenant. Le centre est forcé au tenant du JWT.
+     */
+    public function testCreationForceLeTenantEtIgnoreLeCentreDuPayload(): void
+    {
+        $this->login($this->emailA, self::PASSWORD); // manager du centre A
+        $iriB = '/api/centres/'.$this->centreB;
+
+        // Incident (ROLE_USER) avec centre B → créé dans MON centre (A), jamais B.
+        $this->assertSame(201, $this->postJson('/api/incidents', ['titre' => 'MA-incident', 'centre' => $iriB]));
+        $incidentId = json_decode($this->client->getResponse()->getContent(), true)['id'];
+        $this->assertSame($this->centreA, (int) $this->db->fetchOne('SELECT centre_id FROM incident WHERE id = :i', ['i' => $incidentId]));
+
+        // Zone avec centre B → créée dans A.
+        $this->assertSame(201, $this->postJson('/api/zones', ['nom' => 'MA-zone', 'centre' => $iriB]));
+        $zoneId = json_decode($this->client->getResponse()->getContent(), true)['id'];
+        $this->assertSame($this->centreA, (int) $this->db->fetchOne('SELECT centre_id FROM zone WHERE id = :i', ['i' => $zoneId]));
+
+        // MissionCategorie avec centre B → créée dans A.
+        $this->assertSame(201, $this->postJson('/api/mission_categories', ['nom' => 'MA-cat', 'couleur' => '#ffffff', 'centre' => $iriB]));
+        $catId = json_decode($this->client->getResponse()->getContent(), true)['id'];
+        $this->assertSame($this->centreA, (int) $this->db->fetchOne('SELECT centre_id FROM mission_categorie WHERE id = :i', ['i' => $catId]));
+
+        // Mission avec zone d'un autre tenant (zone ignorée → null) → refusée (voter CREATE).
+        $zoneB = (int) $this->db->fetchOne('SELECT id FROM zone WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreB]);
+        $this->assertSame(403, $this->postJson('/api/missions', ['texte' => 'MA-m', 'categorie' => 'PENDANT', 'zone' => '/api/zones/'.$zoneB]));
+
+        // PATCH Service vers centre B → centre ignoré (reste A).
+        $svcA = (int) $this->db->fetchOne('SELECT id FROM service WHERE centre_id = :c ORDER BY id LIMIT 1', ['c' => $this->centreA]);
+        $this->client->request('PATCH', '/api/services/'.$svcA, server: ['CONTENT_TYPE' => 'application/merge-patch+json', 'HTTP_X-CSRF' => '1'], content: json_encode(['centre' => $iriB]));
+        $this->assertSame($this->centreA, (int) $this->db->fetchOne('SELECT centre_id FROM service WHERE id = :i', ['i' => $svcA]), 'Le centre d\'un service ne change jamais via l\'API.');
+    }
+
+    /** Un employé qui s'édite lui-même ne peut changer ni son centre ni son rôle. */
+    public function testSelfEditEmployeNePeutPasEscaladerSonRole(): void
+    {
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $hasher = static::getContainer()->get(UserPasswordHasherInterface::class);
+
+        $email = $this->db->fetchOne('SELECT email FROM "user" WHERE centre_id = :c AND role = \'EMPLOYE\' AND actif = true ORDER BY id LIMIT 1', ['c' => $this->centreA]);
+        $employe = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+        $employe->setPassword($hasher->hashPassword($employe, self::PASSWORD));
+        $em->flush();
+        $id = $employe->getId();
+
+        $this->login($email, self::PASSWORD);
+
+        // Self-edit avec tentative d'escalade de rôle → refusé (securityPostDenormalize).
+        $this->client->request('PUT', '/api/users/'.$id, server: ['CONTENT_TYPE' => 'application/ld+json', 'HTTP_X-CSRF' => '1'], content: json_encode(['role' => 'MANAGER', 'centre' => '/api/centres/'.$this->centreB]));
+        $this->assertSame(403, $this->client->getResponse()->getStatusCode());
+        $this->assertSame('EMPLOYE', $this->db->fetchOne('SELECT role FROM "user" WHERE id = :i', ['i' => $id]), 'Le rôle n\'a pas changé.');
+        $this->assertSame($this->centreA, (int) $this->db->fetchOne('SELECT centre_id FROM "user" WHERE id = :i', ['i' => $id]), 'Le centre n\'a pas changé.');
+    }
 }
