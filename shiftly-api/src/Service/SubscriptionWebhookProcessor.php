@@ -53,8 +53,13 @@ final class SubscriptionWebhookProcessor
         $centre = $subscription->getCentre();
 
         if ('invoice.paid' === $type) {
-            $this->enregistrerFacture($subscription, $stripeInvoiceId, (int) ($invoice->amount_paid ?? 0), Invoice::STATUT_PAID);
-            $subscription->setStatut(Subscription::STATUT_ACTIVE);
+            $montantPaye = (int) ($invoice->amount_paid ?? 0);
+            $this->enregistrerFacture($subscription, $stripeInvoiceId, $montantPaye, Invoice::STATUT_PAID);
+            // Un paiement RÉEL (montant > 0) confirme l'abonnement. La facture d'essai à 0 €
+            // (période trialing) ne doit PAS écraser le statut `trialing` en `active`.
+            if ($montantPaye > 0) {
+                $subscription->setStatut(Subscription::STATUT_ACTIVE);
+            }
             $this->clientManagement->reactiver($centre);
         } else {
             $this->enregistrerFacture($subscription, $stripeInvoiceId, (int) ($invoice->amount_due ?? 0), Invoice::STATUT_FAILED);

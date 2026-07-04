@@ -159,6 +159,21 @@ class SubscriptionBillingTest extends WebTestCase
         $this->assertSame('trialing', $row['statut'], 'Passe de l\'attente à l\'essai.');
     }
 
+    public function testFactureEssaiZeroNEcrasePasTrialing(): void
+    {
+        // Abonnement lié en essai (checkout complété).
+        $p1 = $this->eventPayload('checkout.session.completed', 'cs_trial', [
+            'mode' => 'subscription', 'customer' => $this->customerId, 'subscription' => 'sub_live_'.$this->centreId,
+        ]);
+        $this->assertSame(200, $this->postWebhook($p1, $this->sign($p1)));
+        $this->assertSame('trialing', $this->db->fetchOne('SELECT statut FROM subscription WHERE centre_id = :c', ['c' => $this->centreId]));
+
+        // Facture d'essai à 0 € (Stripe émet invoice.paid pour l'invoice de trial) → reste trialing.
+        $p2 = $this->payload('invoice.paid', 'in_trial_zero', 0);
+        $this->assertSame(200, $this->postWebhook($p2, $this->sign($p2)));
+        $this->assertSame('trialing', $this->db->fetchOne('SELECT statut FROM subscription WHERE centre_id = :c', ['c' => $this->centreId]), 'Une facture d\'essai à 0 € ne confirme pas l\'abonnement.');
+    }
+
     public function testSubscriptionDeletedAnnuleEtSuspend(): void
     {
         $payload = $this->eventPayload('customer.subscription.deleted', 'sub_del_1', [
