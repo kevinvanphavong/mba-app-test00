@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
-import type { Prestation, PrestationInput, SiteContenu } from './types'
+import type { Prestation, PrestationInput } from './types'
 
 const member = <T>(data: unknown): T[] => {
   const d = data as { 'hydra:member'?: T[]; member?: T[] }
@@ -49,25 +49,5 @@ export function useDeletePrestation() {
   return useMutation<void, Error, number>({
     mutationFn: (id) => api.delete(`/prestations/${id}`).then(() => undefined),
     onSuccess: () => invalidate(),
-  })
-}
-
-/** Contenu texte du site (lecture depuis le centre du gérant). */
-export function useSiteContenu() {
-  const centreId = useAuthStore((s) => s.centreId)
-  return useQuery<SiteContenu, Error>({
-    queryKey: ['site-contenu', centreId],
-    queryFn: () => api.get<SiteContenu>(`/centres/${centreId}`).then((r) => r.data),
-    enabled: !!centreId,
-  })
-}
-
-/** Édite les textes du site (texte simple assaini côté serveur). */
-export function useUpdateSiteContenu() {
-  const centreId = useAuthStore((s) => s.centreId)
-  const qc = useQueryClient()
-  return useMutation<unknown, Error, { siteHeroTitre: string; siteHeroSousTitre: string; siteDescription: string }>({
-    mutationFn: (patch) => api.patch(`/centres/${centreId}/update`, patch).then((r) => r.data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['site-contenu'] }),
   })
 }
