@@ -25,16 +25,17 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Recharge le jeu de données de démo (fixtures Alice) PUIS étend les services et
- * plannings sur 3 semaines glissantes — semaine dernière (TERMINE), courante
- * (EN_COURS le jour même, PLANIFIE le reste) et prochaine (PLANIFIE) — toujours
- * recalculées à la date d'exécution. Sert à « rafraîchir » la démo avant une
- * présentation : les écrans Planning/Service montrent toujours du passé/présent/futur.
+ * plannings sur 5 semaines glissantes — semaine dernière (TERMINE), courante
+ * (EN_COURS le jour même, PLANIFIE le reste) et les 3 suivantes (PLANIFIE) —
+ * toujours recalculées à la date d'exécution. Sert à « rafraîchir » la démo avant
+ * une présentation : les écrans Planning/Service montrent toujours du
+ * passé/présent/futur, et on peut naviguer vers l'avant sans tomber sur du vide.
  *
  * Rejouable et déterministe (purge + recharge + génération sans aléa).
  *
  * ⚠️ EFFACE la base. En prod (`APP_ENV=prod`), exige `--force` + confirmation.
  */
-#[AsCommand(name: 'app:demo:seed', description: 'Recharge la démo + services/plannings sur 3 semaines glissantes')]
+#[AsCommand(name: 'app:demo:seed', description: 'Recharge la démo + services/plannings sur 5 semaines glissantes')]
 final class DemoSeedCommand extends Command
 {
     /** Ordre lundi→dimanche aligné sur le format ISO `N` (1=lundi). */
@@ -86,17 +87,23 @@ final class DemoSeedCommand extends Command
         $this->em->clear(); // les entités chargées par la sous-commande sont détachées
         $io->writeln('Fixtures rechargées.');
 
-        // ── 2. Étend services + plannings sur 3 semaines glissantes ───────────
+        // ── 2. Étend services + plannings sur 5 semaines glissantes ───────────
+        // Une seule semaine passée suffit (c'est elle qui alimente la validation
+        // hebdo), mais on planifie 3 semaines à venir : en démo, on navigue vers
+        // l'avant et une semaine vide casse la démonstration.
         $lundiCourant = new \DateTimeImmutable('monday this week');
         $today = new \DateTimeImmutable('today');
         $semaines = [
-            $lundiCourant->modify('-7 days'), // S-1
-            $lundiCourant,                    // S
-            $lundiCourant->modify('+7 days'), // S+1
+            $lundiCourant->modify('-7 days'),  // S-1
+            $lundiCourant,                     // S
+            $lundiCourant->modify('+7 days'),  // S+1
+            $lundiCourant->modify('+14 days'), // S+2
+            $lundiCourant->modify('+21 days'), // S+3
         ];
 
         $io->section(sprintf(
-            'Génération 3 semaines : %s → %s',
+            'Génération %d semaines : %s → %s',
+            \count($semaines),
             $semaines[0]->format('Y-m-d'),
             end($semaines)->modify('+6 days')->format('Y-m-d')
         ));
@@ -158,7 +165,7 @@ final class DemoSeedCommand extends Command
             $stats['centres'], $stats['plannings'], $stats['services'], $stats['postes'], $stats['pointages'], $stats['absences'],
             $semaines[0]->format('Y-m-d'), end($semaines)->modify('+6 days')->format('Y-m-d')
         ));
-        $io->writeln('→ Planning : navigue ‹ › pour S-1 / S / S+1. Services : passé (TERMINE) / futur (PLANIFIE). Validation hebdo : utilisable sur S-1 (heures pointées + retards + no-show + absences).');
+        $io->writeln('→ Planning : navigue ‹ › de S-1 à S+3. Services : passé (TERMINE) / futur (PLANIFIE). Validation hebdo : utilisable sur S-1 (heures pointées + retards + no-show + absences).');
 
         return Command::SUCCESS;
     }
