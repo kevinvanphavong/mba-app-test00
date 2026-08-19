@@ -37,7 +37,7 @@ final class SeedDemoPointagesCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addOption('centre', null, InputOption::VALUE_REQUIRED, 'Slug du centre', 'speed-park-bourges')
+            ->addOption('centre', null, InputOption::VALUE_REQUIRED, 'Slug du centre', 'espace-bourges')
             ->addOption('monday', null, InputOption::VALUE_REQUIRED, 'Lundi de la semaine (YYYY-MM-DD). Défaut : lundi de la semaine dernière.')
             ->addOption('showcase', null, InputOption::VALUE_NONE, 'Injecte 2 cas de démo sur le mardi de la semaine : un staff avec plusieurs pauses + un staff en double assignation (2 créneaux/zones).');
     }

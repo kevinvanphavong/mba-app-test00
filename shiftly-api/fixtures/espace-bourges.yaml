@@ -1,0 +1,400 @@
+# ═══════════════════════════════════════════════════════════
+#  Centre 6 : Espace Bourges — Saint-Doulchard
+#  Complexe de loisirs 4500 m² : bowling, BattleKart, lasergame,
+#  réalité virtuelle, karaoké box, billards & arcades, bar-resto.
+#  Infos établissement reprises de https://espace-bourges.fr
+#  Staff  : 9 membres (2 managers, 7 employés)
+#  Mot de passe : shiftly2026
+# ═══════════════════════════════════════════════════════════
+
+App\Entity\Centre:
+  centre_espace_bourges:
+    nom:       "Espace Bourges"
+    adresse:   "Le Briou, Route d'Orléans, 18230 Saint-Doulchard"
+    telephone: "02 48 16 31 12"
+    siteWeb:   "https://espace-bourges.fr"
+    siteHeroTitre:     "Espace Bourges"
+    siteHeroSousTitre: "Le plus grand complexe de loisirs du Cher"
+    siteDescription:   >-
+      4500 m² dédiés au jeu à Saint-Doulchard, aux portes de Bourges : bowling,
+      BattleKart, lasergame, réalité virtuelle, karaoké box, mini-golf, billards
+      et arcades. Sur place, un espace bar & restauration (pizzas, planches à
+      partager, cocktails), une terrasse et sa guinguette. Anniversaires, EVG/EVJF,
+      séminaires, team building, CSE et privatisations.
+    openingHours:
+      lundi:    { ouvert: false, ouverture: "17:00", fermeture: "00:00" }
+      mardi:    { ouvert: true,  ouverture: "17:00", fermeture: "00:00" }
+      mercredi: { ouvert: true,  ouverture: "17:00", fermeture: "00:00" }
+      jeudi:    { ouvert: true,  ouverture: "17:00", fermeture: "00:00" }
+      vendredi: { ouvert: true,  ouverture: "17:00", fermeture: "01:00" }
+      samedi:   { ouvert: true,  ouverture: "10:00", fermeture: "01:00" }
+      dimanche: { ouvert: true,  ouverture: "14:00", fermeture: "19:00" }
+
+App\Entity\Zone:
+  zone_eb_accueil:
+    centre:  "@centre_espace_bourges"
+    nom:     "Accueil & Caisse"
+    couleur: "#3b82f6"
+    ordre:   1
+  zone_eb_bowling:
+    centre:  "@centre_espace_bourges"
+    nom:     "Bowling"
+    couleur: "#ef4444"
+    ordre:   2
+  zone_eb_arenes:
+    centre:  "@centre_espace_bourges"
+    nom:     "BattleKart & Lasergame"
+    couleur: "#a855f7"
+    ordre:   3
+  zone_eb_immersif:
+    centre:  "@centre_espace_bourges"
+    nom:     "VR · Karaoké · Arcades"
+    couleur: "#eab308"
+    ordre:   4
+  zone_eb_bar:
+    centre:  "@centre_espace_bourges"
+    nom:     "Bar"
+    couleur: "#22c55e"
+    ordre:   5
+
+App\Entity\User:
+  user_eb_fabrice:
+    centre: "@centre_espace_bourges"
+    nom: "Laborde"
+    prenom: "Fabrice"
+    email: "fabrice@espace-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "0000"
+    avatarColor: "#f97316"
+    points: 200
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_eb_vincent:
+    centre: "@centre_espace_bourges"
+    nom: "Picard"
+    prenom: "Vincent"
+    email: "vincent@espace-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "MANAGER"
+    codePointage: "1111"
+    avatarColor: "#ef4444"
+    points: 165
+    actif: true
+    heuresHebdo: 39
+    typeContrat: "CDI"
+  user_eb_tom:
+    centre: "@centre_espace_bourges"
+    nom: "Lemaire"
+    prenom: "Tom"
+    email: "tom@espace-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "2222"
+    avatarColor: "#eab308"
+    points: 140
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_eb_romain:
+    centre: "@centre_espace_bourges"
+    nom: "Cordier"
+    prenom: "Romain"
+    email: "romain@espace-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "3333"
+    avatarColor: "#0ea5e9"
+    points: 115
+    actif: true
+    heuresHebdo: 35
+    typeContrat: "CDI"
+  user_eb_emilie:
+    centre: "@centre_espace_bourges"
+    nom: "Rousset"
+    prenom: "Émilie"
+    email: "emilie@espace-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "4444"
+    avatarColor: "#ec4899"
+    points: 100
+    actif: true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+  user_eb_kenza:
+    centre: "@centre_espace_bourges"
+    nom: "Bourgeois"
+    prenom: "Kenza"
+    email: "kenza@espace-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "5555"
+    avatarColor: "#a855f7"
+    points: 75
+    actif: true
+    heuresHebdo: 25
+    typeContrat: "CDI"
+  user_eb_mehdi:
+    centre: "@centre_espace_bourges"
+    nom: "Chabane"
+    prenom: "Mehdi"
+    email: "mehdi@espace-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "6666"
+    avatarColor: "#22c55e"
+    points: 55
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_eb_lucie:
+    centre: "@centre_espace_bourges"
+    nom: "Marty"
+    prenom: "Lucie"
+    email: "lucie@espace-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "7777"
+    avatarColor: "#f59e0b"
+    points: 35
+    actif: true
+    heuresHebdo: 20
+    typeContrat: "CDD"
+  user_eb_arthur:
+    centre: "@centre_espace_bourges"
+    nom: "Roy"
+    prenom: "Arthur"
+    email: "arthur@espace-bourges.fr"
+    password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
+    roles: []
+    role: "EMPLOYE"
+    codePointage: "8888"
+    avatarColor: "#475569"
+    points: 15
+    actif: true
+    heuresHebdo: 0
+    typeContrat: "EXTRA"
+
+App\Entity\Mission:
+  # ─── Accueil & Caisse ──────────────────────────────────────────────────────
+  m_eb_acc_ouv_1:  { zone: "@zone_eb_accueil", texte: "Ouvrir la caisse : fond de 200 €, TPE et bornes de réservation opérationnels", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_acc_ouv_2:  { zone: "@zone_eb_accueil", texte: "Éditer le planning des réservations du jour (anniversaires, EVG/EVJF, CSE, séminaires)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_eb_acc_ouv_3:  { zone: "@zone_eb_accueil", texte: "Contrôler le stock de chaussures de bowling par pointure et le spray désinfectant", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_eb_acc_pend_1: { zone: "@zone_eb_accueil", texte: "Accueillir, encaisser et attribuer les pistes et créneaux d'activité", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_acc_pend_2: { zone: "@zone_eb_accueil", texte: "Remettre et désinfecter les chaussures de bowling à chaque retour", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_eb_acc_pend_3: { zone: "@zone_eb_accueil", texte: "Gérer cartes cadeaux, packages et arrivées de groupes", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_eb_acc_men_1:  { zone: "@zone_eb_accueil", texte: "Désinfecter banque d'accueil, TPE et bornes tactiles", categorie: "Ménage", frequence: "FIXE", priorite: "important", ordre: 1 }
+  m_eb_acc_ferm_1: { zone: "@zone_eb_accueil", texte: "Clôture de caisse, comptage et remise du fond au coffre", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_acc_ferm_2: { zone: "@zone_eb_accueil", texte: "Ranger les chaussures par pointure sur les racks désinfectants", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  # ─── Bowling ───────────────────────────────────────────────────────────────
+  m_eb_bow_ouv_1:  { zone: "@zone_eb_bowling", texte: "Mise en route des pistes : machines de remise en jeu, écrans de score, éclairage", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_bow_ouv_2:  { zone: "@zone_eb_bowling", texte: "Huilage des pistes et contrôle des gouttières et rails", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_eb_bow_ouv_3:  { zone: "@zone_eb_bowling", texte: "Vérifier les boules par poids et retirer celles fissurées ou ébréchées", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_eb_bow_pend_1: { zone: "@zone_eb_bowling", texte: "Attribuer les pistes, lancer les parties et saisir les noms des joueurs", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_bow_pend_2: { zone: "@zone_eb_bowling", texte: "Débloquer les quilles coincées et relancer la machine concernée", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_eb_bow_pend_3: { zone: "@zone_eb_bowling", texte: "Installer les barrières anti-gouttière pour les groupes enfants", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_eb_bow_men_1:  { zone: "@zone_eb_bowling", texte: "Balayer les approches et nettoyer les retours de boules", categorie: "Ménage", frequence: "FIXE", priorite: "important", ordre: 1 }
+  m_eb_bow_ferm_1: { zone: "@zone_eb_bowling", texte: "Arrêter les machines de remise en jeu et couper écrans et projecteurs", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_bow_ferm_2: { zone: "@zone_eb_bowling", texte: "Contrôle mécanique des quilles et report des anomalies au cahier technique", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  # ─── BattleKart & Lasergame ────────────────────────────────────────────────
+  m_eb_are_ouv_1:  { zone: "@zone_eb_arenes", texte: "Charger et tester les gilets lasergame (batterie, capteurs, gâchette)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_are_ouv_2:  { zone: "@zone_eb_arenes", texte: "Contrôler les karts BattleKart : batteries, freins, ceintures", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_eb_are_ouv_3:  { zone: "@zone_eb_arenes", texte: "Calibrer la projection au sol BattleKart et lancer une partie à blanc", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 3 }
+  m_eb_are_pend_1: { zone: "@zone_eb_arenes", texte: "Briefing sécurité obligatoire avant chaque partie (règles, contacts interdits)", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_are_pend_2: { zone: "@zone_eb_arenes", texte: "Surveiller la partie depuis le poste de contrôle et intervenir en cas d'incident", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_eb_are_pend_3: { zone: "@zone_eb_arenes", texte: "Imprimer et commenter les scores en fin de session", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_eb_are_men_1:  { zone: "@zone_eb_arenes", texte: "Désinfecter gilets, casques et sièges des karts entre chaque groupe", categorie: "Ménage", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_are_ferm_1: { zone: "@zone_eb_arenes", texte: "Remettre tous les gilets en charge et brancher les karts", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_are_ferm_2: { zone: "@zone_eb_arenes", texte: "Éteindre vidéoprojecteurs, machine à fumée et sono d'arène", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  # ─── VR · Karaoké · Arcades ────────────────────────────────────────────────
+  m_eb_imm_ouv_1:  { zone: "@zone_eb_immersif", texte: "Démarrer les casques VR : niveau de charge et mise à jour des expériences", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_imm_ouv_2:  { zone: "@zone_eb_immersif", texte: "Tester micros, sono et écrans des karaoké box", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_eb_imm_ouv_3:  { zone: "@zone_eb_immersif", texte: "Faire l'appoint des jetons et contrôler bornes arcade, billards et mini-golf", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_eb_imm_pend_1: { zone: "@zone_eb_immersif", texte: "Équiper et briefer les joueurs VR, surveiller la zone de jeu", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_imm_pend_2: { zone: "@zone_eb_immersif", texte: "Installer les groupes en karaoké box et lancer les playlists", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_eb_imm_pend_3: { zone: "@zone_eb_immersif", texte: "Réarmer les billards et débloquer les bornes arcade", categorie: "Pendant", frequence: "FIXE", priorite: "ne_pas_oublier", ordre: 3 }
+  m_eb_imm_men_1:  { zone: "@zone_eb_immersif", texte: "Nettoyer les mousses de casques VR et les micros après chaque session", categorie: "Ménage", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_imm_ferm_1: { zone: "@zone_eb_immersif", texte: "Remettre casques et manettes VR en charge dans les racks", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_imm_ferm_2: { zone: "@zone_eb_immersif", texte: "Éteindre bornes arcade, éclairage billards et écrans karaoké", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+  # ─── Bar & Restauration ────────────────────────────────────────────────────
+  m_eb_bar_ouv_1:  { zone: "@zone_eb_bar", texte: "Mise en route cuisine (four à pizza, friteuse) et mise en place snacking", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_bar_ouv_2:  { zone: "@zone_eb_bar", texte: "Relever les températures des frigos et de la chambre froide (HACCP)", categorie: "Ouverture", frequence: "FIXE", priorite: "vitale", ordre: 2 }
+  m_eb_bar_ouv_3:  { zone: "@zone_eb_bar", texte: "Vérifier stocks boissons et fûts, mise en place terrasse et guinguette", categorie: "Ouverture", frequence: "FIXE", priorite: "important", ordre: 3 }
+  m_eb_bar_pend_1: { zone: "@zone_eb_bar", texte: "Service bar et restauration : pizzas, planches à partager, cocktails", categorie: "Pendant", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_bar_pend_2: { zone: "@zone_eb_bar", texte: "Gérer les formules anniversaires et les buffets séminaires / CSE", categorie: "Pendant", frequence: "FIXE", priorite: "important", ordre: 2 }
+  m_eb_bar_men_1:  { zone: "@zone_eb_bar", texte: "Nettoyer plonge, plancha et surfaces de préparation en cours de service", categorie: "Ménage", frequence: "FIXE", priorite: "important", ordre: 1 }
+  m_eb_bar_ferm_1: { zone: "@zone_eb_bar", texte: "Nettoyage cuisine, rangement chambre froide et clôture caisse bar", categorie: "Fermeture", frequence: "FIXE", priorite: "vitale", ordre: 1 }
+  m_eb_bar_ferm_2: { zone: "@zone_eb_bar", texte: "Rentrer le mobilier de terrasse et fermer la guinguette", categorie: "Fermeture", frequence: "FIXE", priorite: "important", ordre: 2 }
+
+App\Entity\Competence:
+  comp_eb_acc_1: { zone: "@zone_eb_accueil",  nom: "Tenue de caisse et gestion des réservations groupes",  points: 20, difficulte: "avancee" }
+  comp_eb_bow_1: { zone: "@zone_eb_bowling",  nom: "Dépannage des machines de remise en jeu",             points: 40, difficulte: "experimente" }
+  comp_eb_bow_2: { zone: "@zone_eb_bowling",  nom: "Huilage et entretien des pistes",                      points: 30, difficulte: "avancee" }
+  comp_eb_are_1: { zone: "@zone_eb_arenes",   nom: "Briefing sécurité BattleKart et lasergame",            points: 35, difficulte: "avancee" }
+  comp_eb_imm_1: { zone: "@zone_eb_immersif", nom: "Installation et hygiène des casques VR",               points: 20, difficulte: "simple" }
+  comp_eb_bar_1: { zone: "@zone_eb_bar",      nom: "Service bar-resto et animation anniversaires",         points: 20, difficulte: "simple" }
+
+App\Entity\StaffCompetence:
+  sc_eb_f1: { user: "@user_eb_fabrice",  competence: "@comp_eb_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2023-09-01'))>" }
+  sc_eb_f2: { user: "@user_eb_fabrice",  competence: "@comp_eb_bow_2", acquiredAt: "<(new \\DateTimeImmutable('2023-10-01'))>" }
+  sc_eb_f3: { user: "@user_eb_fabrice",  competence: "@comp_eb_are_1", acquiredAt: "<(new \\DateTimeImmutable('2024-03-01'))>" }
+  sc_eb_v1: { user: "@user_eb_vincent",  competence: "@comp_eb_bow_1", acquiredAt: "<(new \\DateTimeImmutable('2024-05-01'))>" }
+  sc_eb_v2: { user: "@user_eb_vincent",  competence: "@comp_eb_bow_2", acquiredAt: "<(new \\DateTimeImmutable('2024-06-01'))>" }
+  sc_eb_v3: { user: "@user_eb_vincent",  competence: "@comp_eb_are_1", acquiredAt: "<(new \\DateTimeImmutable('2024-11-15'))>" }
+  sc_eb_t1: { user: "@user_eb_tom",      competence: "@comp_eb_are_1", acquiredAt: "<(new \\DateTimeImmutable('2024-09-01'))>" }
+  sc_eb_t2: { user: "@user_eb_tom",      competence: "@comp_eb_bow_2", acquiredAt: "<(new \\DateTimeImmutable('2025-01-20'))>" }
+  sc_eb_t3: { user: "@user_eb_tom",      competence: "@comp_eb_imm_1", acquiredAt: "<(new \\DateTimeImmutable('2025-06-01'))>" }
+  sc_eb_r1: { user: "@user_eb_romain",   competence: "@comp_eb_are_1", acquiredAt: "<(new \\DateTimeImmutable('2025-02-15'))>" }
+  sc_eb_r2: { user: "@user_eb_romain",   competence: "@comp_eb_imm_1", acquiredAt: "<(new \\DateTimeImmutable('2025-09-01'))>" }
+  sc_eb_e1: { user: "@user_eb_emilie",   competence: "@comp_eb_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2025-03-01'))>" }
+  sc_eb_e2: { user: "@user_eb_emilie",   competence: "@comp_eb_bar_1", acquiredAt: "<(new \\DateTimeImmutable('2025-04-01'))>" }
+  sc_eb_k1: { user: "@user_eb_kenza",    competence: "@comp_eb_bar_1", acquiredAt: "<(new \\DateTimeImmutable('2025-07-01'))>" }
+  sc_eb_k2: { user: "@user_eb_kenza",    competence: "@comp_eb_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2025-12-01'))>" }
+  sc_eb_me1: { user: "@user_eb_mehdi",   competence: "@comp_eb_imm_1", acquiredAt: "<(new \\DateTimeImmutable('2026-02-10'))>" }
+  sc_eb_lu1: { user: "@user_eb_lucie",   competence: "@comp_eb_bar_1", acquiredAt: "<(new \\DateTimeImmutable('2026-03-15'))>" }
+
+# Un seul service écrit à la main : celui du jour (postes, complétions et
+# incident de démo). Les autres jours sont générés par `app:demo:seed` à partir
+# des horaires d'ouverture réels du centre — pas de dérive jour/date.
+App\Entity\Service:
+  svc_eb_today:
+    centre: "@centre_espace_bourges"
+    date: "<(new \\DateTimeImmutable('today'))>"
+    heureDebut: "<(new \\DateTimeImmutable('17:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    statut: "EN_COURS"
+    tauxCompletion: 0.0
+    note: "EVJF de 12 personnes à 20h — BattleKart puis karaoké box 2, planches à prévoir au bar."
+
+App\Entity\Poste:
+  poste_eb_today_acc_fabrice:
+    service: "@svc_eb_today"
+    zone: "@zone_eb_accueil"
+    user: "@user_eb_fabrice"
+    heureDebut: "<(new \\DateTimeImmutable('17:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    pauseMinutes: 30
+  poste_eb_today_bow_tom:
+    service: "@svc_eb_today"
+    zone: "@zone_eb_bowling"
+    user: "@user_eb_tom"
+    heureDebut: "<(new \\DateTimeImmutable('17:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    pauseMinutes: 30
+  poste_eb_today_are_romain:
+    service: "@svc_eb_today"
+    zone: "@zone_eb_arenes"
+    user: "@user_eb_romain"
+    heureDebut: "<(new \\DateTimeImmutable('18:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    pauseMinutes: 20
+  poste_eb_today_imm_vincent:
+    service: "@svc_eb_today"
+    zone: "@zone_eb_immersif"
+    user: "@user_eb_vincent"
+    heureDebut: "<(new \\DateTimeImmutable('17:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
+    pauseMinutes: 30
+  poste_eb_today_bar_emilie:
+    service: "@svc_eb_today"
+    zone: "@zone_eb_bar"
+    user: "@user_eb_emilie"
+    heureDebut: "<(new \\DateTimeImmutable('17:00:00'))>"
+    heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
+    pauseMinutes: 30
+App\Entity\Completion:
+  c_eb_1: { poste: "@poste_eb_today_acc_fabrice",  mission: "@m_eb_acc_ouv_1", user: "@user_eb_fabrice" }
+  c_eb_2: { poste: "@poste_eb_today_acc_fabrice",  mission: "@m_eb_acc_ouv_2", user: "@user_eb_fabrice" }
+  c_eb_3: { poste: "@poste_eb_today_bow_tom",      mission: "@m_eb_bow_ouv_1", user: "@user_eb_tom" }
+  c_eb_4: { poste: "@poste_eb_today_bow_tom",      mission: "@m_eb_bow_ouv_2", user: "@user_eb_tom" }
+  c_eb_5: { poste: "@poste_eb_today_imm_vincent",  mission: "@m_eb_imm_ouv_1", user: "@user_eb_vincent" }
+  c_eb_6: { poste: "@poste_eb_today_bar_emilie",   mission: "@m_eb_bar_ouv_1", user: "@user_eb_emilie" }
+  c_eb_7: { poste: "@poste_eb_today_bar_emilie",   mission: "@m_eb_bar_ouv_2", user: "@user_eb_emilie" }
+
+App\Entity\Incident:
+  inc_eb_1:
+    centre:         "@centre_espace_bourges"
+    service:        "@svc_eb_today"
+    titre:          "Piste 8 — quille bloquée à répétition, machine remise en jeu à réviser"
+    severite:       "moyenne"
+    statut:         "RESOLU"
+    user:           "@user_eb_vincent"
+    zone:           "@zone_eb_bowling"
+    staffImpliques: ["@user_eb_vincent", "@user_eb_tom", "@user_eb_fabrice"]
+  inc_eb_2:
+    centre:         "@centre_espace_bourges"
+    service:        "@svc_eb_today"
+    titre:          "Kart BattleKart n°3 — batterie HS, retiré de la rotation"
+    severite:       "haute"
+    statut:         "EN_COURS"
+    user:           "@user_eb_vincent"
+    zone:           "@zone_eb_arenes"
+    staffImpliques: ["@user_eb_vincent"]
+
+App\Entity\Tutoriel:
+  tuto_eb_brief_arene:
+    centre:  "@centre_espace_bourges"
+    titre:   "Briefing sécurité BattleKart et lasergame"
+    zone:    "@zone_eb_arenes"
+    niveau:  "debutant"
+    dureMin: 15
+    contenu:
+      - { type: "intro", text: "Un joueur mal briefé est un danger pour lui et pour les autres. Le brief est obligatoire, même pour les habitués." }
+      - { type: "step", number: 1, title: "Avant d'entrer en arène", text: "Retirer lunettes non attachées, écharpes et objets dans les poches. Chaussures fermées obligatoires." }
+      - { type: "step", number: 2, title: "Règles de jeu", text: "Aucun contact physique. Interdiction de courir en lasergame, de percuter volontairement en BattleKart." }
+      - { type: "step", number: 3, title: "En cas de souci", text: "Lever la main, rester à sa place, attendre l'animateur. Ne jamais descendre du kart en cours de partie." }
+      - { type: "tip", text: "Groupes d'anniversaires d'ados : insister 3× sur l'interdiction de contact — c'est le plus risqué." }
+  tuto_eb_pistes:
+    centre:  "@centre_espace_bourges"
+    titre:   "Ouverture et entretien des pistes de bowling"
+    zone:    "@zone_eb_bowling"
+    niveau:  "avance"
+    dureMin: 25
+    contenu:
+      - { type: "intro", text: "Une piste mal préparée fausse le jeu et abîme les boules. Cette routine se fait chaque matin avant ouverture." }
+      - { type: "step", number: 1, title: "Huilage", text: "Passer la machine d'huilage sur les 12 pistes, motif standard. Vérifier le niveau d'huile avant le premier passage." }
+      - { type: "step", number: 2, title: "Machines de remise en jeu", text: "Lancer un cycle à vide par piste. Toute quille mal repositionnée = piste hors service et fiche technique." }
+      - { type: "step", number: 3, title: "Boules et chaussures", text: "Retirer les boules fissurées. Contrôler que chaque pointure est disponible et désinfectée." }
+      - { type: "tip", text: "Anomalie mécanique : piste hors service + fiche rouge + info immédiate au manager. Jamais de bricolage en cours de service." }
+  tuto_eb_vr:
+    centre:  "@centre_espace_bourges"
+    titre:   "Hygiène et mise en main des casques VR"
+    zone:    "@zone_eb_immersif"
+    niveau:  "debutant"
+    dureMin: 10
+    contenu:
+      - { type: "intro", text: "Le casque VR est en contact direct avec le visage : l'hygiène n'est pas négociable entre deux joueurs." }
+      - { type: "step", number: 1, title: "Avant la session", text: "Mousse propre ou jetable posée, sangles réglées, batterie au-dessus de 50 %." }
+      - { type: "step", number: 2, title: "Mise en main", text: "Expliquer la zone de jeu et les limites, remettre les manettes dragonnes attachées." }
+      - { type: "step", number: 3, title: "Après la session", text: "Désinfecter mousse et manettes, remettre le casque en charge dans son rack." }
+      - { type: "tip", text: "Joueur qui a le mal des transports : proposer une expérience assise et rester à côté de lui." }
+
+App\Entity\TutoRead:
+  tr_eb_t1: { user: "@user_eb_tom",     tutoriel: "@tuto_eb_brief_arene" }
+  tr_eb_t2: { user: "@user_eb_tom",     tutoriel: "@tuto_eb_pistes" }
+  tr_eb_r1: { user: "@user_eb_romain",  tutoriel: "@tuto_eb_brief_arene" }
+  tr_eb_r2: { user: "@user_eb_romain",  tutoriel: "@tuto_eb_vr" }
+  tr_eb_v1: { user: "@user_eb_vincent", tutoriel: "@tuto_eb_pistes" }
+  tr_eb_me1: { user: "@user_eb_mehdi",  tutoriel: "@tuto_eb_brief_arene" }
+
+App\Entity\PlanningWeek:
+  pw_eb_current:
+    centre:      "@centre_espace_bourges"
+    weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
+    statut:      "PUBLIE"
+    publishedAt: "<(new \\DateTimeImmutable('monday this week 08:30:00'))>"
+    publishedBy: "@user_eb_fabrice"
