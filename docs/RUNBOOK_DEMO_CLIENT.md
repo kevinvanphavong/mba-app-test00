@@ -32,23 +32,55 @@ commande manuelle.
 
 ## 2. Déployer et semer
 
+Le CLI Railway est installé et le dépôt est déjà lié au bon projet/service
+(`railway status` → `shiftly-app` / `production` / `shiftly-project`). Tout se
+pilote donc en ligne de commande, l'UI web n'est pas nécessaire.
+
 1. Pousser `main` → Railway rebuild l'API, les migrations tournent au démarrage.
-2. Passer `DEMO_SEED=1` sur Railway, redémarrer le service.
-3. Lire les logs : la commande doit afficher `10 centres · … plannings · …
-   services`, précédé de `Contacts CRM : N emailHash recalculés.`
-4. **Remettre `DEMO_SEED=0`.** Sinon la base est réécrasée à chaque redémarrage
-   du container — y compris en pleine démo.
+2. Poser la clé de chiffrement **si elle n'existe pas encore** et armer le semis.
+   La clé est générée localement et n'apparaît jamais en clair ailleurs :
+
+   ```bash
+   railway variables --set "PII_ENCRYPTION_KEY=$(php -r 'echo base64_encode(random_bytes(32));')" --set "DEMO_SEED=1"
+   ```
+
+3. Chaque `--set` déclenche un redéploiement. Suivre les logs :
+
+   ```bash
+   railway logs
+   ```
+
+   Attendu : `Contacts CRM : N emailHash recalculés.` puis
+   `10 centres · … plannings · … services`.
+4. **Remettre `DEMO_SEED` à 0.** Sinon la base est réécrasée à chaque redémarrage
+   du container — y compris en pleine démo :
+
+   ```bash
+   railway variables --set "DEMO_SEED=0"
+   ```
 
 Optionnel, si tu veux montrer la console super-admin (MRR, abonnements,
-factures), depuis la console Railway :
+factures) :
 
 ```bash
-php bin/console app:demo:seed:superadmin --force --skip-centre=espace-bourges
+railway run php bin/console app:demo:seed:superadmin --force --skip-centre=espace-bourges
 ```
 
 `--skip-centre` laisse le centre du prospect totalement intact : ni abonnement,
 ni plan, ni CRM générique par-dessus ses vraies données de démo. À lancer
 **après** `DEMO_SEED`, qui purge la base.
+
+### État constaté des variables (19/08/2026)
+
+| Variable | État | Conséquence |
+|---|---|---|
+| `LOAD_FIXTURES` | `0` | Aucun rechargement au redémarrage. À laisser tel quel. |
+| `RESYNC_SCHEMA` | `0` | Doctrine ne touche pas au schéma. À laisser tel quel. |
+| `DEMO_SEED` | absente | À créer pour semer (étape 2). |
+| `PII_ENCRYPTION_KEY` | **absente** | Bloque tout le CRM de démo. À poser. |
+| `APP_ENV` | `dev` | Sans effet : `entrypoint.sh` force `APP_ENV=prod` au démarrage. |
+| `MAILER_DSN` | absente | **Aucun e-mail ne peut partir de la prod.** |
+| `SENTRY_DSN` | absente | Pas de remontée d'erreurs en production. |
 
 ## 3. Vérifier en prod
 
