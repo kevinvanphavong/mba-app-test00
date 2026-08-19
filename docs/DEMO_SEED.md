@@ -64,6 +64,8 @@ remplit tous les modules du cockpit :
 | Demandes B2B | 4 demandes + 3 devis (brouillon, envoyé, accepté) |
 | Registre du personnel | 9 contrats (CDI / CDD / extra) |
 
+Pour amener ce centre en prod et le présenter : **[RUNBOOK_DEMO_CLIENT.md](RUNBOOK_DEMO_CLIENT.md)**.
+
 Conventions à respecter en modifiant ce fichier :
 
 - **Personnes fictives, e-mails en `@exemple.fr`** (domaine réservé RFC 2606) :
