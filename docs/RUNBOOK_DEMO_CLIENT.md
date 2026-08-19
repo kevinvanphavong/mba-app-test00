@@ -37,14 +37,22 @@ Le CLI Railway est installé et le dépôt est déjà lié au bon projet/service
 pilote donc en ligne de commande, l'UI web n'est pas nécessaire.
 
 1. Pousser `main` → Railway rebuild l'API, les migrations tournent au démarrage.
-2. Poser la clé de chiffrement **si elle n'existe pas encore** et armer le semis.
-   La clé est générée localement et n'apparaît jamais en clair ailleurs :
+2. Poser la clé de chiffrement **si elle n'existe pas encore**. `--stdin` évite
+   que la clé apparaisse dans la ligne de commande et donc dans l'historique du
+   shell ; `--skip-deploys` évite un redéploiement pour rien puisque le suivant
+   suffira :
 
    ```bash
-   railway variables --set "PII_ENCRYPTION_KEY=$(php -r 'echo base64_encode(random_bytes(32));')" --set "DEMO_SEED=1"
+   php -r 'echo base64_encode(random_bytes(32));' | railway variable set PII_ENCRYPTION_KEY --stdin --skip-deploys
    ```
 
-3. Chaque `--set` déclenche un redéploiement. Suivre les logs :
+   Puis armer le semis — celui-ci déclenche bien un redéploiement :
+
+   ```bash
+   railway variable set DEMO_SEED=1
+   ```
+
+3. Suivre les logs :
 
    ```bash
    railway logs
@@ -56,7 +64,7 @@ pilote donc en ligne de commande, l'UI web n'est pas nécessaire.
    du container — y compris en pleine démo :
 
    ```bash
-   railway variables --set "DEMO_SEED=0"
+   railway variable set DEMO_SEED=0
    ```
 
 Optionnel, si tu veux montrer la console super-admin (MRR, abonnements,
@@ -81,6 +89,31 @@ ni plan, ni CRM générique par-dessus ses vraies données de démo. À lancer
 | `APP_ENV` | `dev` | Sans effet : `entrypoint.sh` force `APP_ENV=prod` au démarrage. |
 | `MAILER_DSN` | absente | **Aucun e-mail ne peut partir de la prod.** |
 | `SENTRY_DSN` | absente | Pas de remontée d'erreurs en production. |
+
+## 2 bis. Le front n'est pas déployé
+
+⚠️ **Constat du 19/08/2026** : le projet Railway `shiftly-app` ne contient que
+l'API (root directory `/shiftly-api`) et sa base Postgres. Le front Next.js de ce
+dépôt n'est déployé nulle part.
+
+`app.shiftly.fr` résout vers `185.158.133.1`, dont le reverse DNS pointe sur
+`lovable-app-cd-1-4.p.l5e.io` — c'est-à-dire un projet **Lovable**, sans rapport
+avec ce dépôt, et dont le handshake TLS échoue (`curl` renvoie une erreur SSL).
+L'URL n'est donc pas utilisable pour une démo.
+
+Trois options, à trancher avant de présenter :
+
+1. **Ajouter un second service Railway** sur le même projet, root directory
+   `/shiftly-app`, avec `NEXT_PUBLIC_API_URL` pointant sur l'API. Impacte le
+   coût du plan.
+2. **Déployer le front sur Vercel** et faire pointer `app.shiftly.fr` dessus.
+3. **Démo depuis le poste local** : `npm run dev` avec
+   `NEXT_PUBLIC_API_URL=https://shiftly-project.up.railway.app/api`. Aucune
+   infra à créer, mais la démo dépend de la machine et de sa connexion.
+
+Tant que ce point n'est pas réglé, seule l'API est joignable en production
+(`https://shiftly-project.up.railway.app/api`, qui répond `401` sans jeton —
+c'est le comportement attendu).
 
 ## 3. Vérifier en prod
 
