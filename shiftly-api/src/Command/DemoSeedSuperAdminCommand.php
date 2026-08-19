@@ -54,7 +54,9 @@ final class DemoSeedSuperAdminCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('force', null, InputOption::VALUE_NONE, 'Obligatoire en prod pour autoriser l\'écriture de données de démo.');
+        $this
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Obligatoire en prod pour autoriser l\'écriture de données de démo.')
+            ->addOption('skip-centre', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Slug d\'un centre à laisser intact (répétable). Utile pour un centre présenté à un vrai prospect, à qui on ne veut ni abonnement ni CRM générique.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -72,7 +74,15 @@ final class DemoSeedSuperAdminCommand extends Command
         $plans = $this->ensurePlans();
         $stats = ['centres' => 0, 'subscriptions' => 0, 'invoices' => 0, 'avis' => 0, 'relances' => 0, 'demandes' => 0, 'reservations' => 0];
 
+        /** @var list<string> $ignores */
+        $ignores = $input->getOption('skip-centre');
+
         foreach ($this->em->getRepository(Centre::class)->findAll() as $centre) {
+            if (\in_array((string) $centre->getSlug(), $ignores, true)) {
+                $io->writeln(sprintf('  – %s — ignoré (--skip-centre)', $centre->getNom()));
+                continue;
+            }
+
             $manager = $this->em->getRepository(User::class)->findOneBy(['centre' => $centre, 'role' => User::ROLE_MANAGER, 'actif' => true]);
             if (null === $manager) {
                 continue; // centre sans gérant actif : hors périmètre de la démo agence

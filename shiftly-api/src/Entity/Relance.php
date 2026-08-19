@@ -154,9 +154,31 @@ class Relance
         return $this->createdAt;
     }
 
+    /**
+     * Antidatage des jeux de données (fixtures de démo, reprise d'historique lors
+     * d'un import). Aucun groupe de sérialisation : jamais écrivable via l'API.
+     */
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
     public function getSentAt(): ?\DateTimeImmutable
     {
         return $this->sentAt;
+    }
+
+    /**
+     * Antidatage des jeux de données (fixtures de démo, reprise d'historique lors
+     * d'un import). Aucun groupe de sérialisation : jamais écrivable via l'API.
+     */
+    public function setSentAt(?\DateTimeImmutable $sentAt): static
+    {
+        $this->sentAt = $sentAt;
+
+        return $this;
     }
 
     public function marquerEnvoyee(): void

@@ -186,6 +186,17 @@ class Contact
         return $this->createdAt;
     }
 
+    /**
+     * Antidatage des jeux de données (fixtures de démo, reprise d'historique lors
+     * d'un import). Aucun groupe de sérialisation : jamais écrivable via l'API.
+     */
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
     public function getUpdatedAt(): ?\DateTimeImmutable
     {
         return $this->updatedAt;

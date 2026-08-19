@@ -1,5 +1,6 @@
 'use client'
 
+import { dateSouhaitee } from '@/features/b2b/format'
 import type { DemandeB2B, Devis } from '@/features/b2b/types'
 import DevisEditor from './DevisEditor'
 
@@ -19,7 +20,7 @@ export default function DemandeDetail({ demande, devis }: { demande: DemandeB2B;
           <Field label="Email" value={demande.email} />
           <Field label="Téléphone" value={demande.telephone} />
           <Field label="Personnes" value={demande.nbPersonnes !== null ? String(demande.nbPersonnes) : '—'} />
-          <Field label="Date souhaitée" value={demande.dateSouhaitee ?? '—'} />
+          <Field label="Date souhaitée" value={dateSouhaitee(demande.dateSouhaitee)} />
         </dl>
         <div>
           <dt className="text-[11px] uppercase tracking-wide text-muted">Message</dt>

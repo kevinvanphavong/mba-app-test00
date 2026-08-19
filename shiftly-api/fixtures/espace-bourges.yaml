@@ -58,11 +58,11 @@ App\Entity\Zone:
     ordre:   5
 
 App\Entity\User:
-  user_eb_fabrice:
+  user_eb_nicolas:
     centre: "@centre_espace_bourges"
-    nom: "Laborde"
-    prenom: "Fabrice"
-    email: "fabrice@espace-bourges.fr"
+    nom: "Groelly"
+    prenom: "Nicolas"
+    email: "nicolas@espace-bourges.fr"
     password: "<(password_hash('shiftly2026', PASSWORD_BCRYPT, ['cost' => 12]))>"
     roles: []
     role: "MANAGER"
@@ -249,9 +249,9 @@ App\Entity\Competence:
   comp_eb_bar_1: { zone: "@zone_eb_bar",      nom: "Service bar-resto et animation anniversaires",         points: 20, difficulte: "simple" }
 
 App\Entity\StaffCompetence:
-  sc_eb_f1: { user: "@user_eb_fabrice",  competence: "@comp_eb_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2023-09-01'))>" }
-  sc_eb_f2: { user: "@user_eb_fabrice",  competence: "@comp_eb_bow_2", acquiredAt: "<(new \\DateTimeImmutable('2023-10-01'))>" }
-  sc_eb_f3: { user: "@user_eb_fabrice",  competence: "@comp_eb_are_1", acquiredAt: "<(new \\DateTimeImmutable('2024-03-01'))>" }
+  sc_eb_f1: { user: "@user_eb_nicolas",  competence: "@comp_eb_acc_1", acquiredAt: "<(new \\DateTimeImmutable('2023-09-01'))>" }
+  sc_eb_f2: { user: "@user_eb_nicolas",  competence: "@comp_eb_bow_2", acquiredAt: "<(new \\DateTimeImmutable('2023-10-01'))>" }
+  sc_eb_f3: { user: "@user_eb_nicolas",  competence: "@comp_eb_are_1", acquiredAt: "<(new \\DateTimeImmutable('2024-03-01'))>" }
   sc_eb_v1: { user: "@user_eb_vincent",  competence: "@comp_eb_bow_1", acquiredAt: "<(new \\DateTimeImmutable('2024-05-01'))>" }
   sc_eb_v2: { user: "@user_eb_vincent",  competence: "@comp_eb_bow_2", acquiredAt: "<(new \\DateTimeImmutable('2024-06-01'))>" }
   sc_eb_v3: { user: "@user_eb_vincent",  competence: "@comp_eb_are_1", acquiredAt: "<(new \\DateTimeImmutable('2024-11-15'))>" }
@@ -281,10 +281,10 @@ App\Entity\Service:
     note: "EVJF de 12 personnes à 20h — BattleKart puis karaoké box 2, planches à prévoir au bar."
 
 App\Entity\Poste:
-  poste_eb_today_acc_fabrice:
+  poste_eb_today_acc_nicolas:
     service: "@svc_eb_today"
     zone: "@zone_eb_accueil"
-    user: "@user_eb_fabrice"
+    user: "@user_eb_nicolas"
     heureDebut: "<(new \\DateTimeImmutable('17:00:00'))>"
     heureFin: "<(new \\DateTimeImmutable('00:00:00'))>"
     pauseMinutes: 30
@@ -317,8 +317,8 @@ App\Entity\Poste:
     heureFin: "<(new \\DateTimeImmutable('23:00:00'))>"
     pauseMinutes: 30
 App\Entity\Completion:
-  c_eb_1: { poste: "@poste_eb_today_acc_fabrice",  mission: "@m_eb_acc_ouv_1", user: "@user_eb_fabrice" }
-  c_eb_2: { poste: "@poste_eb_today_acc_fabrice",  mission: "@m_eb_acc_ouv_2", user: "@user_eb_fabrice" }
+  c_eb_1: { poste: "@poste_eb_today_acc_nicolas",  mission: "@m_eb_acc_ouv_1", user: "@user_eb_nicolas" }
+  c_eb_2: { poste: "@poste_eb_today_acc_nicolas",  mission: "@m_eb_acc_ouv_2", user: "@user_eb_nicolas" }
   c_eb_3: { poste: "@poste_eb_today_bow_tom",      mission: "@m_eb_bow_ouv_1", user: "@user_eb_tom" }
   c_eb_4: { poste: "@poste_eb_today_bow_tom",      mission: "@m_eb_bow_ouv_2", user: "@user_eb_tom" }
   c_eb_5: { poste: "@poste_eb_today_imm_vincent",  mission: "@m_eb_imm_ouv_1", user: "@user_eb_vincent" }
@@ -334,7 +334,7 @@ App\Entity\Incident:
     statut:         "RESOLU"
     user:           "@user_eb_vincent"
     zone:           "@zone_eb_bowling"
-    staffImpliques: ["@user_eb_vincent", "@user_eb_tom", "@user_eb_fabrice"]
+    staffImpliques: ["@user_eb_vincent", "@user_eb_tom", "@user_eb_nicolas"]
   inc_eb_2:
     centre:         "@centre_espace_bourges"
     service:        "@svc_eb_today"
@@ -397,4 +397,537 @@ App\Entity\PlanningWeek:
     weekStart:   "<(new \\DateTimeImmutable('monday this week'))>"
     statut:      "PUBLIE"
     publishedAt: "<(new \\DateTimeImmutable('monday this week 08:30:00'))>"
-    publishedBy: "@user_eb_fabrice"
+    publishedBy: "@user_eb_nicolas"
+
+# ═══════════════════════════════════════════════════════════
+#  Catalogue de prestations — tarifs publics relevés sur
+#  espace-bourges.fr. Les lignes marquées « tarif à confirmer »
+#  ne sont pas affichées publiquement : valeurs plausibles à
+#  faire valider par le gérant avant toute présentation chiffrée.
+# ═══════════════════════════════════════════════════════════
+App\Entity\Prestation:
+  presta_eb_bowling_hc:
+    centre: "@centre_espace_bourges"
+    nom: "Bowling — partie 14h/20h"
+    description: "Une partie par personne, du lundi au samedi de 14h à 20h. Location des chaussures incluse."
+    prixCents: 600
+    ordre: 1
+    actif: true
+  presta_eb_bowling_hp:
+    centre: "@centre_espace_bourges"
+    nom: "Bowling — partie 20h/fermeture"
+    description: "Une partie par personne, du lundi au vendredi après 20h. Location des chaussures incluse."
+    prixCents: 700
+    ordre: 2
+    actif: true
+  presta_eb_bowling_sam:
+    centre: "@centre_espace_bourges"
+    nom: "Bowling — samedi soir & veille de jour férié"
+    description: "Une partie par personne après 20h le samedi et les veilles de jours fériés."
+    prixCents: 900
+    ordre: 3
+    actif: true
+  presta_eb_bowling_dim:
+    centre: "@centre_espace_bourges"
+    nom: "Bowling — dimanche & jours fériés"
+    description: "Une partie par personne le dimanche et les jours fériés, toute la journée."
+    prixCents: 750
+    ordre: 4
+    actif: true
+  presta_eb_laser_1:
+    centre: "@centre_espace_bourges"
+    nom: "Lasergame — 1 partie (20 min)"
+    description: "Une partie de 20 minutes, jusqu'à 20 joueurs. 7 € du lundi au jeudi, 8 € du vendredi au dimanche."
+    prixCents: 700
+    ordre: 5
+    actif: true
+  presta_eb_laser_2:
+    centre: "@centre_espace_bourges"
+    nom: "Lasergame — 2 parties"
+    description: "Deux parties de 20 minutes. 12 € du lundi au jeudi, 14 € du vendredi au dimanche."
+    prixCents: 1200
+    ordre: 6
+    actif: true
+  presta_eb_laser_3:
+    centre: "@centre_espace_bourges"
+    nom: "Lasergame — 3 parties"
+    description: "Trois parties de 20 minutes. 15 € du lundi au jeudi, 18 € du vendredi au dimanche."
+    prixCents: 1500
+    ordre: 7
+    actif: true
+  presta_eb_vr_contagion:
+    centre: "@centre_espace_bourges"
+    nom: "Réalité virtuelle — Contagion Origins (25 min)"
+    description: "Expérience VR multijoueur de 25 minutes."
+    prixCents: 1900
+    ordre: 8
+    actif: true
+  presta_eb_vr_session:
+    centre: "@centre_espace_bourges"
+    nom: "Réalité virtuelle — session à l'unité"
+    description: "Une session VR au choix (Faragor, Odyssée Sauvage, Escapage, The Day After, Ghost Power). 2 sessions pour 19 €."
+    prixCents: 1000
+    ordre: 9
+    actif: true
+  presta_eb_karaoke:
+    centre: "@centre_espace_bourges"
+    nom: "Karaoké Box"
+    description: "Accès à la karaoké box, par personne. Salle jusqu'à 18 personnes."
+    prixCents: 800
+    ordre: 10
+    actif: true
+  presta_eb_battlekart:
+    centre: "@centre_espace_bourges"
+    # Tarif à confirmer : non publié sur le site (réservation via funow.com).
+    nom: "BattleKart — 1 course (15 min)"
+    description: "Une course BattleKart en réalité augmentée, 15 minutes. Tarif à confirmer avec le gérant."
+    prixCents: 2000
+    ordre: 11
+    actif: true
+  presta_eb_minigolf:
+    centre: "@centre_espace_bourges"
+    # Tarif à confirmer : non publié sur le site.
+    nom: "Mini-golf — parcours"
+    description: "Parcours de mini-golf, par personne. Tarif à confirmer avec le gérant."
+    prixCents: 500
+    ordre: 12
+    actif: true
+  presta_eb_billard:
+    centre: "@centre_espace_bourges"
+    # Tarif à confirmer : non publié sur le site.
+    nom: "Billard — 1 heure de table"
+    description: "Location d'une table de billard pour une heure. Tarif à confirmer avec le gérant."
+    prixCents: 1000
+    ordre: 13
+    actif: true
+  presta_eb_chaussettes:
+    centre: "@centre_espace_bourges"
+    nom: "Chaussettes jetables"
+    description: "Paire de chaussettes jetables, obligatoire pour certaines activités."
+    prixCents: 100
+    ordre: 14
+    actif: true
+
+# ─── Registre du personnel (contrats) ────────────────────────────────────────
+App\Entity\Contrat:
+  ctr_eb_nicolas: { centre: "@centre_espace_bourges", user: "@user_eb_nicolas", typeContrat: "CDI",   dateDebut: "<(new \\DateTimeImmutable('2019-03-01'))>", qualification: "Gérant",                    heuresHebdo: 39 }
+  ctr_eb_vincent: { centre: "@centre_espace_bourges", user: "@user_eb_vincent", typeContrat: "CDI",   dateDebut: "<(new \\DateTimeImmutable('2021-06-14'))>", qualification: "Responsable exploitation",   heuresHebdo: 39 }
+  ctr_eb_tom:     { centre: "@centre_espace_bourges", user: "@user_eb_tom",     typeContrat: "CDI",   dateDebut: "<(new \\DateTimeImmutable('2022-09-05'))>", qualification: "Technicien bowling",         heuresHebdo: 35 }
+  ctr_eb_romain:  { centre: "@centre_espace_bourges", user: "@user_eb_romain",  typeContrat: "CDI",   dateDebut: "<(new \\DateTimeImmutable('2023-02-13'))>", qualification: "Animateur activités",        heuresHebdo: 35 }
+  ctr_eb_emilie:  { centre: "@centre_espace_bourges", user: "@user_eb_emilie",  typeContrat: "CDI",   dateDebut: "<(new \\DateTimeImmutable('2023-11-02'))>", qualification: "Serveuse bar-restauration",  heuresHebdo: 25 }
+  ctr_eb_kenza:   { centre: "@centre_espace_bourges", user: "@user_eb_kenza",   typeContrat: "CDI",   dateDebut: "<(new \\DateTimeImmutable('2024-05-06'))>", qualification: "Hôtesse d'accueil",          heuresHebdo: 25 }
+  ctr_eb_mehdi:   { centre: "@centre_espace_bourges", user: "@user_eb_mehdi",   typeContrat: "CDD",   dateDebut: "<(new \\DateTimeImmutable('2026-02-02'))>", dateFin: "<(new \\DateTimeImmutable('2026-09-30'))>", qualification: "Animateur activités", heuresHebdo: 20 }
+  ctr_eb_lucie:   { centre: "@centre_espace_bourges", user: "@user_eb_lucie",   typeContrat: "CDD",   dateDebut: "<(new \\DateTimeImmutable('2026-03-09'))>", dateFin: "<(new \\DateTimeImmutable('2026-10-31'))>", qualification: "Serveuse bar",        heuresHebdo: 20 }
+  ctr_eb_arthur:  { centre: "@centre_espace_bourges", user: "@user_eb_arthur",  typeContrat: "EXTRA", dateDebut: "<(new \\DateTimeImmutable('2026-06-01'))>", qualification: "Extra week-end",             heuresHebdo: 0 }
+
+# ═══════════════════════════════════════════════════════════
+#  CRM — clients, avis, relances, demandes B2B, réservations.
+#  Personnes FICTIVES, emails en @exemple.fr (domaine réservé
+#  RFC 2606) : aucun envoi ne peut atteindre une vraie boîte.
+#  `emailHash` est recalculé par `app:demo:seed` (dépend de l'id
+#  du centre, inconnu au chargement des fixtures).
+# ═══════════════════════════════════════════════════════════
+App\Entity\Contact:
+  ct_eb_julie:
+    centre: "@centre_espace_bourges"
+    nom: "Julie Berthier"
+    email: "julie.berthier@exemple.fr"
+    telephone: "06 12 34 56 01"
+    emailHash: "seed-eb-julie"
+    segments: ["b2c"]
+  ct_eb_karim:
+    centre: "@centre_espace_bourges"
+    nom: "Karim Benali"
+    email: "karim.benali@exemple.fr"
+    telephone: "06 12 34 56 02"
+    emailHash: "seed-eb-karim"
+    segments: ["b2c"]
+  ct_eb_sophie:
+    centre: "@centre_espace_bourges"
+    nom: "Sophie Nguyen"
+    email: "sophie.nguyen@exemple.fr"
+    telephone: "06 12 34 56 03"
+    emailHash: "seed-eb-sophie"
+    segments: ["b2c", "no_show"]
+  ct_eb_thomas:
+    centre: "@centre_espace_bourges"
+    nom: "Thomas Renard"
+    email: "thomas.renard@exemple.fr"
+    telephone: "06 12 34 56 04"
+    emailHash: "seed-eb-thomas"
+    segments: ["b2c"]
+  ct_eb_amandine:
+    centre: "@centre_espace_bourges"
+    nom: "Amandine Faure"
+    email: "amandine.faure@exemple.fr"
+    telephone: "06 12 34 56 05"
+    emailHash: "seed-eb-amandine"
+    segments: ["b2c"]
+  ct_eb_sebastien:
+    centre: "@centre_espace_bourges"
+    nom: "Sébastien Girard"
+    email: "sebastien.girard@exemple.fr"
+    telephone: "06 12 34 56 06"
+    emailHash: "seed-eb-sebastien"
+    segments: ["b2c", "no_show"]
+  ct_eb_celine:
+    centre: "@centre_espace_bourges"
+    nom: "Céline Marchand"
+    email: "celine.marchand@exemple.fr"
+    telephone: "06 12 34 56 07"
+    emailHash: "seed-eb-celine"
+    segments: ["b2b"]
+  ct_eb_laurent:
+    centre: "@centre_espace_bourges"
+    nom: "Laurent Dubois"
+    email: "laurent.dubois@exemple.fr"
+    telephone: "06 12 34 56 08"
+    emailHash: "seed-eb-laurent"
+    segments: ["b2b", "b2c"]
+
+App\Entity\Avis:
+  av_eb_1:
+    centre: "@centre_espace_bourges"
+    contact: "@ct_eb_julie"
+    note: 5
+    commentaire: "Anniversaire de ma fille au bowling, tout était nickel. Le personnel a géré les 12 enfants sans broncher."
+    statut: "REPONDU"
+    reponse: "Merci Julie ! On transmet à l'équipe, à très vite à l'Espace."
+    createdAt: "<(new \\DateTimeImmutable('-18 days 14:20'))>"
+  av_eb_2:
+    centre: "@centre_espace_bourges"
+    contact: "@ct_eb_karim"
+    note: 4
+    commentaire: "Très bon lasergame, arène grande et bien équipée. Un peu d'attente pour récupérer les gilets."
+    statut: "REPONDU"
+    reponse: "Merci pour le retour ! On a renforcé l'équipe sur les créneaux du samedi soir."
+    createdAt: "<(new \\DateTimeImmutable('-12 days 21:05'))>"
+  av_eb_3:
+    centre: "@centre_espace_bourges"
+    contact: "@ct_eb_thomas"
+    note: 5
+    commentaire: "Le BattleKart vaut vraiment le détour, rien à voir avec un karting classique. On reviendra entre collègues."
+    statut: "NOUVEAU"
+    createdAt: "<(new \\DateTimeImmutable('-6 days 19:40'))>"
+  av_eb_4:
+    centre: "@centre_espace_bourges"
+    contact: "@ct_eb_amandine"
+    note: 2
+    commentaire: "Piste de bowling en panne pendant 20 minutes, on nous a juste dit d'attendre. Dommage, l'endroit est top sinon."
+    statut: "NOUVEAU"
+    createdAt: "<(new \\DateTimeImmutable('-4 days 22:15'))>"
+  av_eb_5:
+    centre: "@centre_espace_bourges"
+    contact: "@ct_eb_laurent"
+    note: 5
+    commentaire: "Séminaire d'équipe organisé ici, formule bowling + planches parfaite. Devis clair et rapide."
+    statut: "REPONDU"
+    reponse: "Merci Laurent, au plaisir de vous recevoir pour la prochaine édition !"
+    createdAt: "<(new \\DateTimeImmutable('-3 days 17:30'))>"
+  av_eb_6:
+    centre: "@centre_espace_bourges"
+    contact: "@ct_eb_sophie"
+    note: 3
+    commentaire: "Bien mais bruyant, difficile de discuter au bar un samedi soir."
+    statut: "NOUVEAU"
+    createdAt: "<(new \\DateTimeImmutable('-1 day 20:10'))>"
+
+App\Entity\Relance:
+  rl_eb_1:
+    centre: "@centre_espace_bourges"
+    contact: "@ct_eb_sophie"
+    motif: "NO_SHOW"
+    texte: "Bonjour Sophie, nous n'avons pas eu le plaisir de vous accueillir lors de votre dernier créneau. Il vous attend quand vous voulez : répondez à ce message et on vous replace sans frais."
+    statut: "ENVOYEE"
+    createdAt: "<(new \\DateTimeImmutable('-9 days 10:00'))>"
+    sentAt: "<(new \\DateTimeImmutable('-9 days 10:05'))>"
+  rl_eb_2:
+    centre: "@centre_espace_bourges"
+    contact: "@ct_eb_sebastien"
+    motif: "NO_SHOW"
+    texte: "Bonjour Sébastien, votre partie de lasergame est restée inutilisée. On vous propose de la reporter sur le créneau de votre choix."
+    statut: "A_ENVOYER"
+    createdAt: "<(new \\DateTimeImmutable('-2 days 09:30'))>"
+  rl_eb_3:
+    centre: "@centre_espace_bourges"
+    contact: "@ct_eb_amandine"
+    motif: "NO_SHOW"
+    statut: "A_REDIGER"
+    createdAt: "<(new \\DateTimeImmutable('-1 day 08:45'))>"
+
+App\Entity\DemandeB2B:
+  db_eb_seminaire:
+    centre: "@centre_espace_bourges"
+    nomContact: "Laurent Dubois"
+    email: "laurent.dubois@exemple.fr"
+    telephone: "06 12 34 56 08"
+    societe: "Berry Logistique"
+    typeEvenement: "Séminaire & team building"
+    nbPersonnes: 28
+    dateSouhaitee: "<(new \\DateTimeImmutable('next thursday +3 weeks'))>"
+    message: "Bonjour, nous cherchons une demi-journée team building pour 28 personnes : bowling + lasergame puis buffet. Possible un jeudi après-midi ?"
+    statut: "DEVIS_ENVOYE"
+    createdAt: "<(new \\DateTimeImmutable('-11 days 09:12'))>"
+  db_eb_cse:
+    centre: "@centre_espace_bourges"
+    nomContact: "Céline Marchand"
+    email: "celine.marchand@exemple.fr"
+    telephone: "06 12 34 56 07"
+    societe: "CSE Groupe Solteo"
+    typeEvenement: "Soirée CSE"
+    nbPersonnes: 65
+    dateSouhaitee: "<(new \\DateTimeImmutable('+38 days'))>"
+    message: "Soirée familles pour les salariés : 65 personnes dont 40 enfants. Privatisation partielle possible ?"
+    statut: "EN_COURS"
+    createdAt: "<(new \\DateTimeImmutable('-5 days 16:48'))>"
+  db_eb_evjf:
+    centre: "@centre_espace_bourges"
+    nomContact: "Camille Aubert"
+    email: "camille.aubert@exemple.fr"
+    telephone: "06 12 34 56 11"
+    typeEvenement: "EVJF"
+    nbPersonnes: 12
+    dateSouhaitee: "<(new \\DateTimeImmutable('+16 days'))>"
+    message: "EVJF de 12 filles : BattleKart puis karaoké box, avec des planches à partager. Quel budget prévoir ?"
+    statut: "NOUVELLE"
+    createdAt: "<(new \\DateTimeImmutable('-2 days 21:03'))>"
+  db_eb_anniv_entreprise:
+    centre: "@centre_espace_bourges"
+    nomContact: "Pierre Vasseur"
+    email: "pierre.vasseur@exemple.fr"
+    telephone: "06 12 34 56 10"
+    societe: "Menuiserie Vasseur"
+    typeEvenement: "Anniversaire d'entreprise"
+    nbPersonnes: 18
+    dateSouhaitee: "<(new \\DateTimeImmutable('-9 days'))>"
+    message: "20 ans de la société, soirée bowling et bar pour 18 personnes."
+    statut: "CLOTUREE"
+    createdAt: "<(new \\DateTimeImmutable('-31 days 11:20'))>"
+
+App\Entity\Devis:
+  dv_eb_seminaire:
+    centre: "@centre_espace_bourges"
+    demande: "@db_eb_seminaire"
+    lignes:
+      - { designation: "Bowling — 1 partie (28 pers.)",        quantite: 28, prixUnitaireCents: 600,  montantCents: 16800 }
+      - { designation: "Lasergame — 1 partie (28 pers.)",      quantite: 28, prixUnitaireCents: 700,  montantCents: 19600 }
+      - { designation: "Buffet planches à partager",           quantite: 28, prixUnitaireCents: 1400, montantCents: 39200 }
+      - { designation: "Privatisation partielle (3 h)",        quantite: 1,  prixUnitaireCents: 25000, montantCents: 25000 }
+    totalCents: 100600
+    statut: "ENVOYE"
+    notes: "Valable 30 jours. Acompte de 30 % à la confirmation."
+    createdAt: "<(new \\DateTimeImmutable('-10 days 15:00'))>"
+  dv_eb_cse:
+    centre: "@centre_espace_bourges"
+    demande: "@db_eb_cse"
+    lignes:
+      - { designation: "Bowling enfants — 1 partie (40 pers.)", quantite: 40, prixUnitaireCents: 600,  montantCents: 24000 }
+      - { designation: "Bowling adultes — 1 partie (25 pers.)", quantite: 25, prixUnitaireCents: 700,  montantCents: 17500 }
+      - { designation: "Goûter enfants",                        quantite: 40, prixUnitaireCents: 550,  montantCents: 22000 }
+    totalCents: 63500
+    statut: "BROUILLON"
+    notes: "En attente de la date définitive côté CSE avant envoi."
+    createdAt: "<(new \\DateTimeImmutable('-4 days 10:25'))>"
+  dv_eb_anniv_entreprise:
+    centre: "@centre_espace_bourges"
+    demande: "@db_eb_anniv_entreprise"
+    lignes:
+      - { designation: "Bowling — 2 parties (18 pers.)", quantite: 36, prixUnitaireCents: 700,  montantCents: 25200 }
+      - { designation: "Formule apéritif + planches",    quantite: 18, prixUnitaireCents: 1600, montantCents: 28800 }
+    totalCents: 54000
+    statut: "ACCEPTE"
+    notes: "Soirée réalisée, facturée en direct."
+    createdAt: "<(new \\DateTimeImmutable('-29 days 09:40'))>"
+
+# ─── Réservations B2C ────────────────────────────────────────────────────────
+# Mélange de réservations natives Shiftly (source vide) et de réservations
+# ingérées depuis la billetterie externe funow (source « funow ») — c'est le
+# scénario réel d'Espace Bourges, qui réserve aujourd'hui via funow.com.
+App\Entity\Reservation:
+  rsv_eb_1:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_bowling_hc"
+    dateCreneau: "<(new \\DateTimeImmutable('-16 days 15:00'))>"
+    nbPersonnes: 4
+    nomInvite: "Julie Berthier"
+    emailInvite: "julie.berthier@exemple.fr"
+    telephoneInvite: "06 12 34 56 01"
+    montantTotalCents: 2400
+    acompteCents: 2400
+    statut: "TERMINEE"
+    paidAt: "<(new \\DateTimeImmutable('-19 days 11:02'))>"
+    createdAt: "<(new \\DateTimeImmutable('-19 days 11:00'))>"
+  rsv_eb_2:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_laser_2"
+    dateCreneau: "<(new \\DateTimeImmutable('-13 days 20:30'))>"
+    nbPersonnes: 8
+    nomInvite: "Karim Benali"
+    emailInvite: "karim.benali@exemple.fr"
+    telephoneInvite: "06 12 34 56 02"
+    montantTotalCents: 9600
+    acompteCents: 3000
+    statut: "TERMINEE"
+    paidAt: "<(new \\DateTimeImmutable('-15 days 18:44'))>"
+    createdAt: "<(new \\DateTimeImmutable('-15 days 18:42'))>"
+  rsv_eb_3:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_vr_contagion"
+    source: "funow"
+    sourceRef: "FUNOW-2026-08841"
+    dateCreneau: "<(new \\DateTimeImmutable('-8 days 18:00'))>"
+    nbPersonnes: 6
+    nomInvite: "Thomas Renard"
+    emailInvite: "thomas.renard@exemple.fr"
+    telephoneInvite: "06 12 34 56 04"
+    montantTotalCents: 11400
+    acompteCents: 11400
+    statut: "TERMINEE"
+    paidAt: "<(new \\DateTimeImmutable('-10 days 09:15'))>"
+    createdAt: "<(new \\DateTimeImmutable('-10 days 09:15'))>"
+  rsv_eb_4:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_bowling_sam"
+    dateCreneau: "<(new \\DateTimeImmutable('-7 days 21:00'))>"
+    nbPersonnes: 5
+    nomInvite: "Sophie Nguyen"
+    emailInvite: "sophie.nguyen@exemple.fr"
+    telephoneInvite: "06 12 34 56 03"
+    montantTotalCents: 4500
+    acompteCents: 1500
+    statut: "ANNULEE"
+    createdAt: "<(new \\DateTimeImmutable('-11 days 12:30'))>"
+  rsv_eb_5:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_karaoke"
+    source: "funow"
+    sourceRef: "FUNOW-2026-08903"
+    dateCreneau: "<(new \\DateTimeImmutable('-5 days 21:30'))>"
+    nbPersonnes: 10
+    nomInvite: "Amandine Faure"
+    emailInvite: "amandine.faure@exemple.fr"
+    telephoneInvite: "06 12 34 56 05"
+    montantTotalCents: 8000
+    acompteCents: 8000
+    statut: "TERMINEE"
+    paidAt: "<(new \\DateTimeImmutable('-7 days 14:20'))>"
+    createdAt: "<(new \\DateTimeImmutable('-7 days 14:20'))>"
+  rsv_eb_6:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_laser_1"
+    dateCreneau: "<(new \\DateTimeImmutable('-3 days 19:00'))>"
+    nbPersonnes: 12
+    nomInvite: "Sébastien Girard"
+    emailInvite: "sebastien.girard@exemple.fr"
+    telephoneInvite: "06 12 34 56 06"
+    montantTotalCents: 9600
+    acompteCents: 3000
+    statut: "TERMINEE"
+    paidAt: "<(new \\DateTimeImmutable('-6 days 17:10'))>"
+    createdAt: "<(new \\DateTimeImmutable('-6 days 17:08'))>"
+  rsv_eb_7:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_battlekart"
+    dateCreneau: "<(new \\DateTimeImmutable('today 20:00'))>"
+    nbPersonnes: 12
+    nomInvite: "Marion Levasseur"
+    emailInvite: "marion.levasseur@exemple.fr"
+    telephoneInvite: "06 12 34 56 09"
+    montantTotalCents: 24000
+    acompteCents: 7200
+    statut: "CONFIRMEE"
+    paidAt: "<(new \\DateTimeImmutable('-2 days 21:10'))>"
+    createdAt: "<(new \\DateTimeImmutable('-2 days 21:05'))>"
+  rsv_eb_8:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_bowling_hp"
+    dateCreneau: "<(new \\DateTimeImmutable('today 21:00'))>"
+    nbPersonnes: 6
+    nomInvite: "Julie Berthier"
+    emailInvite: "julie.berthier@exemple.fr"
+    telephoneInvite: "06 12 34 56 01"
+    montantTotalCents: 4200
+    acompteCents: 4200
+    statut: "CONFIRMEE"
+    paidAt: "<(new \\DateTimeImmutable('-1 day 12:00'))>"
+    createdAt: "<(new \\DateTimeImmutable('-1 day 11:58'))>"
+  rsv_eb_9:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_minigolf"
+    source: "funow"
+    sourceRef: "FUNOW-2026-09014"
+    dateCreneau: "<(new \\DateTimeImmutable('+1 day 16:30'))>"
+    nbPersonnes: 4
+    nomInvite: "Karim Benali"
+    emailInvite: "karim.benali@exemple.fr"
+    telephoneInvite: "06 12 34 56 02"
+    montantTotalCents: 2000
+    acompteCents: 2000
+    statut: "CONFIRMEE"
+    paidAt: "<(new \\DateTimeImmutable('today 08:40'))>"
+    createdAt: "<(new \\DateTimeImmutable('today 08:40'))>"
+  rsv_eb_10:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_laser_3"
+    dateCreneau: "<(new \\DateTimeImmutable('+2 days 20:00'))>"
+    nbPersonnes: 16
+    nomInvite: "Thomas Renard"
+    emailInvite: "thomas.renard@exemple.fr"
+    telephoneInvite: "06 12 34 56 04"
+    montantTotalCents: 24000
+    acompteCents: 0
+    statut: "EN_ATTENTE_ACOMPTE"
+    createdAt: "<(new \\DateTimeImmutable('-1 day 19:22'))>"
+  rsv_eb_11:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_bowling_dim"
+    dateCreneau: "<(new \\DateTimeImmutable('+4 days 15:00'))>"
+    nbPersonnes: 8
+    nomInvite: "Amandine Faure"
+    emailInvite: "amandine.faure@exemple.fr"
+    telephoneInvite: "06 12 34 56 05"
+    montantTotalCents: 6000
+    acompteCents: 1800
+    statut: "CONFIRMEE"
+    paidAt: "<(new \\DateTimeImmutable('today 10:12'))>"
+    createdAt: "<(new \\DateTimeImmutable('today 10:10'))>"
+  rsv_eb_12:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_vr_session"
+    source: "funow"
+    sourceRef: "FUNOW-2026-09088"
+    dateCreneau: "<(new \\DateTimeImmutable('+6 days 18:30'))>"
+    nbPersonnes: 5
+    nomInvite: "Sophie Nguyen"
+    emailInvite: "sophie.nguyen@exemple.fr"
+    telephoneInvite: "06 12 34 56 03"
+    montantTotalCents: 5000
+    acompteCents: 5000
+    statut: "CONFIRMEE"
+    paidAt: "<(new \\DateTimeImmutable('today 12:05'))>"
+    createdAt: "<(new \\DateTimeImmutable('today 12:05'))>"
+  rsv_eb_13:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_bowling_hc"
+    dateCreneau: "<(new \\DateTimeImmutable('+9 days 14:30'))>"
+    nbPersonnes: 20
+    nomInvite: "Céline Marchand"
+    emailInvite: "celine.marchand@exemple.fr"
+    telephoneInvite: "06 12 34 56 07"
+    montantTotalCents: 12000
+    acompteCents: 3600
+    statut: "CONFIRMEE"
+    paidAt: "<(new \\DateTimeImmutable('-1 day 15:40'))>"
+    createdAt: "<(new \\DateTimeImmutable('-1 day 15:38'))>"
+  rsv_eb_14:
+    centre: "@centre_espace_bourges"
+    prestation: "@presta_eb_karaoke"
+    dateCreneau: "<(new \\DateTimeImmutable('+12 days 22:00'))>"
+    nbPersonnes: 14
+    nomInvite: "Laurent Dubois"
+    emailInvite: "laurent.dubois@exemple.fr"
+    telephoneInvite: "06 12 34 56 08"
+    montantTotalCents: 11200
+    acompteCents: 0
+    statut: "EN_ATTENTE_ACOMPTE"
+    createdAt: "<(new \\DateTimeImmutable('today 09:02'))>"

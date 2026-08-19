@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Entity\Absence;
 use App\Entity\Centre;
+use App\Entity\Contact;
 use App\Entity\PlanningWeek;
 use App\Entity\Pointage;
 use App\Entity\PointagePause;
@@ -11,6 +12,7 @@ use App\Entity\Poste;
 use App\Entity\Service;
 use App\Entity\User;
 use App\Entity\Zone;
+use App\Service\PiiCipher;
 use App\Service\PlanningService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -47,6 +49,7 @@ final class DemoSeedCommand extends Command
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly PlanningService $planningService,
+        private readonly PiiCipher $cipher,
         #[Autowire('%kernel.environment%')]
         private readonly string $kernelEnv,
     ) {
@@ -86,6 +89,13 @@ final class DemoSeedCommand extends Command
         }
         $this->em->clear(); // les entités chargées par la sous-commande sont détachées
         $io->writeln('Fixtures rechargées.');
+
+        // ── 1 bis. Recalcule les emailHash des contacts CRM ───────────────────
+        // Le hash est salé par l'id du centre, inconnu au moment d'écrire le YAML :
+        // les fixtures posent un placeholder, on le remplace par le vrai hash pour
+        // que la déduplication (avis publics, ingestion) fonctionne en démo.
+        $rehashes = $this->rehashContacts();
+        $io->writeln(sprintf('Contacts CRM : %d emailHash recalculés.', $rehashes));
 
         // ── 2. Étend services + plannings sur 5 semaines glissantes ───────────
         // Une seule semaine passée suffit (c'est elle qui alimente la validation
@@ -188,6 +198,36 @@ final class DemoSeedCommand extends Command
         $loadInput->setInteractive(false);
 
         return $command->run($loadInput, new NullOutput());
+    }
+
+    /**
+     * Réaligne `Contact::emailHash` sur le HMAC salé par centre. Sans clé PII
+     * configurée, on ne touche à rien (les placeholders des fixtures restent).
+     *
+     * @return int nombre de contacts corrigés
+     */
+    private function rehashContacts(): int
+    {
+        if (!$this->cipher->isConfigured()) {
+            return 0;
+        }
+
+        $corriges = 0;
+        foreach ($this->em->getRepository(Contact::class)->findAll() as $contact) {
+            $email = $contact->getEmail();
+            $centreId = $contact->getCentre()?->getId();
+            if (null === $email || null === $centreId) {
+                continue;
+            }
+            $hash = $this->cipher->hashEmail($email, $centreId);
+            if ($hash !== $contact->getEmailHash()) {
+                $contact->setEmailHash($hash);
+                ++$corriges;
+            }
+        }
+        $this->em->flush();
+
+        return $corriges;
     }
 
     private function getOrCreatePlanningWeek(Centre $centre, \DateTimeImmutable $lundi): PlanningWeek

@@ -1,4 +1,4 @@
-.PHONY: up down logs ps test fixtures migrate stan stan-baseline csfix
+.PHONY: up down logs ps test fixtures migrate demo-seed stan stan-baseline csfix
 
 # Infra Docker (Postgres + Mailpit + php) — cf. docker-compose.yml
 up:
@@ -20,6 +20,12 @@ fixtures:
 
 migrate:
 	docker compose exec php php bin/console doctrine:migrations:migrate -n
+
+# Rafraîchit la démo : fixtures + services/plannings/pointages sur 5 semaines
+# glissantes. `memory_limit` relevé : en dev, le profiler Doctrine garde toutes
+# les requêtes + leur backtrace et fait exploser les 128 Mo par défaut.
+demo-seed:
+	cd shiftly-api && php -d memory_limit=512M bin/console app:demo:seed
 
 # Analyse statique + style (backend)
 stan:

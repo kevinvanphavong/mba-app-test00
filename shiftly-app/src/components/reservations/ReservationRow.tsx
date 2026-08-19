@@ -33,7 +33,9 @@ export default function ReservationRow({
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
         <span className={`rounded-pill px-2.5 py-0.5 text-xs font-medium ${badge.cls}`}>{badge.label}</span>
-        <span className="text-sm text-text-soft">{euros(reservation.acompteCents)}</span>
+        {/* Montant total : un chiffre nu dans une liste se lit comme le prix de la
+            réservation. Le découpage total / acompte / reste est dans le détail. */}
+        <span className="text-sm text-text-soft">{euros(reservation.montantTotalCents)}</span>
       </div>
     </button>
   )
