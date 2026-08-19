@@ -79,6 +79,21 @@ final class DemoSeedCommand extends Command
             }
         }
 
+        // ── Prérequis vérifié AVANT la purge ─────────────────────────────────
+        // Les fixtures contiennent des contacts CRM dont les PII passent par le type
+        // Doctrine `encrypted_string`. Sans clé, le chiffrement lève au milieu du
+        // chargement : base déjà purgée, fixtures à moitié posées — et au déploiement
+        // (entrypoint.sh en `set -e`) le container ne démarre plus. On échoue avant.
+        if (!$this->cipher->isConfigured()) {
+            $io->error([
+                'PII_ENCRYPTION_KEY manquante : les contacts CRM des fixtures ne peuvent pas être chiffrés.',
+                'Aucune donnée modifiée. Génère une clé puis relance :',
+                'php -r "echo base64_encode(random_bytes(32));"',
+            ]);
+
+            return Command::FAILURE;
+        }
+
         // ── 1. Recharge les fixtures Alice (purge + truncate) ─────────────────
         $io->section('Rechargement des fixtures de démo');
         $code = $this->reloadFixtures($io);
