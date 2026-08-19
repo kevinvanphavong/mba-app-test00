@@ -19,8 +19,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 /** Préfixes des routes privées de l'app gérant (groupe `(app)`). */
 const APP_ROUTES = [
   '/dashboard', '/planning', '/pointage', '/postes', '/reglages', '/service', '/services',
-  '/staff', '/tutoriels', '/haccp', '/reservations', '/demandes', '/contacts', '/avis',
-  '/relances', '/mon-site',
+  '/staff', '/tutoriels', '/haccp',
 ]
 
 function isAppRoute(pathname: string): boolean {

@@ -23,12 +23,6 @@ export const ALL_NAV_ITEMS: NavItem[] = [
 
   // Opérations
   { href: '/service',             label: 'Service du jour',   icon: '📋', managerOnly: false, section: 'operations' },
-  { href: '/reservations',        label: 'Réservations',      icon: '🎟️', managerOnly: true,  section: 'operations' },
-  { href: '/demandes',            label: 'Demandes B2B',      icon: '📨', managerOnly: true,  section: 'operations' },
-  { href: '/contacts',            label: 'Clients',           icon: '👤', managerOnly: true,  section: 'operations' },
-  { href: '/avis',                label: 'Avis',              icon: '⭐', managerOnly: true,  section: 'operations' },
-  { href: '/relances',            label: 'Relances',          icon: '🔔', managerOnly: true,  section: 'operations' },
-  { href: '/mon-site',            label: 'Mon site',          icon: '🌐', managerOnly: true,  section: 'operations' },
   { href: '/pointage',            label: 'Pointage',          icon: '⏱️', managerOnly: true,  section: 'operations' },
   { href: '/pointage/validation', label: 'Validation hebdo',  icon: '✓',  managerOnly: true,  section: 'operations' },
 
