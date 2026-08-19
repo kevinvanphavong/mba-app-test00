@@ -4,9 +4,12 @@ Procédure pour amener un centre de démonstration en production et le présente
 un prospect. Écrite pour **Espace Bourges / Nicolas Groelly**, réutilisable telle
 quelle pour un autre centre en changeant le slug.
 
-Contexte technique : API sur **Railway** (`shiftly-api`, cf. `docker/entrypoint.sh`),
-front sur **app.shiftly.fr**. Le rechargement de la démo est déclenché par la
-variable d'environnement `DEMO_SEED`, pas par une commande manuelle.
+Contexte technique : API sur **Railway** — projet `shiftly-app`, service
+`shiftly-project`, root directory `/shiftly-api`, branche connectée **`main`**
+avec **auto-deploy activé et « Wait for CI » désactivé** : un push sur `main`
+part en production immédiatement, sans attendre GitHub Actions. Le rechargement
+de la démo est déclenché par la variable d'environnement `DEMO_SEED`, pas par une
+commande manuelle.
 
 ---
 
@@ -16,9 +19,11 @@ variable d'environnement `DEMO_SEED`, pas par une commande manuelle.
       (`.github/workflows/ci.yml`) et c'est `main` qui part en prod.
 - [ ] CI verte : lint + PHPStan + PHPUnit + rejeu des migrations sur Postgres.
 - [ ] Vérifier sur Railway que **`PII_ENCRYPTION_KEY`** est définie. Sans elle, le
-      seed refuse de démarrer (garde-fou ajouté, base laissée intacte) et
-      `DEMO_SEED=1` empêcherait le container de démarrer.
+      seed refuse de s'exécuter (garde-fou, base laissée intacte) et la démo n'aura
+      ni contacts, ni avis, ni relances — tout le CRM est chiffré avec cette clé.
       Générer une clé : `php -r "echo base64_encode(random_bytes(32));"`
+      Un échec de semis ne fait plus tomber le container (l'entrypoint isole
+      l'appel), mais la démo ne sera pas rechargée pour autant.
 - [ ] Ne **jamais changer** cette clé une fois des contacts en base : les PII
       déjà chiffrées deviendraient illisibles.
 - [ ] Vérifier que `LOAD_FIXTURES` est à `0`. C'est `DEMO_SEED` qu'il faut

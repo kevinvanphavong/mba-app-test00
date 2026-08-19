@@ -76,10 +76,21 @@ fi
 # Réensemencement opt-in — à activer avec LOAD_FIXTURES=1 dans les variables Railway
 # pour une exécution unique, puis à remettre sur 0 sinon les données sont rechargées
 # (et donc écrasées) à chaque redémarrage du container.
+# Un échec de semis NE DOIT PAS empêcher l'API de démarrer : le script tourne en
+# `set -e`, donc on isole l'appel pour que le container reste debout avec les
+# données précédentes plutôt que de partir en crashloop. L'erreur est hurlée dans
+# les logs — c'est un semis de démo, pas une étape d'intégrité du schéma.
 if [ "$LOAD_FIXTURES" = "1" ]; then
     echo "LOAD_FIXTURES=1 détecté — purge + rechargement des fixtures Alice..."
-    php /var/www/html/bin/console hautelook:fixtures:load --no-interaction --purge-with-truncate --env=prod
-    echo "Fixtures rechargées. N'oublie pas de remettre LOAD_FIXTURES=0 sur Railway."
+    if php /var/www/html/bin/console hautelook:fixtures:load --no-interaction --purge-with-truncate --env=prod; then
+        echo "Fixtures rechargées. N'oublie pas de remettre LOAD_FIXTURES=0 sur Railway."
+    else
+        echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        echo "!! ÉCHEC du chargement des fixtures — l'API démarre quand même.     !!"
+        echo "!! La base peut être partiellement purgée : relance un semis complet !!"
+        echo "!! une fois la cause corrigée (souvent PII_ENCRYPTION_KEY absente).  !!"
+        echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    fi
 fi
 
 # Démo « clé en main » — opt-in via DEMO_SEED=1 pour UNE exécution, puis remettre à 0
@@ -88,9 +99,17 @@ fi
 # pointées + absences sur 3 semaines glissantes (S-1 / S / S+1), pour que Planning,
 # Services et Validation hebdo soient utilisables immédiatement.
 if [ "$DEMO_SEED" = "1" ]; then
-    echo "DEMO_SEED=1 détecté — rechargement démo + 3 semaines glissantes (planning + pointages)..."
-    php /var/www/html/bin/console app:demo:seed --force --no-interaction --env=prod
-    echo "Démo rechargée. N'oublie pas de remettre DEMO_SEED=0 sur Railway."
+    echo "DEMO_SEED=1 détecté — rechargement démo + 5 semaines glissantes (planning + pointages)..."
+    if php /var/www/html/bin/console app:demo:seed --force --no-interaction --env=prod; then
+        echo "Démo rechargée. N'oublie pas de remettre DEMO_SEED=0 sur Railway."
+    else
+        echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        echo "!! ÉCHEC du semis de démo — l'API démarre quand même.               !!"
+        echo "!! Cause la plus fréquente : PII_ENCRYPTION_KEY absente des          !!"
+        echo "!! variables Railway (contacts CRM chiffrés). La commande refuse     !!"
+        echo "!! alors de purger : les données précédentes sont intactes.          !!"
+        echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    fi
 fi
 
 chown -R www-data:www-data /var/www/html/var/ 2>/dev/null || true
