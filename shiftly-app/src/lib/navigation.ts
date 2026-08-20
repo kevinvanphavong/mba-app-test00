@@ -38,6 +38,7 @@ export const ALL_NAV_ITEMS: NavItem[] = [
 
   // Footer (hors regroupement par section : rendu séparément en bas de la sidebar)
   { href: '/reglages',            label: 'Réglages',          icon: '⚙️', managerOnly: false, section: 'footer' },
+  { href: '/aide',                label: 'Aide',              icon: '🛟', managerOnly: false, section: 'footer' },
 ]
 
 // Libellés affichés en tête de section dans la sidebar (mode expanded).
